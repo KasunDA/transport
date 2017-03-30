@@ -1,6 +1,6 @@
 <?php
 
-Class oilController Extends baseController {
+Class romoocController Extends baseController {
 
     public function index() {
 
@@ -11,13 +11,13 @@ Class oilController Extends baseController {
             return $this->view->redirect('user/login');
 
         }
-        if ($_SESSION['role_logined'] != 1) {
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 8) {
             $this->view->data['disable_control'] = 1;
         }
 
         $this->view->data['lib'] = $this->lib;
 
-        $this->view->data['title'] = 'Định mức dầu';
+        $this->view->data['title'] = 'Quản lý mooc';
 
 
 
@@ -37,7 +37,7 @@ Class oilController Extends baseController {
 
         else{
 
-            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'way';
+            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'romooc_number';
 
             $order = $this->registry->router->order ? $this->registry->router->order : 'ASC';
 
@@ -49,7 +49,9 @@ Class oilController Extends baseController {
 
         }
 
-        $oil_model = $this->model->get('oilModel');
+
+
+        $romooc_model = $this->model->get('romoocModel');
 
         $sonews = $limit;
 
@@ -59,7 +61,7 @@ Class oilController Extends baseController {
 
         
 
-        $tongsodong = count($oil_model->getAllOil());
+        $tongsodong = count($romooc_model->getAllVehicle());
 
         $tongsotrang = ceil($tongsodong / $sonews);
 
@@ -99,7 +101,7 @@ Class oilController Extends baseController {
 
         if ($keyword != '') {
 
-            $search = '( way LIKE "%'.$keyword.'%" )';
+            $search = '( romooc_number LIKE "%'.$keyword.'%" )';
 
             $data['where'] = $search;
 
@@ -111,15 +113,15 @@ Class oilController Extends baseController {
 
         
 
-        $this->view->data['oils'] = $oil_model->getAllOil($data);
+        $this->view->data['romoocs'] = $romooc_model->getAllVehicle($data);
 
 
 
-        $this->view->data['lastID'] = isset($oil_model->getLastOil()->oil_id)?$oil_model->getLastOil()->oil_id:0;
+        $this->view->data['lastID'] = isset($romooc_model->getLastVehicle()->romooc_id)?$romooc_model->getLastVehicle()->romooc_id:0;
 
         
 
-        $this->view->show('oil/index');
+        $this->view->show('romooc/index');
 
     }
 
@@ -139,7 +141,7 @@ Class oilController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1) {
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 8) {
 
             return $this->view->redirect('user/login');
 
@@ -147,27 +149,24 @@ Class oilController Extends baseController {
 
         if (isset($_POST['yes'])) {
 
-            $oil = $this->model->get('oilModel');
-
-            $oil_temp = $this->model->get('oiltempModel');
+            $vehicle = $this->model->get('romoocModel');
+            $romooc_temp = $this->model->get('romooctempModel');
 
             $data = array(
 
-                        'way' => trim($_POST['way']),
-
-                        'oil' => trim($_POST['oil']),
+                        'romooc_number' => trim($_POST['romooc_number']),
 
                         );
 
             if ($_POST['yes'] != "") {
 
-                //$data['oil_update_user'] = $_SESSION['userid_logined'];
+                //$data['romooc_update_user'] = $_SESSION['userid_logined'];
 
-                //$data['oil_update_time'] = time();
+                //$data['romooc_update_time'] = time();
 
                 //var_dump($data);
 
-                if ($oil->checkOil($_POST['yes'],trim($_POST['way']))) {
+                if ($vehicle->checkVehicle($_POST['yes'],trim($_POST['romooc_number']))) {
 
                     echo "Thông tin này đã tồn tại";
 
@@ -177,21 +176,21 @@ Class oilController Extends baseController {
 
                 else{
 
-                    $oil->updateOil($data,array('oil_id' => $_POST['yes']));
+                    $vehicle->updateVehicle($data,array('romooc_id' => $_POST['yes']));
 
                     echo "Cập nhật thành công";
 
-
-                    $data2 = array('oil_id'=>$_POST['yes'],'oil_temp_date'=>strtotime(date('d-m-Y')),'oil_temp_action'=>2,'oil_temp_user'=>$_SESSION['userid_logined'],'name'=>'Định mức dầu');
+                    $data2 = array('romooc_id'=>$_POST['yes'],'romooc_temp_date'=>strtotime(date('d-m-Y')),'romooc_temp_action'=>2,'romooc_temp_user'=>$_SESSION['userid_logined'],'name'=>'DS mooc');
                     $data_temp = array_merge($data, $data2);
-                    $oil_temp->createOil($data_temp);
+                    $romooc_temp->createVehicle($data_temp);
+
 
 
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
 
                         $filename = "action_logs.txt";
 
-                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."edit"."|".$_POST['yes']."|oil|".implode("-",$data)."\n"."\r\n";
+                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."edit"."|".$_POST['yes']."|romooc|".implode("-",$data)."\n"."\r\n";
 
                         
 
@@ -207,13 +206,13 @@ Class oilController Extends baseController {
 
             else{
 
-                //$data['oil_create_user'] = $_SESSION['userid_logined'];
+                //$data['romooc_create_user'] = $_SESSION['userid_logined'];
 
                 //$data['staff'] = $_POST['staff'];
 
                 //var_dump($data);
 
-                if ($oil->getOilByWhere(array('way'=>trim($_POST['way'])))) {
+                if ($vehicle->getVehicleByWhere(array('romooc_number'=>trim($_POST['romooc_number'])))) {
 
                     echo "Thông tin này đã tồn tại";
 
@@ -223,21 +222,19 @@ Class oilController Extends baseController {
 
                 else{
 
-                    $oil->createOil($data);
+                    $vehicle->createVehicle($data);
 
                     echo "Thêm thành công";
 
-                    $data2 = array('oil_id'=>$oil->getLastOil()->oil_id,'oil_temp_date'=>strtotime(date('d-m-Y')),'oil_temp_action'=>1,'oil_temp_user'=>$_SESSION['userid_logined'],'name'=>'Định mức dầu');
+                    $data2 = array('romooc_id'=>$vehicle->getLastVehicle()->romooc_id,'romooc_temp_date'=>strtotime(date('d-m-Y')),'romooc_temp_action'=>1,'romooc_temp_user'=>$_SESSION['userid_logined'],'name'=>'DS mooc');
                     $data_temp = array_merge($data, $data2);
-                    $oil_temp->createOil($data_temp);
-
-
+                    $romooc_temp->createVehicle($data_temp);
 
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
 
                         $filename = "action_logs.txt";
 
-                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."add"."|".$oil->getLastOil()->oil_id."|oil|".implode("-",$data)."\n"."\r\n";
+                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."add"."|".$vehicle->getLastVehicle()->romooc_id."|romooc|".implode("-",$data)."\n"."\r\n";
 
                         
 
@@ -277,7 +274,7 @@ Class oilController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 8) {
 
             return $this->view->redirect('user/login');
 
@@ -285,8 +282,8 @@ Class oilController Extends baseController {
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            $oil = $this->model->get('oilModel');
-            $oil_temp = $this->model->get('oiltempModel');
+            $vehicle = $this->model->get('romoocModel');
+            $romooc_temp = $this->model->get('romooctempModel');
 
             if (isset($_POST['xoa'])) {
 
@@ -294,19 +291,18 @@ Class oilController Extends baseController {
 
                 foreach ($data as $data) {
 
-                    $oil_data = (array)$oil->getOil($data);
+                    $romooc_data = (array)$vehicle->getVehicle($data);
+                    $vehicle->deleteVehicle($data);
 
-                    $oil->deleteOil($data);
-
-                    $data2 = array('oil_id'=>$data,'oil_temp_date'=>strtotime(date('d-m-Y')),'oil_temp_action'=>3,'oil_temp_user'=>$_SESSION['userid_logined'],'name'=>'Định mức dầu');
-                    $data_temp = array_merge($oil_data, $data2);
-                    $oil_temp->createOil($data_temp);
+                    $data2 = array('romooc_id'=>$data,'romooc_temp_date'=>strtotime(date('d-m-Y')),'romooc_temp_action'=>3,'romooc_temp_user'=>$_SESSION['userid_logined'],'name'=>'DS mooc');
+                    $data_temp = array_merge($romooc_data, $data2);
+                    $romooc_temp->createVehicle($data_temp);
 
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
 
                         $filename = "action_logs.txt";
 
-                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."delete"."|".$data."|oil|"."\n"."\r\n";
+                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."delete"."|".$data."|romooc|"."\n"."\r\n";
 
                         
 
@@ -324,16 +320,16 @@ Class oilController Extends baseController {
 
             else{
 
-                $oil_data = (array)$oil->getOil($_POST['data']);
-                $data2 = array('oil_id'=>$_POST['data'],'oil_temp_date'=>strtotime(date('d-m-Y')),'oil_temp_action'=>3,'oil_temp_user'=>$_SESSION['userid_logined'],'name'=>'Định mức dầu');
-                    $data_temp = array_merge($oil_data, $data2);
-                    $oil_temp->createOil($data_temp);
+                $romooc_data = (array)$vehicle->getVehicle($_POST['data']);
+                $data2 = array('romooc_id'=>$_POST['data'],'romooc_temp_date'=>strtotime(date('d-m-Y')),'romooc_temp_action'=>3,'romooc_temp_user'=>$_SESSION['userid_logined'],'name'=>'DS mooc');
+                    $data_temp = array_merge($romooc_data, $data2);
+                    $romooc_temp->createVehicle($data_temp);
 
                 date_default_timezone_set("Asia/Ho_Chi_Minh"); 
 
                         $filename = "action_logs.txt";
 
-                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."delete"."|".$_POST['data']."|oil|"."\n"."\r\n";
+                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."delete"."|".$_POST['data']."|romooc|"."\n"."\r\n";
 
                         
 
@@ -345,7 +341,7 @@ Class oilController Extends baseController {
 
 
 
-                return $oil->deleteOil($_POST['data']);
+                return $vehicle->deleteVehicle($_POST['data']);
 
             }
 
@@ -391,11 +387,11 @@ Class oilController Extends baseController {
 
 
 
-        $vehicle_model = $this->model->get('vehicleModel');
+        $romooc_model = $this->model->get('romoocModel');
 
 
 
-        $vehicles = $vehicle_model->getAllVehicle();
+        $vehicles = $romooc_model->getAllVehicle();
 
 
 
@@ -453,11 +449,11 @@ Class oilController Extends baseController {
 
                         ->setCellValue('A' . $hang, $i++)
 
-                        ->setCellValue('B' . $hang, $row->vehicle_number)
+                        ->setCellValue('B' . $hang, $row->romooc_number)
 
-                        ->setCellValue('C' . $hang, isset($driver_data[$row->vehicle_id]['driver_name'])?$driver_data[$row->vehicle_id]['driver_name']:null)
+                        ->setCellValue('C' . $hang, isset($driver_data[$row->romooc_id]['driver_name'])?$driver_data[$row->romooc_id]['driver_name']:null)
 
-                        ->setCellValue('D' . $hang, isset($driver_data[$row->vehicle_id]['driver_phone'])?$driver_data[$row->vehicle_id]['driver_phone']:null)
+                        ->setCellValue('D' . $hang, isset($driver_data[$row->romooc_id]['driver_phone'])?$driver_data[$row->romooc_id]['driver_phone']:null)
 
                         ->setCellValue('E' . $hang, $row->cont_number);
 
@@ -615,7 +611,7 @@ Class oilController Extends baseController {
 
 
 
-            $vehicle = $this->model->get('vehicleModel');
+            $vehicle = $this->model->get('romoocModel');
 
 
 
@@ -709,11 +705,11 @@ Class oilController Extends baseController {
 
 
 
-                            if(!$vehicle->getVehicleByWhere(array('vehicle_number'=>trim($val[1])))) {
+                            if(!$vehicle->getVehicleByWhere(array('romooc_number'=>trim($val[1])))) {
 
-                                $vehicle_data = array(
+                                $romooc_data = array(
 
-                                'vehicle_number' => trim($val[1]),
+                                'romooc_number' => trim($val[1]),
 
                                 'driver_name' => trim($val[2]),
 
@@ -721,15 +717,15 @@ Class oilController Extends baseController {
 
                                 );
 
-                                $vehicle->createVehicle($vehicle_data);
+                                $vehicle->createVehicle($romooc_data);
 
                             }
 
-                            else if($vehicle->getVehicleByWhere(array('vehicle_number'=>trim($val[1])))){
+                            else if($vehicle->getVehicleByWhere(array('romooc_number'=>trim($val[1])))){
 
-                                $id_vehicle = $vehicle->getVehicleByWhere(array('vehicle_number'=>trim($val[1])))->vehicle_id;
+                                $id_vehicle = $vehicle->getVehicleByWhere(array('romooc_number'=>trim($val[1])))->romooc_id;
 
-                                $vehicle_data = array(
+                                $romooc_data = array(
 
                                 'driver_name' => trim($val[2]),
 
@@ -737,7 +733,7 @@ Class oilController Extends baseController {
 
                                 );
 
-                                $vehicle->updateVehicle($vehicle_data,array('vehicle_id' => $id_vehicle));
+                                $vehicle->updateVehicle($romooc_data,array('romooc_id' => $id_vehicle));
 
                             }
 

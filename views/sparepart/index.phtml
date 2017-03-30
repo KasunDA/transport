@@ -1,15 +1,12 @@
 
 <?php
 $url_order = 'ASC';
-if ($order_by == 'vehicle_id')
+if ($order_by == 'place_id')
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
-
-elseif ($order_by == 'vehicle_number')
+elseif ($order_by == 'place_name')
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
-
-elseif ($order_by == 'cont_number')
+elseif ($order_by == 'province_name')
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
-
 
 
     $i = $sonews*$page-($sonews-1);
@@ -19,10 +16,10 @@ elseif ($order_by == 'cont_number')
 <div id="loading"></div>
 <div id="winpopup"></div>
 <section class="content-header">
-    <h1>DANH SÁCH XE</h1>
+    <h1>DANH SÁCH KHO HÀNG</h1>
   <ol class="breadcrumb">
     <li><a href="<?php echo $this->url('admin') ?>"><i class="fa fa-dashboard"></i> Home</a></li>
-    <li class="active"><a href="<?php echo $this->url('vehicle') ?>">Xe</a></li>
+    <li class="active"><a href="<?php echo $this->url('place') ?>">Kho hàng</a></li>
   </ol>
 </section>
 <div id="content" style="padding:5px;">
@@ -49,11 +46,11 @@ elseif ($order_by == 'cont_number')
         <?php } ?>
         <div class="alignleft actions">
         <select name="m" id="chonloc">
-          <option  value="18446744073709">Hiển thị tất cả</option>
-          <option value="50">Hiển thị 50 giá trị</option>
-                <option value="100">Hiển thị 100 giá trị</option>
-                <option value="150">Hiển thị 150 giá trị</option>
-                <option selected="selected" value="200">Hiển thị 200 giá trị</option>
+            <option  value="18446744073709">Hiển thị tất cả</option>
+            <option value="5">Hiển thị 5 giá trị</option>
+            <option value="10">Hiển thị 10 giá trị</option>
+            <option value="15">Hiển thị 15 giá trị</option>
+            <option selected="selected" value="20">Hiển thị 20 giá trị</option>
         </select>
         <input type="button" name="" id="post-query-submit" class="button" value="Chọn lọc" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">                               
         </div>
@@ -62,52 +59,41 @@ elseif ($order_by == 'cont_number')
 
 </div>
 
+
 <table class="table_data" id="tblExport">
 <thead>
     <tr>
-    	<th  class="fix"><input type="checkbox" onclick="checkall('checkbox', this)" name="checkall"/></th>
+        <th class="fix"><input type="checkbox" onclick="checkall('checkbox', this)" name="checkall"/></th>
+        <th class="fix">
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','place_id','<?php echo $url_order ?>')">STT <?php if ($order_by == 'place_id'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+        </th>
         <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','vehicle_id','<?php echo $url_order ?>')">STT <?php if ($order_by == 'vehicle_id'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','place_name','<?php echo $url_order ?>')">Tên kho <?php if ($order_by == 'place_name'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+        </th>
+        <th  class="fix">
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','province_name','<?php echo $url_order ?>')">Tên tỉnh/TP <?php if ($order_by == 'province_name'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','vehicle_number','<?php echo $url_order ?>')">Số xe <?php if ($order_by == 'vehicle_number'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','cont_number','<?php echo $url_order ?>')">Số cont <?php if ($order_by == 'cont_number'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','driver_name','<?php echo $url_order ?>')">Tên tài xế <?php if ($order_by == 'driver_name'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','driver_phone','<?php echo $url_order ?>')">SĐT tài xế <?php if ($order_by == 'driver_phone'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        
-        
-        
-        <?php if(!isset($disable_control)){ ?> 
+           
+        <?php if(!isset($disable_control)){ ?>
+           
         <th  class="fix">&nbsp;</th>
         <?php } ?>
     </tr>
     
    </thead>
    <tbody>
-    <?php foreach ($vehicles as $vehicle) : ?>
-        <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $vehicle->vehicle_id ?>" class="edit_tr">
-        	<td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $vehicle->vehicle_id ?>"></td>
+    <?php foreach ($places as $place) : ?>
+        <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $place->place_id ?>" class="edit_tr">
+            <td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $place->place_id ?>"></td>
             <td class="fix"><?php echo $i++; ?></td>
-            
-            <td class="fix" id="vehicle_number_<?php echo $vehicle->vehicle_id; ?>"><?php echo $vehicle->vehicle_number; ?></td>
-            <td class="fix" id="cont_number_<?php echo $vehicle->vehicle_id; ?>"><?php echo $vehicle->cont_number; ?></td>
-            <td class="fix" id="driver_name_<?php echo $vehicle->vehicle_id; ?>"><?php echo isset($driver_data[$vehicle->vehicle_id]['driver_name'])?$driver_data[$vehicle->vehicle_id]['driver_name']:null; ?></td>
-            <td class="fix" id="driver_phone_<?php echo $vehicle->vehicle_id; ?>"><?php echo isset($driver_data[$vehicle->vehicle_id]['driver_phone'])?$driver_data[$vehicle->vehicle_id]['driver_phone']:null; ?></td>
-            
-            <td class="fix" style="display:none" id="vehicle_type_<?php echo $vehicle->vehicle_id; ?>"><?php echo $vehicle->vehicle_type; ?></td>
-            
+            <td class="fix"  id="place_name_<?php echo $place->place_id; ?>"><?php echo $place->place_name ?></td>
+            <td class="fix" data="<?php echo $place->province; ?>" id="province_name_<?php echo $place->place_id; ?>"><?php echo $place->province_name ?></td>
+        
             <?php if(!isset($disable_control)){ ?>
             <td class="pull-right">
                 <button class="btn btn-sm btn-flat btn-primary"><i class="fa fa-edit"></i> Sửa</button>
-                <button class="btn btn-sm btn-flat btn-danger" onclick="del(<?php echo $vehicle->vehicle_id ?>)" ><i class="fa fa-remove"></i> Xóa</button>
+                <button class="btn btn-sm btn-flat btn-danger" onclick="del(<?php echo $place->place_id ?>)" ><i class="fa fa-remove"></i> Xóa</button>
             </td>
             <?php } ?>
         </tr>
@@ -117,7 +103,6 @@ elseif ($order_by == 'cont_number')
 <?php
 $this->helper('slidePaginator');
 ?>
-
 <div class="add-field">
     <section class="content">
       <div class="row">
@@ -127,46 +112,36 @@ $this->helper('slidePaginator');
           <div class="box box-primary">
             <!-- /.box-header -->
             <!-- form start -->
-            <form id="add_vehicle" role="form" method="post" action="" enctype="multipart/form-data">
+            <form id="add_place" role="form" method="post" action="" enctype="multipart/form-data">
               <div class="row">
-                <div class="col-md-4 col-xs-6">
+                <div class="col-md-6 col-xs-6">
                   <div class="box-body">
                     <div class="form-group">
-                      <label for="vehicle_number">Số xe</label>
-                      <input type="text"  id="vehicle_number" name="vehicle_number" tabindex="1" required="required">
+                      <label for="place_name">Tên kho</label>
+                      <input type="text" id="place_name"  name="place_name" tabindex="1" required="required" >
                     </div>
+                    
                     
                   </div>
                   <!-- /.box-body -->
                   
                 </div>
-                <div class="col-md-4 col-xs-6">
+                <div class="col-md-6 col-xs-6">
                   <div class="box-body">
                     <div class="form-group">
-                      <label for="cont_number">Số cont</label>
-                      <input type="text" id="cont_number"  name="cont_number" tabindex="2" >
-                    </div>
-                    
-                  </div>
-                  <!-- /.box-body -->
-                  
-                </div>
-                <div class="col-md-4 col-xs-6">
-                  <div class="box-body">
-                    <div class="form-group">
-                      <label for="vehicle_type">Loại</label>
-                      <select id="vehicle_type" name="vehicle_type" tabindex="3">
-                        <option value="1">Mới</option>
-                        <option value="2">Thuê</option>
-                        <option value="3">Cũ</option>
+                      <label for="province">Tên tỉnh/TP</label>
+                      <select id="province" name="province" tabindex="2" required="required">
+                        <?php foreach ($provinces as $province) {
+                            echo '<option value="'.$province->province_id.'">'.$province->province_name.'</option>';
+                        }
+                        ?>
                     </select>
                     </div>
                     
+                    
                   </div>
                   <!-- /.box-body -->
-                  
                 </div>
-                
 
               </div>
               <?php if(!isset($disable_control)){ ?>
@@ -174,8 +149,8 @@ $this->helper('slidePaginator');
                 <div class="col-md-12">
                     <div class="box-footer">
                     <input type="hidden" readonly id="yes" name="yes" required="required" >
-                    <button type="submit" class="btn btn-primary" tabindex="4">Hoàn thành</button>
-                    <button type="reset" class="btn" tabindex="5">Nhập lại</button>
+                    <button type="submit" class="btn btn-primary" tabindex="3">Hoàn thành</button>
+                    <button type="reset" class="btn" tabindex="4">Nhập lại</button>
                   </div>
                   <div class="box-footer">
                     <div id="error" class="error"><?php echo isset($error) ? $error : null; ?></div>
@@ -197,41 +172,34 @@ $this->helper('slidePaginator');
        
 </div>
 
+
 <script type="text/javascript">
 
-    $('.edit_tr').click(function(){
-        if(!$('.checkbox').is(':checked')){
-            $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
+    $('.edit_tr').click(function(e){
+        if(e.target != '[object HTMLButtonElement]' && !$('.checkbox').is(':focus')){
+            if(!$('.checkbox').is(':focus')){
+                $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
+            }
+            var place_name = $(this).find("#place_name_"+$(this).attr('id')).text();
+            var province = $(this).find("#province_name_"+$(this).attr('id')).attr('data');
+            
+            //alert(place_code);
+            $('#yes').val($(this).attr('id'));
+            
+            $('#province option[value='+province+']').attr('selected','selected');
+            $('#place_name').val(place_name);
+            $( ".add-field" ).dialog( "open" );
         }
-        
-        var vehicle_number = $(this).find("#vehicle_number_"+$(this).attr('id')).text();
-        var cont_number = $(this).find("#cont_number_"+$(this).attr('id')).text();
-        var vehicle_type = $(this).find("#vehicle_type_"+$(this).attr('id')).text();
-        //alert(vehicle_from);
-        $('#yes').val($(this).attr('id'));
-        
-
-        $('#vehicle_number').val(vehicle_number);
-        $('#cont_number').val(cont_number);
-        
-        $('#vehicle_type option[value='+vehicle_type+']').attr('selected','selected');
-
-        $( ".add-field" ).dialog( "open" );
-        
     });
-
-
 </script>
 <script type="text/javascript">
 
 function add_click(){
     $('#yes').val("");
     $('.add-field').slideDown(500);
-    $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
-
-        $('#vehicle_number').focus();
-        $('#vehicle_number').val("");
-        $('#cont_number').val("");
+     $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);   
+        $('#place_name').val("");
+        
         
         $('.number').focus(function(){
             if ( $(this).val() == '0') {
@@ -246,23 +214,23 @@ function add_click(){
             
         });
 
-        $( ".add-field" ).dialog( "open" );
+
+   $( ".add-field" ).dialog( "open" );
+
 }
 
 
 $(document).ready(function(){
             // Validate form
-            $("#add_vehicle").validate({
+            $("#add_place").validate({
                 errorElement: "span", // Định dạng cho thẻ HTML hiện thông báo lỗi
                 rules: {
                     
                 },
                 submitHandler: function(form) {
                 
-                    
-                    var vehicle_number = $('#vehicle_number').attr('value');
-                    var cont_number = $('#cont_number').attr('value');
-                    var vehicle_type = $('#vehicle_type').attr('value');
+                    var place_name = $('#place_name').attr('value');
+                    var province = $('#province').attr('value');
                     
                     var yes = $('#yes').attr('value');
                     
@@ -270,32 +238,30 @@ $(document).ready(function(){
                  
                     $.ajax({
                         type: "POST", // phương thức gởi đi
-                        url: "<?php echo BASE_URL ?>/vehicle/add", // nơi mà dữ liệu sẽ chuyển đến khi submit
+                        url: "<?php echo BASE_URL ?>/place/add", // nơi mà dữ liệu sẽ chuyển đến khi submit
                         data: {
-                            vehicle_number: vehicle_number,
-                            cont_number: cont_number,
-                            vehicle_type: vehicle_type,
+                            place_name: place_name,
+                            province: province,
                             yes: yes,
                             }, // giá trị post
                         success: function(answer){ // if everything goes well
+                            //alert(answer);
                             $('#error').hide();
                             $('#error').slideToggle(100); // hiển thị thẻ div success
                             $('#error').html('<div class="successbox">'+answer+'</div>'); // đặt kết quả trả về từ test.php vào thẻ div success
                             $('#error').fadeOut(10000);
 
                             if (yes != "") {
-                                if (answer.trim() != "Thông tin này đã tồn tại") {
+                                if (answer.trim() != "Tên đã được sử dụng" ) {
                                   setTimeout(function() {
                                         sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
                                       }, 200);
-                                    $('#vehicle_number_'+yes).text(vehicle_number);
-                                    $('#cont_number_'+yes).text(cont_number);
-                                    $('#vehicle_type_'+yes).text(vehicle_type);
+                                    $('#place_name_'+yes).text(place_name);
+                                    $('#province_name_'+yes).text($('#province option:selected').text());
                                 }
-                                
                             }
                             else{
-                                if (answer.trim() != "Thông tin này đã tồn tại") {
+                                if (answer.trim() != "Tên đã được sử dụng") {
                                   setTimeout(function() {
                                         sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
                                       }, 200);
@@ -303,7 +269,7 @@ $(document).ready(function(){
                                     var rowCount = parseInt($('.table_data > tbody > tr').length);
                                     $('.table_data > tbody:last')
                                     .append(
-                                        '<tr onclick="HighLightTR(this,#4d90fe,cc3333);" id="'+parseInt(lastID+1)+'" class="edit_tr"><td><input name="check[]" type="checkbox" class="checkbox" value="'+parseInt(lastID+1)+'"></td><td class="fix">'+parseInt(rowCount+1)+'</td><td class="fix" id="vehicle_number_'+parseInt(lastID+1)+'">'+vehicle_number+'</td><td class="fix" id="cont_number_'+parseInt(lastID+1)+'">'+cont_number+'</td><td class="fix" id="driver_name_'+parseInt(lastID+1)+'"></td><td class="fix" id="driver_phone_'+parseInt(lastID+1)+'"></td><td style="display:none" class="fix" id="vehicle_type_'+parseInt(lastID+1)+'">'+vehicle_type+'</td><td><a class="error" href="#">Sửa</a> | <a class="error" onclick="del('+parseInt(lastID+1)+')">Xóa</a></td></tr>'
+                                        '<tr onclick="HighLightTR(this,#4d90fe,cc3333);" id="'+parseInt(lastID+1)+'" class="edit_tr"><td><input name="check[]" type="checkbox" class="checkbox" value="'+parseInt(lastID+1)+'"></td><td class="fix">'+parseInt(rowCount+1)+'</td><td class="fix" id="place_name_'+parseInt(lastID+1)+'">'+place_name+'</td><td class="fix" data="'+province+'" id="province_name_'+parseInt(lastID+1)+'">'+$('#province option:selected').text()+'</td><td><a class="error" href="#">Sửa</a> | <a class="error" onclick="del('+parseInt(lastID+1)+')">Xóa</a></td></tr>'
                                     );
 
                                     $('#lasted').html(parseInt(lastID+2));
@@ -318,9 +284,7 @@ $(document).ready(function(){
    
    
    
-
-   
-   $('.number').keyup(function(event) {
+    $('.number').keyup(function(event) {
 
           // skip for arrow keys
       if(event.which >= 37 && event.which <= 40) return;
@@ -328,11 +292,11 @@ $(document).ready(function(){
       // format number
       $(this).val(function(index, value) {
         return value
-          .replace(/[^0-9-.]/g, "")
-          .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+          .replace(/[^0-9]/g, "")
         ;
       });
     });
+   
    $('.numbers').keyup(function(event) {
 
           // skip for arrow keys
@@ -354,19 +318,18 @@ function get_number(id){
 }
 
 </script>
-
 <div style="display:none" id="lasted"></div>
 <script type="text/javascript">
     var count = parseInt(<?php echo $lastID ?>);
     $('#lasted').html(count);
 
-    $("#import_excel").click(function(){
+$("#import_excel").click(function(){
         $("#winpopup").dialog({
             draggable:true,
             modal: true,
             autoOpen: false,
-            height:200,
-            width:500,
+            height:300,
+            width:400,
             resizable: false,
             title:'Import Excel',
             
@@ -376,17 +339,20 @@ function get_number(id){
          
         return false;
     });
+</script>
+</div>
 
-var ch = "<?php echo $limit ?>";
-$('#chonloc option[value='+ch+']').attr('selected','selected');
+<script type="text/javascript">
+var l = "<?php echo $limit ?>";
+$('#chonloc option[value='+l+']').attr('selected','selected');
 
 $( ".add-field" ).dialog({
     autoOpen: false,
     modal: true,
     width: "auto",
-    title: "Thông tin xe",
+    title: "Thông tin kho",
     hide: 'fold',
     show: 'blind'
 });
+
 </script>
-</div>

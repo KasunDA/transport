@@ -23,7 +23,7 @@ Class steersmanController Extends baseController {
             $order = $this->registry->router->order ? $this->registry->router->order : 'ASC';
             $page = $this->registry->router->page ? (int) $this->registry->router->page : 1;
             $keyword = "";
-            $limit = 20;
+            $limit = 50;
         }
 
 

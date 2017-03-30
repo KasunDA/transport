@@ -999,14 +999,14 @@ display:none;
 padding:3px;
 }
 
-.name_list_id, #staff_list_id  li,#customer_list_id  li,#customer_sub_list_id  li,#staff_list_id_m  li,#staff_list_id_s  li,#staff_list_id_c  li ,#code_list_id  li,#loc_from_list_id  li,#loc_to_list_id  li,#road_from_list_id  li,#road_to_list_id  li,#vehicle_list_id  li, #vehicle_sub_list_id  li,#shipment_from_list_id  li,#shipment_to_list_id  li,#shipment_from_sub_list_id  li,#shipment_to_sub_list_id  li, #work_list_id  li{
+.name_list_id,.name_list_id_2 , #staff_list_id  li,#customer_list_id  li,#customer_sub_list_id  li,#staff_list_id_m  li,#staff_list_id_s  li,#staff_list_id_c  li ,#code_list_id  li,#loc_from_list_id  li,#loc_to_list_id  li,#road_from_list_id  li,#road_to_list_id  li,#vehicle_list_id  li, #vehicle_sub_list_id  li,#shipment_from_list_id  li,#shipment_to_list_id  li,#shipment_from_sub_list_id  li,#shipment_to_sub_list_id  li, #work_list_id  li{
 	padding: 5px;
 }
-.name_list_id  li:hover, #staff_list_id  li:hover,#customer_list_id  li:hover,#customer_sub_list_id  li:hover,#staff_list_id_m  li:hover,#staff_list_id_s  li:hover,#staff_list_id_c  li:hover,#code_list_id  li:hover,#loc_from_list_id  li:hover,#loc_to_list_id  li:hover,#road_from_list_id  li:hover,#road_to_list_id  li:hover,#shipment_from_list_id  li:hover,#shipment_from_sub_list_id  li:hover,#shipment_to_list_id  li:hover,#shipment_to_sub_list_id  li:hover,#vehicle_list_id  li:hover,#vehicle_sub_list_id  li:hover,#work_list_id  li:hover{
+.name_list_id  li:hover,.name_list_id_2  li:hover , #staff_list_id  li:hover,#customer_list_id  li:hover,#customer_sub_list_id  li:hover,#staff_list_id_m  li:hover,#staff_list_id_s  li:hover,#staff_list_id_c  li:hover,#code_list_id  li:hover,#loc_from_list_id  li:hover,#loc_to_list_id  li:hover,#road_from_list_id  li:hover,#road_to_list_id  li:hover,#shipment_from_list_id  li:hover,#shipment_from_sub_list_id  li:hover,#shipment_to_list_id  li:hover,#shipment_to_sub_list_id  li:hover,#vehicle_list_id  li:hover,#vehicle_sub_list_id  li:hover,#work_list_id  li:hover{
 	background: #eaeaea;
 	cursor: pointer;
 }
-.name_list_id, #staff_list_id,#customer_list_id,#customer_sub_list_id,#staff_list_id_m,#staff_list_id_s,#staff_list_id_c,#code_list_id,#loc_from_list_id,#loc_to_list_id,#road_from_list_id,#road_to_list_id,#shipment_from_list_id,#shipment_to_list_id,#vehicle_list_id,#shipment_from_sub_list_id,#shipment_to_sub_list_id,#vehicle_sub_list_id,#work_list_id{
+.name_list_id, .name_list_id_2, #staff_list_id,#customer_list_id,#customer_sub_list_id,#staff_list_id_m,#staff_list_id_s,#staff_list_id_c,#code_list_id,#loc_from_list_id,#loc_to_list_id,#road_from_list_id,#road_to_list_id,#shipment_from_list_id,#shipment_to_list_id,#vehicle_list_id,#shipment_from_sub_list_id,#shipment_to_sub_list_id,#vehicle_sub_list_id,#work_list_id{
 	display: none;
 	width: 200px;
 	border: 1px solid #eaeaea;

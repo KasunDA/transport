@@ -1,15 +1,14 @@
 
 <?php
 $url_order = 'ASC';
-if ($order_by == 'vehicle_work_id')
+if ($order_by == 'vehicle_romooc_id')
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
 
 elseif ($order_by == 'vehicle_number')
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
-elseif ($order_by == 'start_work')
+elseif ($order_by == 'romooc_number')
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
-elseif ($order_by == 'end_work')
-    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+
 
 
     $i = $sonews*$page-($sonews-1);
@@ -19,10 +18,10 @@ elseif ($order_by == 'end_work')
 <div id="loading"></div>
 <div id="winpopup"></div>
 <section class="content-header">
-    <h1>THỜI GIAN DỪNG XE</h1>
+    <h1>BẢNG THAY MOOC</h1>
   <ol class="breadcrumb">
     <li><a href="<?php echo $this->url('admin') ?>"><i class="fa fa-dashboard"></i> Home</a></li>
-    <li class="active"><a href="<?php echo $this->url('driver') ?>">Dừng xe</a></li>
+    <li class="active"><a href="<?php echo $this->url('vehicleromooc/vehicle') ?>">Thay mooc</a></li>
   </ol>
 </section>
 <div id="content" style="padding:5px;">
@@ -49,11 +48,11 @@ elseif ($order_by == 'end_work')
         <?php } ?>
         <div class="alignleft actions">
         <select name="m" id="chonloc">
-          <option  value="18446744073709">Hiển thị tất cả</option>
-          <option value="50">Hiển thị 50 giá trị</option>
-                <option value="100">Hiển thị 100 giá trị</option>
-                <option value="150">Hiển thị 150 giá trị</option>
-                <option selected="selected" value="200">Hiển thị 200 giá trị</option>
+            <option  value="18446744073709">Hiển thị tất cả</option>
+            <option value="50">Hiển thị 50 giá trị</option>
+            <option value="100">Hiển thị 100 giá trị</option>
+            <option value="150">Hiển thị 150 giá trị</option>
+            <option selected="selected" value="200">Hiển thị 200 giá trị</option>
         </select>
         <input type="button" name="" id="post-query-submit" class="button" value="Chọn lọc" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">                               
         </div>
@@ -62,22 +61,26 @@ elseif ($order_by == 'end_work')
 
 </div>
 
+
 <table class="table_data" id="tblExport">
 <thead>
     <tr>
     	<th  class="fix"><input type="checkbox" onclick="checkall('checkbox', this)" name="checkall"/></th>
         <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','vehicle_work_id','<?php echo $url_order ?>')">STT <?php if ($order_by == 'vehicle_work_id'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','vehicle_romooc_id','<?php echo $url_order ?>')">STT <?php if ($order_by == 'vehicle_romooc_id'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         
         <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','vehicle_number','<?php echo $url_order ?>')">Số xe <?php if ($order_by == 'vehicle_number'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','vehicle_number','<?php echo $url_order ?>')">Số đầu <?php if ($order_by == 'vehicle_number'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','start_work','<?php echo $url_order ?>')">Ngày dừng chạy <?php if ($order_by == 'start_work'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','romooc_number','<?php echo $url_order ?>')">Số mooc <?php if ($order_by == 'romooc_number'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','end_work','<?php echo $url_order ?>')">Ngày thôi dừng <?php if ($order_by == 'end_work'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','start_time','<?php echo $url_order ?>')">Ngày thay vào<?php if ($order_by == 'start_time'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+        </th>
+        <th  class="fix">
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','end_time','<?php echo $url_order ?>')">Ngày thay ra<?php if ($order_by == 'end_time'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         
         <?php if(!isset($disable_control)){ ?>
@@ -88,19 +91,21 @@ elseif ($order_by == 'end_work')
     
    </thead>
    <tbody>
-    <?php foreach ($works as $vehicle) : ?>
-        <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $vehicle->vehicle_work_id ?>" class="edit_tr">
-        	<td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $vehicle->vehicle_work_id ?>"></td>
+    <?php foreach ($vehicle_romoocs as $vehicle_romooc) : ?>
+        <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $vehicle_romooc->vehicle_romooc_id ?>" class="edit_tr">
+        	<td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $vehicle_romooc->vehicle_romooc_id ?>"></td>
             <td class="fix"><?php echo $i++; ?></td>
             
-            <td class="fix" data="<?php echo $vehicle->vehicle ?>" id="vehicle_number_<?php echo $vehicle->vehicle_work_id; ?>"><?php echo $vehicle->vehicle_number; ?></td>
-            <td class="fix" id="start_work_<?php echo $vehicle->vehicle_work_id; ?>"><?php echo $lib->hien_thi_ngay_thang($vehicle->start_work); ?></td>
-            <td class="fix" id="end_work_<?php echo $vehicle->vehicle_work_id; ?>"><?php echo $lib->hien_thi_ngay_thang($vehicle->end_work); ?></td>
+            <td class="fix" id="vehicle_number_<?php echo $vehicle_romooc->vehicle_romooc_id; ?>"><?php echo $vehicle_romooc->vehicle_number; ?></td>
+            <td class="fix"  id="romooc_number_<?php echo $vehicle_romooc->vehicle_romooc_id; ?>"><?php echo $vehicle_romooc->romooc_number; ?></td>
+            
+            <td class="fix" id="start_time_<?php echo $vehicle_romooc->vehicle_romooc_id; ?>"><?php echo $lib->hien_thi_ngay_thang($vehicle_romooc->start_time); ?></td>
+            <td class="fix" id="end_time_<?php echo $vehicle_romooc->vehicle_romooc_id; ?>"><?php echo $vehicle_romooc->end_time>0?$lib->hien_thi_ngay_thang($vehicle_romooc->end_time):null; ?></td>
             
             <?php if(!isset($disable_control)){ ?>
             <td class="pull-right">
                 <button class="btn btn-sm btn-flat btn-primary"><i class="fa fa-edit"></i> Sửa</button>
-                <button class="btn btn-sm btn-flat btn-danger" onclick="del(<?php echo $vehicle->vehicle_work_id ?>)" ><i class="fa fa-remove"></i> Xóa</button>
+                <button class="btn btn-sm btn-flat btn-danger" onclick="del(<?php echo $vehicle_romooc->vehicle_romooc_id ?>)" ><i class="fa fa-remove"></i> Xóa</button>
             </td>
             <?php } ?>
         </tr>
@@ -120,28 +125,27 @@ $this->helper('slidePaginator');
           <div class="box box-primary">
             <!-- /.box-header -->
             <!-- form start -->
-            <form id="add_vehicle" role="form" method="post" action="" enctype="multipart/form-data">
+            <form id="add_vehicle_romooc" role="form" method="post" action="" enctype="multipart/form-data">
               <div class="row">
                 <div class="col-md-4 col-xs-6">
                   <div class="box-body">
                     <div class="form-group">
-                      <label for="vehicle">Số xe</label>
-                      <select style="width:120px" id="vehicle" name="vehicle" tabindex="1" required="required" >
-                            <?php foreach ($vehicles as $vehicle) { ?>
-                            <option value="<?php echo $vehicle->vehicle_id ?>"><?php echo $vehicle->vehicle_number ?></option>
-                            <?php } ?>
-                        </select>
+                      <label for="vehicle">Số đầu</label>
+                      <select id="vehicle" name="vehicle" tabindex="1" required="required">
+                        <?php foreach ($vehicles as $vehicle) { ?>
+                          <option value="<?php echo $vehicle->vehicle_id ?>"><?php echo $vehicle->vehicle_number ?></option>
+                        <?php } ?>
+                      </select>
                     </div>
-                  </div>
-                  <!-- /.box-body -->
-                  
-                </div>
-                <div class="col-md-4 col-xs-6">
-                  <div class="box-body">
                     <div class="form-group">
-                      <label for="start_work">Ngày dừng chạy</label>
-                      <input class="ngay" type="text"   id="start_work" name="start_work" tabindex="2" required="required" >
+                      <label for="romooc">Số mooc</label>
+                      <select id="romooc" name="romooc" tabindex="2" required="required">
+                        <?php foreach ($romoocs as $romooc) { ?>
+                          <option value="<?php echo $romooc->romooc_id ?>"><?php echo $romooc->romooc_number ?></option>
+                        <?php } ?>
+                      </select>
                     </div>
+                    
                     
                   </div>
                   <!-- /.box-body -->
@@ -150,23 +154,29 @@ $this->helper('slidePaginator');
                 <div class="col-md-4 col-xs-6">
                   <div class="box-body">
                     <div class="form-group">
-                      <label for="end_work">Ngày thôi dừng</label>
-                      <input class="ngay" type="text"   id="end_work" name="end_work" tabindex="3" required="required" >
+                      <label for="start_time">Ngày thay vào</label>
+                      <input class="ngay" type="text"   id="start_time" name="start_time" tabindex="3" required="required" >
                     </div>
+                    <div class="form-group">
+                      <label for="end_time">Ngày thay ra</label>
+                      <input class="ngay" type="text"   id="end_time" name="end_time" tabindex="4"  >
+                    </div>
+                    
+                    
                     
                   </div>
                   <!-- /.box-body -->
-                  
+
                 </div>
-                
+
               </div>
               <?php if(!isset($disable_control)){ ?>
               <div class="row">
                 <div class="col-md-12">
                     <div class="box-footer">
                     <input type="hidden" readonly id="yes" name="yes" required="required" >
-                    <button type="submit" class="btn btn-primary" tabindex="4">Hoàn thành</button>
-                    <button type="reset" class="btn" tabindex="5">Nhập lại</button>
+                    <button type="submit" class="btn btn-primary" tabindex="5">Hoàn thành</button>
+                    <button type="reset" class="btn" tabindex="6">Nhập lại</button>
                   </div>
                   <div class="box-footer">
                     <div id="error" class="error"><?php echo isset($error) ? $error : null; ?></div>
@@ -188,6 +198,7 @@ $this->helper('slidePaginator');
        
 </div>
 
+
 <script type="text/javascript">
 
     $('.edit_tr').click(function(){
@@ -196,33 +207,40 @@ $this->helper('slidePaginator');
         }
         
         var vehicle_number = $(this).find("#vehicle_number_"+$(this).attr('id')).text();
-        var start_work = $(this).find("#start_work_"+$(this).attr('id')).text();
-        var end_work = $(this).find("#end_work_"+$(this).attr('id')).text();
-        var steersman = $(this).find("#steersman_"+$(this).attr('id')).text();
-        //alert(vehicle_from);
+        var romooc_number = $(this).find("#romooc_number_"+$(this).attr('id')).text();
+        
+        var start_time = $(this).find("#start_time_"+$(this).attr('id')).text();
+        var end_time = $(this).find("#end_time_"+$(this).attr('id')).text();
+        
+        //alert(vehicle_romooc_from);
         $('#yes').val($(this).attr('id'));
         
-        $('#vehicle_number').val(vehicle_number);
-        $("#vehicle option:contains(" + vehicle_number + ")").attr('selected', 'selected');
-        
-        $('#start_work').val(start_work.replace(/\//g,"-"));
-        $('#end_work').val(end_work.replace(/\//g,"-"));
+
+        $('#vehicle option[value='+vehicle_number+']').attr('selected','selected');
+        $('#romooc option[value='+romooc_number+']').attr('selected','selected');
+        $('#start_time').val(start_time.replace(/\//g,"-"));
+        $('#end_time').val(end_time.replace(/\//g,"-"));
+
         
         $( ".add-field" ).dialog( "open" );
+        
     });
 
 
 </script>
 <script type="text/javascript">
-
+$('html').click(function(e) {
+   $('#road_from_list_id').slideUp(200);
+});
 function add_click(){
     $('#yes').val("");
     $('.add-field').slideDown(500);
     $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
 
-        $('#start_work').val("");
-        $('#end_work').val("");
-
+        $('#vehicle_number').focus();
+        $('#start_time').val("<?php echo date('d-m-Y') ?>");
+        $('#end_time').val("");
+        
         $('.number').focus(function(){
             if ( $(this).val() == '0') {
                $(this).val(""); 
@@ -242,7 +260,7 @@ function add_click(){
 
 $(document).ready(function(){
             // Validate form
-            $("#add_vehicle").validate({
+            $("#add_vehicle_romooc").validate({
                 errorElement: "span", // Định dạng cho thẻ HTML hiện thông báo lỗi
                 rules: {
                     
@@ -250,10 +268,12 @@ $(document).ready(function(){
                 submitHandler: function(form) {
                 
                     
+                
                     var vehicle = $('#vehicle').attr('value');
-                    var start_work = $('#start_work').attr('value');
-                    var end_work = $('#end_work').attr('value');
-                   
+                    var romooc = $('#romooc').attr('value');
+                    
+                    var start_time = $('#start_time').attr('value');
+                    var end_time = $('#end_time').attr('value');
                     
                     var yes = $('#yes').attr('value');
                     
@@ -261,33 +281,39 @@ $(document).ready(function(){
                  
                     $.ajax({
                         type: "POST", // phương thức gởi đi
-                        url: "<?php echo BASE_URL ?>/vehiclework/add", // nơi mà dữ liệu sẽ chuyển đến khi submit
+                        url: "<?php echo BASE_URL ?>/vehicleromooc/add", // nơi mà dữ liệu sẽ chuyển đến khi submit
                         data: {
                             vehicle: vehicle,
-                            start_work: start_work,
-                            end_work: end_work,
+                            romooc: romooc,
+                            start_time: start_time,
+                            end_time: end_time,
                             yes: yes,
                             }, // giá trị post
                         success: function(answer){ // if everything goes well
-                            //alert(answer);
                             $('#error').hide();
                             $('#error').slideToggle(100); // hiển thị thẻ div success
                             $('#error').html('<div class="successbox">'+answer+'</div>'); // đặt kết quả trả về từ test.php vào thẻ div success
                             $('#error').fadeOut(10000);
 
                             if (yes != "") {
-                                if (answer.trim() != "Thông tin này đã tồn tại") {
-                                    setTimeout(function() {
+                                setTimeout(function() {
                                         sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
                                       }, 200);
-                                    $('#vehicle_number_'+yes).text($("#vehicle :selected").text());
-                                    $('#start_work_'+yes).text(start_work);
-                                    $('#end_work_'+yes).text(end_work);
-                                }
+                                $('#vehicle_romooc_cont_'+yes).text(vehicle_romooc_cont);
+                                $('#vehicle_romooc_ton_'+yes).text(vehicle_romooc_ton);
+                                $('#vehicle_number_'+yes).text(vehicle_number);
+                                $('#romooc_number_'+yes).text(romooc_number);
+                                $('#vehicle_romooc_clean_'+yes).text(vehicle_romooc_clean);
+                                $('#vehicle_romooc_gate_'+yes).text(vehicle_romooc_gate);
+                                $('#vehicle_romooc_add_'+yes).text(vehicle_romooc_add);
+                                $('#vehicle_romooc_code_'+yes).text(vehicle_romooc_code);
+                                $('#start_time_'+yes).text(start_time);
+                                $('#end_time_'+yes).text(end_time);
+                                $('#status_'+yes).text(status==1?"Sử dụng":"Không sử dụng");
                                 
                             }
                             else{
-                                if (answer.trim() != "Thông tin này đã tồn tại") {
+                                if (answer.trim() != "Bảng giá này đã tồn tại") {
                                     setTimeout(function() {
                                         sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
                                       }, 200);
@@ -295,7 +321,7 @@ $(document).ready(function(){
                                     var rowCount = parseInt($('.table_data > tbody > tr').length);
                                     $('.table_data > tbody:last')
                                     .append(
-                                        '<tr onclick="HighLightTR(this,"#4d90fe","cc3333");" id="'+parseInt(lastID+1)+'" class="edit_tr"><td><input name="check[]" type="checkbox" class="checkbox" value="'+parseInt(lastID+1)+'"></td><td class="fix">'+parseInt(rowCount+1)+'</td><td class="fix" id="vehicle_number_'+parseInt(lastID+1)+'">'+$("#vehicle :selected").text()+'</td><td class="fix" id="start_work_'+parseInt(lastID+1)+'">'+start_work+'</td><td class="fix" id="end_work_'+parseInt(lastID+1)+'">'+end_work+'</td><td><a class="error" href="#">Sửa</a> | <a class="error" onclick="del('+parseInt(lastID+1)+')">Xóa</a></td></tr>'
+                                        '<tr onclick="HighLightTR(this,"#4d90fe","cc3333");" id="'+parseInt(lastID+1)+'" class="edit_tr"><td><input name="check[]" type="checkbox" class="checkbox" value="'+parseInt(lastID+1)+'"></td><td class="fix">'+parseInt(rowCount+1)+'</td><td class="fix" id="vehicle_number_'+parseInt(lastID+1)+'">'+vehicle_number+'</td><td class="fix" id="vehicle_romooc_add_'+parseInt(lastID+1)+'">'+vehicle_romooc_add+'</td><td class="fix" id="romooc_number_'+parseInt(lastID+1)+'">'+romooc_number+'</td><td class="fix" id="vehicle_romooc_clean_'+parseInt(lastID+1)+'">'+vehicle_romooc_clean+'</td><td class="fix" id="vehicle_romooc_gate_'+parseInt(lastID+1)+'">'+vehicle_romooc_gate+'</td><td class="fix" id="vehicle_romooc_ton_'+parseInt(lastID+1)+'">'+vehicle_romooc_ton+'</td><td class="fix" id="start_time_'+parseInt(lastID+1)+'">'+start_time+'</td><td class="fix" id="end_time_'+parseInt(lastID+1)+'">'+end_time+'</td><td class="fix" id="status_'+parseInt(lastID+1)+'">'+(status==1?"Sử dụng":"Không sử dụng")+'</td><td style="display:none" class="fix" id="vehicle_romooc_cont_'+parseInt(lastID+1)+'">'+vehicle_romooc_cont+'</td><td style="display:none" class="fix" id="vehicle_romooc_code_'+parseInt(lastID+1)+'">'+vehicle_romooc_code+'</td><td><a class="error" href="#">Sửa</a> | <a class="error" onclick="del('+parseInt(lastID+1)+')">Xóa</a></td></tr>'
                                     );
 
                                     $('#lasted').html(parseInt(lastID+2));
@@ -308,8 +334,6 @@ $(document).ready(function(){
                  }
             });
    
-   
-
    
    $('.number').keyup(function(event) {
 
@@ -324,26 +348,14 @@ $(document).ready(function(){
         ;
       });
     });
-   $('.numbers').keyup(function(event) {
+    
 
-          // skip for arrow keys
-      if(event.which >= 37 && event.which <= 40) return;
-
-      // format number
-      $(this).val(function(index, value) {
-        return value
-          .replace(/[^0-9]/g, "")
-          .replace(/(\d{3})(\d{3})(\d{4})/, "$1 $2 $3")
-        ;
-      });
-    });
     
 
 });
 function get_number(id){
     return $(id).val().replace(/\,/g,'');
 }
-
 
 </script>
 
@@ -370,7 +382,7 @@ function get_number(id){
         return false;
     });
 
-var ch = "<?php echo $limit ?>";
+    var ch = "<?php echo $limit ?>";
 $('#chonloc option[value='+ch+']').attr('selected','selected');
 
 var pickerOpts = {
@@ -390,22 +402,13 @@ var pickerOpts = {
         firstDay: 1,
         isRTL: false,
         showButtonPanel: true,
-        onSelect: function(dateStr) {
-            var d = $.datepicker.parseDate('dd-mm-yy', dateStr);
-            var month = parseInt(1, 10);
-
-            d.setMonth(d.getMonth() + month);
-
-            $('#end_work').datepicker('setDate', d);
-            
-        },
         onClose: function(selectedDate) {
                 
-                $( "#end_work" ).datepicker( "option", "minDate", selectedDate );
+                $( "#end_time" ).datepicker( "option", "minDate", selectedDate );
 
          },
     }; 
-    $("#start_work").datepicker(pickerOpts);
+    $("#start_time").datepicker(pickerOpts);
 
     var pickerOpts2 = {
         closeText: "Đóng",
@@ -426,24 +429,19 @@ var pickerOpts = {
         showButtonPanel: true,
         onClose: function(selectedDate) {
                 
-                $( "#start_work" ).datepicker( "option", "maxDate", selectedDate );
+                $( "#start_time" ).datepicker( "option", "maxDate", selectedDate );
 
          },
     }; 
-    $("#end_work").datepicker(pickerOpts2);
+    $("#end_time").datepicker(pickerOpts2);
 
 $( ".add-field" ).dialog({
     autoOpen: false,
     modal: true,
     width: "auto",
-    title: "Bàn giao xe",
+    title: "Bảng thay thế mooc",
     hide: 'fold',
     show: 'blind'
 });
 </script>
 </div>
-<style type="text/css">
-    #ui-datepicker-div{
-        font-size: 13px;
-    }
-</style>

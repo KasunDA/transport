@@ -46,7 +46,7 @@ Class vehicleworkController Extends baseController {
 
             $keyword = "";
 
-            $limit = 20;
+            $limit = 50;
 
         }
 

@@ -11,7 +11,7 @@ Class vehicleController Extends baseController {
             return $this->view->redirect('user/login');
 
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 8) {
             $this->view->data['disable_control'] = 1;
         }
 
@@ -45,7 +45,7 @@ Class vehicleController Extends baseController {
 
             $keyword = "";
 
-            $limit = 20;
+            $limit = 50;
 
         }
 
@@ -168,7 +168,7 @@ Class vehicleController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 8) {
 
             return $this->view->redirect('user/login');
 
@@ -305,7 +305,7 @@ Class vehicleController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 8) {
 
             return $this->view->redirect('user/login');
 
@@ -325,7 +325,7 @@ Class vehicleController Extends baseController {
                     $vehicle_data = (array)$vehicle->getVehicle($data);
                     $vehicle->deleteVehicle($data);
 
-                    $data2 = array('vehicle_id'=>$data,'vehicle_temp_date'=>strtotime(date('d-m-Y')),'vehicle_temp_action'=>3,'vehicle_temp_user'=>$_SESSION['userid_logined'],'name'=>'DS tài xế');
+                    $data2 = array('vehicle_id'=>$data,'vehicle_temp_date'=>strtotime(date('d-m-Y')),'vehicle_temp_action'=>3,'vehicle_temp_user'=>$_SESSION['userid_logined'],'name'=>'DS xe');
                     $data_temp = array_merge($vehicle_data, $data2);
                     $vehicle_temp->createVehicle($data_temp);
 
@@ -352,7 +352,7 @@ Class vehicleController Extends baseController {
             else{
 
                 $vehicle_data = (array)$vehicle->getVehicle($_POST['data']);
-                $data2 = array('vehicle_id'=>$_POST['data'],'vehicle_temp_date'=>strtotime(date('d-m-Y')),'vehicle_temp_action'=>3,'vehicle_temp_user'=>$_SESSION['userid_logined'],'name'=>'DS tài xế');
+                $data2 = array('vehicle_id'=>$_POST['data'],'vehicle_temp_date'=>strtotime(date('d-m-Y')),'vehicle_temp_action'=>3,'vehicle_temp_user'=>$_SESSION['userid_logined'],'name'=>'DS xe');
                     $data_temp = array_merge($vehicle_data, $data2);
                     $vehicle_temp->createVehicle($data_temp);
 

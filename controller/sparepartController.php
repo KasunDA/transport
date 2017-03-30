@@ -1,15 +1,15 @@
 <?php
-Class placeController Extends baseController {
+Class sparepartController Extends baseController {
     public function index() {
         $this->view->setLayout('admin');
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 4) {
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
             $this->view->data['disable_control'] = 1;
         }
         $this->view->data['lib'] = $this->lib;
-        $this->view->data['title'] = 'Quản lý thông tin kho hàng';
+        $this->view->data['title'] = 'Quản lý thông tin vật tư';
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $order_by = isset($_POST['order_by']) ? $_POST['order_by'] : null;
@@ -19,34 +19,21 @@ Class placeController Extends baseController {
             $limit = isset($_POST['limit']) ? $_POST['limit'] : 18446744073709;
         }
         else{
-            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'place_name';
+            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'spare_part_code';
             $order = $this->registry->router->order_by ? $this->registry->router->order_by : 'ASC';
             $page = $this->registry->router->page ? (int) $this->registry->router->page : 1;
             $keyword = "";
             $limit = 50;
         }
-        $province_model = $this->model->get('provinceModel');
-        $provinces = $province_model->getAllProvince(array('order_by'=>'province_name','order'=>'ASC'));
-        $this->view->data['provinces'] = $provinces;
+        
 
-        $id = $this->registry->router->param_id;
-
-        $place_model = $this->model->get('placeModel');
+        $spare_model = $this->model->get('sparepartModel');
         $sonews = $limit;
         $x = ($page-1) * $sonews;
         $pagination_stages = 2;
 
-        $join = array('table'=>'province','where'=>'province=province_id');
-
-        $data = array(
-            'where' => '1=1',
-        );
-
-        if (isset($id) && $id > 0) {
-            $data['where'] .= ' AND place_id = '.$id;
-        }
         
-        $tongsodong = count($place_model->getAllPlace($data,$join));
+        $tongsodong = count($place_model->getAllPlace());
         $tongsotrang = ceil($tongsodong / $sonews);
         
 
@@ -66,52 +53,82 @@ Class placeController Extends baseController {
             'where' => '1=1',
             );
 
-        if (isset($id) && $id > 0) {
-            $data['where'] .= ' AND place_id = '.$id;
-        }
         
         if ($keyword != '') {
-            $search = ' AND ( place_name LIKE "%'.$keyword.'%" 
-                        OR province_name LIKE "%'.$keyword.'%" )';
+            $search = ' AND ( spare_part_code LIKE "%'.$keyword.'%" 
+                        OR spare_part_name LIKE "%'.$keyword.'%" 
+                        OR spare_part_seri LIKE "%'.$keyword.'%" 
+                        OR spare_part_brand LIKE "%'.$keyword.'%" )';
             $data['where'] .= $search;
         }
         
-        $this->view->data['places'] = $place_model->getAllPlace($data,$join);
+        $this->view->data['spares'] = $spare_model->getAllStock($data);
 
-        $this->view->data['lastID'] = isset($place_model->getLastPlace()->place_id)?$place_model->getLastPlace()->place_id:0;
+        $this->view->data['lastID'] = isset($spare_model->getLastStock()->spare_part_id)?$spare_model->getLastStock()->spare_part_id:0;
         
-        $this->view->show('place/index');
+        $this->view->show('sparepart/index');
     }
 
     public function add(){
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 4) {
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
             return $this->view->redirect('user/login');
         }
         if (isset($_POST['yes'])) {
-            $place = $this->model->get('placeModel');
-            $place_temp = $this->model->get('placetempModel');
+            $spare = $this->model->get('sparepartModel');
             $data = array(
                         
-                        'province' => trim($_POST['province']),
-                        'place_name' => trim($_POST['place_name']),
+                        'spare_part_name' => trim($_POST['spare_part_name']),
+
+                        'spare_part_code' => trim($_POST['spare_part_code']),
+
+                        'spare_part_seri' => trim($_POST['spare_part_seri']),
+
+                        'spare_part_brand' => trim($_POST['spare_part_brand']),
+
+                        'spare_part_date_manufacture' => strtotime($_POST['spare_part_date_manufacture']),
                         );
+
+            $spare_sub_model = $this->model->get('sparesubModel');
+
+            $contributor = "";
+            if(trim($_POST['spare_sub']) != ""){
+                $support = explode(',', trim($_POST['spare_sub']));
+
+                if ($support) {
+                    foreach ($support as $key) {
+                        $name = $spare_sub_model->getStockByWhere(array('spare_sub_name'=>trim($key)));
+                        if ($name) {
+                            if ($contributor == "")
+                                $contributor .= $name->spare_sub_id;
+                            else
+                                $contributor .= ','.$name->spare_sub_id;
+                        }
+                        else{
+                            $spare_sub_model->createStock(array('spare_sub_name'=>trim($key)));
+                            if ($contributor == "")
+                                $contributor .= $spare_sub_model->getLastStock()->spare_sub_id;
+                            else
+                                $contributor .= ','.$spare_sub_model->getLastStock()->spare_sub_id;
+                        }
+                        
+                    }
+                }
+
+            }
+            $data['spare_part_type'] = $contributor;
 
 
             if ($_POST['yes'] != "") {
 
-                if ($place->checkPlace($_POST['yes'],trim($_POST['place_name']))) {
+                if ($spare->checkStock($_POST['yes'],trim($_POST['spare_part_code']))) {
                     echo "Thông tin này đã tồn tại";
                     return false;
                 }
                 else{
-                    $place->updatePlace($data,array('place_id' => $_POST['yes']));
-
-                    $data2 = array('place_id'=>$_POST['yes'],'place_temp_date'=>strtotime(date('d-m-Y')),'place_temp_action'=>2,'place_temp_user'=>$_SESSION['userid_logined'],'name'=>'DS kho hàng');
-                    $data_temp = array_merge($data, $data2);
-                    $place_temp->createPlace($data_temp);
+                    $spare->updateStock($data,array('spare_part_id' => $_POST['yes']));
 
                     /*Log*/
                     /**/
@@ -119,7 +136,7 @@ Class placeController Extends baseController {
 
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
                         $filename = "action_logs.txt";
-                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."edit"."|".$_POST['yes']."|place|".implode("-",$data)."\n"."\r\n";
+                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."edit"."|".$_POST['yes']."|spare_part|".implode("-",$data)."\n"."\r\n";
                         
                         $fh = fopen($filename, "a") or die("Could not open log file.");
                         fwrite($fh, $text) or die("Could not write file!");
@@ -131,16 +148,16 @@ Class placeController Extends baseController {
             }
             else{
 
-                if ($place->getPlaceByWhere(array('place_name'=>$data['place_name']))) {
+                if ($spare->getStockByWhere(array('spare_part_name'=>$data['spare_part_name']))) {
+                    echo "Thông tin này đã tồn tại";
+                    return false;
+                }
+                else if ($spare->getStockByWhere(array('spare_part_code'=>$data['spare_part_code']))) {
                     echo "Thông tin này đã tồn tại";
                     return false;
                 }
                 else{
-                    $place->createPlace($data);
-
-                    $data2 = array('place_id'=>$place->getLastPlace()->place_id,'place_temp_date'=>strtotime(date('d-m-Y')),'place_temp_action'=>1,'place_temp_user'=>$_SESSION['userid_logined'],'name'=>'DS kho hàng');
-                    $data_temp = array_merge($data, $data2);
-                    $place_temp->createPlace($data_temp);
+                    $spare->createStock($data);
 
                     /*Log*/
                     /**/
@@ -149,7 +166,7 @@ Class placeController Extends baseController {
 
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
                         $filename = "action_logs.txt";
-                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."add"."|".$place->getLastPlace()->place_id."|place|".implode("-",$data)."\n"."\r\n";
+                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."add"."|".$spare->getLastStock()->spare_part_id."|spare_part|".implode("-",$data)."\n"."\r\n";
                         
                         $fh = fopen($filename, "a") or die("Could not open log file.");
                         fwrite($fh, $text) or die("Could not write file!");
@@ -166,26 +183,20 @@ Class placeController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 4) {
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
             return $this->view->redirect('user/login');
         }
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $place = $this->model->get('placeModel');
-            $place_temp = $this->model->get('placetempModel');
+            $spare = $this->model->get('sparepartModel');
+            
             if (isset($_POST['xoa'])) {
                 $data = explode(',', $_POST['xoa']);
                 foreach ($data as $data) {
-                    $place_data = (array)$place->getPlace($data);
-
-                    $place->deletePlace($data);
+                    $spare->deleteStock($data);
                     
-                    $data2 = array('place_id'=>$data,'place_temp_date'=>strtotime(date('d-m-Y')),'place_temp_action'=>3,'place_temp_user'=>$_SESSION['userid_logined'],'name'=>'DS kho hàng');
-                    $data_temp = array_merge($place_data, $data2);
-                    $place_temp->createPlace($data_temp);
-
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
                         $filename = "action_logs.txt";
-                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."delete"."|".$data."|place|"."\n"."\r\n";
+                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."delete"."|".$data."|spare_part|"."\n"."\r\n";
                         
                         $fh = fopen($filename, "a") or die("Could not open log file.");
                         fwrite($fh, $text) or die("Could not write file!");
@@ -200,20 +211,15 @@ Class placeController Extends baseController {
             else{
                 /*Log*/
                     /**/
-                    $place_data = (array)$place->getPlace($_POST['data']);
-                    $data2 = array('place_id'=>$_POST['data'],'place_temp_date'=>strtotime(date('d-m-Y')),'place_temp_action'=>3,'place_temp_user'=>$_SESSION['userid_logined'],'name'=>'DS kho hàng');
-                    $data_temp = array_merge($place_data, $data2);
-                    $place_temp->createPlace($data_temp);
-
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
                         $filename = "action_logs.txt";
-                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."delete"."|".$_POST['data']."|place|"."\n"."\r\n";
+                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."delete"."|".$_POST['data']."|spare_part|"."\n"."\r\n";
                         
                         $fh = fopen($filename, "a") or die("Could not open log file.");
                         fwrite($fh, $text) or die("Could not write file!");
                         fclose($fh);
 
-                return $place->deletePlace($_POST['data']);
+                return $spare->deleteStock($_POST['data']);
             }
             
         }

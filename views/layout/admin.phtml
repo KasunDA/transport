@@ -518,7 +518,7 @@
     <!-- sidebar: style can be found in sidebar.less -->
     <section class="sidebar">
       <div class="user-panel">
-          <button type="button" class="btn btn-block btn-primary" onClick="javascript:window.location.href='<?php echo $this->url('post') ?>'">
+          <button type="button" class="btn btn-block btn-primary" onClick="javascript:window.location.href='<?php echo $this->url('shipment') ?>'">
             <i class="fa  fa-pencil-square-o"></i>
           </button>
       </div>
@@ -543,6 +543,35 @@
           <ul class="treeview-menu">
             <li><a data="driver" href="<?php echo $this->url('driver') ?>"><i class="fa fa-fw fa-exchange text-aqua"></i>Bàn giao xe</a></li>
             <li><a data="vehiclework" href="<?php echo $this->url('vehiclework') ?>"><i class="fa fa-fw fa-pause-circle-o text-aqua"></i>Tạm dừng xe</a></li>
+            <li>
+              <a data="vehicleromooc" href="<?php echo $this->url('vehicleromooc') ?>">
+                <i class="fa fa-fw fa-eraser text-aqua"></i>
+                <span>Thay đổi mooc</span>
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-right pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                <li><a data="vehicleromooc" href="<?php echo $this->url('vehicleromooc') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Đổi mooc</a></li>
+                <li><a data="vehicleromooc/vehicle" href="<?php echo $this->url('vehicleromooc/vehicle') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Danh sách đổi mooc</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <?php } ?>
+        <?php if ($_SESSION['role_logined'] == 1 ||$_SESSION['role_logined'] == 2 || $_SESSION['role_logined'] == 6 || $_SESSION['role_logined'] == 8 ) { ?>
+        <li class="treeview">
+          <a  data="#" href="#">
+            <i class="fa fa-gear"></i>
+            <span>Vật tư</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-right pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li><a data="importstock" href="<?php echo $this->url('importstock') ?>"><i class="fa fa-fw fa-download text-aqua"></i>Nhập kho</a></li>
+            <li><a data="exportstock" href="<?php echo $this->url('exportstock') ?>"><i class="fa fa-fw fa-upload text-aqua"></i>Xuất kho</a></li>
+            
           </ul>
         </li>
         <?php } ?>
@@ -567,8 +596,11 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a data="vehicle" href="<?php echo $this->url('vehicle') ?>"><i class="fa fa-fw fa-truck text-aqua"></i>Danh sách xe</a></li>
+            <li><a data="customer" href="<?php echo $this->url('customer') ?>"><i class="fa fa-fw fa-user text-aqua"></i>Danh sách khách hàng</a></li>
             <li><a data="place" href="<?php echo $this->url('place') ?>"><i class="fa fa-fw fa-map-marker text-aqua"></i>Danh sách kho hàng</a></li>
+            <li><a data="vehicle" href="<?php echo $this->url('vehicle') ?>"><i class="fa fa-fw fa-truck text-aqua"></i>Danh sách xe</a></li>
+            <li><a data="romooc" href="<?php echo $this->url('romooc') ?>"><i class="fa fa-fw fa-eraser text-aqua"></i>Danh sách mooc</a></li>
+            
             <li>
               <a href="#">
                 <i class="fa fa-fw fa-tasks text-aqua"></i>
@@ -628,9 +660,8 @@
   <!-- /.content-wrapper -->
   <footer class="main-footer">
     <div class="pull-right hidden-xs">
-      <b>Version</b> 2.0
+      <b>Version</b> 3.0
     </div>
-    Copyright &copy; <?php echo date('Y') ?> by <a  href="<?php echo BASE_URL ?>">TCMT</a>. All rights reserved.<br>
     <span style="font-size:5px">Powered by <a target="_blank" style="color:#fff" href="http://www.tinhoctainha.com">Dịch vụ Tin Học Tại Nhà</a></span>
   </footer>
 

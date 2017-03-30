@@ -49,11 +49,11 @@ elseif ($order_by == 'oil')
         <?php } ?>
         <div class="alignleft actions">
         <select name="m" id="chonloc">
-            <option  value="18446744073709">Hiển thị tất cả</option>
-            <option value="5">Hiển thị 5 giá trị</option>
-            <option value="10">Hiển thị 10 giá trị</option>
-            <option value="15">Hiển thị 15 giá trị</option>
-            <option selected="selected" value="20">Hiển thị 20 giá trị</option>
+          <option  value="18446744073709">Hiển thị tất cả</option>
+          <option value="50">Hiển thị 50 giá trị</option>
+                <option value="100">Hiển thị 100 giá trị</option>
+                <option value="150">Hiển thị 150 giá trị</option>
+                <option selected="selected" value="200">Hiển thị 200 giá trị</option>
         </select>
         <input type="button" name="" id="post-query-submit" class="button" value="Chọn lọc" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">                               
         </div>

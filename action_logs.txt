@@ -110,3 +110,57 @@
 
 28/03/2017 11:04:30|admin|delete|3|place|
 
+29/03/2017 09:03:59|admin|add|1|customer|A-11-a-------1
+
+29/03/2017 09:04:38|admin|edit|1|customer|AA-111-a2----0---1,2
+
+29/03/2017 09:48:35|admin|add|1|romooc|72A-323245
+
+29/03/2017 09:48:51|admin|edit|1|romooc|72A-32324
+
+29/03/2017 09:49:05|admin|add|2|romooc|sdsd
+
+29/03/2017 09:49:08|admin|delete|2|romooc|
+
+29/03/2017 14:52:17|admin|add|2|vehicleromooc|1-1-1490738400-1806271200
+
+29/03/2017 15:02:20|admin|add|3|vehicleromooc|--1490738400-1806271200
+
+29/03/2017 15:42:29|admin|add|2|romooc|72C-32300
+
+29/03/2017 15:43:00|admin|add||vehicleromooc|1-2-
+
+29/03/2017 15:43:30|admin|add||vehicleromooc|1-2-1490738400
+
+29/03/2017 15:44:58|admin|add|4|vehicleromooc|1-2-1490738400
+
+29/03/2017 15:46:47|admin|add|5|vehicleromooc|1-1-1488322800
+
+29/03/2017 15:49:08|admin|add|6|vehicleromooc|1-1-1490738400
+
+29/03/2017 15:59:36|admin|add|7|vehicleromooc|1-1-1488322800-1490652000
+
+29/03/2017 16:01:38|admin|add|9|vehicleromooc|1-1-1493503200
+
+29/03/2017 16:04:43|admin|add|10|vehicleromooc|1-2-1490738400
+
+29/03/2017 16:05:02|admin|add|11|vehicleromooc|1-1-1488322800-1490652000
+
+29/03/2017 16:06:39|admin|add|12|vehicleromooc|1-1-1490997600
+
+29/03/2017 16:12:30|admin|add|13|vehicleromooc|1-2-1493503200
+
+29/03/2017 16:14:39|admin|add|14|vehicleromooc|1-2-1490738400
+
+29/03/2017 16:14:52|admin|add|15|vehicleromooc|1-1-1488322800-1490652000
+
+29/03/2017 16:15:19|admin|add|16|vehicleromooc|1-1-1490997600
+
+29/03/2017 16:16:03|admin|add|17|vehicleromooc|1-2-1490997600
+
+30/03/2017 14:55:23|admin|add|1|import_stock|A33535-1490824800-41
+
+30/03/2017 15:18:56|admin|edit|1|import_stock|A3353511-1490911200-41
+
+30/03/2017 15:52:15|admin|add|1|export_stock|XK00001-1490911200-41
+
