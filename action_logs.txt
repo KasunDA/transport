@@ -164,3 +164,9 @@
 
 30/03/2017 15:52:15|admin|add|1|export_stock|XK00001-1490911200-41
 
+31/03/2017 08:09:09|admin|edit|1|spare_part|Bulong-BL01-2346466565-Honda-1488236400-1,2
+
+31/03/2017 08:51:10|admin|add|1|place|Công ty CP Tân Cảng Miền Trung-132323454-asas-334 343 4344-dsd@dsd.dsd
+
+31/03/2017 08:51:19|admin|edit|1|info|Công ty CP Tân Cảng Miền Trung-132323454-asas-334 343 4344-dsd@dsd.cc
+
