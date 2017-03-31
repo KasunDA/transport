@@ -170,3 +170,7 @@
 
 31/03/2017 08:51:19|admin|edit|1|info|Công ty CP Tân Cảng Miền Trung-132323454-asas-334 343 4344-dsd@dsd.cc
 
+31/03/2017 15:15:55|admin|add|3|spare_part|Cờ lê-C002----3
+
+31/03/2017 15:16:21|admin|add|4|spare_part|Xả khói-O9992----4
+

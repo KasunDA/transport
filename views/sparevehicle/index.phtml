@@ -1,0 +1,434 @@
+
+<div id="loading"></div>
+<div id="winpopup"></div>
+<section class="content-header">
+    <h1>THAY THẾ PHỤ TÙNG</h1>
+  <ol class="breadcrumb">
+    <li><a href="<?php echo $this->url('admin') ?>"><i class="fa fa-dashboard"></i> Home</a></li>
+    <li class="active"><a href="<?php echo $this->url('sparevehicle') ?>">Thay thế phụ tùng</a></li>
+  </ol>
+</section>
+<div>
+  <div class="error">
+  *Lưu ý: Số đầu và số mooc hiển thị không hẳn là đang ghép nối với nhau. <br>
+  [ Để thực hiện việc lắp ráp phụ tùng cần có phiếu xuất kho. Khi phụ tùng thay ra sẽ ở trạng thái hư hỏng ]
+</div>
+
+  <div id="content" style="padding:5px;">
+
+    <div class="tablenav top">
+        
+        <div class="alignleft actions">
+          <form id="spare_form" action="" method="post">
+          <div class="form-group">
+            <label for="vehicle">Đầu</label>
+            <select id="vehicle" name="vehicle" style="width:100px">
+              <?php foreach ($vehicles as $ve) { ?>
+                <option value="<?php echo $ve->vehicle_id ?>"><?php echo $ve->vehicle_number ?></option>
+              <?php } ?>
+            </select>
+            
+          </div>
+        </div>
+        <div class="alignleft actions">
+          <div class="form-group">
+            <label for="romooc">Mooc</label>
+            
+            <select id="romooc" name="romooc" style="width:100px">
+              <?php foreach ($romoocs as $ro) { ?>
+                <option value="<?php echo $ro->romooc_id ?>"><?php echo $ro->romooc_number ?></option>
+              <?php } ?>
+            </select>
+            
+          </div>
+        </div>
+        </form>
+        <div class="alignleft actions">
+          <div class="form-group">
+            <label for="ngay">Ngày thực hiện</label>
+            <input style="width:70px" type="text"  class="ngay" id="ngay" name="ngay" value="<?php echo date('d-m-Y') ?>" required="required">
+            <?php if(!isset($disable_control)){ ?>
+            <input type="submit" value="Hoàn thành" id="update">
+            <?php } ?>
+          </div>
+        </div>
+
+      </div>
+
+  </div>
+</div>
+
+<div class="clearfix"></div>
+
+<div class="tabs">
+  <ul class="tab-links">
+    <li class="active" ><a href="#tab1"><i class="fa fa-wrench"></i> LẮP VÀO</a></li>
+    <li><a href="#tab2"><i class="fa fa-plug"></i> THAY RA</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab active" id="tab1" >
+      <div id="dropZone">
+          <div class="stack">
+              <div class="stackHdr">
+                  Đầu - <?php echo $vehicle_selected->vehicle_number ?>
+              </div>
+              <div class="stackDrop1" id="<?php echo $vehicle_selected->vehicle_id ?>">
+                  
+              </div>
+          </div>
+          
+          <div class="stack">
+              <div class="stackHdr">
+                  Mooc - <?php echo $romooc_selected->romooc_number ?>
+              </div>
+              <div class="stackDrop2" id="<?php echo $romooc_selected->romooc_id ?>">
+                  
+              </div>
+          </div>
+      </div>
+      <div id="launchPad">  
+        <div>Phụ tùng thiết bị lắp vào</div>
+        <?php foreach ($spare_parts as $m) { ?>
+          <div class="card col-md-4 col-xs-4" id="<?php echo $m->spare_part_id ?>">
+              <?php echo '['.$m->spare_part_code.']-'.$m->spare_part_name ?>
+          </div> 
+        <?php }  ?>
+          
+      </div>
+
+      <div class="clearfix"></div>
+    </div>
+    <div class="tab" id="tab2" >
+      <div id="spare-dropZone">
+          <div class="spare-stack">
+              <div class="spare-stackHdr">
+                  Đầu - <?php echo $vehicle_selected->vehicle_number ?>
+              </div>
+              <div class="spare-stackDrop1 ui-droppable" id="<?php echo $vehicle_selected->vehicle_id ?>">
+                <?php foreach ($spare_vehicles as $m) { ?>
+                  <div class="spare-card ui-draggable" id="<?php echo $m->spare_part_id ?>">
+                    <?php echo '['.$m->spare_part_code.']-'.$m->spare_part_name ?>
+                  </div>
+                <?php } ?>
+              </div>
+          </div>
+          
+          <div class="spare-stack">
+              <div class="spare-stackHdr">
+                  Mooc - <?php echo $romooc_selected->romooc_number ?>
+              </div>
+              <div class="spare-stackDrop2 ui-droppable" id="<?php echo $romooc_selected->romooc_id ?>">
+                <?php foreach ($spare_romoocs as $m) { ?>
+                  <div class="spare-card ui-draggable" id="<?php echo $m->spare_part_id ?>">
+                    <?php echo '['.$m->spare_part_code.']-'.$m->spare_part_name ?>
+                  </div>
+                <?php } ?>
+              </div>
+          </div>
+      </div>
+
+      <div id="spare-launchPad">  
+        <div>Phụ tùng thiết bị thay ra</div>
+          
+      </div>
+
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</div>
+
+<div class="clearfix"></div>
+
+
+
+<div id="error" class="error"><?php echo isset($error) ? $error : null; ?></div>
+
+<style type="text/css">
+#launchPad, #launchPad2 {
+    float:right;
+    border: 1px solid #eaeaea;
+    background-color: #f5f5f5;
+    width: 350px;
+    min-height: 50px;
+}
+#dropZone {
+    float:left;
+    border: 1px solid #eaeaea;
+    background-size: cover;
+    background: url("/public/images/truck_outline_res.png") center center no-repeat;
+}
+.card, .card2 { 
+    width: 100px; 
+    padding: 5px;
+    margin:5px;
+    border:1px solid #ccc;
+    background-color: #eaeaea;
+}
+.stack {
+    float: left;
+    width: 340px;
+    margin: 5px;
+}
+.stackHdr {
+    padding: 5px 
+}
+.stackDrop1, .stackDrop2 {
+    min-height:100px;
+    padding: 5px;
+}
+.card:hover, .card2:hover{
+  cursor: move;
+}
+.ui-state-default{
+  border: 1px dashed #DB2E66;
+  background: transparent;
+}
+
+
+#spare-launchPad, #spare-launchPad2 {
+    float:right;
+    border: 1px solid #eaeaea;
+    background-color: #f5f5f5;
+    width: 350px;
+    min-height: 50px;
+}
+#spare-dropZone {
+    float:left;
+    border: 1px solid #eaeaea;
+    background-size: cover;
+    background: url("/public/images/truck_outline_res.png") center center no-repeat;
+}
+.spare-card, .spare-card2 { 
+    width: 100px; 
+    padding: 5px;
+    margin:5px;
+    border:1px solid #ccc;
+    background-color: rgba(9, 152, 152, 0.8);
+    color: white;
+}
+.spare-stack {
+    float: left;
+    width: 340px;
+    margin: 5px;
+}
+.spare-stackHdr {
+    padding: 5px 
+}
+.spare-stackDrop1, .spare-stackDrop2 {
+    min-height:100px;
+    padding: 5px;
+}
+.spare-card:hover, .spare-card2:hover{
+  cursor: move;
+}
+</style>
+<script type="text/javascript">
+var pickerOpay2 = {
+        closeText: "Đóng",
+        currentText: "Hiện tại",
+        nextText: "Tiếp",
+        prevText: "Quay lại",
+        monthNames: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+        monthNamesShort: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+        dayNames: ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"],
+        dayNamesShort: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+        dayNamesMin: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+        dateFormat: 'dd-mm-yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: "-100:+0",
+        firstDay: 1,
+        isRTL: false,
+        showButtonPanel: true
+    }; 
+    $(".ngay").datepicker(pickerOpay2);
+
+
+  $( function() {
+    $( ".draggable" ).draggable({
+    });
+  } );
+
+
+
+$(".card").draggable({
+    appendTo: "body",
+    cursor: "move",
+    helper: 'clone',
+    revert: "invalid"
+});
+$(".card2").draggable({
+    appendTo: "body",
+    cursor: "move",
+    helper: 'clone',
+    revert: "invalid"
+});
+
+$("#launchPad").droppable({
+    tolerance: "intersect",
+    accept: ".card",
+    activeClass: "ui-state-default",
+    hoverClass: "ui-state-hover",
+    drop: function(event, ui) {
+        $("#launchPad").append($(ui.draggable));
+    }
+});
+
+$(".stackDrop1").droppable({
+    tolerance: "intersect",
+    accept: ".card",
+    activeClass: "ui-state-default",
+    hoverClass: "ui-state-hover",
+    drop: function(event, ui) {  
+          
+        $(this).append($(ui.draggable));
+        console.log(ui.draggable[0].id);
+      
+    }
+});
+
+$(".stackDrop2").droppable({
+    tolerance: "intersect",
+    accept: ".card",
+    activeClass: "ui-state-default",
+    hoverClass: "ui-state-hover",
+    drop: function(event, ui) {    
+      
+        $(this).append($(ui.draggable));
+        console.log(ui.draggable[0].id);
+      
+    }
+});
+
+$('#update').click(function(){
+  var vehicle_in = $('.stackDrop1 .card').attr('id');
+  var romooc_in = $('.stackDrop2 .card').attr('id');
+  var start_time = $('#ngay').val();
+  var vehicle_out = $('.spare-stackDrop1 .spare-card').attr('id');
+  var romooc_out = $('.spare-stackDrop2 .spare-card').attr('id');
+  var end_time = $('#ngay').val();
+
+  if (start_time == "") {
+    $('#ngay').focus();
+    return false;
+  }
+  
+  var yes = "";
+
+  $.ajax({
+    type: "POST", // phương thức gởi đi
+    url: "<?php echo BASE_URL ?>/sparevehicle/exchange", // nơi mà dữ liệu sẽ chuyển đến khi submit
+    data: {
+        vehicle_in: vehicle_in,
+        romooc_in: romooc_in,
+        start_time: start_time,
+        vehicle_out: vehicle_out,
+        romooc_out: romooc_out,
+        end_time: end_time,
+        yes: yes,
+        }, // giá trị post
+    success: function(answer){ // if everything goes well
+        $('#error').hide();
+        $('#error').slideToggle(100); // hiển thị thẻ div success
+        $('#error').html('<div class="successbox">'+answer+'</div>'); // đặt kết quả trả về từ test.php vào thẻ div success
+        $('#error').fadeOut(10000);
+
+        setTimeout(function() {
+          location.reload(true);
+        }, 200);
+    }
+});
+});
+
+
+$(".spare-card").draggable({
+    appendTo: "body",
+    cursor: "move",
+    helper: 'clone',
+    revert: "invalid"
+});
+$(".spare-card2").draggable({
+    appendTo: "body",
+    cursor: "move",
+    helper: 'clone',
+    revert: "invalid"
+});
+
+$("#spare-launchPad").droppable({
+    tolerance: "intersect",
+    accept: ".spare-card",
+    activeClass: "ui-state-default",
+    hoverClass: "ui-state-hover",
+    drop: function(event, ui) {
+        $("#spare-launchPad").append($(ui.draggable));
+    }
+});
+
+
+$(".spare-stackDrop1").droppable({
+    tolerance: "intersect",
+    accept: ".spare-card",
+    activeClass: "ui-state-default",
+    hoverClass: "ui-state-hover",
+    drop: function(event, ui) {  
+          
+        $(this).append($(ui.draggable));
+        console.log(ui.draggable[0].id);
+      
+    }
+});
+
+$(".spare-stackDrop2").droppable({
+    tolerance: "intersect",
+    accept: ".spare-card",
+    activeClass: "ui-state-default",
+    hoverClass: "ui-state-hover",
+    drop: function(event, ui) {    
+      
+        $(this).append($(ui.draggable));
+        console.log(ui.draggable[0].id);
+      
+    }
+});
+
+var v = "<?php echo $vehicle ?>";
+$('#vehicle option[value='+v+']').attr('selected','selected');
+var r = "<?php echo $romooc ?>";
+$('#romooc option[value='+r+']').attr('selected','selected');
+
+
+$('#vehicle').change(function(){
+  $('#spare_form').submit();
+});
+$('#romooc').change(function(){
+  $('#spare_form').submit();
+});
+
+jQuery(document).ready(function() {
+    jQuery('.tabs .tab-links a').on('click', function(e)  {
+        var currentAttrValue = jQuery(this).attr('href');
+        // Show/Hide Tabs
+        jQuery('.tabs ' + currentAttrValue).addClass('active').siblings().removeClass('active');
+        jQuery('.tabs ' + currentAttrValue).slideDown(300).siblings().slideUp(300);
+
+ 
+        // Change/remove current tab to active
+        jQuery(this).parent('li').addClass('active').siblings().removeClass('active');
+ 
+        e.preventDefault();
+    });
+
+    jQuery('.tabs .tab-left a').on('click', function(e)  {
+        var currentAttrValue = jQuery(this).attr('href');
+ 
+        // Show/Hide Tabs
+        jQuery('.tabs ' + currentAttrValue).addClass('active').siblings().removeClass('active');
+        jQuery('.tabs ' + currentAttrValue).slideDown(300).siblings().slideUp(300);
+ 
+        // Change/remove current tab to active
+        jQuery(this).parent('li').addClass('active').siblings().removeClass('active');
+ 
+        e.preventDefault();
+    });
+});
+</script>
