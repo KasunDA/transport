@@ -1,13 +1,21 @@
+<link href="<?php echo BASE_URL ?>/public/css/jquery.tagit.css" rel="stylesheet" type="text/css">
+<link href="<?php echo BASE_URL ?>/public/css/tagit.ui-zendesk.css" rel="stylesheet" type="text/css">
+<script src="<?php echo BASE_URL ?>/public/js/tag-it.js" type="text/javascript" charset="utf-8"></script>
 
 <?php
 $url_order = 'ASC';
-if ($order_by == 'place_id')
+if ($order_by == 'spare_part_id')
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
-elseif ($order_by == 'place_name')
+elseif ($order_by == 'spare_part_name')
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
-elseif ($order_by == 'province_name')
+elseif ($order_by == 'spare_part_code')
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
-
+elseif ($order_by == 'spare_part_seri')
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+elseif ($order_by == 'spare_part_brand')
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+elseif ($order_by == 'spare_part_date_manufacture')
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
 
     $i = $sonews*$page-($sonews-1);
 
@@ -16,10 +24,10 @@ elseif ($order_by == 'province_name')
 <div id="loading"></div>
 <div id="winpopup"></div>
 <section class="content-header">
-    <h1>DANH SÁCH KHO HÀNG</h1>
+    <h1>DANH SÁCH VẬT TƯ</h1>
   <ol class="breadcrumb">
     <li><a href="<?php echo $this->url('admin') ?>"><i class="fa fa-dashboard"></i> Home</a></li>
-    <li class="active"><a href="<?php echo $this->url('place') ?>">Kho hàng</a></li>
+    <li class="active"><a href="<?php echo $this->url('sparepart') ?>">Vật tư</a></li>
   </ol>
 </section>
 <div id="content" style="padding:5px;">
@@ -47,10 +55,10 @@ elseif ($order_by == 'province_name')
         <div class="alignleft actions">
         <select name="m" id="chonloc">
             <option  value="18446744073709">Hiển thị tất cả</option>
-            <option value="5">Hiển thị 5 giá trị</option>
-            <option value="10">Hiển thị 10 giá trị</option>
-            <option value="15">Hiển thị 15 giá trị</option>
-            <option selected="selected" value="20">Hiển thị 20 giá trị</option>
+            <option value="50">Hiển thị 50 giá trị</option>
+            <option value="100">Hiển thị 100 giá trị</option>
+            <option value="150">Hiển thị 150 giá trị</option>
+            <option selected="selected" value="200">Hiển thị 200 giá trị</option>
         </select>
         <input type="button" name="" id="post-query-submit" class="button" value="Chọn lọc" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">                               
         </div>
@@ -65,13 +73,25 @@ elseif ($order_by == 'province_name')
     <tr>
         <th class="fix"><input type="checkbox" onclick="checkall('checkbox', this)" name="checkall"/></th>
         <th class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','place_id','<?php echo $url_order ?>')">STT <?php if ($order_by == 'place_id'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','spare_part_id','<?php echo $url_order ?>')">STT <?php if ($order_by == 'spare_part_id'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','place_name','<?php echo $url_order ?>')">Tên kho <?php if ($order_by == 'place_name'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','spare_part_code','<?php echo $url_order ?>')">Mã SP <?php if ($order_by == 'spare_part_code'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','province_name','<?php echo $url_order ?>')">Tên tỉnh/TP <?php if ($order_by == 'province_name'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','spare_part_name','<?php echo $url_order ?>')">Tên SP <?php if ($order_by == 'spare_part_name'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+        </th>
+        <th  class="fix">
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','spare_part_seri','<?php echo $url_order ?>')">Số seri <?php if ($order_by == 'spare_part_seri'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+        </th>
+        <th  class="fix">
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','spare_part_brand','<?php echo $url_order ?>')">Nhà SX <?php if ($order_by == 'spare_part_brand'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+        </th>
+        <th  class="fix">
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','spare_part_date_manufacture','<?php echo $url_order ?>')">Ngày SX <?php if ($order_by == 'spare_part_date_manufacture'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+        </th>
+        <th  class="fix">
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','spare_part_type','<?php echo $url_order ?>')">Loại hàng <?php if ($order_by == 'spare_part_type'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         
            
@@ -83,17 +103,21 @@ elseif ($order_by == 'province_name')
     
    </thead>
    <tbody>
-    <?php foreach ($places as $place) : ?>
-        <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $place->place_id ?>" class="edit_tr">
-            <td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $place->place_id ?>"></td>
+    <?php foreach ($spares as $spare_part) : ?>
+        <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $spare_part->spare_part_id ?>" class="edit_tr">
+            <td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $spare_part->spare_part_id ?>"></td>
             <td class="fix"><?php echo $i++; ?></td>
-            <td class="fix"  id="place_name_<?php echo $place->place_id; ?>"><?php echo $place->place_name ?></td>
-            <td class="fix" data="<?php echo $place->province; ?>" id="province_name_<?php echo $place->place_id; ?>"><?php echo $place->province_name ?></td>
+            <td class="fix"  id="spare_part_code_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_code ?></td>
+            <td class="fix"  id="spare_part_name_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_name ?></td>
+            <td class="fix"  id="spare_part_seri_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_seri ?></td>
+            <td class="fix"  id="spare_part_brand_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_brand ?></td>
+            <td class="fix"  id="spare_part_date_manufacture_<?php echo $spare_part->spare_part_id; ?>"><?php echo $lib->hien_thi_ngay_thang($spare_part->spare_part_date_manufacture) ?></td>
+            <td class="fix" id="spare_part_type_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part_types[$spare_part->spare_part_id] ?></td>
         
             <?php if(!isset($disable_control)){ ?>
             <td class="pull-right">
                 <button class="btn btn-sm btn-flat btn-primary"><i class="fa fa-edit"></i> Sửa</button>
-                <button class="btn btn-sm btn-flat btn-danger" onclick="del(<?php echo $place->place_id ?>)" ><i class="fa fa-remove"></i> Xóa</button>
+                <button class="btn btn-sm btn-flat btn-danger" onclick="del(<?php echo $spare_part->spare_part_id ?>)" ><i class="fa fa-remove"></i> Xóa</button>
             </td>
             <?php } ?>
         </tr>
@@ -112,13 +136,17 @@ $this->helper('slidePaginator');
           <div class="box box-primary">
             <!-- /.box-header -->
             <!-- form start -->
-            <form id="add_place" role="form" method="post" action="" enctype="multipart/form-data">
+            <form id="add_spare_part" role="form" method="post" action="" enctype="multipart/form-data">
               <div class="row">
-                <div class="col-md-6 col-xs-6">
+                <div class="col-md-4 col-xs-6">
                   <div class="box-body">
                     <div class="form-group">
-                      <label for="place_name">Tên kho</label>
-                      <input type="text" id="place_name"  name="place_name" tabindex="1" required="required" >
+                      <label for="spare_part_code">Mã sản phẩm</label>
+                      <input type="text" id="spare_part_code"  name="spare_part_code" tabindex="1" required="required" >
+                    </div>
+                    <div class="form-group">
+                      <label for="spare_part_name">Tên sản phẩm</label>
+                      <input type="text" id="spare_part_name"  name="spare_part_name" tabindex="2" required="required" >
                     </div>
                     
                     
@@ -126,18 +154,30 @@ $this->helper('slidePaginator');
                   <!-- /.box-body -->
                   
                 </div>
-                <div class="col-md-6 col-xs-6">
+                <div class="col-md-4 col-xs-6">
                   <div class="box-body">
                     <div class="form-group">
-                      <label for="province">Tên tỉnh/TP</label>
-                      <select id="province" name="province" tabindex="2" required="required">
-                        <?php foreach ($provinces as $province) {
-                            echo '<option value="'.$province->province_id.'">'.$province->province_name.'</option>';
-                        }
-                        ?>
-                    </select>
+                      <label for="spare_part_seri">Số seri</label>
+                      <input type="text" id="spare_part_seri"  name="spare_part_seri" tabindex="3" >
                     </div>
-                    
+                    <div class="form-group">
+                      <label for="spare_part_brand">Nhà sản xuất</label>
+                      <input type="text" id="spare_part_brand"  name="spare_part_brand" tabindex="4" >
+                    </div>
+                  </div>
+                  <!-- /.box-body -->
+                </div>
+                <div class="col-md-4 col-xs-6">
+                  <div class="box-body">
+                    <div class="form-group">
+                      <label for="spare_part_date_manufacture">Ngày sản xuất</label>
+                      <input type="text" id="spare_part_date_manufacture"  name="spare_part_date_manufacture" tabindex="5" >
+                    </div>
+                    <div class="form-group">
+                      <label for="spare_part_type">Loại hàng</label>
+                      <input type="text" id="spare_part_type" tabindex="6" />
+                      <ul id="mytags"></ul>
+                    </div>
                     
                   </div>
                   <!-- /.box-body -->
@@ -149,8 +189,8 @@ $this->helper('slidePaginator');
                 <div class="col-md-12">
                     <div class="box-footer">
                     <input type="hidden" readonly id="yes" name="yes" required="required" >
-                    <button type="submit" class="btn btn-primary" tabindex="3">Hoàn thành</button>
-                    <button type="reset" class="btn" tabindex="4">Nhập lại</button>
+                    <button type="submit" class="btn btn-primary" tabindex="7">Hoàn thành</button>
+                    <button type="reset" class="btn" tabindex="8">Nhập lại</button>
                   </div>
                   <div class="box-footer">
                     <div id="error" class="error"><?php echo isset($error) ? $error : null; ?></div>
@@ -180,14 +220,37 @@ $this->helper('slidePaginator');
             if(!$('.checkbox').is(':focus')){
                 $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
             }
-            var place_name = $(this).find("#place_name_"+$(this).attr('id')).text();
-            var province = $(this).find("#province_name_"+$(this).attr('id')).attr('data');
+            var spare_part_name = $(this).find("#spare_part_name_"+$(this).attr('id')).text();
+            var spare_part_code = $(this).find("#spare_part_code_"+$(this).attr('id')).text();
+            var spare_part_seri = $(this).find("#spare_part_seri_"+$(this).attr('id')).text();
+            var spare_part_brand = $(this).find("#spare_part_brand_"+$(this).attr('id')).text();
+            var spare_part_date_manufacture = $(this).find("#spare_part_date_manufacture_"+$(this).attr('id')).text();
+            var spare_part_type = $(this).find("#spare_part_type_"+$(this).attr('id')).text();
             
-            //alert(place_code);
+            //alert(spare_part_code);
             $('#yes').val($(this).attr('id'));
             
-            $('#province option[value='+province+']').attr('selected','selected');
-            $('#place_name').val(place_name);
+            $('#spare_part_code').val(spare_part_code);
+            $('#spare_part_name').val(spare_part_name);
+            $('#spare_part_seri').val(spare_part_seri);
+            $('#spare_part_brand').val(spare_part_brand);
+            $('#spare_part_date_manufacture').val(spare_part_date_manufacture.replace(/\//g,"-"));
+            $('#spare_part_type').val(spare_part_type.trim());
+            
+
+            $("#spare_part_type").tagit({
+              tagSource: function(search, showChoices) {
+                $.ajax({
+                  url: "<?php echo BASE_URL ?>/sparepart/getSub",
+                  data: {search: search.term},
+                  success: function(choices) {
+                    showChoices(choices);
+                  }
+                });
+              },
+              allowSpaces: true,
+            });
+
             $( ".add-field" ).dialog( "open" );
         }
     });
@@ -198,7 +261,12 @@ function add_click(){
     $('#yes').val("");
     $('.add-field').slideDown(500);
      $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);   
-        $('#place_name').val("");
+        $('#spare_part_code').val("");
+            $('#spare_part_name').val("");
+            $('#spare_part_seri').val("");
+            $('#spare_part_brand').val("");
+            $('#spare_part_date_manufacture').val("");
+            $('#spare_part_type').val("");
         
         
         $('.number').focus(function(){
@@ -222,15 +290,19 @@ function add_click(){
 
 $(document).ready(function(){
             // Validate form
-            $("#add_place").validate({
+            $("#add_spare_part").validate({
                 errorElement: "span", // Định dạng cho thẻ HTML hiện thông báo lỗi
                 rules: {
                     
                 },
                 submitHandler: function(form) {
                 
-                    var place_name = $('#place_name').attr('value');
-                    var province = $('#province').attr('value');
+                    var spare_part_name = $('#spare_part_name').attr('value');
+                    var spare_part_code = $('#spare_part_code').attr('value');
+                    var spare_part_seri = $('#spare_part_seri').attr('value');
+                    var spare_part_brand = $('#spare_part_brand').attr('value');
+                    var spare_part_date_manufacture = $('#spare_part_date_manufacture').attr('value');
+                    var spare_part_type = $('#spare_part_type').val().trim();
                     
                     var yes = $('#yes').attr('value');
                     
@@ -238,10 +310,14 @@ $(document).ready(function(){
                  
                     $.ajax({
                         type: "POST", // phương thức gởi đi
-                        url: "<?php echo BASE_URL ?>/place/add", // nơi mà dữ liệu sẽ chuyển đến khi submit
+                        url: "<?php echo BASE_URL ?>/sparepart/add", // nơi mà dữ liệu sẽ chuyển đến khi submit
                         data: {
-                            place_name: place_name,
-                            province: province,
+                            spare_part_name: spare_part_name,
+                            spare_part_code: spare_part_code,
+                            spare_part_seri: spare_part_seri,
+                            spare_part_brand: spare_part_brand,
+                            spare_part_date_manufacture: spare_part_date_manufacture,
+                            spare_part_type: spare_part_type,
                             yes: yes,
                             }, // giá trị post
                         success: function(answer){ // if everything goes well
@@ -256,7 +332,7 @@ $(document).ready(function(){
                                   setTimeout(function() {
                                         sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
                                       }, 200);
-                                    $('#place_name_'+yes).text(place_name);
+                                    $('#spare_part_name_'+yes).text(spare_part_name);
                                     $('#province_name_'+yes).text($('#province option:selected').text());
                                 }
                             }
@@ -269,7 +345,7 @@ $(document).ready(function(){
                                     var rowCount = parseInt($('.table_data > tbody > tr').length);
                                     $('.table_data > tbody:last')
                                     .append(
-                                        '<tr onclick="HighLightTR(this,#4d90fe,cc3333);" id="'+parseInt(lastID+1)+'" class="edit_tr"><td><input name="check[]" type="checkbox" class="checkbox" value="'+parseInt(lastID+1)+'"></td><td class="fix">'+parseInt(rowCount+1)+'</td><td class="fix" id="place_name_'+parseInt(lastID+1)+'">'+place_name+'</td><td class="fix" data="'+province+'" id="province_name_'+parseInt(lastID+1)+'">'+$('#province option:selected').text()+'</td><td><a class="error" href="#">Sửa</a> | <a class="error" onclick="del('+parseInt(lastID+1)+')">Xóa</a></td></tr>'
+                                        '<tr onclick="HighLightTR(this,#4d90fe,cc3333);" id="'+parseInt(lastID+1)+'" class="edit_tr"><td><input name="check[]" type="checkbox" class="checkbox" value="'+parseInt(lastID+1)+'"></td><td class="fix">'+parseInt(rowCount+1)+'</td><td class="fix" id="spare_part_name_'+parseInt(lastID+1)+'">'+spare_part_name+'</td><td class="fix" data="'+province+'" id="province_name_'+parseInt(lastID+1)+'">'+$('#province option:selected').text()+'</td><td><a class="error" href="#">Sửa</a> | <a class="error" onclick="del('+parseInt(lastID+1)+')">Xóa</a></td></tr>'
                                     );
 
                                     $('#lasted').html(parseInt(lastID+2));
@@ -339,6 +415,26 @@ $("#import_excel").click(function(){
          
         return false;
     });
+
+var pickerOpay2 = {
+        closeText: "Đóng",
+        currentText: "Hiện tại",
+        nextText: "Tiếp",
+        prevText: "Quay lại",
+        monthNames: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+        monthNamesShort: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+        dayNames: ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"],
+        dayNamesShort: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+        dayNamesMin: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+        dateFormat: 'dd-mm-yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: "-100:+0",
+        firstDay: 1,
+        isRTL: false,
+        showButtonPanel: true
+    }; 
+    $("#spare_part_date_manufacture").datepicker(pickerOpay2);
 </script>
 </div>
 
@@ -350,9 +446,21 @@ $( ".add-field" ).dialog({
     autoOpen: false,
     modal: true,
     width: "auto",
-    title: "Thông tin kho",
+    title: "Thông tin vật tư",
     hide: 'fold',
     show: 'blind'
 });
 
+$("#spare_part_type").tagit({
+  tagSource: function(search, showChoices) {
+    $.ajax({
+      url: "<?php echo BASE_URL ?>/sparepart/getSub",
+      data: {search: search.term},
+      success: function(choices) {
+        showChoices(choices);
+      }
+    });
+  },
+  allowSpaces: true,
+});
 </script>

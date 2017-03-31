@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Client :  127.0.0.1
--- Généré le :  Mer 29 Mars 2017 à 11:45
+-- Généré le :  Jeu 30 Mars 2017 à 11:47
 -- Version du serveur :  5.6.20
 -- Version de PHP :  5.5.15
 
@@ -218,6 +218,50 @@ CREATE TABLE IF NOT EXISTS `driver_temp` (
   `driver_temp_user` int(11) DEFAULT NULL,
   `name` varchar(20) DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `export_stock`
+--
+
+CREATE TABLE IF NOT EXISTS `export_stock` (
+`export_stock_id` int(11) NOT NULL,
+  `export_stock_code` varchar(50) DEFAULT NULL,
+  `export_stock_date` int(11) DEFAULT NULL,
+  `export_stock_user` int(11) DEFAULT NULL,
+  `export_stock_price` decimal(10,0) DEFAULT NULL,
+  `export_stock_total` float DEFAULT NULL
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+
+--
+-- Contenu de la table `export_stock`
+--
+
+INSERT INTO `export_stock` (`export_stock_id`, `export_stock_code`, `export_stock_date`, `export_stock_user`, `export_stock_price`, `export_stock_total`) VALUES
+(1, 'XK00001', 1490911200, 41, '3000', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `import_stock`
+--
+
+CREATE TABLE IF NOT EXISTS `import_stock` (
+`import_stock_id` int(11) NOT NULL,
+  `import_stock_code` varchar(50) DEFAULT NULL,
+  `import_stock_date` int(11) DEFAULT NULL,
+  `import_stock_user` int(11) DEFAULT NULL,
+  `import_stock_total` float DEFAULT NULL,
+  `import_stock_price` decimal(10,0) DEFAULT NULL
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+
+--
+-- Contenu de la table `import_stock`
+--
+
+INSERT INTO `import_stock` (`import_stock_id`, `import_stock_code`, `import_stock_date`, `import_stock_user`, `import_stock_total`, `import_stock_price`) VALUES
+(1, 'A3353511', 1490911200, 41, 4, '7000');
 
 -- --------------------------------------------------------
 
@@ -524,6 +568,55 @@ INSERT INTO `romooc_temp` (`romooc_temp_id`, `romooc_id`, `romooc_number`, `romo
 (3, 2, 'sdsd', 1490738400, 41, 1, 'DS xe'),
 (4, 2, 'sdsd', 1490738400, 41, 3, 'DS mooc'),
 (5, 2, '72C-32300', 1490738400, 41, 1, 'DS mooc');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `spare_part`
+--
+
+CREATE TABLE IF NOT EXISTS `spare_part` (
+`spare_part_id` int(11) NOT NULL,
+  `spare_part_code` varchar(50) DEFAULT NULL,
+  `spare_part_seri` varchar(100) DEFAULT NULL,
+  `spare_part_date_manufacture` int(11) DEFAULT NULL,
+  `spare_part_brand` varchar(50) DEFAULT NULL,
+  `spare_part_name` varchar(100) DEFAULT NULL,
+  `spare_part_type` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+
+--
+-- Contenu de la table `spare_part`
+--
+
+INSERT INTO `spare_part` (`spare_part_id`, `spare_part_code`, `spare_part_seri`, `spare_part_date_manufacture`, `spare_part_brand`, `spare_part_name`, `spare_part_type`) VALUES
+(1, 'BL01', '2346466565', 1488301200, 'Honda', 'Bulong', NULL),
+(2, 'OC01', '6479232964', 1488301200, 'Toshiba', 'Ốc', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `spare_stock`
+--
+
+CREATE TABLE IF NOT EXISTS `spare_stock` (
+`spare_stock_id` int(11) NOT NULL,
+  `spare_part` int(11) DEFAULT NULL,
+  `spare_stock_unit` varchar(20) DEFAULT NULL,
+  `spare_stock_number` float DEFAULT NULL,
+  `spare_stock_price` decimal(10,0) DEFAULT NULL,
+  `import_stock` int(11) DEFAULT NULL,
+  `export_stock` int(11) DEFAULT NULL
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
+
+--
+-- Contenu de la table `spare_stock`
+--
+
+INSERT INTO `spare_stock` (`spare_stock_id`, `spare_part`, `spare_stock_unit`, `spare_stock_number`, `spare_stock_price`, `import_stock`, `export_stock`) VALUES
+(1, 1, 'Cái', 2, '2500', 1, NULL),
+(2, 2, 'Chiếc', 2, '1000', 1, NULL),
+(3, 1, 'Cái', 1, '3000', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -881,6 +974,18 @@ ALTER TABLE `driver_temp`
  ADD PRIMARY KEY (`driver_temp_id`), ADD KEY `driver_temp_id` (`driver_temp_id`);
 
 --
+-- Index pour la table `export_stock`
+--
+ALTER TABLE `export_stock`
+ ADD PRIMARY KEY (`export_stock_id`);
+
+--
+-- Index pour la table `import_stock`
+--
+ALTER TABLE `import_stock`
+ ADD PRIMARY KEY (`import_stock_id`);
+
+--
 -- Index pour la table `oil`
 --
 ALTER TABLE `oil`
@@ -939,6 +1044,18 @@ ALTER TABLE `romooc`
 --
 ALTER TABLE `romooc_temp`
  ADD PRIMARY KEY (`romooc_temp_id`);
+
+--
+-- Index pour la table `spare_part`
+--
+ALTER TABLE `spare_part`
+ ADD PRIMARY KEY (`spare_part_id`);
+
+--
+-- Index pour la table `spare_stock`
+--
+ALTER TABLE `spare_stock`
+ ADD PRIMARY KEY (`spare_stock_id`);
 
 --
 -- Index pour la table `steersman`
@@ -1062,6 +1179,16 @@ MODIFY `driver_id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=57;
 ALTER TABLE `driver_temp`
 MODIFY `driver_temp_id` int(11) NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT pour la table `export_stock`
+--
+ALTER TABLE `export_stock`
+MODIFY `export_stock_id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+--
+-- AUTO_INCREMENT pour la table `import_stock`
+--
+ALTER TABLE `import_stock`
+MODIFY `import_stock_id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+--
 -- AUTO_INCREMENT pour la table `oil`
 --
 ALTER TABLE `oil`
@@ -1111,6 +1238,16 @@ MODIFY `romooc_id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
 --
 ALTER TABLE `romooc_temp`
 MODIFY `romooc_temp_id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=6;
+--
+-- AUTO_INCREMENT pour la table `spare_part`
+--
+ALTER TABLE `spare_part`
+MODIFY `spare_part_id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+--
+-- AUTO_INCREMENT pour la table `spare_stock`
+--
+ALTER TABLE `spare_stock`
+MODIFY `spare_stock_id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
 --
 -- AUTO_INCREMENT pour la table `steersman`
 --

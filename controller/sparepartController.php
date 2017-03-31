@@ -33,7 +33,7 @@ Class sparepartController Extends baseController {
         $pagination_stages = 2;
 
         
-        $tongsodong = count($place_model->getAllPlace());
+        $tongsodong = count($spare_model->getAllStock());
         $tongsotrang = ceil($tongsodong / $sonews);
         
 
@@ -62,11 +62,50 @@ Class sparepartController Extends baseController {
             $data['where'] .= $search;
         }
         
-        $this->view->data['spares'] = $spare_model->getAllStock($data);
+        $spares = $spare_model->getAllStock($data);
+        $this->view->data['spares'] = $spares;
+
+        $spare_sub_model = $this->model->get('sparesubModel');
+
+        $spare_part_types = array();
+        foreach ($spares as $spare) {
+            $spare_sub = "";
+            $sts = explode(',', $spare->spare_part_type);
+            foreach ($sts as $key) {
+                $subs = $spare_sub_model->getStock($key);
+                if ($subs) {
+                    if ($spare_sub == "")
+                        $spare_sub .= $subs->spare_sub_name;
+                    else
+                        $spare_sub .= ','.$subs->spare_sub_name;
+                }
+                
+            }
+            $spare_part_types[$spare->spare_part_id] = $spare_sub;
+        }
+        
+        $this->view->data['spare_part_types'] = $spare_part_types;
 
         $this->view->data['lastID'] = isset($spare_model->getLastStock()->spare_part_id)?$spare_model->getLastStock()->spare_part_id:0;
         
         $this->view->show('sparepart/index');
+    }
+
+    public function getSub(){
+        header('Content-type: application/json');
+        $q = $_GET["search"];
+
+        $sub_model = $this->model->get('sparesubModel');
+        $data = array(
+            'where' => 'spare_sub_name LIKE "%'.$q.'%"',
+        );
+        $subs = $sub_model->getAllStock($data);
+        $arr = array();
+        foreach ($subs as $sub) {
+            $arr[] = $sub->spare_sub_name;
+        }
+        
+        echo json_encode($arr);
     }
 
     public function add(){
@@ -94,8 +133,8 @@ Class sparepartController Extends baseController {
             $spare_sub_model = $this->model->get('sparesubModel');
 
             $contributor = "";
-            if(trim($_POST['spare_sub']) != ""){
-                $support = explode(',', trim($_POST['spare_sub']));
+            if(trim($_POST['spare_part_type']) != ""){
+                $support = explode(',', trim($_POST['spare_part_type']));
 
                 if ($support) {
                     foreach ($support as $key) {
