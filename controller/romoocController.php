@@ -49,7 +49,7 @@ Class romoocController Extends baseController {
 
         }
 
-
+        $id = $this->registry->router->param_id;
 
         $romooc_model = $this->model->get('romoocModel');
 
@@ -59,9 +59,15 @@ Class romoocController Extends baseController {
 
         $pagination_stages = 2;
 
-        
+        $data = array(
+            'where' => '1=1',
+        );
 
-        $tongsodong = count($romooc_model->getAllVehicle());
+        if (isset($id) && $id > 0) {
+            $data['where'] .= ' AND romooc_id = '.$id;
+        }
+
+        $tongsodong = count($romooc_model->getAllVehicle($data));
 
         $tongsotrang = ceil($tongsodong / $sonews);
 
@@ -95,9 +101,13 @@ Class romoocController Extends baseController {
 
             'limit'=>$x.','.$sonews,
 
+            'where'=>'1=1',
+
             );
 
-        
+        if (isset($id) && $id > 0) {
+            $data['where'] .= ' AND romooc_id = '.$id;
+        }
 
         if ($keyword != '') {
 

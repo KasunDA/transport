@@ -111,7 +111,7 @@ elseif ($order_by == 'spare_part_date_manufacture')
             <td class="fix"  id="spare_part_name_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_name ?></td>
             <td class="fix"  id="spare_part_seri_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_seri ?></td>
             <td class="fix"  id="spare_part_brand_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_brand ?></td>
-            <td class="fix"  id="spare_part_date_manufacture_<?php echo $spare_part->spare_part_id; ?>"><?php echo $lib->hien_thi_ngay_thang($spare_part->spare_part_date_manufacture) ?></td>
+            <td class="fix"  id="spare_part_date_manufacture_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_date_manufacture>0?$lib->hien_thi_ngay_thang($spare_part->spare_part_date_manufacture):null ?></td>
             <td class="fix" id="spare_part_type_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part_types[$spare_part->spare_part_id] ?></td>
         
             <?php if(!isset($disable_control)){ ?>
@@ -235,8 +235,9 @@ $this->helper('slidePaginator');
             $('#spare_part_seri').val(spare_part_seri);
             $('#spare_part_brand').val(spare_part_brand);
             $('#spare_part_date_manufacture').val(spare_part_date_manufacture.replace(/\//g,"-"));
+
+
             $('#spare_part_type').val(spare_part_type.trim());
-            
 
             $("#spare_part_type").tagit({
               tagSource: function(search, showChoices) {
@@ -250,6 +251,8 @@ $this->helper('slidePaginator');
               },
               allowSpaces: true,
             });
+
+
 
             $( ".add-field" ).dialog( "open" );
         }
@@ -281,6 +284,19 @@ function add_click(){
             };
             
         });
+
+        $("#spare_part_type").tagit({
+              tagSource: function(search, showChoices) {
+                $.ajax({
+                  url: "<?php echo BASE_URL ?>/sparepart/getSub",
+                  data: {search: search.term},
+                  success: function(choices) {
+                    showChoices(choices);
+                  }
+                });
+              },
+              allowSpaces: true,
+            });
 
 
    $( ".add-field" ).dialog( "open" );
@@ -448,19 +464,12 @@ $( ".add-field" ).dialog({
     width: "auto",
     title: "Thông tin vật tư",
     hide: 'fold',
-    show: 'blind'
+    show: 'blind',
+    close: function(){
+      setTimeout(function() {
+        sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
+      }, 200);
+    },
 });
 
-$("#spare_part_type").tagit({
-  tagSource: function(search, showChoices) {
-    $.ajax({
-      url: "<?php echo BASE_URL ?>/sparepart/getSub",
-      data: {search: search.term},
-      success: function(choices) {
-        showChoices(choices);
-      }
-    });
-  },
-  allowSpaces: true,
-});
 </script>

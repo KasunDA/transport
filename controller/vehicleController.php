@@ -49,7 +49,7 @@ Class vehicleController Extends baseController {
 
         }
 
-
+        $id = $this->registry->router->param_id;
 
         $driver_model = $this->model->get('driverModel');
 
@@ -86,9 +86,15 @@ Class vehicleController Extends baseController {
 
         $pagination_stages = 2;
 
-        
+        $data = array(
+            'where' => '1=1',
+        );
 
-        $tongsodong = count($vehicle_model->getAllVehicle());
+        if (isset($id) && $id > 0) {
+            $data['where'] .= ' AND vehicle_id = '.$id;
+        }
+
+        $tongsodong = count($vehicle_model->getAllVehicle($data));
 
         $tongsotrang = ceil($tongsodong / $sonews);
 
@@ -122,8 +128,13 @@ Class vehicleController Extends baseController {
 
             'limit'=>$x.','.$sonews,
 
+            'where'=>'1=1',
+
             );
 
+        if (isset($id) && $id > 0) {
+            $data['where'] .= ' AND vehicle_id = '.$id;
+        }
         
 
         if ($keyword != '') {

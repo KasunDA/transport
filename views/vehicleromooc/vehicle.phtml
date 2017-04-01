@@ -96,8 +96,8 @@ elseif ($order_by == 'romooc_number')
         	<td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $vehicle_romooc->vehicle_romooc_id ?>"></td>
             <td class="fix"><?php echo $i++; ?></td>
             
-            <td class="fix" id="vehicle_number_<?php echo $vehicle_romooc->vehicle_romooc_id; ?>"><?php echo $vehicle_romooc->vehicle_number; ?></td>
-            <td class="fix"  id="romooc_number_<?php echo $vehicle_romooc->vehicle_romooc_id; ?>"><?php echo $vehicle_romooc->romooc_number; ?></td>
+            <td class="fix" id="vehicle_number_<?php echo $vehicle_romooc->vehicle_romooc_id; ?>"><a target="_blank" href="<?php echo $this->url('vehicle/index/'.$vehicle_romooc->vehicle) ?>" ><?php echo $vehicle_romooc->vehicle_number; ?></a></td>
+            <td class="fix"  id="romooc_number_<?php echo $vehicle_romooc->vehicle_romooc_id; ?>"><a target="_blank" href="<?php echo $this->url('romooc/index/'.$vehicle_romooc->romooc) ?>" ><?php echo $vehicle_romooc->romooc_number; ?></a></td>
             
             <td class="fix" id="start_time_<?php echo $vehicle_romooc->vehicle_romooc_id; ?>"><?php echo $lib->hien_thi_ngay_thang($vehicle_romooc->start_time); ?></td>
             <td class="fix" id="end_time_<?php echo $vehicle_romooc->vehicle_romooc_id; ?>"><?php echo $vehicle_romooc->end_time>0?$lib->hien_thi_ngay_thang($vehicle_romooc->end_time):null; ?></td>

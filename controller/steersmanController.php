@@ -26,13 +26,22 @@ Class steersmanController Extends baseController {
             $limit = 50;
         }
 
+        $id = $this->registry->router->param_id;
 
         $steersman_model = $this->model->get('steersmanModel');
         $sonews = $limit;
         $x = ($page-1) * $sonews;
         $pagination_stages = 2;
         
-        $tongsodong = count($steersman_model->getAllSteersman());
+        $data = array(
+            'where' => '1=1',
+        );
+
+        if (isset($id) && $id > 0) {
+            $data['where'] .= ' AND steersman_id = '.$id;
+        }
+
+        $tongsodong = count($steersman_model->getAllSteersman($data));
         $tongsotrang = ceil($tongsodong / $sonews);
         
 
@@ -49,7 +58,12 @@ Class steersmanController Extends baseController {
             'order_by'=>$order_by,
             'order'=>$order,
             'limit'=>$x.','.$sonews,
+            'where'=>'1=1',
             );
+
+        if (isset($id) && $id > 0) {
+            $data['where'] .= ' AND steersman_id = '.$id;
+        }
         
         if ($keyword != '') {
             $search = '( steersman_name LIKE "%'.$keyword.'%" OR steersman_phone LIKE "%'.$keyword.'%" )';

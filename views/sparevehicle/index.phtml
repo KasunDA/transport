@@ -42,6 +42,8 @@
             
           </div>
         </div>
+        <input type="hidden" value="<?php echo $tab_active ?>" class="tab_active" name="tab_active" >
+        <input type="hidden" value="<?php echo $export_stock ?>" name="export_stock" >
         </form>
         <div class="alignleft actions">
           <div class="form-group">
@@ -62,11 +64,27 @@
 
 <div class="tabs">
   <ul class="tab-links">
-    <li class="active" ><a href="#tab1"><i class="fa fa-wrench"></i> LẮP VÀO</a></li>
-    <li><a href="#tab2"><i class="fa fa-plug"></i> THAY RA</a></li>
+    <li <?php echo $tab_active==1?'class="active"':null ?>  ><a href="#tab1"><i class="fa fa-wrench"></i> LẮP VÀO</a></li>
+    <li <?php echo $tab_active==2?'class="active"':null ?>  ><a href="#tab2"><i class="fa fa-plug"></i> THAY RA</a></li>
   </ul>
   <div class="tab-content">
-    <div class="tab active" id="tab1" >
+    <div class="tab <?php echo $tab_active==1?'active':null ?>" id="tab1" >
+      <div class="add-box">
+        <form id="spare_form_x" action="" method="post">
+          Phiếu xuất kho
+          <select style="width:100px" id="export_stock" name="export_stock">
+            <?php foreach ($export_stocks as $ex) { ?>
+              <option value="<?php echo $ex->export_stock_id ?>" ><?php echo $ex->export_stock_code ?></option>
+            <?php } ?>
+          </select>
+          <a title="Thêm phiếu xuất kho" href="<?php echo $this->url('exportstock') ?>"><i class="fa fa-plus"></i></a>
+          <input type="hidden" value="<?php echo $tab_active ?>" class="tab_active" name="tab_active" >
+          <input type="hidden" value="<?php echo $vehicle ?>" name="vehicle" >
+          <input type="hidden" value="<?php echo $romooc ?>" name="romooc" >
+        </form>
+      </div>
+      <div class="clearfix"></div>
+
       <div id="dropZone">
           <div class="stack">
               <div class="stackHdr">
@@ -90,7 +108,7 @@
         <div>Phụ tùng thiết bị lắp vào</div>
         <?php foreach ($spare_parts as $m) { ?>
           <div class="card col-md-4 col-xs-4" id="<?php echo $m->spare_part_id ?>">
-              <?php echo '['.$m->spare_part_code.']-'.$m->spare_part_name ?>
+              <?php echo '['.$m->spare_part_code.']-'.$m->spare_part_name ?><input type="number" style="width:40px" min="1" max="<?php echo $m->spare_stock_number-(isset($arr_stock[$m->export_stock][$m->spare_part_id])?$arr_stock[$m->export_stock][$m->spare_part_id]:0) ?>" value="<?php echo $m->spare_stock_number-(isset($arr_stock[$m->export_stock][$m->spare_part_id])?$arr_stock[$m->export_stock][$m->spare_part_id]:0) ?>" class="num">
           </div> 
         <?php }  ?>
           
@@ -98,7 +116,7 @@
 
       <div class="clearfix"></div>
     </div>
-    <div class="tab" id="tab2" >
+    <div class="tab <?php echo $tab_active==2?'active':null ?>" id="tab2" >
       <div id="spare-dropZone">
           <div class="spare-stack">
               <div class="spare-stackHdr">
@@ -106,10 +124,14 @@
               </div>
               <div class="spare-stackDrop1 ui-droppable" id="<?php echo $vehicle_selected->vehicle_id ?>">
                 <?php foreach ($spare_vehicles as $m) { ?>
-                  <div class="spare-card ui-draggable" id="<?php echo $m->spare_part_id ?>">
-                    <?php echo '['.$m->spare_part_code.']-'.$m->spare_part_name ?>
+                <?php 
+                $con = $m->total-(isset($spare_vehicle_outs[$m->vehicle][$m->spare_part])?$spare_vehicle_outs[$m->vehicle][$m->spare_part]:0);
+                if($con > 0){
+                ?>
+                  <div class="card-vehicle spare-card ui-draggable col-md-4 col-xs-4" id="<?php echo $m->spare_part_id ?>" >
+                    <?php echo '['.$m->spare_part_code.']-'.$m->spare_part_name ?><input type="number" style="width:40px" min="1" value="<?php echo $con ?>" max="<?php echo $con ?>" class="num">
                   </div>
-                <?php } ?>
+                <?php }} ?>
               </div>
           </div>
           
@@ -119,10 +141,14 @@
               </div>
               <div class="spare-stackDrop2 ui-droppable" id="<?php echo $romooc_selected->romooc_id ?>">
                 <?php foreach ($spare_romoocs as $m) { ?>
-                  <div class="spare-card ui-draggable" id="<?php echo $m->spare_part_id ?>">
-                    <?php echo '['.$m->spare_part_code.']-'.$m->spare_part_name ?>
+                <?php
+                $con = $m->total-(isset($spare_romooc_outs[$m->romooc][$m->spare_part])?$spare_romooc_outs[$m->romooc][$m->spare_part]:0);
+                if($con > 0){
+                ?>
+                  <div class="card-romooc spare-card ui-draggable col-md-4 col-xs-4" id="<?php echo $m->spare_part_id ?>" >
+                    <?php echo '['.$m->spare_part_code.']-'.$m->spare_part_name ?><input type="number" style="width:40px" min="1" value="<?php echo $con ?>" max="<?php echo $con ?>" class="num">
                   </div>
-                <?php } ?>
+                <?php }} ?>
               </div>
           </div>
       </div>
@@ -162,7 +188,8 @@
     padding: 5px;
     margin:5px;
     border:1px solid #ccc;
-    background-color: #eaeaea;
+    background-color: rgba(9, 152, 152, 0.8);
+    color: white;
 }
 .stack {
     float: left;
@@ -203,7 +230,7 @@
     padding: 5px;
     margin:5px;
     border:1px solid #ccc;
-    background-color: rgba(9, 152, 152, 0.8);
+    background-color: rgba(202, 48, 55, 0.8);
     color: white;
 }
 .spare-stack {
@@ -300,45 +327,7 @@ $(".stackDrop2").droppable({
     }
 });
 
-$('#update').click(function(){
-  var vehicle_in = $('.stackDrop1 .card').attr('id');
-  var romooc_in = $('.stackDrop2 .card').attr('id');
-  var start_time = $('#ngay').val();
-  var vehicle_out = $('.spare-stackDrop1 .spare-card').attr('id');
-  var romooc_out = $('.spare-stackDrop2 .spare-card').attr('id');
-  var end_time = $('#ngay').val();
 
-  if (start_time == "") {
-    $('#ngay').focus();
-    return false;
-  }
-  
-  var yes = "";
-
-  $.ajax({
-    type: "POST", // phương thức gởi đi
-    url: "<?php echo BASE_URL ?>/sparevehicle/exchange", // nơi mà dữ liệu sẽ chuyển đến khi submit
-    data: {
-        vehicle_in: vehicle_in,
-        romooc_in: romooc_in,
-        start_time: start_time,
-        vehicle_out: vehicle_out,
-        romooc_out: romooc_out,
-        end_time: end_time,
-        yes: yes,
-        }, // giá trị post
-    success: function(answer){ // if everything goes well
-        $('#error').hide();
-        $('#error').slideToggle(100); // hiển thị thẻ div success
-        $('#error').html('<div class="successbox">'+answer+'</div>'); // đặt kết quả trả về từ test.php vào thẻ div success
-        $('#error').fadeOut(10000);
-
-        setTimeout(function() {
-          location.reload(true);
-        }, 200);
-    }
-});
-});
 
 
 $(".spare-card").draggable({
@@ -367,7 +356,7 @@ $("#spare-launchPad").droppable({
 
 $(".spare-stackDrop1").droppable({
     tolerance: "intersect",
-    accept: ".spare-card",
+    accept: ".card-vehicle",
     activeClass: "ui-state-default",
     hoverClass: "ui-state-hover",
     drop: function(event, ui) {  
@@ -380,7 +369,7 @@ $(".spare-stackDrop1").droppable({
 
 $(".spare-stackDrop2").droppable({
     tolerance: "intersect",
-    accept: ".spare-card",
+    accept: ".card-romooc",
     activeClass: "ui-state-default",
     hoverClass: "ui-state-hover",
     drop: function(event, ui) {    
@@ -395,6 +384,8 @@ var v = "<?php echo $vehicle ?>";
 $('#vehicle option[value='+v+']').attr('selected','selected');
 var r = "<?php echo $romooc ?>";
 $('#romooc option[value='+r+']').attr('selected','selected');
+var e = "<?php echo $export_stock ?>";
+$('#export_stock option[value='+e+']').attr('selected','selected');
 
 
 $('#vehicle').change(function(){
@@ -403,10 +394,16 @@ $('#vehicle').change(function(){
 $('#romooc').change(function(){
   $('#spare_form').submit();
 });
+$('#export_stock').change(function(){
+  $('#spare_form_x').submit();
+});
 
 jQuery(document).ready(function() {
     jQuery('.tabs .tab-links a').on('click', function(e)  {
         var currentAttrValue = jQuery(this).attr('href');
+
+        var id = currentAttrValue.replace('#tab','');
+        $('.tab_active').val(id);
         // Show/Hide Tabs
         jQuery('.tabs ' + currentAttrValue).addClass('active').siblings().removeClass('active');
         jQuery('.tabs ' + currentAttrValue).slideDown(300).siblings().slideUp(300);
@@ -430,5 +427,100 @@ jQuery(document).ready(function() {
  
         e.preventDefault();
     });
+});
+
+$('#update').click(function(){
+  var vehicle = $('#vehicle').val();
+  var romooc = $('#romooc').val();
+  var export_stock = $('#export_stock').val();
+  var start_time = $('#ngay').val();
+  var end_time = $('#ngay').val();
+  
+
+  if (start_time == "") {
+    $('#ngay').focus();
+    return false;
+  }
+
+  var vehicle_in = [];
+  var vehicle_in_id = [];
+  var vehicle_in_num = [];
+
+  $('.stackDrop1 .card').each(function() { 
+      vehicle_in_id.push($(this).attr('id'));
+      vehicle_in_num.push($(this).find($('.num')).val());
+  });
+
+  for (var i = 0; i < vehicle_in_id.length; i++) {
+      vehicle_in.push({'vehicle_in_id':vehicle_in_id[i], 'vehicle_in_num':vehicle_in_num[i]});
+  };
+
+  var romooc_in = [];
+  var romooc_in_id = [];
+  var romooc_in_num = [];
+
+  $('.stackDrop2 .card').each(function() { 
+      romooc_in_id.push($(this).attr('id'));
+      romooc_in_num.push($(this).find($('.num')).val());
+  });
+
+  for (var i = 0; i < romooc_in_id.length; i++) {
+      romooc_in.push({'romooc_in_id':romooc_in_id[i], 'romooc_in_num':romooc_in_num[i]});
+  };
+
+  var vehicle_out = [];
+  var vehicle_out_id = [];
+  var vehicle_out_num = [];
+
+  $('#spare-launchPad .card-vehicle').each(function() { 
+      vehicle_out_id.push($(this).attr('id'));
+      vehicle_out_num.push($(this).find($('.num')).val());
+  });
+
+  for (var i = 0; i < vehicle_out_id.length; i++) {
+      vehicle_out.push({'vehicle_out_id':vehicle_out_id[i], 'vehicle_out_num':vehicle_out_num[i]});
+  };
+
+  var romooc_out = [];
+  var romooc_out_id = [];
+  var romooc_out_num = [];
+
+  $('#spare-launchPad .card-romooc').each(function() { 
+      romooc_out_id.push($(this).attr('id'));
+      romooc_out_num.push($(this).find($('.num')).val());
+  });
+
+  for (var i = 0; i < romooc_out_id.length; i++) {
+      romooc_out.push({'romooc_out_id':romooc_out_id[i], 'romooc_out_num':romooc_out_num[i]});
+  };
+  
+  var yes = "";
+
+  $.ajax({
+    type: "POST", // phương thức gởi đi
+    url: "<?php echo BASE_URL ?>/sparevehicle/exchange", // nơi mà dữ liệu sẽ chuyển đến khi submit
+    data: {
+        vehicle: vehicle,
+        romooc: romooc,
+        export_stock: export_stock,
+        vehicle_in: vehicle_in,
+        romooc_in: romooc_in,
+        vehicle_out: vehicle_out,
+        romooc_out: romooc_out,
+        start_time: start_time,
+        end_time: end_time,
+        yes: yes,
+        }, // giá trị post
+    success: function(answer){ // if everything goes well
+        $('#error').hide();
+        $('#error').slideToggle(100); // hiển thị thẻ div success
+        $('#error').html('<div class="successbox">'+answer+'</div>'); // đặt kết quả trả về từ test.php vào thẻ div success
+        $('#error').fadeOut(10000);
+
+        setTimeout(function() {
+          location.reload(true);
+        }, 200);
+    }
+  });
 });
 </script>

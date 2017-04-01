@@ -144,8 +144,8 @@ elseif ($order_by == 'status')
         	<td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $road->road_id ?>"></td>
             <td class="fix"><?php echo $i++; ?></td>
             
-            <td nowrap class="fix" data="<?php echo $road->road_from; ?>" id="road_from_<?php echo $road->road_id; ?>"><?php echo $road->road_from==$place['place_id'][$road->road_from]?$place['place_name'][$road->road_from]:null ?></td>
-            <td nowrap class="fix" data="<?php echo $road->road_to; ?>" id="road_to_<?php echo $road->road_id; ?>"><?php echo $road->road_to==$place['place_id'][$road->road_to]?$place['place_name'][$road->road_to]:null ?></td>
+            <td nowrap class="fix" data="<?php echo $road->road_from; ?>" id="road_from_<?php echo $road->road_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$road->road_from) ?>" ><?php echo $road->road_from==$place['place_id'][$road->road_from]?$place['place_name'][$road->road_from]:null ?></a></td>
+            <td nowrap class="fix" data="<?php echo $road->road_to; ?>" id="road_to_<?php echo $road->road_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$road->road_to) ?>" ><?php echo $road->road_to==$place['place_id'][$road->road_to]?$place['place_name'][$road->road_to]:null ?></a></td>
             
             <td class="fix" data="<?php echo $road->way; ?>" id="way_<?php echo $road->road_id; ?>"><?php echo $road->way==1?"Lên":($road->way==2?"Xuống":($road->way==3?"Bằng":($road->way==4?"ĐN-QN":"Rỗng"))); ?></td>
             <td class="fix" id="road_km_<?php echo $road->road_id; ?>"><?php echo $road->road_km; ?></td>
@@ -186,12 +186,12 @@ $this->helper('slidePaginator');
                 <div class="col-md-4 col-xs-6">
                   <div class="box-body">
                     <div class="form-group">
-                      <label for="road_from">Kho đi</label>
+                      <label for="road_from">Kho đi <a target="_blank" title="Thêm kho" href="<?php echo $this->url('place') ?>"><i class="fa fa-plus"></i></a></label>
                       <input type="text" autofocus autocomplete="off"  id="road_from" name="road_from" tabindex="1" required="required" placeholder="Nhập tên hoặc * để chọn" >
                         <ul id="road_from_list_id"></ul>
                     </div>
                     <div class="form-group">
-                      <label for="road_to">Kho đến</label>
+                      <label for="road_to">Kho đến <a target="_blank" title="Thêm kho" href="<?php echo $this->url('place') ?>"><i class="fa fa-plus"></i></a></label>
                       <input type="text" autofocus autocomplete="off"  id="road_to" name="road_to" tabindex="2" required="required" placeholder="Nhập tên hoặc * để chọn" >
                         <ul id="road_to_list_id"></ul>
                     </div>

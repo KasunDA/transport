@@ -441,7 +441,9 @@
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
-
+  <div id="ajax_loader" style="position: fixed; left: 50%; top: 50%; margin-left : -16px; margin-top : -16px; z-index:999999;">
+      <img src="<?php echo BASE_URL ?>/public/img/loader-gears.gif">
+  </div>
   <header class="main-header">
     <!-- Logo -->
     <a href="<?php echo BASE_URL ?>" class="logo">
@@ -531,6 +533,20 @@
             <i class="fa fa-home"></i> <span>Trang chủ</span>
           </a>
         </li>
+        <?php if ($_SESSION['role_logined'] == 1 ||$_SESSION['role_logined'] == 2 || $_SESSION['role_logined'] == 4 ) { ?>
+        <li class="treeview">
+          <a  data="#" href="#">
+            <i class="fa fa-clipboard"></i>
+            <span>Kinh doanh</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-right pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li><a data="marketing" href="<?php echo $this->url('marketing') ?>"><i class="fa fa-fw fa-cubes text-aqua"></i>Lô hàng</a></li>
+          </ul>
+        </li>
+        <?php } ?>
         <?php if ($_SESSION['role_logined'] == 1 ||$_SESSION['role_logined'] == 2 || $_SESSION['role_logined'] == 5 ) { ?>
         <li class="treeview">
           <a  data="#" href="#">
@@ -541,6 +557,25 @@
             </span>
           </a>
           <ul class="treeview-menu">
+            <li><a data="shipment" href="<?php echo $this->url('shipment') ?>"><i class="fa fa-fw fa-road text-aqua"></i>Điều xe</a></li>
+            <li>
+              <a data="newshipment" href="<?php echo $this->url('newshipment') ?>">
+                <i class="fa fa-fw fa-cubes text-aqua"></i>
+                <span>Lô hàng</span>
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-right pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                <li><a data="newshipment" href="<?php echo $this->url('newshipment') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Lô hàng mới 
+                  <span class="pull-right-container">
+                      <small class="label pull-right bg-green">new</small>
+                    </span>
+                  </a>
+                </li>
+                <li><a data="shipmenttemp" href="<?php echo $this->url('shipmenttemp') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Lô hàng đã nhận</a></li>
+              </ul>
+            </li>
             <li><a data="driver" href="<?php echo $this->url('driver') ?>"><i class="fa fa-fw fa-exchange text-aqua"></i>Bàn giao xe</a></li>
             <li><a data="vehiclework" href="<?php echo $this->url('vehiclework') ?>"><i class="fa fa-fw fa-pause-circle-o text-aqua"></i>Tạm dừng xe</a></li>
             <li>
@@ -573,6 +608,7 @@
             <li><a data="exportstock" href="<?php echo $this->url('exportstock') ?>"><i class="fa fa-fw fa-upload text-aqua"></i>Xuất kho</a></li>
             <li><a data="sparepart" href="<?php echo $this->url('sparepart') ?>"><i class="fa fa-fw fa-dropbox text-aqua"></i>Danh sách vật tư</a></li>
             <li><a data="sparevehicle" href="<?php echo $this->url('sparevehicle') ?>"><i class="fa fa-fw fa-wrench text-aqua"></i>Thay thế phụ tùng</a></li>
+            <li><a data="sparedrap" href="<?php echo $this->url('sparedrap') ?>"><i class="fa fa-fw fa-plug text-aqua"></i>Vật tư thay ra</a></li>
           </ul>
         </li>
         <?php } ?>
@@ -698,5 +734,18 @@
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <!-- AdminLTE for demo purposes -->
 <script src="<?php BASE_URL ?>/public/js/adminbar/dist/js/demo.js"></script>
+<script type="text/javascript">
+$( document ).ajaxStart(function() {
+  $("#ajax_loader").fadeIn(200);
+  $('input[type="submit"]').attr('disabled',true);
+});
+$( document ).ajaxComplete(function() {
+  $("#ajax_loader").fadeOut(200);
+  $('input[type="submit"]').attr('disabled',false);
+});
+$(window).load(function() { 
+  $("#ajax_loader").fadeOut(200);
+});
+</script>
 </body>
 </html>

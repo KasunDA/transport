@@ -93,7 +93,7 @@ elseif ($order_by == 'end_work')
         	<td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $vehicle->vehicle_work_id ?>"></td>
             <td class="fix"><?php echo $i++; ?></td>
             
-            <td class="fix" data="<?php echo $vehicle->vehicle ?>" id="vehicle_number_<?php echo $vehicle->vehicle_work_id; ?>"><?php echo $vehicle->vehicle_number; ?></td>
+            <td class="fix" data="<?php echo $vehicle->vehicle ?>" id="vehicle_number_<?php echo $vehicle->vehicle_work_id; ?>"><a target="_blank" href="<?php echo $this->url('vehicle/index/'.$vehicle->vehicle) ?>" ><?php echo $vehicle->vehicle_number; ?></a></td>
             <td class="fix" id="start_work_<?php echo $vehicle->vehicle_work_id; ?>"><?php echo $lib->hien_thi_ngay_thang($vehicle->start_work); ?></td>
             <td class="fix" id="end_work_<?php echo $vehicle->vehicle_work_id; ?>"><?php echo $lib->hien_thi_ngay_thang($vehicle->end_work); ?></td>
             

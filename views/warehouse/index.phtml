@@ -120,7 +120,7 @@ elseif ($order_by == 'warehouse_add')
         	<td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $warehouse->warehouse_id ?>"></td>
             <td class="fix"><?php echo $i++; ?></td>
             
-            <td class="fix" id="warehouse_name_<?php echo $warehouse->warehouse_id; ?>"><?php echo $warehouse->warehouse_name; ?></td>
+            <td class="fix" id="warehouse_name_<?php echo $warehouse->warehouse_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$warehouse->warehouse_code) ?>" ><?php echo $warehouse->warehouse_name; ?></a></td>
             <td class="fix"  id="warehouse_add_<?php echo $warehouse->warehouse_id; ?>"><?php echo $lib->formatMoney($warehouse->warehouse_add); ?></td>
             <td class="fix"  id="warehouse_weight_<?php echo $warehouse->warehouse_id; ?>"><?php echo $lib->formatMoney($warehouse->warehouse_weight); ?></td>
             <td class="fix"  id="warehouse_clean_<?php echo $warehouse->warehouse_id; ?>"><?php echo $lib->formatMoney($warehouse->warehouse_clean); ?></td>
@@ -160,7 +160,7 @@ $this->helper('slidePaginator');
                 <div class="col-md-4 col-xs-6">
                   <div class="box-body">
                     <div class="form-group">
-                      <label for="warehouse_name">Tên kho</label>
+                      <label for="warehouse_name">Tên kho <a target="_blank" title="Thêm kho" href="<?php echo $this->url('place') ?>"><i class="fa fa-plus"></i></a></label>
                       <input type="text" autofocus autocomplete="off"   id="warehouse_name" name="warehouse_name" tabindex="1" required="required" placeholder="Nhập tên hoặc * để chọn" >
                         <ul id="road_from_list_id"></ul>
                     </div>

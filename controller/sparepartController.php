@@ -26,14 +26,22 @@ Class sparepartController Extends baseController {
             $limit = 50;
         }
         
+        $id = $this->registry->router->param_id;
 
         $spare_model = $this->model->get('sparepartModel');
         $sonews = $limit;
         $x = ($page-1) * $sonews;
         $pagination_stages = 2;
 
-        
-        $tongsodong = count($spare_model->getAllStock());
+        $data = array(
+            'where' => '1=1',
+        );
+
+        if (isset($id) && $id > 0) {
+            $data['where'] .= ' AND spare_part_id = '.$id;
+        }
+
+        $tongsodong = count($spare_model->getAllStock($data));
         $tongsotrang = ceil($tongsodong / $sonews);
         
 
@@ -53,6 +61,9 @@ Class sparepartController Extends baseController {
             'where' => '1=1',
             );
 
+        if (isset($id) && $id > 0) {
+            $data['where'] .= ' AND spare_part_id = '.$id;
+        }
         
         if ($keyword != '') {
             $search = ' AND ( spare_part_code LIKE "%'.$keyword.'%" 

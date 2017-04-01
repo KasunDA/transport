@@ -318,12 +318,12 @@ Class exportstockController Extends baseController {
                 $stocks = $spare_stock_model->queryStock('SELECT * FROM spare_stock WHERE export_stock > 0 AND spare_part = '.$rs->spare_part_id.' ORDER BY spare_stock_id DESC LIMIT 1');
                 if ($stocks) {
                     foreach ($stocks as $stock) {
-                        echo '<li onclick="set_item_other(\''.$rs->spare_part_id.'\',\''.$rs->spare_part_name.'\',\''.$rs->spare_part_code.'\',\''.$rs->spare_part_seri.'\',\''.date('d-m-Y',$rs->spare_part_date_manufacture).'\',\''.$rs->spare_part_brand.'\',\''.$_POST['offset'].'\',\''.$stock->spare_stock_unit.'\',\''.$stock->spare_stock_price.'\')">'.$spare_name.'</li>';
+                        echo '<li onclick="set_item_other(\''.$rs->spare_part_id.'\',\''.$rs->spare_part_name.'\',\''.$rs->spare_part_code.'\',\''.$rs->spare_part_seri.'\',\''.($rs->spare_part_date_manufacture>0?date('d-m-Y',$rs->spare_part_date_manufacture):null).'\',\''.$rs->spare_part_brand.'\',\''.$_POST['offset'].'\',\''.$stock->spare_stock_unit.'\',\''.$stock->spare_stock_price.'\')">'.$spare_name.'</li>';
                     }
                     
                 }
                 else{
-                    echo '<li onclick="set_item_other(\''.$rs->spare_part_id.'\',\''.$rs->spare_part_name.'\',\''.$rs->spare_part_code.'\',\''.$rs->spare_part_seri.'\',\''.date('d-m-Y',$rs->spare_part_date_manufacture).'\',\''.$rs->spare_part_brand.'\',\''.$_POST['offset'].'\',\'\',\'\')">'.$spare_name.'</li>';
+                    echo '<li onclick="set_item_other(\''.$rs->spare_part_id.'\',\''.$rs->spare_part_name.'\',\''.$rs->spare_part_code.'\',\''.$rs->spare_part_seri.'\',\''.($rs->spare_part_date_manufacture>0?date('d-m-Y',$rs->spare_part_date_manufacture):null).'\',\''.$rs->spare_part_brand.'\',\''.$_POST['offset'].'\',\'\',\'\')">'.$spare_name.'</li>';
                 }
 
                 
@@ -453,7 +453,7 @@ Class exportstockController Extends baseController {
 
                     $str .= '<tr><td>Ngày sản xuất</td>';
 
-                    $str .= '<td><input type="text" class="spare_part_date_manufacture ngay" name="spare_part_date_manufacture[]" value="'.date('d-m-Y',$v->spare_part_date_manufacture).'"></td>';
+                    $str .= '<td><input type="text" class="spare_part_date_manufacture ngay" name="spare_part_date_manufacture[]" value="'.($v->spare_part_date_manufacture>0?date('d-m-Y',$v->spare_part_date_manufacture):null).'"></td>';
 
                     $str .= '<td>Đơn vị tính</td>';
 

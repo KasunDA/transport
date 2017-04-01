@@ -108,10 +108,10 @@ elseif ($order_by == 'end_work')
         	<td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $driver->driver_id ?>"></td>
             <td class="fix"><?php echo $i++; ?></td>
             
-            <td class="fix" id="steersman_code_<?php echo $driver->driver_id; ?>"><?php echo $driver->steersman_code; ?></td>
+            <td class="fix" id="steersman_code_<?php echo $driver->driver_id; ?>"><a target="_blank" href="<?php echo $this->url('steersman/index/'.$driver->steersman) ?>" ><?php echo $driver->steersman_code; ?></a></td>
             <td class="fix" id="steersman_name_<?php echo $driver->driver_id; ?>"><?php echo $driver->steersman_name; ?></td>
             <td class="fix" id="steersman_phone_<?php echo $driver->driver_id; ?>"><?php echo $driver->steersman_phone; ?></td>
-            <td class="fix" data="<?php echo $driver->vehicle ?>" id="vehicle_number_<?php echo $driver->driver_id; ?>"><?php echo $driver->vehicle_number; ?></td>
+            <td class="fix" data="<?php echo $driver->vehicle ?>" id="vehicle_number_<?php echo $driver->driver_id; ?>"><a target="_blank" href="<?php echo $this->url('vehicle/index/'.$driver->vehicle) ?>" ><?php echo $driver->vehicle_number; ?></a></td>
             <td class="fix" id="start_work_<?php echo $driver->driver_id; ?>"><?php echo $lib->hien_thi_ngay_thang($driver->start_work); ?></td>
             <td class="fix" id="end_work_<?php echo $driver->driver_id; ?>"><?php echo $lib->hien_thi_ngay_thang($driver->end_work); ?></td>
             <td style="display:none" class="fix" id="steersman_birth_<?php echo $driver->driver_id; ?>"><?php echo $lib->hien_thi_ngay_thang($driver->steersman_birth); ?></td>
@@ -148,7 +148,7 @@ $this->helper('slidePaginator');
                 <div class="col-md-4 col-xs-6">
                   <div class="box-body">
                     <div class="form-group">
-                      <label for="steersman_name">Tên tài xế</label>
+                      <label for="steersman_name">Tên tài xế <a target="_blank" title="Thêm tài xế" href="<?php echo $this->url('steersman') ?>"><i class="fa fa-plus"></i></a></label>
                       <input type="text" autofocus autocomplete="off"   id="steersman_name" name="steersman_name" tabindex="1" required="required" placeholder="Nhập tên hoặc * để chọn" >
                         <ul id="vehicle_list_id"></ul>
                     </div>
