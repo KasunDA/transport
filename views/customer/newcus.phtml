@@ -31,13 +31,17 @@
                       <input type="text" id="customer_name" placeholder="Tên khách hàng" required="required" tabindex="1">
                     </div>
                     <div class="form-group">
+                      <label for="customer_company">Công ty</label>
+                      <input type="text" id="customer_company" placeholder="Công ty" required="required" tabindex="2">
+                    </div>
+                    <div class="form-group">
                       <label for="customer_address">Địa chỉ</label>
-                      <input type="text" id="customer_address" placeholder="Địa chỉ" required="required" tabindex="2">
+                      <input type="text" id="customer_address" placeholder="Địa chỉ" required="required" tabindex="3">
                     </div>
                     
                     <div class="form-group">
                       <label for="customer_from">Mã số thuế</label>
-                      <input type="text" id="customer_mst" class="number" placeholder="Mã số thuế" required="required" tabindex="3">
+                      <input type="text" id="customer_mst" class="number" placeholder="Mã số thuế" required="required" tabindex="4">
                     </div>
                     
                     
@@ -50,17 +54,21 @@
                   <div class="box-body">
                     <div class="form-group">
                       <label for="customer_phone">Điện thoại</label>
-                      <input type="text" id="customer_phone" class="numbers" placeholder="Điện thoại" tabindex="4">
+                      <input type="text" id="customer_phone" class="numbers" placeholder="Điện thoại" tabindex="5">
                     </div>
                     <div class="form-group">
                       <label for="customer_mobile">Di động</label>
-                      <input type="text" id="customer_mobile" class="numbers" placeholder="Di động" tabindex="5">
+                      <input type="text" id="customer_mobile" class="numbers" placeholder="Di động" tabindex="6">
                     </div>
                     <div class="form-group">
                       <label for="customer_email">Email</label>
-                      <input type="email" id="customer_email" placeholder="Email" tabindex="6">
+                      <input type="email" id="customer_email" placeholder="Email" tabindex="7">
                     </div>
-                    
+                    <div class="form-group">
+                      <label for="customer_sub">Mặt hàng</label>
+                      <input type="text" id="customer_sub" tabindex="8"  />
+                      <ul id="mytags"></ul>
+                    </div>
                   </div>
                   <!-- /.box-body -->
                   
@@ -72,31 +80,17 @@
                     
                     <div class="form-group">
                       <label for="customer_bank_account">Số tài khoản</label>
-                      <input type="text" id="customer_bank_account" class="number" placeholder="Số tài khoản" tabindex="7">
+                      <input type="text" id="customer_bank_account" class="number" placeholder="Số tài khoản" tabindex="9">
                     </div>
                     
                     <div class="form-group">
                       <label for="customer_bank_name">Ngân hàng</label>
-                      <input type="text" id="customer_bank_name" placeholder="Ngân hàng" tabindex="8">
+                      <input type="text" id="customer_bank_name" placeholder="Ngân hàng" tabindex="10">
                     </div>
                     <div class="form-group">
                       <label for="customer_bank_branch">Chi nhánh</label>
-                      <input type="text" id="customer_bank_branch" placeholder="Chi nhánh" tabindex="9">
+                      <input type="text" id="customer_bank_branch" placeholder="Chi nhánh" tabindex="11">
                     </div>
-                  </div>
-                  <!-- /.box-body -->
-
-                  
-                  
-                </div>
-                <div class="col-md-4 col-xs-6">
-                  <div class="box-body">
-                    <div class="form-group">
-                      <label for="customer_sub">Mặt hàng</label>
-                      <input type="text" id="customer_sub" tabindex="10"  />
-                      <ul id="mytags"></ul>
-                    </div>
-                    
                   </div>
                   <!-- /.box-body -->
 
@@ -182,7 +176,7 @@
               <div class="box-footer">
                 <input type="hidden" id="yes">
                 <button type="submit" class="btn btn-primary" tabindex="12">Hoàn thành</button>
-                <button type="reset" class="btn" tabindex="3">Nhập lại</button>
+                <button type="reset" class="btn" tabindex="13">Nhập lại</button>
               </div>
               <div class="box-footer">
                 <div id="error" class="error"><?php echo isset($error) ? $error : null; ?></div>
@@ -238,6 +232,7 @@
         },
         submitHandler: function(form) {
             var customer_name = $('#customer_name').attr('value');
+            var customer_company = $('#customer_company').attr('value');
             var customer_address = $('#customer_address').attr('value');
             var customer_mst = $('#customer_mst').attr('value');
             var customer_phone = $('#customer_phone').attr('value');
@@ -295,6 +290,7 @@
                 
                 data: {
                     customer_name: customer_name,
+                    customer_company: customer_company,
                     customer_address: customer_address,
                     customer_mst: customer_mst,
                     customer_phone: customer_phone,

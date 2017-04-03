@@ -17,6 +17,12 @@ Class importstockController Extends baseController {
             $page = isset($_POST['page']) ? $_POST['page'] : null;
             $keyword = isset($_POST['keyword']) ? $_POST['keyword'] : null;
             $limit = isset($_POST['limit']) ? $_POST['limit'] : 18446744073709;
+            $batdau = isset($_POST['batdau']) ? $_POST['batdau'] : null;
+
+            $ketthuc = isset($_POST['ketthuc']) ? $_POST['ketthuc'] : null;
+            $vong = isset($_POST['vong']) ? $_POST['vong'] : null;
+
+            $trangthai = isset($_POST['staff']) ? $_POST['staff'] : null;
         }
         else{
             $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'import_stock_date';
@@ -24,7 +30,20 @@ Class importstockController Extends baseController {
             $page = $this->registry->router->page ? (int) $this->registry->router->page : 1;
             $keyword = "";
             $limit = 50;
+            $batdau = '01-'.date('m-Y');
+
+            $ketthuc = date('t-m-Y');
+
+            $vong = (int)date('m',strtotime($batdau));
+
+            $trangthai = date('Y',strtotime($batdau));
         }
+
+        $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
+
+        $vong = (int)date('m',strtotime($batdau));
+
+        $trangthai = date('Y',strtotime($batdau));
         
 
         $import_model = $this->model->get('importstockModel');
@@ -35,7 +54,7 @@ Class importstockController Extends baseController {
         $join = array('table'=>'user','where'=>'import_stock_user=user_id');
 
         $data = array(
-            'where' => '1=1',
+            'where' => 'import_stock_date >= '.strtotime($batdau).' AND import_stock_date <= '.strtotime($ketthuc),
         );
 
         
@@ -51,12 +70,19 @@ Class importstockController Extends baseController {
         $this->view->data['tongsotrang'] = $tongsotrang;
         $this->view->data['sonews'] = $sonews;
         $this->view->data['limit'] = $limit;
+        $this->view->data['batdau'] = $batdau;
+
+        $this->view->data['ketthuc'] = $ketthuc;
+
+        $this->view->data['vong'] = $vong;
+
+        $this->view->data['trangthai'] = $trangthai;
 
         $data = array(
             'order_by'=>$order_by,
             'order'=>$order,
             'limit'=>$x.','.$sonews,
-            'where' => '1=1',
+            'where' => 'import_stock_date >= '.strtotime($batdau).' AND import_stock_date <= '.strtotime($ketthuc),
             );
 
        

@@ -17,6 +17,12 @@ Class sparedrapController Extends baseController {
             $page = isset($_POST['page']) ? $_POST['page'] : null;
             $keyword = isset($_POST['keyword']) ? $_POST['keyword'] : null;
             $limit = isset($_POST['limit']) ? $_POST['limit'] : 18446744073709;
+            $batdau = isset($_POST['batdau']) ? $_POST['batdau'] : null;
+
+            $ketthuc = isset($_POST['ketthuc']) ? $_POST['ketthuc'] : null;
+            $vong = isset($_POST['vong']) ? $_POST['vong'] : null;
+
+            $trangthai = isset($_POST['staff']) ? $_POST['staff'] : null;
         }
         else{
             $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'spare_part_code';
@@ -24,7 +30,20 @@ Class sparedrapController Extends baseController {
             $page = $this->registry->router->page ? (int) $this->registry->router->page : 1;
             $keyword = "";
             $limit = 50;
+            $batdau = '01-'.date('m-Y');
+
+            $ketthuc = date('t-m-Y');
+
+            $vong = (int)date('m',strtotime($batdau));
+
+            $trangthai = date('Y',strtotime($batdau));
         }
+
+        $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
+
+        $vong = (int)date('m',strtotime($batdau));
+
+        $trangthai = date('Y',strtotime($batdau));
         
         $vehicle_model = $this->model->get('vehicleModel');
         $romooc_model = $this->model->get('romoocModel');
@@ -49,8 +68,11 @@ Class sparedrapController Extends baseController {
         $pagination_stages = 2;
 
         $json = array('table'=>'spare_part, spare_vehicle','where'=>'spare_drap.spare_part = spare_part_id AND spare_vehicle = spare_vehicle_id');
+        $data = array(
+            'where' => 'end_time >= '.strtotime($batdau).' AND end_time <= '.strtotime($ketthuc),
+        );
         
-        $tongsodong = count($spare_model->getAllStock(null,$json));
+        $tongsodong = count($spare_model->getAllStock($data,$json));
         $tongsotrang = ceil($tongsodong / $sonews);
         
 
@@ -62,12 +84,19 @@ Class sparedrapController Extends baseController {
         $this->view->data['tongsotrang'] = $tongsotrang;
         $this->view->data['sonews'] = $sonews;
         $this->view->data['limit'] = $limit;
+        $this->view->data['batdau'] = $batdau;
+
+        $this->view->data['ketthuc'] = $ketthuc;
+
+        $this->view->data['vong'] = $vong;
+
+        $this->view->data['trangthai'] = $trangthai;
 
         $data = array(
             'order_by'=>$order_by,
             'order'=>$order,
             'limit'=>$x.','.$sonews,
-            'where' => '1=1',
+            'where' => 'end_time >= '.strtotime($batdau).' AND end_time <= '.strtotime($ketthuc),
             );
 
         

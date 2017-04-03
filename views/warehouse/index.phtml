@@ -266,7 +266,8 @@ $this->helper('slidePaginator');
 
 <script type="text/javascript">
 
-    $('.edit_tr').click(function(){
+    $('.edit_tr').click(function(e){
+      if(!$('.checkbox').is(':focus') && e.target.nodeName != "A"){
         if(!$('.checkbox').is(':checked')){
             $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
         }
@@ -307,6 +308,7 @@ $this->helper('slidePaginator');
         }
 
         $( ".add-field" ).dialog( "open" );
+      }
         
     });
 

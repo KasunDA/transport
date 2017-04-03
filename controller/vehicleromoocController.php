@@ -40,7 +40,7 @@ Class vehicleromoocController Extends baseController {
 
             $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'vehicle_number ASC, romooc_number ASC, start_time';
 
-            $order = $this->registry->router->order_by ? $this->registry->router->order_by : 'DESC';
+            $order = $this->registry->router->order_by ? $this->registry->router->order_by : 'ASC';
 
             $page = $this->registry->router->page ? (int) $this->registry->router->page : 1;
 

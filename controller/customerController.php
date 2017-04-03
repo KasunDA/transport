@@ -175,6 +175,7 @@ Class customerController Extends baseController {
 
             $data = array(
                         'customer_name' => trim($_POST['customer_name']),
+                        'customer_company' => trim($_POST['customer_company']),
                         'customer_mst' => trim($_POST['customer_mst']),
                         'customer_address' => trim($_POST['customer_address']),
                         'customer_phone' => trim($_POST['customer_phone']),

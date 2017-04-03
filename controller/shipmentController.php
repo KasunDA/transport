@@ -12,15 +12,13 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 7 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8 && $_SESSION['role_logined'] != 4 && $_SESSION['role_logined'] != 6) {
-
-            return $this->view->redirect('user/login');
-
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+            $this->view->data['disable_control'] = 1;
         }
 
         $this->view->data['lib'] = $this->lib;
 
-        $this->view->data['title'] = 'Quản lý lô hàng';
+        $this->view->data['title'] = 'Điều xe';
 
 
 
@@ -91,6 +89,12 @@ Class shipmentController Extends baseController {
         }
 
 
+        $contunit_model = $this->model->get('contunitModel');
+        $loanunit_model = $this->model->get('loanunitModel');
+
+        $this->view->data['cont_units'] = $contunit_model->getAllUnit();
+        $this->view->data['loan_units'] = $loanunit_model->getAllUnit();
+
 
         $place_model = $this->model->get('placeModel');
 
@@ -108,6 +112,23 @@ Class shipmentController Extends baseController {
         }
 
         $this->view->data['place'] = $place_data;
+
+        $romooc_model = $this->model->get('romoocModel');
+
+        $romooc_data = array();
+
+        $romoocs = $romooc_model->getAllVehicle();
+
+
+        foreach ($romoocs as $romooc) {
+
+                $romooc_data['romooc_id'][$romooc->romooc_id] = $romooc->romooc_id;
+
+                $romooc_data['romooc_number'][$romooc->romooc_id] = $romooc->romooc_number;
+
+        }
+
+        $this->view->data['romooc_data'] = $romooc_data;
 
 
         $warehouse_model = $this->model->get('warehouseModel');
@@ -136,37 +157,15 @@ Class shipmentController Extends baseController {
 
         $shipment_temp_model = $this->model->get('shipmenttempModel');
 
-        $join = array('table'=>'customer, marketing, cont_unit, loan_unit','where'=>'marketing.marketing_id = shipment_temp.marketing AND customer.customer_id = marketing.customer AND cont_unit=cont_unit_id AND loan_unit=loan_unit_id');
+        $join = array('table'=>'customer, marketing, cont_unit','where'=>'marketing.marketing_id = shipment_temp.marketing AND customer.customer_id = marketing.customer AND cont_unit=cont_unit_id');
 
         $shipment_temps = $shipment_temp_model->getAllShipment(array('where'=>'shipment_temp_status=0 AND owner='.$_SESSION['userid_logined']),$join);
-
-
-
-        foreach ($shipment_temps as $shipment_data) {
-
-            $warehouse = $warehouse_model->getAllWarehouse(array('where'=>'(warehouse_code = '.$shipment_data->marketing_from.' OR warehouse_code = '.$shipment_data->marketing_to.') AND start_time <= '.$shipment_data->marketing_date.' AND end_time >= '.$shipment_data->marketing_date));
-
-    
-
-            foreach ($warehouse as $warehouse) {
-
-                    $warehouse_data['warehouse_id'][$warehouse->warehouse_code] = $warehouse->warehouse_code;
-
-                    $warehouse_data['warehouse_name'][$warehouse->warehouse_code] = $warehouse->warehouse_name; 
-
-            }
-
-
-
-        }
-
-
 
         $this->view->data['shipment_temps'] = $shipment_temps;
 
 
 
-        $join = array('table'=>'customer, vehicle','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle');
+        $join = array('table'=>'customer, vehicle, cont_unit','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND cont_unit=cont_unit_id');
 
 
 
@@ -185,23 +184,6 @@ Class shipmentController Extends baseController {
             'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date <= '.strtotime($ketthuc),
 
             );
-
-
-
-        if ($_SESSION['role_logined'] == 3) {
-
-            if( (strtotime($batdau) < strtotime('04-06-2015')) && (strtotime($ketthuc) > strtotime('04-06-2015')) )
-
-                $data['where'] = '( (shipment_date >= '.strtotime($batdau).' AND shipment_date <= '.strtotime('04-06-2015').') OR (shipment_date > '.strtotime('04-06-2015').' AND shipment_date <= '.strtotime($ketthuc).' AND shipment_create_user = '.$_SESSION['userid_logined'].') )';
-
-            else if( strtotime($batdau) > strtotime('04-06-2015') )
-
-                $data['where'] = $data['where'].' AND shipment_create_user = '.$_SESSION['userid_logined'];
-
-        }
-
-
-
 
 
         if($xe != 0){
@@ -281,21 +263,6 @@ Class shipmentController Extends baseController {
             );
 
 
-
-        if ($_SESSION['role_logined'] == 3) {
-
-            if( (strtotime($batdau) < strtotime('04-06-2015')) && (strtotime($ketthuc) > strtotime('04-06-2015')) )
-
-                $data['where'] = '( (shipment_date >= '.strtotime($batdau).' AND shipment_date <= '.strtotime('04-06-2015').') OR (shipment_date > '.strtotime('04-06-2015').' AND shipment_date <= '.strtotime($ketthuc).' AND shipment_create_user = '.$_SESSION['userid_logined'].') )';
-
-            else if( strtotime($batdau) > strtotime('04-06-2015') )
-
-                $data['where'] = $data['where'].' AND shipment_create_user = '.$_SESSION['userid_logined'];
-
-        }
-
-
-
         if($xe != 0){
 
             $data['where'] = $data['where'].' AND vehicle = '.$xe;
@@ -330,9 +297,9 @@ Class shipmentController Extends baseController {
 
                     OR customer_name LIKE "%'.$keyword.'%"
 
-                    OR shipment_from in (SELECT warehouse_id FROM warehouse WHERE warehouse_name LIKE "%'.$keyword.'%" ) 
+                    OR shipment_from in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
 
-                    OR shipment_to in (SELECT warehouse_id FROM warehouse WHERE warehouse_name LIKE "%'.$keyword.'%" ) 
+                    OR shipment_to in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
 
                     '.$ngay.'
 
@@ -362,6 +329,14 @@ Class shipmentController Extends baseController {
 
         $this->view->data['lastID'] = isset($shipment_model->getLastShipment()->shipment_id)?$shipment_model->getLastShipment()->shipment_id:0;
 
+
+        $customer_sub_model = $this->model->get('customersubModel');
+
+        $export_stock_model = $this->model->get('exportstockModel');
+
+        $customer_types = array();
+
+        $export_stocks = array();
 
 
         $v = array();
@@ -520,7 +495,40 @@ Class shipmentController Extends baseController {
 
             $warehouse_data['boiduong_cn'][$ship->shipment_id] = ($boiduong_cont+$boiduong_tan)*$check_sub;
 
+
+            $customer_sub = "";
+            $sts = explode(',', $ship->customer_type);
+            foreach ($sts as $key) {
+                $subs = $customer_sub_model->getCustomer($key);
+                if ($subs) {
+                    if ($customer_sub == "")
+                        $customer_sub .= $subs->customer_sub_name;
+                    else
+                        $customer_sub .= ','.$subs->customer_sub_name;
+                }
+                
+            }
+            $customer_types[$ship->shipment_id] = $customer_sub;
+
+            $export_sub = "";
+            $sts = explode(',', $ship->export_stock);
+            foreach ($sts as $key) {
+                $subs = $export_stock_model->getStock($key);
+                if ($subs) {
+                    if ($export_sub == "")
+                        $export_sub .= $subs->export_stock_code;
+                    else
+                        $export_sub .= ','.$subs->export_stock_code;
+                }
+                
+            }
+            $export_stocks[$ship->shipment_id] = $export_sub;
+
         }
+
+        $this->view->data['customer_types'] = $customer_types;
+
+        $this->view->data['export_stocks'] = $export_stocks;
 
 
 
@@ -535,6 +543,191 @@ Class shipmentController Extends baseController {
 
     }
 
+    public function loan(){
+        $this->view->disableLayout();
+
+        $this->view->data['lib'] = $this->lib;
+
+        $loanunit_model = $this->model->get('loanunitModel');
+
+        $this->view->data['loan_units'] = $loanunit_model->getAllUnit();
+
+        $id = $this->registry->router->param_id;
+
+        $loan_shipment_model = $this->model->get('loanshipmentModel');
+
+        $join = array('table'=>'loan_unit','where'=>'loan_unit = loan_unit_id');
+
+        $data = array(
+            'where' => '(shipment IS NULL OR shipment = 0) AND loan_shipment_user = '.$_SESSION['userid_logined'],
+        );
+
+        if ($id > 0) {
+            $data = array(
+                'where' => 'shipment = '.$id,
+            );
+        }
+        
+
+        $loan_shipments = $loan_shipment_model->getAllUnit($data,$join);
+
+        $this->view->data['loan_shipments'] = $loan_shipments;
+
+        $this->view->data['shipment'] = $id;
+
+        $this->view->show('shipment/loan');        
+    }
+
+    public function addloan(){
+        if (!isset($_SESSION['userid_logined'])) {
+            return $this->view->redirect('user/login');
+        }
+        if (isset($_POST['yes'])) {
+            $loan_shipment_model = $this->model->get('loanshipmentModel');
+            $data = array(
+                        
+                        'loan_cost' => trim(str_replace(',','',$_POST['loan_cost'])),
+
+                        'loan_unit' => trim($_POST['loan_unit']),
+
+                        'loan_comment' => trim($_POST['loan_comment']),
+
+                        'shipment' => trim($_POST['shipment']),
+
+                        'loan_shipment_user' => $_SESSION['userid_logined'],
+                        );
+
+            
+            if ($_POST['yes'] != "") {
+
+                
+                    $loan_shipment_model->updateUnit($data,array('loan_shipment_id' => $_POST['yes']));
+
+                    /*Log*/
+                    /**/
+                    $result = array(
+                        'ms' => 'Cập nhật thành công',
+                        'id' => $_POST['yes'],
+                    );
+
+                    echo json_encode($result);
+
+                    date_default_timezone_set("Asia/Ho_Chi_Minh"); 
+                        $filename = "action_logs.txt";
+                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."edit"."|".$_POST['yes']."|loan_shipment|".implode("-",$data)."\n"."\r\n";
+                        
+                        $fh = fopen($filename, "a") or die("Could not open log file.");
+                        fwrite($fh, $text) or die("Could not write file!");
+                        fclose($fh);
+                
+                    
+                
+                
+            }
+            else{
+
+                
+                    $loan_shipment_model->createUnit($data);
+
+                    /*Log*/
+                    /**/
+
+                    $result = array(
+                        'ms' => 'Thêm thành công',
+                        'id' => $loan_shipment_model->getLastUnit()->loan_shipment_id,
+                    );
+
+                    echo json_encode($result);
+
+                    date_default_timezone_set("Asia/Ho_Chi_Minh"); 
+                        $filename = "action_logs.txt";
+                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."add"."|".$loan_shipment_model->getLastUnit()->loan_shipment_id."|loan_shipment|".implode("-",$data)."\n"."\r\n";
+                        
+                        $fh = fopen($filename, "a") or die("Could not open log file.");
+                        fwrite($fh, $text) or die("Could not write file!");
+                        fclose($fh);
+                
+                    
+                
+                
+            }
+                    
+        }
+    }
+    public function deleteloan(){
+
+        $this->view->setLayout('admin');
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $loan = $this->model->get('loanshipmentModel');
+
+            if (isset($_POST['xoa'])) {
+
+                $data = explode(',', $_POST['xoa']);
+
+                foreach ($data as $data) {
+
+                    $loan->deleteUnit($data);
+
+
+
+                    date_default_timezone_set("Asia/Ho_Chi_Minh"); 
+
+                        $filename = "action_logs.txt";
+
+                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."delete"."|".$data."|loan_shipment|"."\n"."\r\n";
+
+                        
+
+                        $fh = fopen($filename, "a") or die("Could not open log file.");
+
+                        fwrite($fh, $text) or die("Could not write file!");
+
+                        fclose($fh);
+
+                }
+
+                return true;
+
+            }
+
+            else{
+
+
+
+                date_default_timezone_set("Asia/Ho_Chi_Minh"); 
+
+                        $filename = "action_logs.txt";
+
+                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."delete"."|".$_POST['data']."|loan_shipment|"."\n"."\r\n";
+
+                        
+
+                        $fh = fopen($filename, "a") or die("Could not open log file.");
+
+                        fwrite($fh, $text) or die("Could not write file!");
+
+                        fclose($fh);
+
+
+
+                return $loan->deleteUnit($_POST['data']);
+
+            }
+
+            
+
+        }
+
+    }
 
 
     public function lock(){
@@ -677,9 +870,9 @@ Class shipmentController Extends baseController {
 
         }
 
-        if (isset($_POST['data'])) {
+        if (isset($_POST['data']) && $_POST['data']>0) {
 
-            $join = array('table'=>'customer, marketing, cont_unit, loan_unit','where'=>'marketing.marketing_id = shipment_temp.marketing AND customer.customer_id = marketing.customer AND cont_unit=cont_unit_id AND loan_unit=loan_unit_id');
+            $join = array('table'=>'customer, marketing, cont_unit','where'=>'marketing.marketing_id = shipment_temp.marketing AND customer.customer_id = marketing.customer AND cont_unit=cont_unit_id');
 
 
             $shipment = $this->model->get('shipmenttempModel');
@@ -730,9 +923,7 @@ Class shipmentController Extends baseController {
 
                     'commission_number' => $shipment_data->shipment_temp_commission_number,
 
-                    'shipment_loan' => $shipment_data->shipment_temp_loan,
-
-                    'loan_content' => $shipment_data->shipment_temp_loan_content,
+                    'cont_unit' => $shipment_data->shipment_temp_cont_unit,
 
                     );
 
@@ -748,6 +939,37 @@ Class shipmentController Extends baseController {
 
                     
 
+        }
+        else{
+            $data = array(   
+
+                'shipment_temp' => null,
+
+                'shipment_from' => null,
+
+                'shipment_to' => null,
+
+                'shipment_from_name' => null,
+
+                'shipment_to_name' => null,
+
+                'customer' => null,
+
+                'customer_name' => null,
+
+                'shipment_ton' => null,
+
+                'shipment_charge' => null,
+
+                'commission' => null,
+
+                'commission_number' => null,
+
+                'cont_unit' => null,
+
+                );
+
+            echo json_encode($data);
         }
 
     }
@@ -834,7 +1056,7 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
 
             return $this->view->redirect('user/login');
 
@@ -858,9 +1080,13 @@ Class shipmentController Extends baseController {
 
                         'vehicle' => trim($_POST['vehicle']),
 
+                        'romooc' => trim($_POST['romooc']),
+
                         'customer' => trim($_POST['customer']),
 
                         'shipment_ton' => trim($_POST['shipment_ton']),
+
+                        'cont_unit' => trim($_POST['cont_unit']),
 
                         'shipment_charge' => trim(str_replace(',','',$_POST['shipment_charge'])),
 
@@ -926,6 +1152,48 @@ Class shipmentController Extends baseController {
 
                         );
 
+            $customer_sub_model = $this->model->get('customersubModel');
+            $customer_model = $this->model->get('customerModel');
+
+            $contributor = "";
+            if(trim($_POST['customer_type']) != ""){
+                $support = explode(',', trim($_POST['customer_type']));
+
+                if ($support) {
+                    foreach ($support as $key) {
+                        $name = $customer_sub_model->getCustomerByWhere(array('customer_sub_name'=>trim($key)));
+                        if ($name) {
+                            if ($contributor == "")
+                                $contributor .= $name->customer_sub_id;
+                            else
+                                $contributor .= ','.$name->customer_sub_id;
+                        }
+                        else{
+
+                            $cus = $customer_model->getCustomer($data['customer']);
+
+                            $customer_sub_model->createCustomer(array('customer_sub_name'=>trim($key)));
+
+                            $con = $customer_sub_model->getLastCustomer()->customer_sub_id;
+
+                            if ($contributor == "")
+                                $contributor .= $con;
+                            else
+                                $contributor .= ','.$con;
+
+                            if ($cus->customer_sub == "") {
+                                $customer_model->updateCustomer(array('customer_sub'=>$con),array('customer_id'=>$data['customer']));
+                            }
+                            else{
+                                $customer_model->updateCustomer(array('customer_sub'=>($cus->customer_sub.','.$con)),array('customer_id'=>$data['customer']));
+                            }
+                        }
+                        
+                    }
+                }
+
+            }
+            $data['customer_type'] = $contributor;
 
 
             $road_model = $this->model->get('roadModel');
@@ -944,9 +1212,15 @@ Class shipmentController Extends baseController {
 
                     $data['shipment_ton'] = trim($_POST['shipment_ton_net']);
 
+                    $data['cont_unit'] = trim($_POST['cont_unit_net']);
+
                     $data['shipment_update'] = 1;
 
                 }
+
+            $data['shipment_ton_net'] = trim($_POST['shipment_ton']);
+
+            $data['cont_unit_net'] = trim($_POST['cont_unit']);
 
 
 
@@ -972,25 +1246,8 @@ Class shipmentController Extends baseController {
 
                 if ($warehouse_datas) {
 
-                    $tan = explode(".",$data['shipment_ton']);
 
-                    if (isset($tan[1]) && substr($tan[1], 0, 1) > 5 ) {
-
-                        $trongluong = $tan[0] + 1;
-
-                    }
-
-                    elseif (isset($tan[1]) && substr($tan[1], 0, 1) < 5 ) {
-
-                        $trongluong = $tan[0];
-
-                    }
-
-                    else{
-
-                        $trongluong = $tan[0]+('0.'.(isset($tan[1])?substr($tan[1], 0, 1):0));
-
-                    }
+                    $trongluong = round($data['shipment_ton']/1000,2);
 
 
 
@@ -1022,13 +1279,13 @@ Class shipmentController Extends baseController {
 
                         $boiduong += ($road_data->way == 0)?0:($boiduong_tan+$boiduong_cont);
 
-                        $chiphi += ($road_data->road_time*3000000)+$boiduong+$road_data->police_cost+round($road_data->bridge_cost*1.1)+$road_data->tire_cost+($road_data->road_oil*$giadau);
+                        $chiphi += $boiduong+$road_data->police_cost+round($road_data->bridge_cost*1.1)+$road_data->tire_cost+($road_data->road_oil*$giadau);
 
                         //$thuong = ($data['shipment_ton']>29.7)?round(($data['shipment_ton']-29.7)+0.4)*$road_data->charge_add:0;
 
-                        $thuong = ($data['shipment_ton']>29)?round($data['shipment_ton']-29)*$road_data->charge_add:0;
+                        $thuong = ($data['shipment_ton']>29000)?round($data['shipment_ton']-29000)*$road_data->charge_add:0;
 
-                        $chiphi_tam += ($road_data->road_time*3000000)+$boiduong+$road_data->police_cost+round($road_data->bridge_cost*1.1)+$road_data->tire_cost;
+                        $chiphi_tam += $boiduong+$road_data->police_cost+round($road_data->bridge_cost*1.1)+$road_data->tire_cost;
 
                     }
 
@@ -1306,7 +1563,11 @@ Class shipmentController Extends baseController {
 
                     
 
-                    
+                    if ($data['cost_add'] > 0 && $data['cost_add'] > $data_shipments->cost_add) {
+
+                        $data['approve'] = 0;
+
+                    }
 
 
 
@@ -1321,6 +1582,8 @@ Class shipmentController Extends baseController {
                     $result['profit'] = $loinhuan;
 
                     echo json_encode($result);
+
+                    $id_shipment = $_POST['yes'];
 
 
 
@@ -1521,6 +1784,7 @@ Class shipmentController Extends baseController {
                     echo json_encode($result);
 
 
+                    $id_shipment = $shipment->getLastShipment()->shipment_id;
 
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
 
@@ -1542,6 +1806,20 @@ Class shipmentController Extends baseController {
 
             }
 
+            $loan_shipment_model = $this->model->get('loanshipmentModel');
+
+            $loans = explode(',', $_POST['loan']);
+
+            if ($loans) {
+                if ($id_shipment) {
+                    foreach ($loans as $loan) {
+                        $loan_shipment_model->updateUnit(array('shipment'=>$id_shipment),array('loan_shipment_id'=>$loan));
+                    }
+                }
+                
+            }
+            
+
                     
 
         }
@@ -1560,7 +1838,7 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
 
             return $this->view->redirect('user/login');
 
@@ -1584,9 +1862,13 @@ Class shipmentController Extends baseController {
 
                         'vehicle' => trim($_POST['vehicle']),
 
+                        'romooc' => trim($_POST['romooc']),
+
                         'customer' => trim($_POST['customer']),
 
                         'shipment_ton' => trim($_POST['shipment_ton']),
+
+                        'cont_unit' => trim($_POST['cont_unit']),
 
                         'shipment_charge' => trim(str_replace(',','',$_POST['shipment_charge'])),
 
@@ -1624,7 +1906,34 @@ Class shipmentController Extends baseController {
 
                         );
 
+            $customer_sub_model = $this->model->get('customersubModel');
 
+            $contributor = "";
+            if(trim($_POST['customer_type']) != ""){
+                $support = explode(',', trim($_POST['customer_type']));
+
+                if ($support) {
+                    foreach ($support as $key) {
+                        $name = $customer_sub_model->getCustomerByWhere(array('customer_sub_name'=>trim($key)));
+                        if ($name) {
+                            if ($contributor == "")
+                                $contributor .= $name->customer_sub_id;
+                            else
+                                $contributor .= ','.$name->customer_sub_id;
+                        }
+                        else{
+                            $customer_sub_model->createCustomer(array('customer_sub_name'=>trim($key)));
+                            if ($contributor == "")
+                                $contributor .= $customer_sub_model->getLastCustomer()->customer_sub_id;
+                            else
+                                $contributor .= ','.$customer_sub_model->getLastCustomer()->customer_sub_id;
+                        }
+                        
+                    }
+                }
+
+            }
+            $data['customer_type'] = $contributor;
 
 
 
@@ -1752,7 +2061,7 @@ Class shipmentController Extends baseController {
 
                     echo json_encode($result);
 
-
+                    $id_shipment = $_POST['yes'];
 
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
 
@@ -1882,7 +2191,7 @@ Class shipmentController Extends baseController {
 
                     echo json_encode($result);
 
-
+                    $id_shipment = $shipment->getLastShipment()->shipment_id;
 
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
 
@@ -1904,6 +2213,19 @@ Class shipmentController Extends baseController {
 
             }
 
+            $loan_shipment_model = $this->model->get('loanshipmentModel');
+
+            $loans = explode(',', $_POST['loan']);
+
+            if ($loans) {
+                if ($id_shipment) {
+                    foreach ($loans as $loan) {
+                        $loan_shipment_model->updateUnit(array('shipment'=>$id_shipment),array('loan_shipment_id'=>$loan));
+                    }
+                }
+                
+            }
+
                     
 
         }
@@ -1920,7 +2242,7 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
 
             return $this->view->redirect('user/login');
 
@@ -2096,7 +2418,7 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
 
             return $this->view->redirect('user/login');
 
@@ -2126,27 +2448,17 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
-
-            return $this->view->redirect('user/login');
-
-        }
+        
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            $warehouse_model = $this->model->get('warehouseModel');
+            $place_model = $this->model->get('placeModel');
 
             
 
             if ($_POST['keyword'] == "*") {
 
-                $data = array(
-
-                'where'=>'( check_new IS NULL )',
-
-                );
-
-                $list = $warehouse_model->getAllWarehouse($data);
+                $list = $place_model->getAllPlace();
 
             }
 
@@ -2154,11 +2466,11 @@ Class shipmentController Extends baseController {
 
                 $data = array(
 
-                'where'=>'( warehouse_name LIKE "'.$_POST['keyword'].'%" AND check_new IS NULL )',
+                'where'=>'( place_name LIKE "'.$_POST['keyword'].'%")',
 
                 );
 
-                $list = $warehouse_model->getAllWarehouse($data);
+                $list = $place_model->getAllPlace($data);
 
             }
 
@@ -2168,11 +2480,11 @@ Class shipmentController Extends baseController {
 
                 // put in bold the written text
 
-                $warehouse_name = $rs->warehouse_name;
+                $place_name = $rs->place_name;
 
                 if ($_POST['keyword'] != "*") {
 
-                    $warehouse_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', $rs->warehouse_name);
+                    $place_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', $rs->place_name);
 
                 }
 
@@ -2180,7 +2492,7 @@ Class shipmentController Extends baseController {
 
                 // add new option
 
-                echo '<li onclick="set_item_shipment_from(\''.$rs->warehouse_id.'\',\''.$rs->warehouse_name.'\')">'.$warehouse_name.'</li>';
+                echo '<li onclick="set_item_shipment_from(\''.$rs->place_id.'\',\''.$rs->place_name.'\')">'.$place_name.'</li>';
 
             }
 
@@ -2196,27 +2508,17 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
-
-            return $this->view->redirect('user/login');
-
-        }
+        
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            $warehouse_model = $this->model->get('warehouseModel');
+            $place_model = $this->model->get('placeModel');
 
             
 
             if ($_POST['keyword'] == "*") {
 
-                $data = array(
-
-                'where'=>'( check_new IS NULL )',
-
-                );
-
-                $list = $warehouse_model->getAllWarehouse($data);
+                $list = $place_model->getAllPlace();
 
             }
 
@@ -2224,11 +2526,11 @@ Class shipmentController Extends baseController {
 
                 $data = array(
 
-                'where'=>'( warehouse_name LIKE "'.$_POST['keyword'].'%" AND check_new IS NULL )',
+                'where'=>'( place_name LIKE "'.$_POST['keyword'].'%")',
 
                 );
 
-                $list = $warehouse_model->getAllWarehouse($data);
+                $list = $place_model->getAllPlace($data);
 
             }
 
@@ -2238,11 +2540,11 @@ Class shipmentController Extends baseController {
 
                 // put in bold the written text
 
-                $warehouse_name = $rs->warehouse_name;
+                $place_name = $rs->place_name;
 
                 if ($_POST['keyword'] != "*") {
 
-                    $warehouse_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', $rs->warehouse_name);
+                    $place_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', $rs->place_name);
 
                 }
 
@@ -2250,7 +2552,7 @@ Class shipmentController Extends baseController {
 
                 // add new option
 
-                echo '<li onclick="set_item_shipment_from_sub(\''.$rs->warehouse_id.'\',\''.$rs->warehouse_name.'\')">'.$warehouse_name.'</li>';
+                echo '<li onclick="set_item_shipment_from_sub(\''.$rs->place_id.'\',\''.$rs->place_name.'\')">'.$place_name.'</li>';
 
             }
 
@@ -2268,27 +2570,17 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
-
-            return $this->view->redirect('user/login');
-
-        }
+        
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            $warehouse_model = $this->model->get('warehouseModel');
+            $place_model = $this->model->get('placeModel');
 
             
 
             if ($_POST['keyword'] == "*") {
 
-                $data = array(
-
-                'where'=>'( check_new IS NULL )',
-
-                );
-
-                $list = $warehouse_model->getAllWarehouse($data);
+                $list = $place_model->getAllPlace();
 
             }
 
@@ -2296,11 +2588,11 @@ Class shipmentController Extends baseController {
 
                 $data = array(
 
-                'where'=>'( warehouse_name LIKE "'.$_POST['keyword'].'%" AND check_new IS NULL )',
+                'where'=>'( place_name LIKE "'.$_POST['keyword'].'%")',
 
                 );
 
-                $list = $warehouse_model->getAllWarehouse($data);
+                $list = $place_model->getAllPlace($data);
 
             }
 
@@ -2310,11 +2602,11 @@ Class shipmentController Extends baseController {
 
                 // put in bold the written text
 
-                $warehouse_name = $rs->warehouse_name;
+                $place_name = $rs->place_name;
 
                 if ($_POST['keyword'] != "*") {
 
-                    $warehouse_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', $rs->warehouse_name);
+                    $place_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', $rs->place_name);
 
                 }
 
@@ -2322,7 +2614,7 @@ Class shipmentController Extends baseController {
 
                 // add new option
 
-                echo '<li onclick="set_item_shipment_to(\''.$rs->warehouse_id.'\',\''.$rs->warehouse_name.'\')">'.$warehouse_name.'</li>';
+                echo '<li onclick="set_item_shipment_to(\''.$rs->place_id.'\',\''.$rs->place_name.'\')">'.$place_name.'</li>';
 
             }
 
@@ -2338,27 +2630,17 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
-
-            return $this->view->redirect('user/login');
-
-        }
+        
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            $warehouse_model = $this->model->get('warehouseModel');
+            $place_model = $this->model->get('placeModel');
 
             
 
             if ($_POST['keyword'] == "*") {
 
-                $data = array(
-
-                'where'=>'( check_new IS NULL )',
-
-                );
-
-                $list = $warehouse_model->getAllWarehouse($data);
+                $list = $place_model->getAllPlace();
 
             }
 
@@ -2366,11 +2648,11 @@ Class shipmentController Extends baseController {
 
                 $data = array(
 
-                'where'=>'( warehouse_name LIKE "'.$_POST['keyword'].'%" AND check_new IS NULL )',
+                'where'=>'( place_name LIKE "'.$_POST['keyword'].'%")',
 
                 );
 
-                $list = $warehouse_model->getAllWarehouse($data);
+                $list = $place_model->getAllPlace($data);
 
             }
 
@@ -2380,11 +2662,11 @@ Class shipmentController Extends baseController {
 
                 // put in bold the written text
 
-                $warehouse_name = $rs->warehouse_name;
+                $place_name = $rs->place_name;
 
                 if ($_POST['keyword'] != "*") {
 
-                    $warehouse_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', $rs->warehouse_name);
+                    $place_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', $rs->place_name);
 
                 }
 
@@ -2392,7 +2674,7 @@ Class shipmentController Extends baseController {
 
                 // add new option
 
-                echo '<li onclick="set_item_shipment_to_sub(\''.$rs->warehouse_id.'\',\''.$rs->warehouse_name.'\')">'.$warehouse_name.'</li>';
+                echo '<li onclick="set_item_shipment_to_sub(\''.$rs->place_id.'\',\''.$rs->place_name.'\')">'.$place_name.'</li>';
 
             }
 
@@ -2540,17 +2822,13 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
-
-            return $this->view->redirect('user/login');
-
-        }
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $vehicle_model = $this->model->get('vehicleModel');
-
+            $vehicle_romooc_model = $this->model->get('vehicleromoocModel');
             
+            $ngay = isset($_POST['ngay'])?$_POST['ngay']:date('d-m-Y');
 
             if ($_POST['keyword'] == "*") {
 
@@ -2586,11 +2864,87 @@ Class shipmentController Extends baseController {
 
                 }
 
+                $data_romooc = array(
+                    'where'=>'vehicle='.$rs->vehicle_id.' AND (start_time <= '.strtotime($ngay).' AND (end_time >= '.strtotime($ngay).' OR (end_time IS NULL OR end_time=0) ) )',
+                    'order_by'=>'start_time DESC',
+                    'limit'=>1,
+                );
+                $join = array('table'=>'romooc','where'=>'romooc=romooc_id');
+                $romoocs = $vehicle_romooc_model->getAllVehicle($data_romooc,$join);
+
+                if ($romoocs) {
+                    foreach ($romoocs as $romooc) {
+                        echo '<li onclick="set_item_vehicle(\''.$rs->vehicle_id.'\',\''.$rs->vehicle_number.'\',\''.$romooc->romooc_id.'\',\''.$romooc->romooc_number.'\')">'.$vehicle_number.'</li>';
+                    }
+                }
+                else{
+                    echo '<li onclick="set_item_vehicle(\''.$rs->vehicle_id.'\',\''.$rs->vehicle_number.'\',\'\',\'\')">'.$vehicle_number.'</li>';
+                }
                 
 
                 // add new option
 
-                echo '<li onclick="set_item_vehicle(\''.$rs->vehicle_id.'\',\''.$rs->vehicle_number.'\')">'.$vehicle_number.'</li>';
+                
+
+            }
+
+        }
+
+    }
+    public function getromooc(){
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $romooc_model = $this->model->get('romoocModel');
+
+            
+
+            if ($_POST['keyword'] == "*") {
+
+
+
+                $list = $romooc_model->getAllVehicle();
+
+            }
+
+            else{
+
+                $data = array(
+
+                'where'=>'( romooc_number LIKE "%'.$_POST['keyword'].'%" )',
+
+                );
+
+                $list = $romooc_model->getAllVehicle($data);
+
+            }
+
+            
+
+            foreach ($list as $rs) {
+
+                // put in bold the written text
+
+                $romooc_number = $rs->romooc_number;
+
+                if ($_POST['keyword'] != "*") {
+
+                    $romooc_number = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', $rs->romooc_number);
+
+                }
+
+                
+
+                // add new option
+
+                echo '<li onclick="set_item_romooc(\''.$rs->romooc_id.'\',\''.$rs->romooc_number.'\')">'.$romooc_number.'</li>';
 
             }
 
@@ -2606,17 +2960,13 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
-
-            return $this->view->redirect('user/login');
-
-        }
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $vehicle_model = $this->model->get('vehicleModel');
-
+            $vehicle_romooc_model = $this->model->get('vehicleromoocModel');
             
+            $ngay = isset($_POST['ngay'])?$_POST['ngay']:date('d-m-Y');
 
             if ($_POST['keyword'] == "*") {
 
@@ -2652,11 +3002,27 @@ Class shipmentController Extends baseController {
 
                 }
 
+                $data_romooc = array(
+                    'where'=>'vehicle='.$rs->vehicle_id.' AND (start_time <= '.strtotime($ngay).' AND (end_time >= '.strtotime($ngay).' OR (end_time IS NULL OR end_time=0) ) )',
+                    'order_by'=>'start_time DESC',
+                    'limit'=>1,
+                );
+                $join = array('table'=>'romooc','where'=>'romooc=romooc_id');
+                $romoocs = $vehicle_romooc_model->getAllVehicle($data_romooc,$join);
+
+                if ($romoocs) {
+                    foreach ($romoocs as $romooc) {
+                        echo '<li onclick="set_item_vehicle_sub(\''.$rs->vehicle_id.'\',\''.$rs->vehicle_number.'\',\''.$romooc->romooc_id.'\',\''.$romooc->romooc_number.'\')">'.$vehicle_number.'</li>';
+                    }
+                }
+                else{
+                    echo '<li onclick="set_item_vehicle_sub(\''.$rs->vehicle_id.'\',\''.$rs->vehicle_number.'\',\'\',\'\')">'.$vehicle_number.'</li>';
+                }
                 
 
                 // add new option
 
-                echo '<li onclick="set_item_vehicle_sub(\''.$rs->vehicle_id.'\',\''.$rs->vehicle_number.'\')">'.$vehicle_number.'</li>';
+                
 
             }
 
@@ -2664,7 +3030,278 @@ Class shipmentController Extends baseController {
 
     }
 
-    
+    public function getdriver(){
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $steersman_model = $this->model->get('steersmanModel');
+
+            
+
+            if ($_POST['keyword'] == "*") {
+
+
+
+                $list = $steersman_model->getAllSteersman();
+
+            }
+
+            else{
+
+                $data = array(
+
+                'where'=>'( steersman_name LIKE "%'.$_POST['keyword'].'%" )',
+
+                );
+
+                $list = $steersman_model->getAllSteersman($data);
+
+            }
+
+            
+
+            foreach ($list as $rs) {
+
+                // put in bold the written text
+
+                $steersman_name = $rs->steersman_name;
+
+                if ($_POST['keyword'] != "*") {
+
+                    $steersman_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', $rs->steersman_name);
+
+                }
+
+                
+
+                // add new option
+
+                echo '<li onclick="set_item_driver(\''.$rs->steersman_id.'\',\''.$rs->steersman_name.'\')">'.$steersman_name.'</li>';
+
+            }
+
+        }
+
+    }
+    public function getdriversub(){
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $steersman_model = $this->model->get('steersmanModel');
+
+            
+
+            if ($_POST['keyword'] == "*") {
+
+
+
+                $list = $steersman_model->getAllSteersman();
+
+            }
+
+            else{
+
+                $data = array(
+
+                'where'=>'( steersman_name LIKE "%'.$_POST['keyword'].'%" )',
+
+                );
+
+                $list = $steersman_model->getAllSteersman($data);
+
+            }
+
+            
+
+            foreach ($list as $rs) {
+
+                // put in bold the written text
+
+                $steersman_name = $rs->steersman_name;
+
+                if ($_POST['keyword'] != "*") {
+
+                    $steersman_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', $rs->steersman_name);
+
+                }
+
+                
+
+                // add new option
+
+                echo '<li onclick="set_item_driver_sub(\''.$rs->steersman_id.'\',\''.$rs->steersman_name.'\')">'.$steersman_name.'</li>';
+
+            }
+
+        }
+
+    }
+
+    public function getSub(){
+        header('Content-type: application/json');
+        $q = $_GET["search"];
+
+        $sub_model = $this->model->get('customersubModel');
+        $data = array(
+            'where' => 'customer_sub_name LIKE "%'.$q.'%"',
+        );
+        $subs = $sub_model->getAllCustomer($data);
+        $arr = array();
+        foreach ($subs as $sub) {
+            $arr[] = $sub->customer_sub_name;
+        }
+        
+        echo json_encode($arr);
+    }
+
+    public function getExport(){
+        header('Content-type: application/json');
+        $q = $_GET["search"];
+
+        $sub_model = $this->model->get('exportstockModel');
+        $data = array(
+            'where' => 'export_stock_code LIKE "%'.$q.'%"',
+        );
+        $subs = $sub_model->getAllStock($data);
+        $arr = array();
+        foreach ($subs as $sub) {
+            $arr[] = $sub->export_stock_code;
+        }
+        
+        echo json_encode($arr);
+    }
+
+    public function bill(){
+
+        $this->view->setLayout('admin');
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+        if (isset($_POST['data'])) {
+            $shipment = $this->model->get('shipmentModel');
+
+            $data = array(
+                'shipment_ton' => trim($_POST['bill_delivery_ton']),
+                'cont_unit' => trim($_POST['bill_delivery_unit']),
+                'shipment_ton_net' => trim($_POST['bill_receive_ton']),
+                'cont_unit_net' => trim($_POST['bill_receive_unit']),
+                'bill_number' => trim($_POST['bill_number']),
+                'bill_receive_date' => strtotime(trim($_POST['bill_receive_date'])),
+                'bill_delivery_date' => strtotime(trim($_POST['bill_delivery_date'])),
+                'bill_receive_ton' => trim($_POST['bill_receive_ton']),
+                'bill_receive_unit' => trim($_POST['bill_receive_unit']),
+                'bill_delivery_ton' => trim($_POST['bill_delivery_ton']),
+                'bill_delivery_unit' => trim($_POST['bill_delivery_unit']),
+                'bill_in' => strtotime(trim($_POST['bill_delivery_date']).' '.trim($_POST['bill_in'])),
+                'bill_out' => strtotime(trim($_POST['bill_delivery_date']).' '.trim($_POST['bill_out'])),
+            );
+
+            $shipment->updateShipment($data,array('shipment_id'=>$_POST['data']));
+
+            echo "Cập nhật thành công";
+
+            date_default_timezone_set("Asia/Ho_Chi_Minh"); 
+
+            $filename = "action_logs.txt";
+
+            $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."edit"."|".$_POST['data']."|bill|".implode("-",$data)."\n"."\r\n";
+
+            
+
+            $fh = fopen($filename, "a") or die("Could not open log file.");
+
+            fwrite($fh, $text) or die("Could not write file!");
+
+            fclose($fh);
+        }
+    }
+
+    public function oil(){
+
+        $this->view->setLayout('admin');
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+        if (isset($_POST['data'])) {
+            $shipment = $this->model->get('shipmentModel');
+
+            $data = array(
+                'shipment_oil' => trim($_POST['shipment_oil']),
+            );
+
+            $export_stock_model = $this->model->get('exportstockModel');
+
+            $contributor = "";
+            if(trim($_POST['export_stock']) != ""){
+                $support = explode(',', trim($_POST['export_stock']));
+
+                if ($support) {
+                    foreach ($support as $key) {
+                        $name = $export_stock_model->getStockByWhere(array('export_stock_code'=>trim($key)));
+                        if ($name) {
+                            if ($contributor == "")
+                                $contributor .= $name->export_stock_id;
+                            else
+                                $contributor .= ','.$name->export_stock_id;
+                        }
+                        
+                    }
+                }
+
+            }
+            $data['export_stock'] = $contributor;
+
+            $shipment->updateShipment($data,array('shipment_id'=>$_POST['data']));
+
+            echo "Cập nhật thành công";
+
+            date_default_timezone_set("Asia/Ho_Chi_Minh"); 
+
+            $filename = "action_logs.txt";
+
+            $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."edit"."|".$_POST['data']."|shipmet_oil|".implode("-",$data)."\n"."\r\n";
+
+            
+
+            $fh = fopen($filename, "a") or die("Could not open log file.");
+
+            fwrite($fh, $text) or die("Could not write file!");
+
+            fclose($fh);
+        }
+    }
 
 
 
@@ -2678,7 +3315,7 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
 
             return $this->view->redirect('user/login');
 
@@ -2857,7 +3494,22 @@ Class shipmentController Extends baseController {
         
 
 
+        $place_model = $this->model->get('placeModel');
 
+        $place_data = array();
+
+        $places = $place_model->getAllPlace();
+
+
+        foreach ($places as $place) {
+
+                $place_data['place_id'][$place->place_id] = $place->place_id;
+
+                $place_data['place_name'][$place->place_id] = $place->place_name;
+
+        }
+
+        $this->view->data['place'] = $place_data;
         
 
 
@@ -2868,7 +3520,7 @@ Class shipmentController Extends baseController {
 
 
 
-        $join = array('table'=>'customer, vehicle','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle');
+        $join = array('table'=>'customer, vehicle, cont_unit','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND cont_unit = cont_unit_id');
 
         $data = array(
 
@@ -2879,8 +3531,9 @@ Class shipmentController Extends baseController {
             );
 
         
+        $shipments = $shipment_model->getAllShipment($data,$join);
 
-        $this->view->data['shipments'] = $shipment_model->getAllShipment($data,$join);
+        $this->view->data['shipments'] = $shipments;
 
 
 
@@ -2908,7 +3561,7 @@ Class shipmentController Extends baseController {
 
 
 
-        foreach ($this->view->data['shipments'] as $shipment) {
+        foreach ($shipments as $shipment) {
 
 
 
@@ -2918,15 +3571,17 @@ Class shipmentController Extends baseController {
 
             );
 
-            $drivers = $driver_model->getAllDriver($d_data);
+            $d_join = array('table'=>'steersman','where'=>'steersman = steersman_id');
+
+            $drivers = $driver_model->getAllDriver($d_data,$d_join);
 
             
 
             foreach ($drivers as $driver) {
 
-                $driver_data[$shipment->shipment_id]['driver_name'] = $driver->driver_name;
+                $driver_data[$shipment->shipment_id]['driver_name'] = $driver->steersman_name;
 
-                $driver_data[$shipment->shipment_id]['driver_phone'] = $driver->driver_phone;
+                $driver_data[$shipment->shipment_id]['driver_phone'] = $driver->steersman_phone;
 
             }
 
@@ -2952,9 +3607,9 @@ Class shipmentController Extends baseController {
 
 
 
-            
+            $r_join = array('table'=>'oil','where'=>'road.way = oil.oil_id');
 
-            $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$shipment->shipment_from.' AND road_to = '.$shipment->shipment_to.' AND start_time <= '.$shipment->shipment_date.' AND end_time >= '.$shipment->shipment_date));
+            $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$shipment->shipment_from.' AND road_to = '.$shipment->shipment_to.' AND start_time <= '.$shipment->shipment_date.' AND end_time >= '.$shipment->shipment_date),$r_join);
 
             
 
@@ -2977,6 +3632,8 @@ Class shipmentController Extends baseController {
                 $road_data['road_id'][$shipment->shipment_id] = $road->road_id;
 
                 $road_data['way'][$shipment->shipment_id] = $road->way;
+
+                $road_data['way_name'][$shipment->shipment_id] = $road->way;
 
                 $road_data['road_km'][$shipment->shipment_id] = $road->road_km;
 
@@ -3022,33 +3679,7 @@ Class shipmentController Extends baseController {
 
                 
 
-                    $warehouse_data['warehouse_id'][$warehouse->warehouse_code] = $warehouse->warehouse_code;
-
-                    $warehouse_data['warehouse_name'][$warehouse->warehouse_code] = $warehouse->warehouse_name;
-
-
-
-                    $tan = explode(".",$shipment->shipment_ton);
-
-                    if (isset($tan[1]) && substr($tan[1], 0, 1) > 5 ) {
-
-                        $trongluong = $tan[0] + 1;
-
-                    }
-
-                    elseif (isset($tan[1]) && substr($tan[1], 0, 1) < 5 ) {
-
-                        $trongluong = $tan[0];
-
-                    }
-
-                    else{
-
-                        $trongluong = $tan[0]+('0.'.(isset($tan[1])?substr($tan[1], 0, 1):0));
-
-                    }
-
-
+                    $trongluong = round($shipment->shipment_ton/1000,2);
 
 
 
@@ -4324,12 +4955,6 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 7 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
-
-            return $this->view->redirect('user/login');
-
-        }
-
 
 
             $id = $this->registry->router->param_id;
@@ -4354,7 +4979,7 @@ Class shipmentController Extends baseController {
 
 
 
-        $join = array('table'=>'customer, vehicle','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle');
+        $join = array('table'=>'customer, vehicle, cont_unit','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND cont_unit = cont_unit_id');
 
         $data = array(
 
@@ -4385,7 +5010,22 @@ Class shipmentController Extends baseController {
 
 
 
+        $place_model = $this->model->get('placeModel');
 
+        $place_data = array();
+
+        $places = $place_model->getAllPlace();
+
+
+        foreach ($places as $place) {
+
+                $place_data['place_id'][$place->place_id] = $place->place_id;
+
+                $place_data['place_name'][$place->place_id] = $place->place_name;
+
+        }
+
+        $this->view->data['place'] = $place_data;
 
 
 
@@ -4460,9 +5100,9 @@ Class shipmentController Extends baseController {
 
                 foreach ($shipments as $shipment) {
 
-            
+                    $r_join = array('table'=>'oil','where'=>'road.way = oil.oil_id');
 
-                    $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$shipment->shipment_from.' AND road_to = '.$shipment->shipment_to.' AND start_time <= '.$shipment->shipment_date.' AND end_time >= '.$shipment->shipment_date));
+                    $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$shipment->shipment_from.' AND road_to = '.$shipment->shipment_to.' AND start_time <= '.$shipment->shipment_date.' AND end_time >= '.$shipment->shipment_date),$r_join);
 
                     
 
@@ -4477,6 +5117,8 @@ Class shipmentController Extends baseController {
                         $road_data['road_id'][$shipment->shipment_id] = $road->road_id;
 
                         $road_data['way'][$shipment->shipment_id] = $road->way;
+
+                        $road_data['way_name'][$shipment->shipment_id] = $road->way;
 
                         $road_data['road_km'][$shipment->shipment_id] = $road->road_km;
 
@@ -4525,28 +5167,7 @@ Class shipmentController Extends baseController {
                             $warehouse_data['warehouse_name'][$warehouse->warehouse_code] = $warehouse->warehouse_name;
 
 
-
-                            $tan = explode(".",$shipment->shipment_ton);
-
-                            if (isset($tan[1]) && substr($tan[1], 0, 1) > 5 ) {
-
-                                $trongluong = $tan[0] + 1;
-
-                            }
-
-                            elseif (isset($tan[1]) && substr($tan[1], 0, 1) < 5 ) {
-
-                                $trongluong = $tan[0];
-
-                            }
-
-                            else{
-
-                                $trongluong = $tan[0]+('0.'.(isset($tan[1])?substr($tan[1], 0, 1):0));
-
-                            }
-
-
+                            $trongluong = round($shipment->shipment_ton/1000,2);
 
 
 
@@ -4588,7 +5209,7 @@ Class shipmentController Extends baseController {
 
 
 
-                $chieu  = $road_data['way'][$shipment->shipment_id]==1?'Lên':($road_data['way'][$shipment->shipment_id]==2?'Xuống':($road_data['way'][$shipment->shipment_id]==3?'Bằng':($road_data['way'][$shipment->shipment_id]==4?'ĐN-QN':'Rỗng')));
+                $chieu  = $road_data['way_name'][$shipment->shipment_id];
 
 
 
@@ -4602,9 +5223,9 @@ Class shipmentController Extends baseController {
 
                         ->setCellValue('C' . $hang, $this->lib->hien_thi_ngay_thang($shipment->shipment_date))
 
-                        ->setCellValue('D' . $hang, $warehouse_data['warehouse_name'][$shipment->shipment_from])
+                        ->setCellValue('D' . $hang, $place_data['place_name'][$shipment->shipment_from])
 
-                        ->setCellValue('E' . $hang, $warehouse_data['warehouse_name'][$shipment->shipment_to])
+                        ->setCellValue('E' . $hang, $place_data['place_name'][$shipment->shipment_to])
 
                         ->setCellValue('F' . $hang, $shipment->customer_name)
 
@@ -4644,7 +5265,7 @@ Class shipmentController Extends baseController {
 
 
 
-            $objPHPExcel->getActiveSheet()->getStyle('H2:K'.$highestRow)->getNumberFormat()->setFormatCode("#,##0_);[Black](#,##0)");
+            //$objPHPExcel->getActiveSheet()->getStyle('H2:K'.$highestRow)->getNumberFormat()->setFormatCode("#,##0_);[Black](#,##0)");
 
             $objPHPExcel->getActiveSheet()->getStyle('A1:K1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
@@ -4742,7 +5363,7 @@ Class shipmentController Extends baseController {
 
     
 
-        $content = $this->get_content_by_tag($content,"<div id=\"vie_p3_PortletContent\" class=\"blueseaContainerContent\" style=\"height:130px;\">",$url); 
+        $content = $this->get_content_by_tag($content,"<div id=\"vie_p5_PortletContent\">",$url); 
 
 
 
@@ -4751,6 +5372,7 @@ Class shipmentController Extends baseController {
 
 
         $html = str_get_html($content);
+        
 
         if (!$html) {
 
@@ -4758,19 +5380,17 @@ Class shipmentController Extends baseController {
 
         }
 
-        
+        $string = $html->find('div.list-table',0)->children(5)->innertext;
 
-        foreach($html->find('div.c') as $element)
-
+        $dom = new DOMDocument;
+        $dom->loadHTML($string);
+        foreach($dom->getElementsByTagName('div') as $node)
         {
-
-            $arr[] = $element->plaintext;
-
+            $arr[] = $node->nodeValue;
         }
 
 
-
-        return str_replace('.', '', $arr['6']);
+        return str_replace('.', '', $arr['1']);
 
         
 

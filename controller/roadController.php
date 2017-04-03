@@ -64,6 +64,7 @@ Class roadController Extends baseController {
         $oils = $oil_model->getAllOil();
         $this->view->data['oils'] = $oils;
 
+        $join = array('table'=>'oil', 'where'=>'road.way = oil.oil_id');
 
         $road_model = $this->model->get('roadModel');
 
@@ -79,7 +80,7 @@ Class roadController Extends baseController {
             $data['where'] .= ' AND road_from = '.$batdau.' AND road_to = '.$ketthuc;
         }
 
-        $tongsodong = count($road_model->getAllRoad($data));
+        $tongsodong = count($road_model->getAllRoad($data,$join));
 
         $tongsotrang = ceil($tongsodong / $sonews);
 
@@ -165,7 +166,7 @@ Class roadController Extends baseController {
 
         
 
-        $this->view->data['roads'] = $road_model->getAllRoad($data);
+        $this->view->data['roads'] = $road_model->getAllRoad($data,$join);
 
 
 
@@ -499,7 +500,7 @@ Class roadController Extends baseController {
 
             $distance_model = $this->model->get('distanceModel');
 
-
+            $shipment = $this->model->get('shipmentModel');
 
             $data = array(
 
@@ -570,7 +571,7 @@ Class roadController Extends baseController {
 
 
 
-                $shipment = $this->model->get('shipmentModel');
+                
 
 
 
@@ -581,9 +582,9 @@ Class roadController Extends baseController {
 
                         $data_edit = array(
 
-                            'shipment_cost' => ($ship->shipment_cost-(($road_time_old*3000000)+$police_cost_old+round($bridge_cost_old*1.1)+$tire_cost_old+($road_oil_old*round($ship->oil_cost*1.1))))+(($data['road_time']*3000000)+$data['police_cost']+round($data['bridge_cost']*1.1)+$data['tire_cost']+($data['road_oil']*round($ship->oil_cost*1.1))),
+                            'shipment_cost' => ($ship->shipment_cost-($police_cost_old+round($bridge_cost_old*1.1)+$tire_cost_old+($road_oil_old*round($ship->oil_cost*1.1))))+($data['police_cost']+round($data['bridge_cost']*1.1)+$data['tire_cost']+($data['road_oil']*round($ship->oil_cost*1.1))),
 
-                            'shipment_bonus' => ($ship->shipment_ton>29)?round($ship->shipment_ton-29)*$data['charge_add']:0,
+                            'shipment_bonus' => ($ship->shipment_ton>29000)?round($ship->shipment_ton-29000)*$data['charge_add']:0,
 
                             );
 
@@ -866,6 +867,25 @@ Class roadController Extends baseController {
                     else{
                         $road->createRoad($data);
 
+                    }
+
+
+                    $shipments = $shipment->getAllShipment(array('where'=>'shipment_from = '.$data['road_from'].' AND shipment_to = '.$data['road_to'].' AND shipment_date >= '.$data['start_time'].' AND shipment_date <= '.$data['end_time']));
+
+                    if($shipments){
+                        foreach ($shipments as $ship) {
+
+                            $data_edit = array(
+
+                                'shipment_cost' => $ship->shipment_cost+($data['police_cost']+round($data['bridge_cost']*1.1)+$data['tire_cost']+($data['road_oil']*round($ship->oil_cost*1.1))),
+
+                                'shipment_bonus' => ($ship->shipment_ton>29000)?round($ship->shipment_ton-29000)*$data['charge_add']:0,
+
+                                );
+
+                            $shipment->updateShipment($data_edit,array('shipment_id' => $ship->shipment_id));
+
+                        }
                     }
 
 

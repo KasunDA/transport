@@ -243,7 +243,8 @@ $this->helper('slidePaginator');
 $('html').click(function(e) {
    $('#vehicle_list_id').slideUp(200);
 });
-    $('.edit_tr').click(function(){
+    $('.edit_tr').click(function(e){
+      if(!$('.checkbox').is(':focus') && e.target.nodeName != "A"){
         if(!$('.checkbox').is(':checked')){
             $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
         }
@@ -275,6 +276,7 @@ $('html').click(function(e) {
         $('#end_work').val(end_work.replace(/\//g,"-"));
         
         $( ".add-field" ).dialog( "open" );
+      }
     });
 
 

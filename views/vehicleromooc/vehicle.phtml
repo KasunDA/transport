@@ -201,28 +201,30 @@ $this->helper('slidePaginator');
 
 <script type="text/javascript">
 
-    $('.edit_tr').click(function(){
-        if(!$('.checkbox').is(':checked')){
-            $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
+    $('.edit_tr').click(function(e){
+        if(!$('.checkbox').is(':focus') && e.target.nodeName != "A"){
+            if(!$('.checkbox').is(':checked')){
+                $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
+            }
+            
+            var vehicle_number = $(this).find("#vehicle_number_"+$(this).attr('id')).text();
+            var romooc_number = $(this).find("#romooc_number_"+$(this).attr('id')).text();
+            
+            var start_time = $(this).find("#start_time_"+$(this).attr('id')).text();
+            var end_time = $(this).find("#end_time_"+$(this).attr('id')).text();
+            
+            //alert(vehicle_romooc_from);
+            $('#yes').val($(this).attr('id'));
+            
+
+            $('#vehicle option[value='+vehicle_number+']').attr('selected','selected');
+            $('#romooc option[value='+romooc_number+']').attr('selected','selected');
+            $('#start_time').val(start_time.replace(/\//g,"-"));
+            $('#end_time').val(end_time.replace(/\//g,"-"));
+
+            
+            $( ".add-field" ).dialog( "open" );
         }
-        
-        var vehicle_number = $(this).find("#vehicle_number_"+$(this).attr('id')).text();
-        var romooc_number = $(this).find("#romooc_number_"+$(this).attr('id')).text();
-        
-        var start_time = $(this).find("#start_time_"+$(this).attr('id')).text();
-        var end_time = $(this).find("#end_time_"+$(this).attr('id')).text();
-        
-        //alert(vehicle_romooc_from);
-        $('#yes').val($(this).attr('id'));
-        
-
-        $('#vehicle option[value='+vehicle_number+']').attr('selected','selected');
-        $('#romooc option[value='+romooc_number+']').attr('selected','selected');
-        $('#start_time').val(start_time.replace(/\//g,"-"));
-        $('#end_time').val(end_time.replace(/\//g,"-"));
-
-        
-        $( ".add-field" ).dialog( "open" );
         
     });
 

@@ -61,12 +61,10 @@ Class marketingController Extends baseController {
         }
 
         $contunit_model = $this->model->get('contunitModel');
-        $loanunit_model = $this->model->get('loanunitModel');
 
         $this->view->data['cont_units'] = $contunit_model->getAllUnit();
-        $this->view->data['loan_units'] = $loanunit_model->getAllUnit();
 
-        $join = array('table'=>'customer, cont_unit, loan_unit','where'=>'customer.customer_id = marketing.customer AND cont_unit=cont_unit_id AND loan_unit=loan_unit_id');
+        $join = array('table'=>'customer, cont_unit','where'=>'customer.customer_id = marketing.customer AND cont_unit=cont_unit_id');
 
 
 
@@ -204,7 +202,26 @@ Class marketingController Extends baseController {
 
         $this->view->data['place'] = $place_data;
 
+        $customer_sub_model = $this->model->get('customersubModel');
+
+        $customer_types = array();
+        foreach ($marketing_data as $marketing) {
+            $customer_sub = "";
+            $sts = explode(',', $marketing->customer_type);
+            foreach ($sts as $key) {
+                $subs = $customer_sub_model->getCustomer($key);
+                if ($subs) {
+                    if ($customer_sub == "")
+                        $customer_sub .= $subs->customer_sub_name;
+                    else
+                        $customer_sub .= ','.$subs->customer_sub_name;
+                }
+                
+            }
+            $customer_types[$marketing->marketing_id] = $customer_sub;
+        }
         
+        $this->view->data['customer_types'] = $customer_types;
 
         $this->view->show('marketing/index');
 
@@ -238,7 +255,7 @@ Class marketingController Extends baseController {
 
 
 
-        $join = array('table'=>'user,cont_unit,loan_unit','where'=>'user.user_id = shipment_temp.owner AND shipment_temp_cont_unit=cont_unit_id AND shipment_temp_loan_unit=loan_unit_id');
+        $join = array('table'=>'user,cont_unit','where'=>'user.user_id = shipment_temp.owner AND shipment_temp_cont_unit=cont_unit_id');
 
 
 
@@ -596,21 +613,16 @@ Class marketingController Extends baseController {
 
                         'commission_number' => trim($_POST['commission_number']),
 
-                        'marketing_loan' => trim(str_replace(',','',$_POST['marketing_loan'])),
-
                         'marketing_start' => strtotime(trim($_POST['marketing_start'])),
 
                         'marketing_end' => strtotime(trim($_POST['marketing_end'])),
 
-                        'loan_content' => trim($_POST['loan_content']),
-
                         'cont_unit' => trim($_POST['cont_unit']),
-
-                        'loan_unit' => trim($_POST['loan_unit']),
 
                         );
 
             $customer_sub_model = $this->model->get('customersubModel');
+            $customer_model = $this->model->get('customerModel');
 
             $contributor = "";
             if(trim($_POST['customer_type']) != ""){
@@ -626,11 +638,24 @@ Class marketingController Extends baseController {
                                 $contributor .= ','.$name->customer_sub_id;
                         }
                         else{
+                            
+                            $cus = $customer_model->getCustomer($data['customer']);
+
                             $customer_sub_model->createCustomer(array('customer_sub_name'=>trim($key)));
+
+                            $con = $customer_sub_model->getLastCustomer()->customer_sub_id;
+
                             if ($contributor == "")
-                                $contributor .= $customer_sub_model->getLastCustomer()->customer_sub_id;
+                                $contributor .= $con;
                             else
-                                $contributor .= ','.$customer_sub_model->getLastCustomer()->customer_sub_id;
+                                $contributor .= ','.$con;
+
+                            if ($cus->customer_sub == "") {
+                                $customer_model->updateCustomer(array('customer_sub'=>$con),array('customer_id'=>$data['customer']));
+                            }
+                            else{
+                                $customer_model->updateCustomer(array('customer_sub'=>($cus->customer_sub.','.$con)),array('customer_id'=>$data['customer']));
+                            }
                         }
                         
                     }

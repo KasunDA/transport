@@ -216,7 +216,7 @@ $this->helper('slidePaginator');
 <script type="text/javascript">
 
     $('.edit_tr').click(function(e){
-        if(e.target != '[object HTMLButtonElement]' && !$('.checkbox').is(':focus')){
+        if(!$('.checkbox').is(':focus') && e.target.nodeName != "A"){
             if(!$('.checkbox').is(':focus')){
                 $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
             }

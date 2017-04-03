@@ -118,9 +118,6 @@ elseif ($order_by == 'status')
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','commission','<?php echo $url_order ?>')">Hoa hồng <?php if ($order_by == 'commission'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','marketing_loan','<?php echo $url_order ?>')">Chi hộ <?php if ($order_by == 'marketing_loan'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','status','<?php echo $url_order ?>')">Trạng thái <?php if ($order_by == 'status'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <?php if(!isset($disable_control)){ ?>
@@ -162,9 +159,8 @@ elseif ($order_by == 'status')
             <td class="fix" id="marketing_charge_<?php echo $shipment_temp->shipment_temp_id; ?>"><?php echo $lib->formatMoney($shipment_temp->marketing_charge); ?></td>
             <td class="fix" id="marketing_revenue_<?php echo $shipment_temp->shipment_temp_id; ?>"><?php echo $lib->formatMoney($shipment_temp->shipment_temp_ton*$shipment_temp->marketing_charge); ?></td>
             <td class="fix" id="shipment_temp_commission_<?php echo $shipment_temp->shipment_temp_id; ?>"><?php echo $lib->formatMoney($shipment_temp->shipment_temp_commission); ?></td>
-            <td class="fix" id="shipment_temp_loan_<?php echo $shipment_temp->shipment_temp_id; ?>"><?php echo $lib->formatMoney($shipment_temp->shipment_temp_loan); ?></td>
             <td class="fix" style="color: <?php echo $shipment_temp->shipment_temp_status==1?"red":"green"; ?>" id="shipment_temp_status_<?php echo $shipment_temp->shipment_temp_id; ?>"><?php echo $shipment_temp->shipment_temp_status==1?"Đã chạy":"Chưa chạy"; ?></td>
-            <td class="fix" style="display:none" id="loan_content_<?php echo $shipment_temp->shipment_temp_id; ?>"><?php echo $shipment_temp->loan_content; ?></td>
+            
             <td>
                 <?php if(!isset($disable_control)){ ?>
                 <?php 

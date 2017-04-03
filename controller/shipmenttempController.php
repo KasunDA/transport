@@ -69,7 +69,7 @@ Class shipmenttempController Extends baseController {
         $this->view->data['customer_sub_data'] = $customer_sub_data;
 
 
-        $join = array('table'=>'customer, marketing, cont_unit, loan_unit','where'=>'marketing.marketing_id = shipment_temp.marketing AND customer.customer_id = marketing.customer AND cont_unit=cont_unit_id AND loan_unit=loan_unit_id');
+        $join = array('table'=>'customer, marketing, cont_unit','where'=>'marketing.marketing_id = shipment_temp.marketing AND customer.customer_id = marketing.customer AND cont_unit=cont_unit_id');
 
 
 

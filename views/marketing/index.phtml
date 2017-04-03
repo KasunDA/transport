@@ -119,9 +119,6 @@ elseif ($order_by == 'status')
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','commission','<?php echo $url_order ?>')">Hoa hồng <?php if ($order_by == 'commission'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','marketing_loan','<?php echo $url_order ?>')">Chi hộ <?php if ($order_by == 'marketing_loan'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','marketing_ton_use','<?php echo $url_order ?>')">Đã nhận <?php if ($order_by == 'marketing_ton_use'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
@@ -147,7 +144,7 @@ elseif ($order_by == 'status')
             <td class="fix" id="marketing_start_<?php echo $marketing->marketing_id; ?>"><?php echo $lib->hien_thi_ngay_thang($marketing->marketing_start); ?></td>
             <td class="fix" id="marketing_end_<?php echo $marketing->marketing_id; ?>"><?php echo $lib->hien_thi_ngay_thang($marketing->marketing_end); ?></td>
             <td nowrap class="fix" data="<?php echo $marketing->customer; ?>" id="customer_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->customer_name; ?></td>
-            <td  class="fix"  id="customer_type_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->customer_type; ?></td>
+            <td  class="fix"  id="customer_type_<?php echo $marketing->marketing_id; ?>"><?php echo $customer_types[$marketing->marketing_id]; ?></td>
 
             <td nowrap class="fix" data="<?php echo $marketing->marketing_from; ?>" id="marketing_from_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->marketing_from==$place['place_id'][$marketing->marketing_from]?$place['place_name'][$marketing->marketing_from]:null ?></td>
             <td nowrap class="fix" data="<?php echo $marketing->marketing_to; ?>" id="marketing_to_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->marketing_to==$place['place_id'][$marketing->marketing_to]?$place['place_name'][$marketing->marketing_to]:null ?></td>
@@ -156,13 +153,11 @@ elseif ($order_by == 'status')
             <td class="fix" id="marketing_revenue_<?php echo $marketing->marketing_id; ?>"><?php echo $lib->formatMoney($marketing->marketing_ton*$marketing->marketing_charge); ?></td>
             <td class="fix" id="commission_<?php echo $marketing->marketing_id; ?>"><?php echo $lib->formatMoney($marketing->commission); ?></td>
             
-            <td class="fix" id="marketing_loan_<?php echo $marketing->marketing_id; ?>"><?php echo $lib->formatMoney($marketing->marketing_loan); ?></td>
             <td class="fix" id="marketing_ton_use_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->marketing_ton_use; ?></td>
             <td class="fix" style="color: <?php echo $marketing->status==1?"red":"green"; ?>" id="status_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->status==1?"Đã nhận":"Còn trống"; ?></td>
-            <td class="fix" style="display:none" id="loan_content_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->loan_content; ?></td>
+            
             <td class="fix" style="display:none" id="commission_number_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->commission_number; ?></td>
             <td class="fix" style="display:none" id="cont_unit_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->cont_unit; ?></td>
-            <td class="fix" style="display:none" id="loan_unit_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->loan_unit; ?></td>
             <td class="pull-right">
                 <?php
                 if($marketing->marketing_ton_use > 0){ ?>
@@ -251,7 +246,7 @@ $this->helper('slidePaginator');
                     </div>
                     <div class="form-group">
                       <label for="marketing_ton">Sản lượng</label>
-                      <input style="width:80px" type="text" class="number" id="marketing_ton" name="marketing_ton" tabindex="8" >
+                      <input style="width:80px" type="text" class="numbers" id="marketing_ton" name="marketing_ton" tabindex="8" >
                       <select style="width:100px" id="cont_unit" name="cont_unit" tabindex="9" >
                         <?php foreach ($cont_units as $cont) { ?>
                             <option value="<?php echo $cont->cont_unit_id ?>"><?php echo $cont->cont_unit_name ?></option>
@@ -267,30 +262,6 @@ $this->helper('slidePaginator');
                   </div>
                   <!-- /.box-body -->
                 </div>
-                <div class="col-md-4 col-xs-6">
-                  <div class="box-body">
-                    <div class="form-group">
-                      <label for="marketing_loan">Chi hộ</label>
-                      <input type="text" style="width:120px" class="number" id="marketing_loan" name="marketing_loan" tabindex="12" >
-                      <select style="width:120px" id="loan_unit" name="loan_unit" tabindex="13" >
-                        <?php foreach ($loan_units as $loan) { ?>
-                            <option value="<?php echo $loan->loan_unit_id ?>"><?php echo $loan->loan_unit_name ?></option>
-                        <?php } ?>
-                      </select>
-                    </div>
-                  </div>
-                  <!-- /.box-body -->
-                </div>
-                <div class="col-md-4 col-xs-6">
-                  <div class="box-body">
-                    <div class="form-group">
-                      <label for="loan_content">Nội dung</label>
-                      <textarea type="text"  id="loan_content" name="loan_content" tabindex="14" placeholder="Nội dung chi hộ" ></textarea>
-                    </div>
-                    
-                  </div>
-                  <!-- /.box-body -->
-                </div>
 
               </div>
               <?php if(!isset($disable_control)){ ?>
@@ -298,8 +269,8 @@ $this->helper('slidePaginator');
                 <div class="col-md-12">
                     <div class="box-footer">
                     <input type="hidden" readonly id="yes" name="yes" required="required" >
-                    <button type="submit" class="btn btn-primary" tabindex="15">Hoàn thành</button>
-                    <button type="reset" class="btn" tabindex="16">Nhập lại</button>
+                    <button type="submit" class="btn btn-primary" tabindex="12">Hoàn thành</button>
+                    <button type="reset" class="btn" tabindex="13">Nhập lại</button>
                   </div>
                   <div class="box-footer">
                     <div id="error" class="error"><?php echo isset($error) ? $error : null; ?></div>
@@ -364,7 +335,7 @@ $('html').click(function(e) {
     $('#customer_list_id').slideUp(200);
 });
     $('.edit_tr').click(function(e){
-        if(e.target != '[object HTMLButtonElement]' && e.target != '[object HTMLSpanElement]' && !$('.checkbox').is(':focus')) { 
+        if(e.target != '[object HTMLSpanElement]' && !$('.checkbox').is(':focus') && e.target.nodeName != "A") { 
             if(!$('.checkbox').is(':checked')){
                 $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
             }
@@ -379,10 +350,7 @@ $('html').click(function(e) {
             var marketing_end = $(this).find("#marketing_end_"+$(this).attr('id')).text();
             var commission = $(this).find("#commission_"+$(this).attr('id')).text();
             var commission_number = $(this).find("#commission_number_"+$(this).attr('id')).text();
-            var marketing_loan = $(this).find("#marketing_loan_"+$(this).attr('id')).text();
-            var loan_content = $(this).find("#loan_content_"+$(this).attr('id')).text();
             var cont_unit = $(this).find("#cont_unit_"+$(this).attr('id')).text();
-            var loan_unit = $(this).find("#loan_unit_"+$(this).attr('id')).text();
             var customer_type = $(this).find("#customer_type_"+$(this).attr('id')).text();
             
             //alert(marketing_from);
@@ -395,14 +363,11 @@ $('html').click(function(e) {
             $('#marketing_ton').val(marketing_ton);
             $('#commission').val(commission);
             $('#commission_number').val(commission_number);
-            $('#marketing_loan').val(marketing_loan);
-            $('#loan_content').val(loan_content);
             
             $('#marketing_start').val(marketing_start.replace(/\//g,"-"));
             $('#marketing_end').val(marketing_end.replace(/\//g,"-"));
 
             $("#cont_unit option[value="+cont_unit+"]").attr('selected', 'selected');
-            $("#loan_unit option[value="+loan_unit+"]").attr('selected', 'selected');
 
             
 
@@ -418,18 +383,18 @@ $('html').click(function(e) {
             
             $('#customer_type').val(customer_type.trim());
 
-            $("#customer_type").tagit({
-              tagSource: function(search, showChoices) {
-                $.ajax({
-                  url: "<?php echo BASE_URL ?>/marketing/getSub",
-                  data: {search: search.term},
-                  success: function(choices) {
-                    showChoices(choices);
-                  }
+                $("#customer_type").tagit({
+                  tagSource: function(search, showChoices) {
+                    $.ajax({
+                      url: "<?php echo BASE_URL ?>/marketing/getSub",
+                      data: {search: search.term},
+                      success: function(choices) {
+                        showChoices(choices);
+                      }
+                    });
+                  },
+                  allowSpaces: true,
                 });
-              },
-              allowSpaces: true,
-            });
 
             $( ".add-field" ).dialog( "open" );
         }
@@ -450,8 +415,6 @@ function add_click(){
         $('#marketing_ton').val(0);
         $('#commission').val(0);
         $('#commission_number').val(1);
-        $('#marketing_loan').val(0);
-        $('#loan_content').val("");
        
         $('#marketing_start').val("");
         $('#marketing_end').val("");
@@ -469,14 +432,29 @@ function add_click(){
             
         });
 
+        $('.numbers').focus(function(){
+            if ( $(this).val() == '0') {
+               $(this).val(""); 
+            };
+            
+        });
+        $('.numbers').blur(function(){
+            if ( $(this).val() == "") {
+                $(this).val(0);
+            };
+            
+        });
+
         $("#marketing_from").attr("code",'false');
         $('#marketing_from').val("");
         $("#marketing_to").attr("code",'false');
         $('#marketing_to').val("");
 
         $('#customer').val("");
+        $("#customer").attr("data",'');
         $("#customer").attr("code",'false');
 
+       var array = [];
         $("#customer_type").tagit({
           tagSource: function(search, showChoices) {
             $.ajax({
@@ -484,10 +462,22 @@ function add_click(){
               data: {search: search.term},
               success: function(choices) {
                 showChoices(choices);
+                array = choices;
               }
             });
           },
           allowSpaces: true,
+          beforeTagAdded: function(event, ui) {
+                if(array.indexOf(ui.tagLabel) == -1)
+                {
+                    return false;
+                }
+                if(ui.tagLabel == "not found")
+                {
+                    return false;
+                }
+
+            },
         });
 
         $( ".add-field" ).dialog( "open" );
@@ -527,8 +517,6 @@ $(document).ready(function(){
                     var marketing_ton = $('#marketing_ton').attr('value');
                     var commission = $('#commission').attr('value');
                     var commission_number = $('#commission_number').attr('value');
-                    var marketing_loan = $('#marketing_loan').attr('value');
-                    var loan_content = $('#loan_content').attr('value');
                     
                     var marketing_date = $('#marketing_start').attr('value');
                     var marketing_start = $('#marketing_start').attr('value');
@@ -536,7 +524,6 @@ $(document).ready(function(){
 
                     var customer_type = $('#customer_type').val();
                     var cont_unit = $('#cont_unit').attr('value');
-                    var loan_unit = $('#loan_unit').attr('value');
 
 
                     var yes = $('#yes').attr('value');
@@ -556,8 +543,6 @@ $(document).ready(function(){
                             marketing_ton: marketing_ton,
                             commission: commission,
                             commission_number: commission_number,
-                            marketing_loan: marketing_loan,
-                            loan_content: loan_content,
                             
                             marketing_date: marketing_date,
                             marketing_start: marketing_start,
@@ -565,7 +550,6 @@ $(document).ready(function(){
 
                             customer_type: customer_type,
                             cont_unit: cont_unit,
-                            loan_unit: loan_unit,
                             
                             yes: yes,
                             }, // giá trị post
@@ -721,6 +705,19 @@ $(document).ready(function(){
         return value
           .replace(/[^0-9-.]/g, "")
           .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+        ;
+      });
+    });
+
+   $('.numbers').keyup(function(event) {
+
+          // skip for arrow keys
+      if(event.which >= 37 && event.which <= 40) return;
+
+      // format number
+      $(this).val(function(index, value) {
+        return value
+          .replace(/[^0-9-.]/g, "")
         ;
       });
     });

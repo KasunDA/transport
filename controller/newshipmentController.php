@@ -50,7 +50,7 @@ Class newshipmentController Extends baseController {
 
 
 
-        $join = array('table'=>'customer, cont_unit, loan_unit','where'=>'customer.customer_id = marketing.customer AND cont_unit=cont_unit_id AND loan_unit=loan_unit_id');
+        $join = array('table'=>'customer, cont_unit','where'=>'customer.customer_id = marketing.customer AND cont_unit=cont_unit_id');
 
 
 
@@ -296,13 +296,8 @@ Class newshipmentController Extends baseController {
 
             $commission_number = 1;
 
-            $shipment_loan = 0;
-
-            $loan_content = "";
-
             $cont_unit = 1;
 
-            $loan_unit = 1;
 
 
 
@@ -312,13 +307,7 @@ Class newshipmentController Extends baseController {
 
                 $commission_number = $marketing->commission_number;
 
-                $shipment_loan = $marketing->marketing_loan;
-
-                $loan_content = $marketing->loan_content;
-
                 $cont_unit = $marketing->cont_unit;
-
-                $loan_unit = $marketing->loan_unit;
 
             }
 
@@ -342,13 +331,7 @@ Class newshipmentController Extends baseController {
 
                         'shipment_temp_commission_number' => $commission_number,
 
-                        'shipment_temp_loan' => $shipment_loan,
-
-                        'shipment_temp_loan_content' => $loan_content,
-
                         'shipment_temp_cont_unit' => $cont_unit,
-
-                        'shipment_temp_loan_unit' => $loan_unit,
 
                         );
 

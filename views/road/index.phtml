@@ -147,7 +147,7 @@ elseif ($order_by == 'status')
             <td nowrap class="fix" data="<?php echo $road->road_from; ?>" id="road_from_<?php echo $road->road_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$road->road_from) ?>" ><?php echo $road->road_from==$place['place_id'][$road->road_from]?$place['place_name'][$road->road_from]:null ?></a></td>
             <td nowrap class="fix" data="<?php echo $road->road_to; ?>" id="road_to_<?php echo $road->road_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$road->road_to) ?>" ><?php echo $road->road_to==$place['place_id'][$road->road_to]?$place['place_name'][$road->road_to]:null ?></a></td>
             
-            <td class="fix" data="<?php echo $road->way; ?>" id="way_<?php echo $road->road_id; ?>"><?php echo $road->way==1?"Lên":($road->way==2?"Xuống":($road->way==3?"Bằng":($road->way==4?"ĐN-QN":"Rỗng"))); ?></td>
+            <td class="fix" data="<?php echo $road->oil_id; ?>" id="way_<?php echo $road->road_id; ?>"><?php echo $road->way; ?></td>
             <td class="fix" id="road_km_<?php echo $road->road_id; ?>"><?php echo $road->road_km; ?></td>
             <td class="fix" id="road_oil_<?php echo $road->road_id; ?>"><?php echo $road->road_oil; ?></td>
             <td class="fix" id="bridge_cost_<?php echo $road->road_id; ?>"><?php echo $lib->formatMoney(round($road->bridge_cost*1.1)); ?></td>
@@ -410,7 +410,8 @@ $('html').click(function(e) {
     $('#road_to_list_id').slideUp(200);
     $('.name_list_id').slideUp(200);
 });
-    $('.edit_tr').click(function(){
+    $('.edit_tr').click(function(e){
+      if(!$('.checkbox').is(':focus') && e.target.nodeName != "A"){
         if(!$('.checkbox').is(':checked')){
             $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
         }
@@ -490,6 +491,15 @@ $('html').click(function(e) {
                     // hide proposition list
                     $('.name_list_id').hide();
                     $('.toll_booth_name:eq('+vitri+')').focus();
+
+                    var num = parseInt(get_number('#bridge_cost'));
+                    var total = num+parseInt(cost);
+                    $('#bridge_cost').val(total);
+                    $("#bridge_cost").val(function(index, value) {
+                      return value
+                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                      ;
+                    });
 
                     $(".number").val(function(index, value) {
                       return value
@@ -704,6 +714,7 @@ $('html').click(function(e) {
         $("#road_to").attr("code",'true');
 
         $( ".add-field" ).dialog( "open" );
+      }
         
     });
 
@@ -1075,6 +1086,15 @@ function set_item_other(item,value,mst,type,symbol,vitri,cost,vat) {
     $('.name_list_id').hide();
     $('.toll_booth_name:eq('+vitri+')').focus();
 
+    var num = parseInt(get_number('#bridge_cost'));
+    var total = num+parseInt(cost);
+    $('#bridge_cost').val(total);
+    $("#bridge_cost").val(function(index, value) {
+      return value
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+      ;
+    });
+
     $(".number").val(function(index, value) {
       return value
         .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -1304,6 +1324,15 @@ function set_item_other(item,value,mst,type,symbol,vitri,cost,vat) {
     // hide proposition list
     $('.name_list_id').hide();
     $('.toll_booth_name:eq('+vitri+')').focus();
+
+    var num = parseInt(get_number('#bridge_cost'));
+    var total = num+parseInt(cost);
+    $('#bridge_cost').val(total);
+    $("#bridge_cost").val(function(index, value) {
+      return value
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+      ;
+    });
 
     $(".number").val(function(index, value) {
       return value

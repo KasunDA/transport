@@ -34,16 +34,10 @@
             <a >Khách hàng </a>
         </th>
         <th  class="fix">
-            <a >Người LH </a>
-        </th>
-        <th  class="fix">
-            <a >SĐT </a>
-        </th>
-        <th  class="fix">
             <a >Cước</a>
         </th>
         <th  class="fix">
-            <a >Trọng tải </a>
+            <a >Sản lượng </a>
         </th>
         <th  class="fix">
             <a >KM </a>
@@ -124,24 +118,6 @@
         if ($shipment->oil_add_dc==1 && $shipment->oil_add>0) {
             $dc = "Bãi";
         }
-        else if ($shipment->oil_add_dc==2 && $shipment->oil_add>0) {
-            $dc = "Long Bình";
-        }
-        else if ($shipment->oil_add_dc==3 && $shipment->oil_add>0) {
-            $dc = "Đak Lak";
-        }
-        else if ($shipment->oil_add_dc==4 && $shipment->oil_add>0) {
-            $dc = "Quy Nhơn";
-        }
-        else if ($shipment->oil_add_dc==6 && $shipment->oil_add>0) {
-            $dc = "Quỳnh Trung";
-        }
-        else if ($shipment->oil_add_dc==7 && $shipment->oil_add>0) {
-            $dc = "GL-78-Chuprong";
-        }
-        else if ($shipment->oil_add_dc==8 && $shipment->oil_add>0) {
-            $dc = "ĐL-Đức Thành";
-        }
         else if ($shipment->oil_add_dc==5 && $shipment->oil_add>0) {
             $dc = "Dọc đường";
         }
@@ -150,24 +126,6 @@
 
         if ($shipment->oil_add_dc2==1 && $shipment->oil_add2>0) {
             $dc2 = "Bãi";
-        }
-        else if ($shipment->oil_add_dc2==2 && $shipment->oil_add2>0) {
-            $dc2 = "Long Bình";
-        }
-        else if ($shipment->oil_add_dc2==3 && $shipment->oil_add2>0) {
-            $dc2 = "Đak Lak";
-        }
-        else if ($shipment->oil_add_dc2==4 && $shipment->oil_add2>0) {
-            $dc2 = "Quy Nhơn";
-        }
-        else if ($shipment->oil_add_dc2==6 && $shipment->oil_add2>0) {
-            $dc2 = "Quỳnh Trung";
-        }
-        else if ($shipment->oil_add_dc2==7 && $shipment->oil_add2>0) {
-            $dc2 = "GL-78-Chuprong";
-        }
-        else if ($shipment->oil_add_dc2==8 && $shipment->oil_add2>0) {
-            $dc2 = "ĐL-Đức Thành";
         }
         else if ($shipment->oil_add_dc2==5 && $shipment->oil_add2>0) {
             $dc2 = "Dọc đường";
@@ -179,12 +137,10 @@
             <td class="fix" ><?php echo isset($driver_data[$shipment->shipment_id]['driver_name'])?$driver_data[$shipment->shipment_id]['driver_name']:null; ?></td>
             <td class="fix" id="shipment_round_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_round; ?></td>
             <td class="fix" id="shipment_date_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment->shipment_date); ?></td>
-            <td class="fix" data="<?php echo $shipment->shipment_from; ?>" id="shipment_from_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_from==$warehouse['warehouse_id'][$shipment->shipment_from]?$warehouse['warehouse_name'][$shipment->shipment_from]:null ?></td>
-            <td class="fix" data="<?php echo $shipment->shipment_to; ?>" id="shipment_to_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_to==$warehouse['warehouse_id'][$shipment->shipment_to]?$warehouse['warehouse_name'][$shipment->shipment_to]:null ?></td>
-            <td class="fix" ><?php echo $road['way'][$shipment->shipment_id]==1?"Lên":($road['way'][$shipment->shipment_id]==2?"Xuống":($road['way'][$shipment->shipment_id]==3?"Bằng":($road['way'][$shipment->shipment_id]==4?"ĐN-QN":"Rỗng"))); ?></td>
+            <td class="fix" data="<?php echo $shipment->shipment_from; ?>" id="shipment_from_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_from==$place['place_id'][$shipment->shipment_from]?$place['place_name'][$shipment->shipment_from]:null ?></td>
+            <td class="fix" data="<?php echo $shipment->shipment_to; ?>" id="shipment_to_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_to==$place['place_id'][$shipment->shipment_to]?$place['place_name'][$shipment->shipment_to]:null ?></td>
+            <td class="fix" ><?php echo $road['way_name'][$shipment->shipment_id]; ?></td>
             <td class="fix" data="<?php echo $shipment->customer; ?>" id="customer_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->customer_name; ?></td>
-            <td class="fix" ><?php echo $shipment->customer_contact; ?></td>
-            <td class="fix" ><?php echo $shipment->customer_phone; ?></td>
             <td class="fix" id="shipment_charge_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_charge); ?></td>
             <td class="fix" id="shipment_ton_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_ton; ?></td>
             <td class="fix" ><?php echo $road['road_km'][$shipment->shipment_id]; ?></td>
@@ -206,8 +162,8 @@
             <td class="fix" ><?php echo $lib->formatMoney(($shipment->approve==1)?$shipment->cost_add:0); ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($shipment->cost_vat); ?></td>
             <td class="fix" id="shipment_revenue_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess); ?></td>
-            <td class="fix" id="shipment_cost_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_cost-($road['road_time'][$shipment->shipment_id]*3000000)); ?></td>
-            <td class="fix" id="shipment_profit_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_profit+($road['road_time'][$shipment->shipment_id]*3000000)+$shipment->revenue_other+$shipment->shipment_charge_excess); ?></td>
+            <td class="fix" id="shipment_cost_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_cost); ?></td>
+            <td class="fix" id="shipment_profit_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_profit+$shipment->revenue_other+$shipment->shipment_charge_excess); ?></td>
             
         </tr>
 
@@ -231,8 +187,8 @@
 
 
                 $doanhthu += $shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess;
-                $chiphi += $shipment->shipment_cost-($road['road_time'][$shipment->shipment_id]*3000000);
-                $loinhuan += $shipment->shipment_profit+($road['road_time'][$shipment->shipment_id]*3000000);
+                $chiphi += $shipment->shipment_cost;
+                $loinhuan += $shipment->shipment_profit+$shipment->shipment_charge_excess;
                 $km += $road['road_km'][$shipment->shipment_id];
                 $dinhmucdau += $road['road_oil'][$shipment->shipment_id];
                 $boiduong += $warehouse['boiduong_cn'][$shipment->shipment_id];
@@ -256,8 +212,8 @@
                 ///////
 
                 $vdoanhthu[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vdoanhthu[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vdoanhthu[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess):(0+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess);
-                $vchiphi[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vchiphi[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vchiphi[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $shipment->shipment_cost-($road['road_time'][$shipment->shipment_id]*3000000)):(0+$shipment->shipment_cost-($road['road_time'][$shipment->shipment_id]*3000000));
-                $vloinhuan[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vloinhuan[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vloinhuan[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $shipment->shipment_profit+($road['road_time'][$shipment->shipment_id]*3000000)):(0+$shipment->shipment_profit+($road['road_time'][$shipment->shipment_id]*3000000));
+                $vchiphi[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vchiphi[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vchiphi[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $shipment->shipment_cost):(0+$shipment->shipment_cost);
+                $vloinhuan[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vloinhuan[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vloinhuan[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $shipment->shipment_profit+$shipment->shipment_charge_excess):(0+$shipment->shipment_profit+$shipment->shipment_charge_excess);
                 $vkm[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vkm[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vkm[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $road['road_km'][$shipment->shipment_id]):(0+$road['road_km'][$shipment->shipment_id]);
                 $vdinhmucdau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vdinhmucdau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vdinhmucdau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $road['road_oil'][$shipment->shipment_id]):(0+$road['road_oil'][$shipment->shipment_id]);
                 $vboiduong[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vboiduong[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vboiduong[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $warehouse['boiduong_cn'][$shipment->shipment_id]):(0+$warehouse['boiduong_cn'][$shipment->shipment_id]);
@@ -283,7 +239,7 @@
             ?>
             
             <tr style="background-color: rgb(236, 215, 215);">
-                <td class="fix" colspan="9"></td>
+                <td class="fix" colspan="7"></td>
                 <th style="border-right: 1px solid rgb(236, 235, 235);border-top: 1px solid #80C8E5;padding: 7px;" colspan="2">
                     Tổng cộng
                 </th>
@@ -321,7 +277,7 @@
             <td colspan="30"></td>
         </tr>
         <tr style="font-weight: bold;background-color: rgb(214, 249, 246);">
-            <td class="fix" colspan="9"></td>
+            <td class="fix" colspan="7"></td>
             <th style="border-right: 1px solid rgb(236, 235, 235);border-top: 1px solid #80C8E5;padding: 7px;" colspan="2">
                 Tổng cộng
             </th>
