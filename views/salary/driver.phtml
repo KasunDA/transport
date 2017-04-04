@@ -8,13 +8,16 @@
 
 <div id="loading"></div>
 <div id="winpopup"></div>
-<center style="clear:both;margin-bottom: 20px;"><h1> BẢNG LƯƠNG TÀI XẾ</h1></center>
-
+<section class="content-header">
+    <h1>BẢNG LƯƠNG TÀI XẾ</h1>
+  <ol class="breadcrumb">
+    <li><a href="<?php echo $this->url('admin') ?>"><i class="fa fa-dashboard"></i> Home</a></li>
+    <li class="active"><a href="<?php echo $this->url('salary/driver') ?>">Lương tài xế</a></li>
+  </ol>
+</section>
 <div id="content" style="padding:5px;">
 
-    <div class="add-box">
-    <a class="add_button" id="export_excel" href="<?php echo BASE_URL.'/salary/exportdriver/'.$batdau.'/'.$ketthuc.'/'.$trangthai ?>">Export Excel</a>
-</div>
+    
 <form id="report" name="report" action method="post">
 <div >
     
@@ -42,12 +45,14 @@
                              
 </div>
 <div >
-    
+    <div class="add-box">
+        <a class="add_button" id="export_excel" href="<?php echo BASE_URL.'/salary/exportdriver/'.$batdau.'/'.$ketthuc.'/'.$trangthai ?>"><i class="fa fa-download"></i> Xuất</a>
+    </div>
     
     <select style="width:100px" name="sl_trangthai" id="sl_trangthai">
         <option value="-1">Tài xế</option>
-        <?php foreach ($driver_data as $driver) { ?>
-        <option value="<?php echo $driver->driver_id ?>"><?php echo $driver->driver_name ?></option>
+        <?php foreach ($steersmans_data as $driver) { ?>
+        <option value="<?php echo $driver->steersman_id ?>"><?php echo $driver->steersman_name ?></option>
         <?php } ?>
     </select>
      <input type="submit" name="submit" id="xem" value="Xem">  
@@ -136,26 +141,26 @@
         <?php 
 
         
-        $chiphi = isset($road['police_cost'][$driver->driver_id][$driver->vehicle])?$road['police_cost'][$driver->driver_id][$driver->vehicle]:0;
-        $chiphi += isset($road['tire_cost'][$driver->driver_id][$driver->vehicle])?$road['tire_cost'][$driver->driver_id][$driver->vehicle]:0;
-        $chiphi += isset($chiphiphatsinh[$driver->driver_id][$driver->vehicle])?$chiphiphatsinh[$driver->driver_id][$driver->vehicle]:0;
+        $chiphi = isset($road['police_cost'][$driver->steersman_id][$driver->vehicle])?$road['police_cost'][$driver->steersman_id][$driver->vehicle]:0;
+        $chiphi += isset($road['tire_cost'][$driver->steersman_id][$driver->vehicle])?$road['tire_cost'][$driver->steersman_id][$driver->vehicle]:0;
+        $chiphi += isset($chiphiphatsinh[$driver->steersman_id][$driver->vehicle])?$chiphiphatsinh[$driver->steersman_id][$driver->vehicle]:0;
         
-        $chiphi += isset($hoahong[$driver->driver_id][$driver->vehicle])?$hoahong[$driver->driver_id][$driver->vehicle]:0;
+        $chiphi += isset($hoahong[$driver->steersman_id][$driver->vehicle])?$hoahong[$driver->steersman_id][$driver->vehicle]:0;
         
-        $chiphi += isset($warehouse['boiduong'][$driver->driver_id][$driver->vehicle])?$warehouse['boiduong'][$driver->driver_id][$driver->vehicle]:0;
-        $chiphi += isset($warehouse['canxe'][$driver->driver_id][$driver->vehicle])?$warehouse['canxe'][$driver->driver_id][$driver->vehicle]:0;
-        $chiphi += isset($warehouse['quetcont'][$driver->driver_id][$driver->vehicle])?$warehouse['quetcont'][$driver->driver_id][$driver->vehicle]:0;
-        $chiphi += isset($warehouse['vecong'][$driver->driver_id][$driver->vehicle])?$warehouse['vecong'][$driver->driver_id][$driver->vehicle]:0;
+        $chiphi += isset($warehouse['boiduong'][$driver->steersman_id][$driver->vehicle])?$warehouse['boiduong'][$driver->steersman_id][$driver->vehicle]:0;
+        $chiphi += isset($warehouse['canxe'][$driver->steersman_id][$driver->vehicle])?$warehouse['canxe'][$driver->steersman_id][$driver->vehicle]:0;
+        $chiphi += isset($warehouse['quetcont'][$driver->steersman_id][$driver->vehicle])?$warehouse['quetcont'][$driver->steersman_id][$driver->vehicle]:0;
+        $chiphi += isset($warehouse['vecong'][$driver->steersman_id][$driver->vehicle])?$warehouse['vecong'][$driver->steersman_id][$driver->vehicle]:0;
 
-        $tongdoanhthu += isset($doanhthu[$driver->driver_id][$driver->vehicle])?$doanhthu[$driver->driver_id][$driver->vehicle]:0 ;
-        $tongdoanhthuthem += isset($doanhthuthem[$driver->driver_id][$driver->vehicle])?$doanhthuthem[$driver->driver_id][$driver->vehicle]:0;
+        $tongdoanhthu += isset($doanhthu[$driver->steersman_id][$driver->vehicle])?$doanhthu[$driver->steersman_id][$driver->vehicle]:0 ;
+        $tongdoanhthuthem += isset($doanhthuthem[$driver->steersman_id][$driver->vehicle])?$doanhthuthem[$driver->steersman_id][$driver->vehicle]:0;
         $tongchiphi += $chiphi; 
         
 
-        $bh = isset($insurances[$driver->driver_id][$driver->vehicle]->money)?$insurances[$driver->driver_id][$driver->vehicle]->money:0;
-        $thue = isset($taxs[$driver->driver_id][$driver->vehicle]->money)?$taxs[$driver->driver_id][$driver->vehicle]->money:0;
-        $lamdem = isset($overtimes[$driver->driver_id][$driver->vehicle]->money)?$overtimes[$driver->driver_id][$driver->vehicle]->money:0;
-        $dochai = isset($toxics[$driver->driver_id][$driver->vehicle]->money)?$toxics[$driver->driver_id][$driver->vehicle]->money:0;
+        $bh = isset($insurances[$driver->steersman_id][$driver->vehicle]->money)?$insurances[$driver->steersman_id][$driver->vehicle]->money:0;
+        $thue = isset($taxs[$driver->steersman_id][$driver->vehicle]->money)?$taxs[$driver->steersman_id][$driver->vehicle]->money:0;
+        $lamdem = isset($overtimes[$driver->steersman_id][$driver->vehicle]->money)?$overtimes[$driver->steersman_id][$driver->vehicle]->money:0;
+        $dochai = isset($toxics[$driver->steersman_id][$driver->vehicle]->money)?$toxics[$driver->steersman_id][$driver->vehicle]->money:0;
 
         $tongbh += $bh;
         $tongthue += $thue;
@@ -164,9 +169,9 @@
         
         $tongsk += $sk;
 
-        $ngaycong = round(isset($road['road_time'][$driver->driver_id][$driver->vehicle])?$road['road_time'][$driver->driver_id][$driver->vehicle]:0);
+        $ngaycong = round(isset($road['road_time'][$driver->steersman_id][$driver->vehicle])?$road['road_time'][$driver->steersman_id][$driver->vehicle]:0);
 
-        $ngayvaocang = isset($steersmans[$driver->driver_id][$driver->vehicle])?$steersmans[$driver->driver_id][$driver->vehicle]->steersman_start_time:0;
+        $ngayvaocang = $driver->steersman_start_time;
 
         $timeDiff = strtotime(date('t-m-Y',strtotime('01-'.$batdau.'-'.$ketthuc))) - $ngayvaocang;
 
@@ -194,7 +199,7 @@
 
         $tongluongcd += $luongcd;
 
-        $doanhthutinhluong = (isset($doanhthu[$driver->driver_id][$driver->vehicle])?$doanhthu[$driver->driver_id][$driver->vehicle]:0)+(isset($doanhthuthem[$driver->driver_id][$driver->vehicle])?$doanhthuthem[$driver->driver_id][$driver->vehicle]:0)-$chiphi;
+        $doanhthutinhluong = (isset($doanhthu[$driver->steersman_id][$driver->vehicle])?$doanhthu[$driver->steersman_id][$driver->vehicle]:0)+(isset($doanhthuthem[$driver->steersman_id][$driver->vehicle])?$doanhthuthem[$driver->steersman_id][$driver->vehicle]:0)-$chiphi;
         $tongdoanhthutinhluong += $doanhthutinhluong;
         $luongsp = round($doanhthutinhluong*0.1);
         $tongluongsp += $luongsp;
@@ -203,28 +208,28 @@
         $anca = $ngaycong*25000;
         $tonganca += $anca;
 
-        /*$tongluongt13 += isset($doanhthu[$driver->driver_id][$driver->vehicle])?round(($doanhthu[$driver->driver_id][$driver->vehicle]+(isset($doanhthuthem[$driver->driver_id][$driver->vehicle])?$doanhthuthem[$driver->driver_id][$driver->vehicle]:0))*0.015):0 ;
-        $luongt13 = isset($doanhthu[$driver->driver_id][$driver->vehicle])?round(($doanhthu[$driver->driver_id][$driver->vehicle]+(isset($doanhthuthem[$driver->driver_id][$driver->vehicle])?$doanhthuthem[$driver->driver_id][$driver->vehicle]:0))*0.015):0 ;
+        /*$tongluongt13 += isset($doanhthu[$driver->steersman_id][$driver->vehicle])?round(($doanhthu[$driver->steersman_id][$driver->vehicle]+(isset($doanhthuthem[$driver->steersman_id][$driver->vehicle])?$doanhthuthem[$driver->steersman_id][$driver->vehicle]:0))*0.015):0 ;
+        $luongt13 = isset($doanhthu[$driver->steersman_id][$driver->vehicle])?round(($doanhthu[$driver->steersman_id][$driver->vehicle]+(isset($doanhthuthem[$driver->steersman_id][$driver->vehicle])?$doanhthuthem[$driver->steersman_id][$driver->vehicle]:0))*0.015):0 ;
 
         $luong = 0;
         $thuong = 0;
 
-        if (isset($doanhthu[$driver->driver_id][$driver->vehicle])) {
+        if (isset($doanhthu[$driver->steersman_id][$driver->vehicle])) {
 
-            $luong = ($doanhthu[$driver->driver_id][$driver->vehicle])<50000000?3000000:round(($doanhthu[$driver->driver_id][$driver->vehicle]-$chiphi-$cphoahong+(isset($doanhthuthem[$driver->driver_id][$driver->vehicle])?$doanhthuthem[$driver->driver_id][$driver->vehicle]:0))*0.09);
+            $luong = ($doanhthu[$driver->steersman_id][$driver->vehicle])<50000000?3000000:round(($doanhthu[$driver->steersman_id][$driver->vehicle]-$chiphi-$cphoahong+(isset($doanhthuthem[$driver->steersman_id][$driver->vehicle])?$doanhthuthem[$driver->steersman_id][$driver->vehicle]:0))*0.09);
 
-            $tongluong += ($doanhthu[$driver->driver_id][$driver->vehicle])<50000000?3000000:round(($doanhthu[$driver->driver_id][$driver->vehicle]-$chiphi-$cphoahong+(isset($doanhthuthem[$driver->driver_id][$driver->vehicle])?$doanhthuthem[$driver->driver_id][$driver->vehicle]:0))*0.09);
+            $tongluong += ($doanhthu[$driver->steersman_id][$driver->vehicle])<50000000?3000000:round(($doanhthu[$driver->steersman_id][$driver->vehicle]-$chiphi-$cphoahong+(isset($doanhthuthem[$driver->steersman_id][$driver->vehicle])?$doanhthuthem[$driver->steersman_id][$driver->vehicle]:0))*0.09);
 
-            if ($doanhthu[$driver->driver_id][$driver->vehicle] >= 50000000 && $doanhthu[$driver->driver_id][$driver->vehicle] <= 100000000) {
+            if ($doanhthu[$driver->steersman_id][$driver->vehicle] >= 50000000 && $doanhthu[$driver->steersman_id][$driver->vehicle] <= 100000000) {
                 $thuong = 3000000;
             }
-            else if ($doanhthu[$driver->driver_id][$driver->vehicle] > 100000000 && $doanhthu[$driver->driver_id][$driver->vehicle] <= 150000000) {
+            else if ($doanhthu[$driver->steersman_id][$driver->vehicle] > 100000000 && $doanhthu[$driver->steersman_id][$driver->vehicle] <= 150000000) {
                 $thuong = 4000000;
             }
-            else if ($doanhthu[$driver->driver_id][$driver->vehicle] > 150000000 && $doanhthu[$driver->driver_id][$driver->vehicle] <= 200000000) {
+            else if ($doanhthu[$driver->steersman_id][$driver->vehicle] > 150000000 && $doanhthu[$driver->steersman_id][$driver->vehicle] <= 200000000) {
                 $thuong = 5000000;
             }
-            else if ($doanhthu[$driver->driver_id][$driver->vehicle] > 200000000) {
+            else if ($doanhthu[$driver->steersman_id][$driver->vehicle] > 200000000) {
                 $thuong = 6000000;
             }
         }
@@ -245,36 +250,36 @@
 
         ?>
 
-        <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $driver->driver_id ?>" class="edit_tr view" href="<?= $this->url('salary/view/'.$driver->driver_id.'/'.$batdau.'/'.$ketthuc)?>" >
+        <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $driver->steersman_id ?>" class="edit_tr view" href="<?= $this->url('salary/view/'.$driver->steersman_id.'/'.$batdau.'/'.$ketthuc)?>" >
             <td class="fix"><?php echo $i++; ?></td>
-            <td class="fix" ><?php echo $driver->driver_code; ?></td>
+            <td class="fix" ><?php echo $driver->steersman_code; ?></td>
             <td class="fix" ><?php echo $vehicle_data[$driver->vehicle]; ?></td>
-            <td class="fix" ><?php echo $driver->driver_name; ?></td>
+            <td class="fix" ><?php echo $driver->steersman_name; ?></td>
             <td class="fix" ><?php echo $ngaycong; ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($dt = isset($doanhthu[$driver->driver_id][$driver->vehicle])?$doanhthu[$driver->driver_id][$driver->vehicle]:0) ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($dt = isset($doanhthu[$driver->steersman_id][$driver->vehicle])?$doanhthu[$driver->steersman_id][$driver->vehicle]:0) ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($chiphi) ?></td>
             <td class="fix" <?php echo $style  ?> ><?php echo $lib->formatMoney($doanhthutinhluong) ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($luongcd) ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($luongsp) ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($anca) ?></td>
-            <td class="fix" >
-                <span id="overtime_<?php echo $driver->driver_id ?>"><?php echo $lib->formatMoney($lamdem) ?></span><br>
-                <button style="display:none" alt="<?php echo '01-'.$batdau.'-'.$ketthuc ?>" name="<?php echo $driver->driver_name; ?>" data="<?php echo $lib->formatMoney($lamdem) ?>" value="<?php echo $driver->driver_id ?>" class="overtime">Sửa</button>
+            <td class="fix view_overtime" >
+                <span id="overtime_<?php echo $driver->steersman_id ?>"><?php echo $lib->formatMoney($lamdem) ?></span><br>
+                <button type="button" style="display:none" alt="<?php echo '01-'.$batdau.'-'.$ketthuc ?>" name="<?php echo $driver->steersman_name; ?>" data="<?php echo $lib->formatMoney($lamdem) ?>" value="<?php echo $driver->steersman_id ?>" class="overtime">Sửa</button>
             </td>
-            <td class="fix" >
-                <span id="toxic_<?php echo $driver->driver_id ?>"><?php echo $lib->formatMoney($dochai) ?></span><br>
-                <button style="display:none" alt="<?php echo '01-'.$batdau.'-'.$ketthuc ?>" name="<?php echo $driver->driver_name; ?>" data="<?php echo $lib->formatMoney($dochai) ?>" value="<?php echo $driver->driver_id ?>" class="toxic">Sửa</button>
+            <td class="fix view_toxic" >
+                <span id="toxic_<?php echo $driver->steersman_id ?>"><?php echo $lib->formatMoney($dochai) ?></span><br>
+                <button type="button" style="display:none" alt="<?php echo '01-'.$batdau.'-'.$ketthuc ?>" name="<?php echo $driver->steersman_name; ?>" data="<?php echo $lib->formatMoney($dochai) ?>" value="<?php echo $driver->steersman_id ?>" class="toxic">Sửa</button>
             </td>
-            <td class="fix" >
-                <span id="insurance_<?php echo $driver->driver_id ?>"><?php echo $lib->formatMoney($bh) ?></span><br>
-                <button style="display:none" alt="<?php echo '01-'.$batdau.'-'.$ketthuc ?>" name="<?php echo $driver->driver_name; ?>" data="<?php echo $lib->formatMoney($bh) ?>" value="<?php echo $driver->driver_id ?>" class="insurance">Sửa</button>
+            <td class="fix view_insurance" >
+                <span id="insurance_<?php echo $driver->steersman_id ?>"><?php echo $lib->formatMoney($bh) ?></span><br>
+                <button type="button" style="display:none" alt="<?php echo '01-'.$batdau.'-'.$ketthuc ?>" name="<?php echo $driver->steersman_name; ?>" data="<?php echo $lib->formatMoney($bh) ?>" value="<?php echo $driver->steersman_id ?>" class="insurance">Sửa</button>
             </td>
-            <td class="fix" >
-                <span id="tax_<?php echo $driver->driver_id ?>"><?php echo $lib->formatMoney($thue) ?></span><br>
-                <button style="display:none" alt="<?php echo '01-'.$batdau.'-'.$ketthuc ?>" name="<?php echo $driver->driver_name; ?>" data="<?php echo $lib->formatMoney($thue) ?>" value="<?php echo $driver->driver_id ?>" class="tax">Sửa</button>
+            <td class="fix view_tax" >
+                <span id="tax_<?php echo $driver->steersman_id ?>"><?php echo $lib->formatMoney($thue) ?></span><br>
+                <button type="button" style="display:none" alt="<?php echo '01-'.$batdau.'-'.$ketthuc ?>" name="<?php echo $driver->steersman_name; ?>" data="<?php echo $lib->formatMoney($thue) ?>" value="<?php echo $driver->steersman_id ?>" class="tax">Sửa</button>
             </td>
             <td class="fix" ><?php echo $lib->formatMoney($congdoan) ?></td>
-            <td class="fix" id="total_<?php echo $driver->driver_id ?>" ><?php echo $lib->formatMoney($luongcd + $luongsp + $anca + $lamdem + $dochai - $thue - $bh - $congdoan) ?></td>
+            <td class="fix" id="total_<?php echo $driver->steersman_id ?>" ><?php echo $lib->formatMoney($luongcd + $luongsp + $anca + $lamdem + $dochai - $thue - $bh - $congdoan) ?></td>
             
         </tr>
 
@@ -394,28 +399,30 @@ $('#ketthuc option[value='+ch2+']').attr('selected','selected');
 var ch3 = "<?php echo $trangthai ?>";
 $('#sl_trangthai option[value='+ch3+']').attr('selected','selected');
 
-$(".view").click(function(){
-    $("#winpopup").dialog({
-        draggable:true,
-        modal: true,
-        autoOpen: false,
-        width: "90%",
-        height: 500,
-        resizable: false,
-        position: "top",
-        title:'Chi tiết',
-        buttons: {
-            OK: function() {
-                $( this ).dialog( "close" );
-            },
-            Cancel: function() {
-                $( this ).dialog( "close" );
+$(".view").click(function(e){
+    if(e.target != '[object HTMLButtonElement]' && e.target != '[object HTMLSpanElement]' && !$('.checkbox').is(':focus') && e.target.nodeName != "A"){
+        $("#winpopup").dialog({
+            draggable:true,
+            modal: true,
+            autoOpen: false,
+            width: "90%",
+            height: 500,
+            resizable: false,
+            position: "top",
+            title:'Chi tiết',
+            buttons: {
+                OK: function() {
+                    $( this ).dialog( "close" );
+                },
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
             }
-        }
-    });
-    $("#winpopup").load($(this).attr('href'));
-    $("#winpopup").dialog("open");
-    return false;
+        });
+        $("#winpopup").load($(this).attr('href'));
+        $("#winpopup").dialog("open");
+        return false;
+    }
 });
 
 
@@ -647,11 +654,41 @@ $('.numbers').keyup(function(event) {
       });
     });
 
-jQuery(".view").hover(
+jQuery(".view_insurance").hover(
    function() {
       jQuery(this).find(".insurance").css("display","block");
+   },
+   function() {
+      jQuery(this).find(".insurance").css("display","none");
+      jQuery(this).find(".tax").css("display","none");
+      jQuery(this).find(".overtime").css("display","none");
+      jQuery(this).find(".toxic").css("display","none");
+   }
+);
+jQuery(".view_tax").hover(
+   function() {
       jQuery(this).find(".tax").css("display","block");
+   },
+   function() {
+      jQuery(this).find(".insurance").css("display","none");
+      jQuery(this).find(".tax").css("display","none");
+      jQuery(this).find(".overtime").css("display","none");
+      jQuery(this).find(".toxic").css("display","none");
+   }
+);
+jQuery(".view_overtime").hover(
+   function() {
       jQuery(this).find(".overtime").css("display","block");
+   },
+   function() {
+      jQuery(this).find(".insurance").css("display","none");
+      jQuery(this).find(".tax").css("display","none");
+      jQuery(this).find(".overtime").css("display","none");
+      jQuery(this).find(".toxic").css("display","none");
+   }
+);
+jQuery(".view_toxic").hover(
+   function() {
       jQuery(this).find(".toxic").css("display","block");
    },
    function() {

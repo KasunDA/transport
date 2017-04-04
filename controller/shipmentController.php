@@ -3259,6 +3259,7 @@ Class shipmentController Extends baseController {
 
             $data = array(
                 'shipment_oil' => trim($_POST['shipment_oil']),
+                'oil_add' => trim($_POST['shipment_oil']),
             );
 
             $export_stock_model = $this->model->get('exportstockModel');

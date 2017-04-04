@@ -2,11 +2,96 @@
 Class adminController Extends baseController {
     public function index() {
     	$this->view->setLayout('admin');
-        /*** set a template variable ***/
-            //$this->view->data['welcome'] = 'Welcome to CAI MEP TRADING !';
-        /*** load the index template ***/
-            $this->view->data['title'] = 'Dịch vụ vận tải, xuất nhập khẩu, thủ tục hải quan, chỉnh sửa manifest';
-            $this->view->show('admin/index');
+    	if (!isset($_SESSION['role_logined'])) {
+            return $this->view->redirect('user/login');
+        }
+        $this->view->data['lib'] = $this->lib;
+        $this->view->data['title'] = 'Dashboard';
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $batdau = isset($_POST['batdau']) ? $_POST['batdau'] : null;
+            $ketthuc = isset($_POST['ketthuc']) ? $_POST['ketthuc'] : null;
+        }
+        else{
+            $batdau = '01-'.date('m-Y');
+            $ketthuc = date('t-m-Y');
+        }
+
+        $this->view->data['batdau'] = $batdau;
+        $this->view->data['ketthuc'] = $ketthuc;
+
+        $vehicle_model = $this->model->get('vehicleModel');
+
+        $vehicles = $vehicle_model->getAllVehicle();
+        $this->view->data['vehicles'] = $vehicles;
+
+        $join = array('table'=>'customer, vehicle, cont_unit','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND cont_unit=cont_unit_id');
+
+        $shipment_model = $this->model->get('shipmentModel');
+
+        $data = array(
+
+            'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date <= '.strtotime($ketthuc),
+
+            );
+
+        $shipments = $shipment_model->getAllShipment($data,$join);
+
+        $doanhthu = 0;
+        $sanluong = 0;
+        $khachhang = 0;
+        $donhang = 0;
+        $sl = array();
+        $old_cus = array();
+        $vehicle_data = array();
+
+        foreach ($shipments as $shipment) {
+        	if (!in_array($shipment->customer,$old_cus)) {
+        		$khachhang++;
+                $old_cus[] = $shipment->customer;
+            }
+        	$donhang++;
+        	$sanluong += $shipment->shipment_ton;
+        	$doanhthu += $shipment->shipment_revenue+$shipment->shipment_charge_excess;
+
+        	$vehicle_data[$shipment->vehicle]['ship'] = isset($vehicle_data[$shipment->vehicle]['ship'])?$vehicle_data[$shipment->vehicle]['ship']+1:1;
+        	$vehicle_data[$shipment->vehicle]['ton'] = isset($vehicle_data[$shipment->vehicle]['ton'])?$vehicle_data[$shipment->vehicle]['ton']+$shipment->shipment_ton:$shipment->shipment_ton;
+        	$vehicle_data[$shipment->vehicle]['revenue'] = isset($vehicle_data[$shipment->vehicle]['revenue'])?$vehicle_data[$shipment->vehicle]['revenue']+$shipment->shipment_revenue+$shipment->shipment_charge_excess:$shipment->shipment_revenue+$shipment->shipment_charge_excess;
+
+        	$sl['ngay'][(int)date('d',$shipment->shipment_date)] = isset($sl['ngay'][(int)date('d',$shipment->shipment_date)])?$sl['ngay'][(int)date('d',$shipment->shipment_date)]+$shipment->shipment_revenue+$shipment->shipment_charge_excess:$shipment->shipment_revenue+$shipment->shipment_charge_excess;
+            $sl['thang'][(int)date('m',$shipment->shipment_date)] = isset($sl['thang'][(int)date('m',$shipment->shipment_date)])?$sl['thang'][(int)date('m',$shipment->shipment_date)]+$shipment->shipment_revenue+$shipment->shipment_charge_excess:$shipment->shipment_revenue+$shipment->shipment_charge_excess;
+        }
+
+        $start = date('d',strtotime($batdau));
+        $start_month = date('m',strtotime($batdau));
+        $start_year = date('Y',strtotime($batdau));
+        $end = date('d',strtotime($ketthuc));
+        $end_month = date('m',strtotime($ketthuc));
+        $end_year = date('Y',strtotime($ketthuc));
+        $graph = array();
+        if ($start_month == $end_month && $start_year == $end_year) {
+            for ($i=$start; $i <= $end; $i++) { 
+                $graph[]['y'] = $start_year.'-'.$start_month.'-'.$i;
+                $graph[]['item1'] = isset($sl['ngay'][$i])?$sl['ngay'][$i]:0;
+            }
+        }
+        elseif ($start_month != $end_month && $start_year == $end_year) {
+            for ($i=$start_month; $i <= $end_month; $i++) { 
+                $graph[]['y'] = $start_year.'-'.$i;
+                $graph[]['item1'] = isset($sl['thang'][$i])?$sl['thang'][$i]:0;
+            }
+        }
+        
+        $graph = str_replace('"},{"i','","i',json_encode($graph));
+
+        $this->view->data['doanhthu'] = $doanhthu;
+        $this->view->data['sanluong'] = $sanluong;
+        $this->view->data['khachhang'] = $khachhang;
+        $this->view->data['donhang'] = $donhang;
+        $this->view->data['graph'] = $graph;
+        $this->view->data['vehicle_data'] = $vehicle_data;
+
+           $this->view->show('admin/index');
     }
 
    public function checklockuser(){

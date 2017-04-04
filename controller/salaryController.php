@@ -91,30 +91,30 @@ Class salaryController Extends baseController {
         $this->view->data['vehicle_data'] = $vehicle_data;
 
 
-
+        $d_join = array('table'=>'steersman','where'=>'steersman = steersman_id');
         $d_data = array(
 
             'where'=> 'end_work > '.strtotime($dauthang),
 
-            'order_by'=>'driver_name ASC',
+            'order_by'=>'steersman_name ASC',
 
         );
 
         if ($trangthai > 0) {
 
-            $d_data['where'] .= ' AND driver_id = '.$trangthai;
+            $d_data['where'] .= ' AND steersman_id = '.$trangthai;
 
         }
 
         $driver_model = $this->model->get('driverModel');
 
-        $drivers = $driver_model->getAllDriver($d_data);
+        $drivers = $driver_model->getAllDriver($d_data,$d_join);
 
+        $steersman_model = $this->model->get('steersmanModel');
 
+        $steersmans_data = $steersman_model->getAllSteersman(array('order_by'=>'steersman_name ASC'));
 
-        $drivers_data = $driver_model->getAllDriver(array('order_by'=>'driver_name ASC'));
-
-        $this->view->data['driver_data'] = $drivers_data;
+        $this->view->data['steersmans_data'] = $steersmans_data;
 
 
 
@@ -123,8 +123,6 @@ Class salaryController Extends baseController {
         $warehouse_model = $this->model->get('warehouseModel');
 
         $road_model = $this->model->get('roadModel');
-
-        $steersman_model = $this->model->get('steersmanModel');
 
         $tax_model = $this->model->get('taxModel');
 
@@ -164,17 +162,17 @@ Class salaryController Extends baseController {
 
 
 
-            $insurances[$driver->driver_id][$driver->vehicle] = $insurance_model->getInsuranceByWhere(array('insurance_date'=>strtotime($dauthang),'driver'=>$driver->driver_id));
+            $insurances[$driver->steersman_id][$driver->vehicle] = $insurance_model->getInsuranceByWhere(array('insurance_date'=>strtotime($dauthang),'driver'=>$driver->steersman_id));
 
-            $taxs[$driver->driver_id][$driver->vehicle] = $tax_model->getTaxByWhere(array('tax_date'=>strtotime($dauthang),'driver'=>$driver->driver_id));
+            $taxs[$driver->steersman_id][$driver->vehicle] = $tax_model->getTaxByWhere(array('tax_date'=>strtotime($dauthang),'driver'=>$driver->steersman_id));
 
-            $overtimes[$driver->driver_id][$driver->vehicle] = $overtime_model->getOvertimeByWhere(array('overtime_date'=>strtotime($dauthang),'driver'=>$driver->driver_id));
+            $overtimes[$driver->steersman_id][$driver->vehicle] = $overtime_model->getOvertimeByWhere(array('overtime_date'=>strtotime($dauthang),'driver'=>$driver->steersman_id));
 
-            $toxics[$driver->driver_id][$driver->vehicle] = $toxic_model->getToxicByWhere(array('toxic_date'=>strtotime($dauthang),'driver'=>$driver->driver_id));
+            $toxics[$driver->steersman_id][$driver->vehicle] = $toxic_model->getToxicByWhere(array('toxic_date'=>strtotime($dauthang),'driver'=>$driver->steersman_id));
 
 
 
-            $steersmans[$driver->driver_id][$driver->vehicle] = $steersman_model->getSteersman($driver->steersman);
+            $steersmans[$driver->steersman_id][$driver->vehicle] = $steersman_model->getSteersman($driver->steersman);
 
                
 
@@ -204,35 +202,29 @@ Class salaryController Extends baseController {
 
                 if($driver->end_work > $shipment->shipment_date && $shipment->shipment_date >= $driver->start_work){
 
-                    if ($shipment->sub_driver == 1) {
+                    if ($shipment->sub_driver > 0) {
 
-                        $doanhthu['sub_driver'][$driver->driver_id][$shipment->vehicle] = isset($doanhthu['sub_driver'][$driver->driver_id][$shipment->vehicle])?($doanhthu['sub_driver'][$driver->driver_id][$shipment->vehicle]+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess) : (0+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess);
-
-                    }
-
-                    if ($shipment->sub_driver2 == 1) {
-
-                        $doanhthu['sub_driver'][$driver->driver_id][$shipment->vehicle] = isset($doanhthu['sub_driver'][$driver->driver_id][$shipment->vehicle])?($doanhthu['sub_driver'][$driver->driver_id][$shipment->vehicle]+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess) : (0+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess);
+                        $doanhthu['sub_driver'][$driver->steersman_id][$shipment->vehicle] = isset($doanhthu['sub_driver'][$driver->steersman_id][$shipment->vehicle])?($doanhthu['sub_driver'][$driver->steersman_id][$shipment->vehicle]+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess) : (0+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess);
 
                     }
 
+                    if ($shipment->sub_driver2 > 0) {
 
-
-                    $doanhthu[$driver->driver_id][$shipment->vehicle] = isset($doanhthu[$driver->driver_id][$shipment->vehicle])?($doanhthu[$driver->driver_id][$shipment->vehicle]+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess) : (0+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess);
-
-                    if ($shipment->customer == 117 && strtotime('01-06-2015') <= $shipment->shipment_date && $shipment->shipment_date <= strtotime('30-06-2015')) {
-
-                        $doanhthuthem[$driver->driver_id][$shipment->vehicle] = isset($doanhthuthem[$driver->driver_id][$shipment->vehicle])?($doanhthuthem[$driver->driver_id][$shipment->vehicle]+33000) : (0+33000);
+                        $doanhthu['sub_driver'][$driver->steersman_id][$shipment->vehicle] = isset($doanhthu['sub_driver'][$driver->steersman_id][$shipment->vehicle])?($doanhthu['sub_driver'][$driver->steersman_id][$shipment->vehicle]+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess) : (0+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess);
 
                     }
 
-                    
 
-                    $chiphiphatsinh[$driver->driver_id][$shipment->vehicle] = isset($chiphiphatsinh[$driver->driver_id][$shipment->vehicle])?($chiphiphatsinh[$driver->driver_id][$shipment->vehicle]+(($shipment->approve==1)?$shipment->cost_add:0)) : (0+(($shipment->approve==1)?$shipment->cost_add:0));
 
-                    $vuottai[$driver->driver_id][$shipment->vehicle] = isset($vuottai[$driver->driver_id][$shipment->vehicle])?($vuottai[$driver->driver_id][$shipment->vehicle]+($shipment->shipment_bonus*$check_sub)) : (0+($shipment->shipment_bonus*$check_sub));
+                    $doanhthu[$driver->steersman_id][$shipment->vehicle] = isset($doanhthu[$driver->steersman_id][$shipment->vehicle])?($doanhthu[$driver->steersman_id][$shipment->vehicle]+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess) : (0+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess);
 
-                    $hoahong[$driver->driver_id][$shipment->vehicle] = isset($hoahong[$driver->driver_id][$shipment->vehicle])?($hoahong[$driver->driver_id][$shipment->vehicle]+($shipment->commission*$shipment->commission_number)) : (0+$shipment->commission*$shipment->commission_number);
+                   
+
+                    $chiphiphatsinh[$driver->steersman_id][$shipment->vehicle] = isset($chiphiphatsinh[$driver->steersman_id][$shipment->vehicle])?($chiphiphatsinh[$driver->steersman_id][$shipment->vehicle]+(($shipment->approve==1)?$shipment->cost_add:0)) : (0+(($shipment->approve==1)?$shipment->cost_add:0));
+
+                    $vuottai[$driver->steersman_id][$shipment->vehicle] = isset($vuottai[$driver->steersman_id][$shipment->vehicle])?($vuottai[$driver->steersman_id][$shipment->vehicle]+($shipment->shipment_bonus*$check_sub)) : (0+($shipment->shipment_bonus*$check_sub));
+
+                    $hoahong[$driver->steersman_id][$shipment->vehicle] = isset($hoahong[$driver->steersman_id][$shipment->vehicle])?($hoahong[$driver->steersman_id][$shipment->vehicle]+($shipment->commission*$shipment->commission_number)) : (0+$shipment->commission*$shipment->commission_number);
 
 
 
@@ -248,31 +240,31 @@ Class salaryController Extends baseController {
 
                     foreach ($roads as $road) {
 
-                        $road_data['bridge_cost'][$driver->driver_id][$shipment->vehicle] = isset($road_data['bridge_cost'][$driver->driver_id][$shipment->vehicle])?($road_data['bridge_cost'][$driver->driver_id][$shipment->vehicle]+$road->bridge_cost*$check_sub):0+$road->bridge_cost*$check_sub;
+                        $road_data['bridge_cost'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['bridge_cost'][$driver->steersman_id][$shipment->vehicle])?($road_data['bridge_cost'][$driver->steersman_id][$shipment->vehicle]+$road->bridge_cost*$check_sub):0+$road->bridge_cost*$check_sub;
 
-                        $road_data['police_cost'][$driver->driver_id][$shipment->vehicle] = isset($road_data['police_cost'][$driver->driver_id][$shipment->vehicle])?($road_data['police_cost'][$driver->driver_id][$shipment->vehicle]+$road->police_cost*$check_sub):0+$road->police_cost*$check_sub;
+                        $road_data['police_cost'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['police_cost'][$driver->steersman_id][$shipment->vehicle])?($road_data['police_cost'][$driver->steersman_id][$shipment->vehicle]+$road->police_cost*$check_sub):0+$road->police_cost*$check_sub;
 
-                        $road_data['oil_cost'][$driver->driver_id][$shipment->vehicle] = isset($road_data['oil_cost'][$driver->driver_id][$shipment->vehicle])?($road_data['oil_cost'][$driver->driver_id][$shipment->vehicle]+($road->road_oil*$shipment->oil_cost)*$check_sub):0+($road->road_oil*$shipment->oil_cost)*$check_sub;
+                        $road_data['oil_cost'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['oil_cost'][$driver->steersman_id][$shipment->vehicle])?($road_data['oil_cost'][$driver->steersman_id][$shipment->vehicle]+($road->road_oil*$shipment->oil_cost)*$check_sub):0+($road->road_oil*$shipment->oil_cost)*$check_sub;
 
-                        $road_data['road_time'][$driver->driver_id][$shipment->vehicle] = isset($road_data['road_time'][$driver->driver_id][$shipment->vehicle])?($road_data['road_time'][$driver->driver_id][$shipment->vehicle]+$road->road_time*$check_sub):0+$road->road_time*$check_sub;
+                        $road_data['road_time'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['road_time'][$driver->steersman_id][$shipment->vehicle])?($road_data['road_time'][$driver->steersman_id][$shipment->vehicle]+$road->road_time*$check_sub):0+$road->road_time*$check_sub;
 
-                        $road_data['tire_cost'][$driver->driver_id][$shipment->vehicle] = isset($road_data['tire_cost'][$driver->driver_id][$shipment->vehicle])?($road_data['tire_cost'][$driver->driver_id][$shipment->vehicle]+$road->tire_cost*$check_sub):0+$road->tire_cost*$check_sub;
+                        $road_data['tire_cost'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['tire_cost'][$driver->steersman_id][$shipment->vehicle])?($road_data['tire_cost'][$driver->steersman_id][$shipment->vehicle]+$road->tire_cost*$check_sub):0+$road->tire_cost*$check_sub;
 
-                        if ($shipment->sub_driver == 1) {
+                        if ($shipment->sub_driver > 0) {
 
-                            $road_data['sub_driver']['police_cost'][$driver->driver_id][$shipment->vehicle] = isset($road_data['sub_driver']['police_cost'][$driver->driver_id][$shipment->vehicle])?($road_data['sub_driver']['police_cost'][$driver->driver_id][$shipment->vehicle]+$road->police_cost*$check_sub):0+$road->police_cost*$check_sub;
+                            $road_data['sub_driver']['police_cost'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['sub_driver']['police_cost'][$driver->steersman_id][$shipment->vehicle])?($road_data['sub_driver']['police_cost'][$driver->steersman_id][$shipment->vehicle]+$road->police_cost*$check_sub):0+$road->police_cost*$check_sub;
 
-                            $road_data['sub_driver']['road_time'][$driver->driver_id][$shipment->vehicle] = isset($road_data['sub_driver']['road_time'][$driver->driver_id][$shipment->vehicle])?($road_data['sub_driver']['road_time'][$driver->driver_id][$shipment->vehicle]+$road->road_time*$check_sub):0+$road->road_time*$check_sub;
+                            $road_data['sub_driver']['road_time'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['sub_driver']['road_time'][$driver->steersman_id][$shipment->vehicle])?($road_data['sub_driver']['road_time'][$driver->steersman_id][$shipment->vehicle]+$road->road_time*$check_sub):0+$road->road_time*$check_sub;
 
                         }
 
 
 
-                        if ($shipment->sub_driver2 == 1) {
+                        if ($shipment->sub_driver2 > 0) {
 
-                            $road_data['sub_driver']['police_cost'][$driver->driver_id][$shipment->vehicle] = isset($road_data['sub_driver']['police_cost'][$driver->driver_id][$shipment->vehicle])?($road_data['sub_driver']['police_cost'][$driver->driver_id][$shipment->vehicle]+$road->police_cost*$check_sub):0+$road->police_cost*$check_sub;
+                            $road_data['sub_driver']['police_cost'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['sub_driver']['police_cost'][$driver->steersman_id][$shipment->vehicle])?($road_data['sub_driver']['police_cost'][$driver->steersman_id][$shipment->vehicle]+$road->police_cost*$check_sub):0+$road->police_cost*$check_sub;
 
-                            $road_data['sub_driver']['road_time'][$driver->driver_id][$shipment->vehicle] = isset($road_data['sub_driver']['road_time'][$driver->driver_id][$shipment->vehicle])?($road_data['sub_driver']['road_time'][$driver->driver_id][$shipment->vehicle]+$road->road_time*$check_sub):0+$road->road_time*$check_sub;
+                            $road_data['sub_driver']['road_time'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['sub_driver']['road_time'][$driver->steersman_id][$shipment->vehicle])?($road_data['sub_driver']['road_time'][$driver->steersman_id][$shipment->vehicle]+$road->road_time*$check_sub):0+$road->road_time*$check_sub;
 
                         }
 
@@ -388,45 +380,45 @@ Class salaryController Extends baseController {
 
                     }
 
-                    $warehouse_data['boiduong_cn'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['boiduong_cn'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['boiduong_cn'][$driver->driver_id][$shipment->vehicle]+($boiduong_cont+$boiduong_tan)*$check_sub):0+($boiduong_cont+$boiduong_tan)*$check_sub;
+                    $warehouse_data['boiduong_cn'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['boiduong_cn'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['boiduong_cn'][$driver->steersman_id][$shipment->vehicle]+($boiduong_cont+$boiduong_tan)*$check_sub):0+($boiduong_cont+$boiduong_tan)*$check_sub;
 
-                    $warehouse_data['boiduong'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['boiduong'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['boiduong'][$driver->driver_id][$shipment->vehicle]+$boiduong*$check_sub):0+$boiduong*$check_sub;
+                    $warehouse_data['boiduong'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['boiduong'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['boiduong'][$driver->steersman_id][$shipment->vehicle]+$boiduong*$check_sub):0+$boiduong*$check_sub;
 
-                    $warehouse_data['canxe'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['canxe'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['canxe'][$driver->driver_id][$shipment->vehicle]+$canxe*$check_sub):0+$canxe*$check_sub;
+                    $warehouse_data['canxe'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['canxe'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['canxe'][$driver->steersman_id][$shipment->vehicle]+$canxe*$check_sub):0+$canxe*$check_sub;
 
-                    $warehouse_data['quetcont'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['quetcont'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['quetcont'][$driver->driver_id][$shipment->vehicle]+$quetcont*$check_sub):0+$quetcont*$check_sub;
+                    $warehouse_data['quetcont'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['quetcont'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['quetcont'][$driver->steersman_id][$shipment->vehicle]+$quetcont*$check_sub):0+$quetcont*$check_sub;
 
-                    $warehouse_data['vecong'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['vecong'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['vecong'][$driver->driver_id][$shipment->vehicle]+$vecong*$check_sub):0+$vecong*$check_sub;
+                    $warehouse_data['vecong'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['vecong'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['vecong'][$driver->steersman_id][$shipment->vehicle]+$vecong*$check_sub):0+$vecong*$check_sub;
 
                     
 
-                    if ($shipment->sub_driver == 1) {
+                    if ($shipment->sub_driver > 0) {
 
-                        $warehouse_data['sub_driver']['boiduong_cn'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['boiduong_cn'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['boiduong_cn'][$driver->driver_id][$shipment->vehicle]+($boiduong_cont+$boiduong_tan)*$check_sub):0+($boiduong_cont+$boiduong_tan)*$check_sub;    
+                        $warehouse_data['sub_driver']['boiduong_cn'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['boiduong_cn'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['boiduong_cn'][$driver->steersman_id][$shipment->vehicle]+($boiduong_cont+$boiduong_tan)*$check_sub):0+($boiduong_cont+$boiduong_tan)*$check_sub;    
 
-                        $warehouse_data['sub_driver']['boiduong'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['boiduong'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['boiduong'][$driver->driver_id][$shipment->vehicle]+$boiduong*$check_sub):0+$boiduong*$check_sub;
+                        $warehouse_data['sub_driver']['boiduong'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['boiduong'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['boiduong'][$driver->steersman_id][$shipment->vehicle]+$boiduong*$check_sub):0+$boiduong*$check_sub;
 
-                        $warehouse_data['sub_driver']['canxe'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['canxe'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['canxe'][$driver->driver_id][$shipment->vehicle]+$canxe*$check_sub):0+$canxe*$check_sub;
+                        $warehouse_data['sub_driver']['canxe'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['canxe'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['canxe'][$driver->steersman_id][$shipment->vehicle]+$canxe*$check_sub):0+$canxe*$check_sub;
 
-                        $warehouse_data['sub_driver']['quetcont'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['quetcont'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['quetcont'][$driver->driver_id][$shipment->vehicle]+$quetcont*$check_sub):0+$quetcont*$check_sub;
+                        $warehouse_data['sub_driver']['quetcont'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['quetcont'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['quetcont'][$driver->steersman_id][$shipment->vehicle]+$quetcont*$check_sub):0+$quetcont*$check_sub;
 
-                        $warehouse_data['sub_driver']['vecong'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['vecong'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['vecong'][$driver->driver_id][$shipment->vehicle]+$vecong*$check_sub):0+$vecong*$check_sub;
+                        $warehouse_data['sub_driver']['vecong'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['vecong'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['vecong'][$driver->steersman_id][$shipment->vehicle]+$vecong*$check_sub):0+$vecong*$check_sub;
 
                     }
 
 
 
-                    if ($shipment->sub_driver2 == 1) {
+                    if ($shipment->sub_driver2 > 0) {
 
-                        $warehouse_data['sub_driver']['boiduong_cn'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['boiduong_cn'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['boiduong_cn'][$driver->driver_id][$shipment->vehicle]+($boiduong_cont+$boiduong_tan)*$check_sub):0+($boiduong_cont+$boiduong_tan)*$check_sub;    
+                        $warehouse_data['sub_driver']['boiduong_cn'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['boiduong_cn'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['boiduong_cn'][$driver->steersman_id][$shipment->vehicle]+($boiduong_cont+$boiduong_tan)*$check_sub):0+($boiduong_cont+$boiduong_tan)*$check_sub;    
 
-                        $warehouse_data['sub_driver']['boiduong'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['boiduong'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['boiduong'][$driver->driver_id][$shipment->vehicle]+$boiduong*$check_sub):0+$boiduong*$check_sub;
+                        $warehouse_data['sub_driver']['boiduong'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['boiduong'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['boiduong'][$driver->steersman_id][$shipment->vehicle]+$boiduong*$check_sub):0+$boiduong*$check_sub;
 
-                        $warehouse_data['sub_driver']['canxe'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['canxe'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['canxe'][$driver->driver_id][$shipment->vehicle]+$canxe*$check_sub):0+$canxe*$check_sub;
+                        $warehouse_data['sub_driver']['canxe'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['canxe'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['canxe'][$driver->steersman_id][$shipment->vehicle]+$canxe*$check_sub):0+$canxe*$check_sub;
 
-                        $warehouse_data['sub_driver']['quetcont'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['quetcont'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['quetcont'][$driver->driver_id][$shipment->vehicle]+$quetcont*$check_sub):0+$quetcont*$check_sub;
+                        $warehouse_data['sub_driver']['quetcont'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['quetcont'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['quetcont'][$driver->steersman_id][$shipment->vehicle]+$quetcont*$check_sub):0+$quetcont*$check_sub;
 
-                        $warehouse_data['sub_driver']['vecong'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['vecong'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['vecong'][$driver->driver_id][$shipment->vehicle]+$vecong*$check_sub):0+$vecong*$check_sub;
+                        $warehouse_data['sub_driver']['vecong'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['vecong'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['vecong'][$driver->steersman_id][$shipment->vehicle]+$vecong*$check_sub):0+$vecong*$check_sub;
 
                     }
 
@@ -702,11 +694,11 @@ Class salaryController Extends baseController {
 
             $cuoithang = date('t-'.$batdau.'-'.$ketthuc);
 
-
+            $d_join = array('table'=>'steersman','where'=>'steersman = steersman_id');
 
             $d_data = array(
 
-                'where'=> 'end_work > '.strtotime($dauthang).' AND driver_id = '.$trangthai,
+                'where'=> 'end_work > '.strtotime($dauthang).' AND steersman_id = '.$trangthai,
 
                 
 
@@ -714,7 +706,7 @@ Class salaryController Extends baseController {
 
             $driver_model = $this->model->get('driverModel');
 
-            $drivers = $driver_model->getAllDriver($d_data);
+            $drivers = $driver_model->getAllDriver($d_data,$d_join);
 
             
 
@@ -724,7 +716,9 @@ Class salaryController Extends baseController {
 
             $road_model = $this->model->get('roadModel');
 
+            $place_model = $this->model->get('placeModel');
 
+            $place_data = array();
 
             $shipments = array();
 
@@ -738,7 +732,7 @@ Class salaryController Extends baseController {
 
             foreach ($drivers as $driver) {
 
-                $join = array('table'=>'customer, vehicle','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle');
+                $join = array('table'=>'customer, vehicle, cont_unit','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND cont_unit = cont_unit_id');
 
                 $shipments = $shipment_model->getAllShipment(array('where'=>'vehicle = '.$driver->vehicle.' AND shipment_date >= '.strtotime($dauthang).' AND shipment_date < '.strtotime($cuoithang)),$join);
 
@@ -786,7 +780,7 @@ Class salaryController Extends baseController {
 
                             $road_data['tire_cost'][$shipment->shipment_id] = isset($road_data['tire_cost'][$shipment->shipment_id])?($road_data['tire_cost'][$shipment->shipment_id]+$road->tire_cost*$check_sub):0+$road->tire_cost*$check_sub;
 
-                            if ($shipment->sub_driver == 1) {
+                            if ($shipment->sub_driver > 0) {
 
                                 $road_data['sub_driver']['police_cost'][$shipment->shipment_id] = isset($road_data['sub_driver']['police_cost'][$shipment->shipment_id])?($road_data['sub_driver']['police_cost'][$shipment->shipment_id]+$road->police_cost*$check_sub):0+$road->police_cost*$check_sub;
 
@@ -796,7 +790,7 @@ Class salaryController Extends baseController {
 
 
 
-                            if ($shipment->sub_driver2 == 1) {
+                            if ($shipment->sub_driver2 > 0) {
 
                                 $road_data['sub_driver']['police_cost'][$shipment->shipment_id] = isset($road_data['sub_driver']['police_cost'][$shipment->shipment_id])?($road_data['sub_driver']['police_cost'][$shipment->shipment_id]+$road->police_cost*$check_sub):0+$road->police_cost*$check_sub;
 
@@ -812,6 +806,22 @@ Class salaryController Extends baseController {
 
 
 
+                        $places = $place_model->getAllPlace(array('where'=>'place_id = '.$shipment->shipment_from.' OR place_id = '.$shipment->shipment_to));
+
+
+                        foreach ($places as $place) {
+
+                            
+
+                                $place_data['place_id'][$place->place_id] = $place->place_id;
+
+                                $place_data['place_name'][$place->place_id] = $place->place_name;
+
+                            
+
+                            
+
+                        }
 
 
                         $warehouse = $warehouse_model->getAllWarehouse(array('where'=>'(warehouse_code = '.$shipment->shipment_from.' OR warehouse_code = '.$shipment->shipment_to.') AND start_time <= '.$shipment->shipment_date.' AND end_time >= '.$shipment->shipment_date));
@@ -932,7 +942,7 @@ Class salaryController Extends baseController {
 
                         
 
-                        if ($shipment->sub_driver == 1) {
+                        if ($shipment->sub_driver > 0) {
 
                             $warehouse_data['sub_driver']['boiduong_cn'][$shipment->shipment_id] = isset($warehouse_data['sub_driver']['boiduong_cn'][$shipment->shipment_id])?($warehouse_data['sub_driver']['boiduong_cn'][$shipment->shipment_id]+($boiduong_cont+$boiduong_tan)*$check_sub):0+($boiduong_cont+$boiduong_tan)*$check_sub;    
 
@@ -948,7 +958,7 @@ Class salaryController Extends baseController {
 
 
 
-                        if ($shipment->sub_driver2 == 1) {
+                        if ($shipment->sub_driver2 > 0) {
 
                             $warehouse_data['sub_driver']['boiduong_cn'][$shipment->shipment_id] = isset($warehouse_data['sub_driver']['boiduong_cn'][$shipment->shipment_id])?($warehouse_data['sub_driver']['boiduong_cn'][$shipment->shipment_id]+($boiduong_cont+$boiduong_tan)*$check_sub):0+($boiduong_cont+$boiduong_tan)*$check_sub;    
 
@@ -980,7 +990,7 @@ Class salaryController Extends baseController {
 
             $this->view->data['road'] = $road_data;
 
-
+            $this->view->data['place'] = $place_data;
 
             $this->view->data['shipments'] = $shipments;
 
@@ -1020,7 +1030,8 @@ Class salaryController Extends baseController {
 
         }
 
-
+        $info_model = $this->model->get('infoModel');
+        $infos = $info_model->getLastInfo();
 
         $batdau = $this->registry->router->param_id;
 
@@ -1049,24 +1060,24 @@ Class salaryController Extends baseController {
         
 
 
-
+        $d_join = array('table'=>'steersman','where'=>'steersman = steersman_id');
         $d_data = array(
 
             'where'=> 'end_work > '.strtotime($dauthang),
 
-            'order_by'=>'driver_name ASC',
+            'order_by'=>'steersman_name ASC',
 
         );
 
         if ($trangthai > 0) {
 
-            $d_data['where'] .= ' AND driver_id = '.$trangthai;
+            $d_data['where'] .= ' AND steersman_id = '.$trangthai;
 
         }
 
         $driver_model = $this->model->get('driverModel');
 
-        $drivers = $driver_model->getAllDriver($d_data);
+        $drivers = $driver_model->getAllDriver($d_data,$d_join);
 
 
 
@@ -1112,17 +1123,17 @@ Class salaryController Extends baseController {
 
 
 
-            $insurances[$driver->driver_id][$driver->vehicle] = $insurance_model->getInsuranceByWhere(array('insurance_date'=>strtotime($dauthang),'driver'=>$driver->driver_id));
+            $insurances[$driver->steersman_id][$driver->vehicle] = $insurance_model->getInsuranceByWhere(array('insurance_date'=>strtotime($dauthang),'driver'=>$driver->steersman_id));
 
-            $taxs[$driver->driver_id][$driver->vehicle] = $tax_model->getTaxByWhere(array('tax_date'=>strtotime($dauthang),'driver'=>$driver->driver_id));
+            $taxs[$driver->steersman_id][$driver->vehicle] = $tax_model->getTaxByWhere(array('tax_date'=>strtotime($dauthang),'driver'=>$driver->steersman_id));
 
-            $overtimes[$driver->driver_id][$driver->vehicle] = $overtime_model->getOvertimeByWhere(array('overtime_date'=>strtotime($dauthang),'driver'=>$driver->driver_id));
+            $overtimes[$driver->steersman_id][$driver->vehicle] = $overtime_model->getOvertimeByWhere(array('overtime_date'=>strtotime($dauthang),'driver'=>$driver->steersman_id));
 
-            $toxics[$driver->driver_id][$driver->vehicle] = $toxic_model->getToxicByWhere(array('toxic_date'=>strtotime($dauthang),'driver'=>$driver->driver_id));
+            $toxics[$driver->steersman_id][$driver->vehicle] = $toxic_model->getToxicByWhere(array('toxic_date'=>strtotime($dauthang),'driver'=>$driver->steersman_id));
 
 
 
-            $steersmans[$driver->driver_id][$driver->vehicle] = $steersman_model->getSteersman($driver->steersman);
+            $steersmans[$driver->steersman_id][$driver->vehicle] = $steersman_model->getSteersman($driver->steersman);
 
                
 
@@ -1152,33 +1163,28 @@ Class salaryController Extends baseController {
 
                 if($driver->end_work > $shipment->shipment_date && $shipment->shipment_date >= $driver->start_work){
 
-                    if ($shipment->sub_driver == 1) {
+                    if ($shipment->sub_driver > 0) {
 
-                        $doanhthu['sub_driver'][$driver->driver_id][$shipment->vehicle] = isset($doanhthu['sub_driver'][$driver->driver_id][$shipment->vehicle])?($doanhthu['sub_driver'][$driver->driver_id][$shipment->vehicle]+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess) : (0+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess);
-
-                    }
-
-                    if ($shipment->sub_driver2 == 1) {
-
-                        $doanhthu['sub_driver'][$driver->driver_id][$shipment->vehicle] = isset($doanhthu['sub_driver'][$driver->driver_id][$shipment->vehicle])?($doanhthu['sub_driver'][$driver->driver_id][$shipment->vehicle]+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess) : (0+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess);
+                        $doanhthu['sub_driver'][$driver->steersman_id][$shipment->vehicle] = isset($doanhthu['sub_driver'][$driver->steersman_id][$shipment->vehicle])?($doanhthu['sub_driver'][$driver->steersman_id][$shipment->vehicle]+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess) : (0+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess);
 
                     }
 
+                    if ($shipment->sub_driver2 > 0) {
 
-
-                    $doanhthu[$driver->driver_id][$shipment->vehicle] = isset($doanhthu[$driver->driver_id][$shipment->vehicle])?($doanhthu[$driver->driver_id][$shipment->vehicle]+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess) : (0+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess);
-
-                    if ($shipment->customer == 117 && strtotime('01-06-2015') <= $shipment->shipment_date && $shipment->shipment_date <= strtotime('30-06-2015')) {
-
-                        $doanhthuthem[$driver->driver_id][$shipment->vehicle] = isset($doanhthuthem[$driver->driver_id][$shipment->vehicle])?($doanhthuthem[$driver->driver_id][$shipment->vehicle]+33000) : (0+33000);
+                        $doanhthu['sub_driver'][$driver->steersman_id][$shipment->vehicle] = isset($doanhthu['sub_driver'][$driver->steersman_id][$shipment->vehicle])?($doanhthu['sub_driver'][$driver->steersman_id][$shipment->vehicle]+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess) : (0+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess);
 
                     }
 
-                    $chiphiphatsinh[$driver->driver_id][$shipment->vehicle] = isset($chiphiphatsinh[$driver->driver_id][$shipment->vehicle])?($chiphiphatsinh[$driver->driver_id][$shipment->vehicle]+(($shipment->approve==1)?$shipment->cost_add:0)) : (0+(($shipment->approve==1)?$shipment->cost_add:0));
 
-                    $vuottai[$driver->driver_id][$shipment->vehicle] = isset($vuottai[$driver->driver_id][$shipment->vehicle])?($vuottai[$driver->driver_id][$shipment->vehicle]+($shipment->shipment_bonus*$check_sub)) : (0+($shipment->shipment_bonus*$check_sub));
 
-                    $hoahong[$driver->driver_id][$shipment->vehicle] = isset($hoahong[$driver->driver_id][$shipment->vehicle])?($hoahong[$driver->driver_id][$shipment->vehicle]+($shipment->commission*$shipment->commission_number)) : (0+$shipment->commission*$shipment->commission_number);
+                    $doanhthu[$driver->steersman_id][$shipment->vehicle] = isset($doanhthu[$driver->steersman_id][$shipment->vehicle])?($doanhthu[$driver->steersman_id][$shipment->vehicle]+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess) : (0+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess);
+
+
+                    $chiphiphatsinh[$driver->steersman_id][$shipment->vehicle] = isset($chiphiphatsinh[$driver->steersman_id][$shipment->vehicle])?($chiphiphatsinh[$driver->steersman_id][$shipment->vehicle]+(($shipment->approve==1)?$shipment->cost_add:0)) : (0+(($shipment->approve==1)?$shipment->cost_add:0));
+
+                    $vuottai[$driver->steersman_id][$shipment->vehicle] = isset($vuottai[$driver->steersman_id][$shipment->vehicle])?($vuottai[$driver->steersman_id][$shipment->vehicle]+($shipment->shipment_bonus*$check_sub)) : (0+($shipment->shipment_bonus*$check_sub));
+
+                    $hoahong[$driver->steersman_id][$shipment->vehicle] = isset($hoahong[$driver->steersman_id][$shipment->vehicle])?($hoahong[$driver->steersman_id][$shipment->vehicle]+($shipment->commission*$shipment->commission_number)) : (0+$shipment->commission*$shipment->commission_number);
 
 
 
@@ -1194,31 +1200,31 @@ Class salaryController Extends baseController {
 
                     foreach ($roads as $road) {
 
-                        $road_data['bridge_cost'][$driver->driver_id][$shipment->vehicle] = isset($road_data['bridge_cost'][$driver->driver_id][$shipment->vehicle])?($road_data['bridge_cost'][$driver->driver_id][$shipment->vehicle]+$road->bridge_cost*$check_sub):0+$road->bridge_cost*$check_sub;
+                        $road_data['bridge_cost'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['bridge_cost'][$driver->steersman_id][$shipment->vehicle])?($road_data['bridge_cost'][$driver->steersman_id][$shipment->vehicle]+$road->bridge_cost*$check_sub):0+$road->bridge_cost*$check_sub;
 
-                        $road_data['police_cost'][$driver->driver_id][$shipment->vehicle] = isset($road_data['police_cost'][$driver->driver_id][$shipment->vehicle])?($road_data['police_cost'][$driver->driver_id][$shipment->vehicle]+$road->police_cost*$check_sub):0+$road->police_cost*$check_sub;
+                        $road_data['police_cost'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['police_cost'][$driver->steersman_id][$shipment->vehicle])?($road_data['police_cost'][$driver->steersman_id][$shipment->vehicle]+$road->police_cost*$check_sub):0+$road->police_cost*$check_sub;
 
-                        $road_data['oil_cost'][$driver->driver_id][$shipment->vehicle] = isset($road_data['oil_cost'][$driver->driver_id][$shipment->vehicle])?($road_data['oil_cost'][$driver->driver_id][$shipment->vehicle]+($road->road_oil*$shipment->oil_cost)*$check_sub):0+($road->road_oil*$shipment->oil_cost)*$check_sub;
+                        $road_data['oil_cost'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['oil_cost'][$driver->steersman_id][$shipment->vehicle])?($road_data['oil_cost'][$driver->steersman_id][$shipment->vehicle]+($road->road_oil*$shipment->oil_cost)*$check_sub):0+($road->road_oil*$shipment->oil_cost)*$check_sub;
 
-                        $road_data['road_time'][$driver->driver_id][$shipment->vehicle] = isset($road_data['road_time'][$driver->driver_id][$shipment->vehicle])?($road_data['road_time'][$driver->driver_id][$shipment->vehicle]+$road->road_time*$check_sub):0+$road->road_time*$check_sub;
+                        $road_data['road_time'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['road_time'][$driver->steersman_id][$shipment->vehicle])?($road_data['road_time'][$driver->steersman_id][$shipment->vehicle]+$road->road_time*$check_sub):0+$road->road_time*$check_sub;
 
-                        $road_data['tire_cost'][$driver->driver_id][$shipment->vehicle] = isset($road_data['tire_cost'][$driver->driver_id][$shipment->vehicle])?($road_data['tire_cost'][$driver->driver_id][$shipment->vehicle]+$road->tire_cost*$check_sub):0+$road->tire_cost*$check_sub;
+                        $road_data['tire_cost'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['tire_cost'][$driver->steersman_id][$shipment->vehicle])?($road_data['tire_cost'][$driver->steersman_id][$shipment->vehicle]+$road->tire_cost*$check_sub):0+$road->tire_cost*$check_sub;
 
-                        if ($shipment->sub_driver == 1) {
+                        if ($shipment->sub_driver > 0) {
 
-                            $road_data['sub_driver']['police_cost'][$driver->driver_id][$shipment->vehicle] = isset($road_data['sub_driver']['police_cost'][$driver->driver_id][$shipment->vehicle])?($road_data['sub_driver']['police_cost'][$driver->driver_id][$shipment->vehicle]+$road->police_cost*$check_sub):0+$road->police_cost*$check_sub;
+                            $road_data['sub_driver']['police_cost'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['sub_driver']['police_cost'][$driver->steersman_id][$shipment->vehicle])?($road_data['sub_driver']['police_cost'][$driver->steersman_id][$shipment->vehicle]+$road->police_cost*$check_sub):0+$road->police_cost*$check_sub;
 
-                            $road_data['sub_driver']['road_time'][$driver->driver_id][$shipment->vehicle] = isset($road_data['sub_driver']['road_time'][$driver->driver_id][$shipment->vehicle])?($road_data['sub_driver']['road_time'][$driver->driver_id][$shipment->vehicle]+$road->road_time*$check_sub):0+$road->road_time*$check_sub;
+                            $road_data['sub_driver']['road_time'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['sub_driver']['road_time'][$driver->steersman_id][$shipment->vehicle])?($road_data['sub_driver']['road_time'][$driver->steersman_id][$shipment->vehicle]+$road->road_time*$check_sub):0+$road->road_time*$check_sub;
 
                         }
 
 
 
-                        if ($shipment->sub_driver2 == 1) {
+                        if ($shipment->sub_driver2 > 0) {
 
-                            $road_data['sub_driver']['police_cost'][$driver->driver_id][$shipment->vehicle] = isset($road_data['sub_driver']['police_cost'][$driver->driver_id][$shipment->vehicle])?($road_data['sub_driver']['police_cost'][$driver->driver_id][$shipment->vehicle]+$road->police_cost*$check_sub):0+$road->police_cost*$check_sub;
+                            $road_data['sub_driver']['police_cost'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['sub_driver']['police_cost'][$driver->steersman_id][$shipment->vehicle])?($road_data['sub_driver']['police_cost'][$driver->steersman_id][$shipment->vehicle]+$road->police_cost*$check_sub):0+$road->police_cost*$check_sub;
 
-                            $road_data['sub_driver']['road_time'][$driver->driver_id][$shipment->vehicle] = isset($road_data['sub_driver']['road_time'][$driver->driver_id][$shipment->vehicle])?($road_data['sub_driver']['road_time'][$driver->driver_id][$shipment->vehicle]+$road->road_time*$check_sub):0+$road->road_time*$check_sub;
+                            $road_data['sub_driver']['road_time'][$driver->steersman_id][$shipment->vehicle] = isset($road_data['sub_driver']['road_time'][$driver->steersman_id][$shipment->vehicle])?($road_data['sub_driver']['road_time'][$driver->steersman_id][$shipment->vehicle]+$road->road_time*$check_sub):0+$road->road_time*$check_sub;
 
                         }
 
@@ -1334,45 +1340,45 @@ Class salaryController Extends baseController {
 
                     }
 
-                    $warehouse_data['boiduong_cn'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['boiduong_cn'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['boiduong_cn'][$driver->driver_id][$shipment->vehicle]+($boiduong_cont+$boiduong_tan)*$check_sub):0+($boiduong_cont+$boiduong_tan)*$check_sub;
+                    $warehouse_data['boiduong_cn'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['boiduong_cn'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['boiduong_cn'][$driver->steersman_id][$shipment->vehicle]+($boiduong_cont+$boiduong_tan)*$check_sub):0+($boiduong_cont+$boiduong_tan)*$check_sub;
 
-                    $warehouse_data['boiduong'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['boiduong'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['boiduong'][$driver->driver_id][$shipment->vehicle]+$boiduong*$check_sub):0+$boiduong*$check_sub;
+                    $warehouse_data['boiduong'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['boiduong'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['boiduong'][$driver->steersman_id][$shipment->vehicle]+$boiduong*$check_sub):0+$boiduong*$check_sub;
 
-                    $warehouse_data['canxe'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['canxe'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['canxe'][$driver->driver_id][$shipment->vehicle]+$canxe*$check_sub):0+$canxe*$check_sub;
+                    $warehouse_data['canxe'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['canxe'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['canxe'][$driver->steersman_id][$shipment->vehicle]+$canxe*$check_sub):0+$canxe*$check_sub;
 
-                    $warehouse_data['quetcont'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['quetcont'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['quetcont'][$driver->driver_id][$shipment->vehicle]+$quetcont*$check_sub):0+$quetcont*$check_sub;
+                    $warehouse_data['quetcont'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['quetcont'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['quetcont'][$driver->steersman_id][$shipment->vehicle]+$quetcont*$check_sub):0+$quetcont*$check_sub;
 
-                    $warehouse_data['vecong'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['vecong'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['vecong'][$driver->driver_id][$shipment->vehicle]+$vecong*$check_sub):0+$vecong*$check_sub;
+                    $warehouse_data['vecong'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['vecong'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['vecong'][$driver->steersman_id][$shipment->vehicle]+$vecong*$check_sub):0+$vecong*$check_sub;
 
                     
 
-                    if ($shipment->sub_driver == 1) {
+                    if ($shipment->sub_driver > 0) {
 
-                        $warehouse_data['sub_driver']['boiduong_cn'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['boiduong_cn'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['boiduong_cn'][$driver->driver_id][$shipment->vehicle]+($boiduong_cont+$boiduong_tan)*$check_sub):0+($boiduong_cont+$boiduong_tan)*$check_sub;    
+                        $warehouse_data['sub_driver']['boiduong_cn'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['boiduong_cn'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['boiduong_cn'][$driver->steersman_id][$shipment->vehicle]+($boiduong_cont+$boiduong_tan)*$check_sub):0+($boiduong_cont+$boiduong_tan)*$check_sub;    
 
-                        $warehouse_data['sub_driver']['boiduong'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['boiduong'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['boiduong'][$driver->driver_id][$shipment->vehicle]+$boiduong*$check_sub):0+$boiduong*$check_sub;
+                        $warehouse_data['sub_driver']['boiduong'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['boiduong'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['boiduong'][$driver->steersman_id][$shipment->vehicle]+$boiduong*$check_sub):0+$boiduong*$check_sub;
 
-                        $warehouse_data['sub_driver']['canxe'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['canxe'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['canxe'][$driver->driver_id][$shipment->vehicle]+$canxe*$check_sub):0+$canxe*$check_sub;
+                        $warehouse_data['sub_driver']['canxe'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['canxe'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['canxe'][$driver->steersman_id][$shipment->vehicle]+$canxe*$check_sub):0+$canxe*$check_sub;
 
-                        $warehouse_data['sub_driver']['quetcont'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['quetcont'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['quetcont'][$driver->driver_id][$shipment->vehicle]+$quetcont*$check_sub):0+$quetcont*$check_sub;
+                        $warehouse_data['sub_driver']['quetcont'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['quetcont'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['quetcont'][$driver->steersman_id][$shipment->vehicle]+$quetcont*$check_sub):0+$quetcont*$check_sub;
 
-                        $warehouse_data['sub_driver']['vecong'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['vecong'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['vecong'][$driver->driver_id][$shipment->vehicle]+$vecong*$check_sub):0+$vecong*$check_sub;
+                        $warehouse_data['sub_driver']['vecong'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['vecong'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['vecong'][$driver->steersman_id][$shipment->vehicle]+$vecong*$check_sub):0+$vecong*$check_sub;
 
                     }
 
 
 
-                    if ($shipment->sub_driver2 == 1) {
+                    if ($shipment->sub_driver2 > 0) {
 
-                        $warehouse_data['sub_driver']['boiduong_cn'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['boiduong_cn'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['boiduong_cn'][$driver->driver_id][$shipment->vehicle]+($boiduong_cont+$boiduong_tan)*$check_sub):0+($boiduong_cont+$boiduong_tan)*$check_sub;    
+                        $warehouse_data['sub_driver']['boiduong_cn'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['boiduong_cn'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['boiduong_cn'][$driver->steersman_id][$shipment->vehicle]+($boiduong_cont+$boiduong_tan)*$check_sub):0+($boiduong_cont+$boiduong_tan)*$check_sub;    
 
-                        $warehouse_data['sub_driver']['boiduong'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['boiduong'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['boiduong'][$driver->driver_id][$shipment->vehicle]+$boiduong*$check_sub):0+$boiduong*$check_sub;
+                        $warehouse_data['sub_driver']['boiduong'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['boiduong'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['boiduong'][$driver->steersman_id][$shipment->vehicle]+$boiduong*$check_sub):0+$boiduong*$check_sub;
 
-                        $warehouse_data['sub_driver']['canxe'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['canxe'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['canxe'][$driver->driver_id][$shipment->vehicle]+$canxe*$check_sub):0+$canxe*$check_sub;
+                        $warehouse_data['sub_driver']['canxe'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['canxe'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['canxe'][$driver->steersman_id][$shipment->vehicle]+$canxe*$check_sub):0+$canxe*$check_sub;
 
-                        $warehouse_data['sub_driver']['quetcont'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['quetcont'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['quetcont'][$driver->driver_id][$shipment->vehicle]+$quetcont*$check_sub):0+$quetcont*$check_sub;
+                        $warehouse_data['sub_driver']['quetcont'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['quetcont'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['quetcont'][$driver->steersman_id][$shipment->vehicle]+$quetcont*$check_sub):0+$quetcont*$check_sub;
 
-                        $warehouse_data['sub_driver']['vecong'][$driver->driver_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['vecong'][$driver->driver_id][$shipment->vehicle])?($warehouse_data['sub_driver']['vecong'][$driver->driver_id][$shipment->vehicle]+$vecong*$check_sub):0+$vecong*$check_sub;
+                        $warehouse_data['sub_driver']['vecong'][$driver->steersman_id][$shipment->vehicle] = isset($warehouse_data['sub_driver']['vecong'][$driver->steersman_id][$shipment->vehicle])?($warehouse_data['sub_driver']['vecong'][$driver->steersman_id][$shipment->vehicle]+$vecong*$check_sub):0+$vecong*$check_sub;
 
                     }
 
@@ -1412,47 +1418,57 @@ Class salaryController Extends baseController {
 
             $objPHPExcel->setActiveSheetIndex($index_worksheet)
 
-               ->setCellValue('A1', 'STT')
+                ->setCellValue('A1', mb_strtoupper($infos->info_company, "UTF-8"))
 
-               ->setCellValue('B1', 'MÃ NV')
+                ->setCellValue('A2', 'ĐỘI VẬN TẢI')
 
-               ->setCellValue('C1', 'XE')
+                ->setCellValue('H1', 'CỘNG HÒA XÃ CHỦ NGHĨA VIỆT NAM')
 
-               ->setCellValue('D1', 'HỌ TÊN')
+                ->setCellValue('H2', 'Độc lập - Tự do - Hạnh phúc')
 
-               ->setCellValue('E1', 'TK NGÂN HÀNG')
+                ->setCellValue('A4', 'BẢNG LƯƠNG TÀI XẾ')
 
-               ->setCellValue('F1', 'TỔNG NGÀY CÔNG')
+               ->setCellValue('A6', 'STT')
 
-               ->setCellValue('G1', 'LƯƠNG')
+               ->setCellValue('B6', 'MÃ NV')
 
-               ->setCellValue('G2', 'DOANH THU')
+               ->setCellValue('C6', 'XE')
 
-               ->setCellValue('H2', 'CHI PHÍ 0 VAT')
+               ->setCellValue('D6', 'HỌ TÊN')
 
-               ->setCellValue('I2', 'DOANH THU TÍNH LƯƠNG')
+               ->setCellValue('E6', 'TK NGÂN HÀNG')
 
-               ->setCellValue('J2', 'LƯƠNG CỐ ĐỊNH')
+               ->setCellValue('F6', 'TỔNG NGÀY CÔNG')
 
-               ->setCellValue('K2', 'LƯƠNG SẢN PHẨM')
+               ->setCellValue('G6', 'LƯƠNG')
 
-               ->setCellValue('L1', 'PHỤ CẤP')
+               ->setCellValue('G7', 'DOANH THU')
 
-               ->setCellValue('L2', 'ĂN CA')
+               ->setCellValue('H7', 'CHI PHÍ 0 VAT')
 
-               ->setCellValue('M2', 'LÀM ĐÊM')
+               ->setCellValue('I7', 'DOANH THU TÍNH LƯƠNG')
 
-               ->setCellValue('N2', 'ĐỘC HẠI')
+               ->setCellValue('J7', 'LƯƠNG CỐ ĐỊNH')
 
-               ->setCellValue('O1', 'KHẤU TRỪ')
+               ->setCellValue('K7', 'LƯƠNG SẢN PHẨM')
 
-               ->setCellValue('O2', 'BẢO HIỂM')
+               ->setCellValue('L6', 'PHỤ CẤP')
 
-               ->setCellValue('P2', 'THUẾ')
+               ->setCellValue('L7', 'ĂN CA')
 
-               ->setCellValue('Q2', 'CÔNG ĐOÀN')
+               ->setCellValue('M7', 'LÀM ĐÊM')
 
-               ->setCellValue('R1', 'TỔNG CỘNG');
+               ->setCellValue('N7', 'ĐỘC HẠI')
+
+               ->setCellValue('O6', 'KHẤU TRỪ')
+
+               ->setCellValue('O7', 'BẢO HIỂM')
+
+               ->setCellValue('P7', 'THUẾ')
+
+               ->setCellValue('Q7', 'CÔNG ĐOÀN')
+
+               ->setCellValue('R6', 'TỔNG CỘNG');
 
                
 
@@ -1484,7 +1500,7 @@ Class salaryController Extends baseController {
 
             
 
-                $hang = 3;
+                $hang = 8;
 
                 $i=1;
 
@@ -1494,25 +1510,25 @@ Class salaryController Extends baseController {
 
                     
 
-                    $chiphi = isset($road_data['police_cost'][$driver->driver_id][$driver->vehicle])?$road_data['police_cost'][$driver->driver_id][$driver->vehicle]:0;
+                    $chiphi = isset($road_data['police_cost'][$driver->steersman_id][$driver->vehicle])?$road_data['police_cost'][$driver->steersman_id][$driver->vehicle]:0;
 
-                    $chiphi += isset($road_data['tire_cost'][$driver->driver_id][$driver->vehicle])?$road_data['tire_cost'][$driver->driver_id][$driver->vehicle]:0;
+                    $chiphi += isset($road_data['tire_cost'][$driver->steersman_id][$driver->vehicle])?$road_data['tire_cost'][$driver->steersman_id][$driver->vehicle]:0;
 
-                    $chiphi += isset($chiphiphatsinh[$driver->driver_id][$driver->vehicle])?$chiphiphatsinh[$driver->driver_id][$driver->vehicle]:0;
-
-                    
-
-                    $chiphi += isset($hoahong[$driver->driver_id][$driver->vehicle])?$hoahong[$driver->driver_id][$driver->vehicle]:0;
+                    $chiphi += isset($chiphiphatsinh[$driver->steersman_id][$driver->vehicle])?$chiphiphatsinh[$driver->steersman_id][$driver->vehicle]:0;
 
                     
 
-                    $chiphi += isset($warehouse_data['boiduong'][$driver->driver_id][$driver->vehicle])?$warehouse_data['boiduong'][$driver->driver_id][$driver->vehicle]:0;
+                    $chiphi += isset($hoahong[$driver->steersman_id][$driver->vehicle])?$hoahong[$driver->steersman_id][$driver->vehicle]:0;
 
-                    $chiphi += isset($warehouse_data['canxe'][$driver->driver_id][$driver->vehicle])?$warehouse_data['canxe'][$driver->driver_id][$driver->vehicle]:0;
+                    
 
-                    $chiphi += isset($warehouse_data['quetcont'][$driver->driver_id][$driver->vehicle])?$warehouse_data['quetcont'][$driver->driver_id][$driver->vehicle]:0;
+                    $chiphi += isset($warehouse_data['boiduong'][$driver->steersman_id][$driver->vehicle])?$warehouse_data['boiduong'][$driver->steersman_id][$driver->vehicle]:0;
 
-                    $chiphi += isset($warehouse_data['vecong'][$driver->driver_id][$driver->vehicle])?$warehouse_data['vecong'][$driver->driver_id][$driver->vehicle]:0;
+                    $chiphi += isset($warehouse_data['canxe'][$driver->steersman_id][$driver->vehicle])?$warehouse_data['canxe'][$driver->steersman_id][$driver->vehicle]:0;
+
+                    $chiphi += isset($warehouse_data['quetcont'][$driver->steersman_id][$driver->vehicle])?$warehouse_data['quetcont'][$driver->steersman_id][$driver->vehicle]:0;
+
+                    $chiphi += isset($warehouse_data['vecong'][$driver->steersman_id][$driver->vehicle])?$warehouse_data['vecong'][$driver->steersman_id][$driver->vehicle]:0;
 
 
 
@@ -1520,21 +1536,21 @@ Class salaryController Extends baseController {
 
 
 
-                    $ngaycong = round(isset($road_data['road_time'][$driver->driver_id][$driver->vehicle])?$road_data['road_time'][$driver->driver_id][$driver->vehicle]:0);
+                    $ngaycong = round(isset($road_data['road_time'][$driver->steersman_id][$driver->vehicle])?$road_data['road_time'][$driver->steersman_id][$driver->vehicle]:0);
 
 
 
-                    $bh = isset($insurances[$driver->driver_id][$driver->vehicle]->money)?$insurances[$driver->driver_id][$driver->vehicle]->money:0;
+                    $bh = isset($insurances[$driver->steersman_id][$driver->vehicle]->money)?$insurances[$driver->steersman_id][$driver->vehicle]->money:0;
 
-                    $thue = isset($taxs[$driver->driver_id][$driver->vehicle]->money)?$taxs[$driver->driver_id][$driver->vehicle]->money:0;
+                    $thue = isset($taxs[$driver->steersman_id][$driver->vehicle]->money)?$taxs[$driver->steersman_id][$driver->vehicle]->money:0;
 
-                    $lamdem = isset($overtimes[$driver->driver_id][$driver->vehicle]->money)?$overtimes[$driver->driver_id][$driver->vehicle]->money:0;
+                    $lamdem = isset($overtimes[$driver->steersman_id][$driver->vehicle]->money)?$overtimes[$driver->steersman_id][$driver->vehicle]->money:0;
 
-                    $dochai = isset($toxics[$driver->driver_id][$driver->vehicle]->money)?$toxics[$driver->driver_id][$driver->vehicle]->money:0;
+                    $dochai = isset($toxics[$driver->steersman_id][$driver->vehicle]->money)?$toxics[$driver->steersman_id][$driver->vehicle]->money:0;
 
 
 
-                    $ngayvaocang = isset($steersmans[$driver->driver_id][$driver->vehicle])?$steersmans[$driver->driver_id][$driver->vehicle]->steersman_start_time:0;
+                    $ngayvaocang = isset($steersmans[$driver->steersman_id][$driver->vehicle])?$steersmans[$driver->steersman_id][$driver->vehicle]->steersman_start_time:0;
 
 
 
@@ -1594,21 +1610,21 @@ Class salaryController Extends baseController {
 
                         ->setCellValue('A' . $hang, $i++)
 
-                        ->setCellValue('B' . $hang, $driver->driver_code)
+                        ->setCellValue('B' . $hang, $driver->steersman_code)
 
                         ->setCellValueExplicit('C' . $hang, $vehicle_data[$driver->vehicle])
 
-                        ->setCellValue('D' . $hang, $driver->driver_name)
+                        ->setCellValue('D' . $hang, $driver->steersman_name)
 
-                        ->setCellValue('E' . $hang, "'".$driver->driver_bank)
+                        ->setCellValue('E' . $hang, "'".$driver->steersman_bank)
 
                         ->setCellValue('F' . $hang, $ngaycong)
 
-                        ->setCellValue('G' . $hang, isset($doanhthu[$driver->driver_id][$driver->vehicle])?$doanhthu[$driver->driver_id][$driver->vehicle]:0)
+                        ->setCellValue('G' . $hang, isset($doanhthu[$driver->steersman_id][$driver->vehicle])?$doanhthu[$driver->steersman_id][$driver->vehicle]:0)
 
                         ->setCellValue('H' . $hang, $chiphi)
 
-                        ->setCellValue('I' . $hang, '=G'.$hang.'-H'.$hang.'+'.(isset($doanhthuthem[$driver->driver_id][$driver->vehicle])?$doanhthuthem[$driver->driver_id][$driver->vehicle]:0))
+                        ->setCellValue('I' . $hang, '=G'.$hang.'-H'.$hang.'+'.(isset($doanhthuthem[$driver->steersman_id][$driver->vehicle])?$doanhthuthem[$driver->steersman_id][$driver->vehicle]:0))
 
                         ->setCellValue('J' . $hang, $luongcd)
 
@@ -1642,47 +1658,167 @@ Class salaryController Extends baseController {
 
 
 
+
             $highestRow = $objPHPExcel->getActiveSheet()->getHighestRow();
 
 
 
             $highestRow ++;
 
+            $objPHPExcel->getActiveSheet()->mergeCells('A1:E1');
 
+            $objPHPExcel->getActiveSheet()->mergeCells('H1:M1');
 
-            $objPHPExcel->getActiveSheet()->mergeCells('A1:A2');
+            $objPHPExcel->getActiveSheet()->mergeCells('A2:E2');
 
-            $objPHPExcel->getActiveSheet()->mergeCells('B1:B2');
-
-            $objPHPExcel->getActiveSheet()->mergeCells('C1:C2');
-
-            $objPHPExcel->getActiveSheet()->mergeCells('D1:D2');
-
-            $objPHPExcel->getActiveSheet()->mergeCells('E1:E2');
-
-            $objPHPExcel->getActiveSheet()->mergeCells('F1:F2');
-
-            $objPHPExcel->getActiveSheet()->mergeCells('G1:K1');
-
-            $objPHPExcel->getActiveSheet()->mergeCells('L1:N1');
-
-            $objPHPExcel->getActiveSheet()->mergeCells('O1:Q1');
-
-            $objPHPExcel->getActiveSheet()->mergeCells('R1:R2');
+            $objPHPExcel->getActiveSheet()->mergeCells('H2:M2');
 
 
 
-            $objPHPExcel->getActiveSheet()->getStyle('G2:R'.$highestRow)->getNumberFormat()->setFormatCode("#,##0_);[Black](#,##0)");
+            $objPHPExcel->getActiveSheet()->mergeCells('A4:M4');
 
-            $objPHPExcel->getActiveSheet()->getStyle('A1:R1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A1:R1')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A1:R1')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('A1:R4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:R4')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle("A4")->getFont()->setSize(16);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:R4')->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'bold'  => true,
+
+                        'color' => array('rgb' => '000000')
+
+                    )
+
+                )
+
+            );
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A2:H2')->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'underline' => PHPExcel_Style_Font::UNDERLINE_SINGLE,
+
+                    )
+
+                )
+
+            );
+
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A6:A7');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('B6:B7');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('C6:C7');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('D6:D7');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('E6:E7');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('F6:F7');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('G6:K6');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('L6:N6');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('O6:Q6');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('R6:R7');
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:R'.$hang)->applyFromArray(
+
+                array(
+
+                    
+
+                    'borders' => array(
+
+                        'allborders' => array(
+
+                          'style' => PHPExcel_Style_Border::BORDER_THIN
+
+                        )
+
+                    )
+
+                )
+
+            );
+
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A'.($hang+3), 'NGƯỜI LẬP BIỂU')
+
+                ->setCellValue('I'.($hang+3), mb_strtoupper($infos->info_company, "UTF-8"));
+
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang+3).':D'.($hang+3));
+
+            $objPHPExcel->getActiveSheet()->mergeCells('I'.($hang+3).':M'.($hang+3));
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang+3).':M'.($hang+3))->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang+3).':M'.($hang+3))->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':N'.($hang+3))->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'bold'  => true,
+
+                        'color' => array('rgb' => '000000')
+
+                    )
+
+                )
+
+            );
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('G7:R'.$highestRow)->getNumberFormat()->setFormatCode("#,##0_);[Black](#,##0)");
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:R6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:R6')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:R6')->getFont()->setBold(true);
 
             $objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(16);
 
-            $objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(20);
+            $objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(15);
 
 
 
@@ -1706,7 +1842,7 @@ Class salaryController Extends baseController {
 
 
 
-            $objPHPExcel->getActiveSheet()->freezePane('A3');
+            $objPHPExcel->getActiveSheet()->freezePane('A8');
 
             $objPHPExcel->setActiveSheetIndex(0);
 
