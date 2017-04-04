@@ -95,26 +95,28 @@
     
    </thead>
    <tbody>
-    <?php foreach ($customers as $customer) : 
-    $chenhlech = 0;
-    ?>
+    <?php foreach ($customers as $customer) : ?>
     <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $customer->customer_id ?>" class="edit_tr">
         <td rowspan="<?php echo count($data_sub[$customer->customer_id]['id'])+1 ?>" class="fix"><?php echo $i++; ?></td>
         <td rowspan="<?php echo count($data_sub[$customer->customer_id]['id'])+1 ?>" class="fix" id="customer_name_<?php echo $customer->customer_id; ?>"><a target="_blank" href="<?php echo $this->url('customer/index/'.$customer->customer_id) ?>" ><?php echo $customer->customer_name ?></a></td>
     </tr>
-    <?php foreach ($data_sub[$customer->customer_id]['id'] as $sub) {
-        $chenhlech =  (isset($datas[$customer->customer_id][$sub][$cont->cont_unit_id]['delivery'])?$datas[$customer->customer_id][$sub][$cont->cont_unit_id]['delivery']:0) - (isset($datas[$customer->customer_id][$sub][$cont->cont_unit_id]['receive'])?$datas[$customer->customer_id][$sub][$cont->cont_unit_id]['receive']:null);
+    <?php foreach ($data_sub[$customer->customer_id]['id'] as $sub) { 
+        $nhan = null; $giao = null;
     ?>
     <tr class="edit_tr">
         <td class="fix"><?php echo $customer_subs[$sub]; ?></td>
         <td class="fix"><?php echo isset($datas[$customer->customer_id][$sub]['total'])?$datas[$customer->customer_id][$sub]['total']:null; ?></td>
-        <?php foreach ($cont_units as $cont) { ?>
+        <?php foreach ($cont_units as $cont) { 
+            $nhan += isset($datas[$customer->customer_id][$sub][$cont->cont_unit_id]['receive'])?$datas[$customer->customer_id][$sub][$cont->cont_unit_id]['receive']:null;
+        ?>
             <td class="fix"><?php echo isset($datas[$customer->customer_id][$sub][$cont->cont_unit_id]['receive'])?$datas[$customer->customer_id][$sub][$cont->cont_unit_id]['receive']:null ?></td>
         <?php } ?>
-        <?php foreach ($cont_units as $cont) { ?>
+        <?php foreach ($cont_units as $cont) { 
+            $giao += isset($datas[$customer->customer_id][$sub][$cont->cont_unit_id]['delivery'])?$datas[$customer->customer_id][$sub][$cont->cont_unit_id]['delivery']:null;
+        ?>
             <td class="fix"><?php echo isset($datas[$customer->customer_id][$sub][$cont->cont_unit_id]['delivery'])?$datas[$customer->customer_id][$sub][$cont->cont_unit_id]['delivery']:null ?></td>
         <?php } ?>
-        <td class="fix"><?php echo $chenhlech; ?></td>
+        <td class="fix"><?php echo $giao-$nhan; ?></td>
     </tr>
     <?php } ?>
      

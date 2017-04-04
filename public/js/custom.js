@@ -89,8 +89,12 @@ function searchall(page,cot,sapxep){
   {
     var xe = $('#sl_vehicle').val();
   }
+  if($('#sl_round') != null)
+  {
+    var vong = $('#sl_round').val();
+  }
 
-    var dataString = 'keyword='+ faq_search_input+"&limit="+loc+"&page="+ page +"&order_by="+ cot +"&order="+ sapxep+"&ngaytao="+ ngaytao+"&ngaytaobatdau="+ ngaytaobatdau+"&batdau="+ batdau+"&ketthuc="+ ketthuc+"&trangthai="+ trangthai+"&nv="+nv+"&tha="+tha+"&na="+na+"&tu="+tu+"&den="+den+"&xe="+xe; 
+    var dataString = 'keyword='+ faq_search_input+"&limit="+loc+"&page="+ page +"&order_by="+ cot +"&order="+ sapxep+"&ngaytao="+ ngaytao+"&ngaytaobatdau="+ ngaytaobatdau+"&batdau="+ batdau+"&ketthuc="+ ketthuc+"&trangthai="+ trangthai+"&nv="+nv+"&tha="+tha+"&na="+na+"&tu="+tu+"&den="+den+"&xe="+xe+"&vong="+vong; 
     
   $.ajax({
             type: "POST",                            // Phương thức gọi là GET
@@ -159,7 +163,7 @@ function sapxep(page,cot,sapxep){
           var ngaytao = "";
           var loc =    $('#chonloc').val();
 
-          if($('#chonngaytao') !== null)
+          if($('#chonngaytao') != null)
           {
             var ngaytao = $('#chonngaytao').val();
           }
@@ -179,16 +183,40 @@ function sapxep(page,cot,sapxep){
           {
             var trangthai = $('#sl_status').val();
           }
+          if($('#sl_nv') != null)
+          {
+            var nv = $('#sl_nv').val();
+          }
+          if($('#sl_tha') != null)
+          {
+            var tha = $('#sl_tha').val();
+          }
+          if($('#sl_na') != null)
+          {
+            var na = $('#sl_na').val();
+          }
+          if($('#tu') != null)
+          {
+            var tu = $('#tu').val();
+          }
+          if($('#den') != null)
+          {
+            var den = $('#den').val();
+          }
           if($('#sl_vehicle') != null)
           {
             var xe = $('#sl_vehicle').val();
+          }
+          if($('#sl_round') != null)
+          {
+            var vong = $('#sl_round').val();
           }
           
           
           $.ajax({
             type: "POST", // phương thức gởi đi
             url: "#", // nơi mà dữ liệu sẽ chuyển đến khi submit
-            data: "page="+ page +"&order_by="+ cot +"&order="+ sapxep+"&limit="+ loc+"&keyword="+ keyword+"&ngaytao="+ ngaytao+"&ngaytaobatdau="+ ngaytaobatdau+"&batdau="+ batdau+"&ketthuc="+ ketthuc+"&trangthai="+ trangthai+"&xe="+ xe, // giá trị post
+            data: 'keyword='+ keyword+"&limit="+loc+"&page="+ page +"&order_by="+ cot +"&order="+ sapxep+"&ngaytao="+ ngaytao+"&ngaytaobatdau="+ ngaytaobatdau+"&batdau="+ batdau+"&ketthuc="+ ketthuc+"&trangthai="+ trangthai+"&nv="+nv+"&tha="+tha+"&na="+na+"&tu="+tu+"&den="+den+"&xe="+xe+"&vong="+vong,
             success: function(answer){ // if everything goes well
               
               $('body').html(answer); // đặt kết quả trả về từ test.php vào thẻ div success
