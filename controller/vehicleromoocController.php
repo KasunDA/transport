@@ -38,7 +38,7 @@ Class vehicleromoocController Extends baseController {
 
         else{
 
-            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'vehicle_number ASC, romooc_number ASC, start_time';
+            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'vehicle_number ASC, start_time';
 
             $order = $this->registry->router->order_by ? $this->registry->router->order_by : 'ASC';
 
@@ -283,6 +283,8 @@ Class vehicleromoocController Extends baseController {
 
             $vehicleromooc = $this->model->get('vehicleromoocModel');
 
+            $shipment = $this->model->get('shipmentModel');
+
             $data = array(
 
                 'vehicle' => trim($_POST['vehicle']),
@@ -334,6 +336,22 @@ Class vehicleromoocController Extends baseController {
 
                         fclose($fh);
 
+            }
+
+            $shipments = $shipment->getAllShipment(array('where'=>'vehicle = '.$data['vehicle'].' AND shipment_date >= '.$data['start_time'].' AND shipment_date <= '.$data['end_time']));
+
+            if($shipments){
+                foreach ($shipments as $ship) {
+
+                    $data_edit = array(
+
+                        'romooc' => $data['romooc'],
+
+                        );
+
+                    $shipment->updateShipment($data_edit,array('shipment_id' => $ship->shipment_id));
+
+                }
             }
 
                 

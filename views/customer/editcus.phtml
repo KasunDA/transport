@@ -4,10 +4,10 @@
 
 <div id="winpopup"></div>
 <section class="content-header">
-    <h1><a href="<?php echo $this->url('customer') ?>">KHÁCH HÀNG</a></h1>
+    <h1><a href="<?php echo $this->url('customer') ?>">KHÁCH HÀNG - ĐỐI TÁC</a></h1>
   <ol class="breadcrumb">
     <li><a href="<?php echo $this->url('admin') ?>"><i class="fa fa-dashboard"></i> Home</a></li>
-    <li class="active"><a href="<?php echo $this->url('customer') ?>">Khách hàng</a></li>
+    <li class="active"><a href="<?php echo $this->url('customer') ?>">Khách hàng - Đối tác</a></li>
   </ol>
 </section>
 <!-- Main content -->
@@ -18,7 +18,7 @@
           <!-- general form elements -->
           <div class="box box-primary">
             <div class="box-header with-border">
-              <h3 class="box-title">Cập nhật khách hàng</h3>
+              <h3 class="box-title">Cập nhật khách hàng - đối tác</h3>
             </div>
             <!-- /.box-header -->
             <!-- form start -->
@@ -27,22 +27,23 @@
                 <div class="col-md-4 col-xs-6">
                   <div class="box-body">
                     <div class="form-group">
+                      <label for="customer_code">Mã khách hàng</label>
+                      <input type="text" id="customer_code" placeholder="Mã khách hàng" required="required" tabindex="1" value="<?php echo $customers->customer_code ?>">
+                    </div>
+                    <div class="form-group">
                       <label for="customer_name">Tên khách hàng</label>
-                      <input type="text" id="customer_name" placeholder="Tên khách hàng" required="required" tabindex="1" value="<?php echo $customers->customer_name ?>">
+                      <input type="text" id="customer_name" placeholder="Tên khách hàng" required="required" tabindex="2" value="<?php echo $customers->customer_name ?>">
                     </div>
                     <div class="form-group">
                       <label for="customer_company">Công ty</label>
-                      <input type="text" id="customer_company" placeholder="Công ty" required="required" tabindex="2" value="<?php echo $customers->customer_company ?>">
+                      <input type="text" id="customer_company" placeholder="Công ty" tabindex="3" value="<?php echo $customers->customer_company ?>">
                     </div>
                     <div class="form-group">
                       <label for="customer_address">Địa chỉ</label>
-                      <input type="text" id="customer_address" placeholder="Địa chỉ" required="required" tabindex="3" value="<?php echo $customers->customer_address ?>">
+                      <input type="text" id="customer_address" placeholder="Địa chỉ" required="required" tabindex="4" value="<?php echo $customers->customer_address ?>">
                     </div>
                     
-                    <div class="form-group">
-                      <label for="customer_from">Mã số thuế</label>
-                      <input type="text" id="customer_mst" class="number" placeholder="Mã số thuế" required="required" tabindex="4" value="<?php echo $customers->customer_mst ?>">
-                    </div>
+                    
                     
                     
                   </div>
@@ -53,22 +54,22 @@
                 <div class="col-md-4 col-xs-6">
                   <div class="box-body">
                     <div class="form-group">
+                      <label for="customer_from">Mã số thuế</label>
+                      <input type="text" id="customer_mst" class="number" placeholder="Mã số thuế" tabindex="5" value="<?php echo $customers->customer_mst ?>">
+                    </div>
+                    <div class="form-group">
                       <label for="customer_phone">Điện thoại</label>
-                      <input type="text" id="customer_phone" class="numbers" placeholder="Điện thoại" tabindex="5" value="<?php echo $customers->customer_phone ?>">
+                      <input type="text" id="customer_phone" class="numbers" placeholder="Điện thoại" tabindex="6" value="<?php echo $customers->customer_phone ?>">
                     </div>
                     <div class="form-group">
                       <label for="customer_mobile">Di động</label>
-                      <input type="text" id="customer_mobile" class="numbers" placeholder="Di động" tabindex="6" value="<?php echo $customers->customer_mobile ?>">
+                      <input type="text" id="customer_mobile" class="numbers" placeholder="Di động" tabindex="7" value="<?php echo $customers->customer_mobile ?>">
                     </div>
                     <div class="form-group">
                       <label for="customer_email">Email</label>
-                      <input type="email" id="customer_email" placeholder="Email" tabindex="7" value="<?php echo $customers->customer_email ?>">
+                      <input type="email" id="customer_email" placeholder="Email" tabindex="8" value="<?php echo $customers->customer_email ?>">
                     </div>
-                    <div class="form-group">
-                      <label for="customer_sub">Mặt hàng</label>
-                      <input type="text" id="customer_sub" tabindex="8" value="<?php echo $customer_sub ?>"  />
-                      <ul id="mytags"></ul>
-                    </div>
+                    
                   </div>
                   <!-- /.box-body -->
                   
@@ -91,6 +92,11 @@
                       <label for="customer_bank_branch">Chi nhánh</label>
                       <input type="text" id="customer_bank_branch" placeholder="Chi nhánh" tabindex="11" value="<?php echo $customers->customer_bank_branch ?>">
                     </div>
+                    <div class="form-group">
+                      <label for="customer_sub">Mặt hàng</label>
+                      <input type="text" id="customer_sub" tabindex="12" value="<?php echo $customer_sub ?>"  />
+                      <ul id="mytags"></ul>
+                    </div>
                   </div>
                   <!-- /.box-body -->
 
@@ -98,6 +104,25 @@
                   
                 </div>
 
+              </div>
+              <div class="row">
+                <div class="col-md-4 col-xs-6">
+                  <div class="box-body">
+                    
+                    <div class="form-group">
+                      <label for="type_customer">Loại</label>
+                      <select style="width:120px" id="type_customer" tabindex="13" >
+                        <option <?php echo $customers->type_customer==1?'selected="selected"':null ?> value="1">Khách hàng</option>
+                        <option <?php echo $customers->type_customer==2?'selected="selected"':null ?> value="2">Đối tác</option>
+                        <option <?php echo $customers->type_customer==3?'selected="selected"':null ?> value="3">Khác</option>
+                      </select>
+                    </div>
+                  </div>
+                  <!-- /.box-body -->
+
+                  
+                  
+                </div>
               </div>
                 <div class="col-md-12">
                   <fieldset class="groupbox">
@@ -273,6 +298,7 @@
             
         },
         submitHandler: function(form) {
+            var customer_code = $('#customer_code').attr('value');
             var customer_name = $('#customer_name').attr('value');
             var customer_company = $('#customer_company').attr('value');
             var customer_address = $('#customer_address').attr('value');
@@ -284,6 +310,7 @@
             var customer_bank_name = $('#customer_bank_name').attr('value');
             var customer_bank_branch = $('#customer_bank_branch').attr('value');
             var customer_sub = $('#customer_sub').attr('value');
+            var type_customer = $('#type_customer').attr('value');
 
             var contact_person = [];
 
@@ -331,6 +358,7 @@
                 url: "<?php echo BASE_URL ?>/customer/add", // nơi mà dữ liệu sẽ chuyển đến khi submit
                 
                 data: {
+                    customer_code: customer_code,
                     customer_name: customer_name,
                     customer_company: customer_company,
                     customer_address: customer_address,
@@ -344,6 +372,7 @@
                     customer_sub: customer_sub,
                     customer_type: 2,
                     contact_person: contact_person,
+                    type_customer: type_customer,
                     yes: yes,
                 }, // giá trị post
                 success: function(answer){ // if everything goes well

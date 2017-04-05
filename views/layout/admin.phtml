@@ -689,11 +689,6 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a data="customer" href="<?php echo $this->url('customer') ?>"><i class="fa fa-fw fa-user text-aqua"></i>Danh sách khách hàng</a></li>
-            <li><a data="place" href="<?php echo $this->url('place') ?>"><i class="fa fa-fw fa-map-marker text-aqua"></i>Danh sách kho hàng</a></li>
-            <li><a data="vehicle" href="<?php echo $this->url('vehicle') ?>"><i class="fa fa-fw fa-truck text-aqua"></i>Danh sách xe</a></li>
-            <li><a data="romooc" href="<?php echo $this->url('romooc') ?>"><i class="fa fa-fw fa-eraser text-aqua"></i>Danh sách mooc</a></li>
-            
             <li>
               <a href="#">
                 <i class="fa fa-fw fa-tasks text-aqua"></i>
@@ -708,6 +703,13 @@
                 <li><a data="warehouse" href="<?php echo $this->url('warehouse') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Bồi dưỡng kho</a></li>
               </ul>
             </li>
+            <li><a data="customer" href="<?php echo $this->url('customer') ?>"><i class="fa fa-fw fa-user text-aqua"></i>Khách hàng - Đối tác</a></li>
+            <li><a data="vehicle" href="<?php echo $this->url('vehicle') ?>"><i class="fa fa-fw fa-truck text-aqua"></i>Danh sách xe</a></li>
+            <li><a data="romooc" href="<?php echo $this->url('romooc') ?>"><i class="fa fa-fw fa-eraser text-aqua"></i>Danh sách mooc</a></li>
+            <li><a data="place" href="<?php echo $this->url('place') ?>"><i class="fa fa-fw fa-home text-aqua"></i>Danh sách kho hàng</a></li>
+            <li><a data="route" href="<?php echo $this->url('route') ?>"><i class="fa fa-fw fa-map-marker text-aqua"></i>Danh sách địa điểm</a></li>
+            
+            
           </ul>
         </li>
         <?php if ($_SESSION['role_logined'] == 1) { ?>
@@ -750,14 +752,15 @@
 
     </section>
     <!-- /.content -->
+    <footer class="main-footer">
+      <div class="pull-right hidden-xs">
+        <b>Version</b> 3.0
+      </div>
+      <span style="font-size:5px">Powered by <a target="_blank" style="color:#fff" href="http://www.tinhoctainha.com">Dịch vụ Tin Học Tại Nhà</a></span>
+    </footer>
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 3.0
-    </div>
-    <span style="font-size:5px">Powered by <a target="_blank" style="color:#fff" href="http://www.tinhoctainha.com">Dịch vụ Tin Học Tại Nhà</a></span>
-  </footer>
+  
 
   <!-- Control Sidebar -->
   

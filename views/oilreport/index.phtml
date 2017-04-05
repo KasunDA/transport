@@ -135,7 +135,7 @@ $tongtien = 0;
                     <td></td>
                     <?php foreach ($vehicles as $vehicle): ?>
                     <td >
-                        <?php if($_SESSION['role_logined'] == 1 || $_SESSION['role_logined'] == 8){ ?>
+                        <?php if(!isset($disable_control)){ ?>
                         <a id="oil_<?php echo $vehicle->vehicle_id ?>" class="oil add_button approve_oil" data="<?php echo strtotime($batdau) ?>" alt="<?php echo strtotime($ketthuc) ?>" tabindex="<?php echo $vehicle->vehicle_id ?>" title="<?php echo $loc ?>" data-value="<?php echo isset($check_lock[$vehicle->vehicle_id])?$check_lock[$vehicle->vehicle_id]:1 ?>" ><?php if(isset($check_lock[$vehicle->vehicle_id]) && $check_lock[$vehicle->vehicle_id]==0){ echo "Kí duyệt"; }else{ echo "Mở"; } ?></a>
                         <?php } ?>
                     </td>
@@ -180,7 +180,7 @@ $tongtien = 0;
                 </tr>
                 <tr>
                     <td colspan="2" class="fix ">
-                        <?php if($_SESSION['role_logined'] == 1 || $_SESSION['role_logined'] == 8){ ?>
+                        <?php if(!isset($disable_control)){ ?>
                         <a class="oil_all add_button approve_oil" data="<?php echo strtotime($batdau) ?>" alt="<?php echo strtotime($ketthuc) ?>" tabindex="0" title="<?php echo $loc ?>" data-value="<?php echo isset($check_lock_all[$batdau.$ketthuc])?$check_lock_all[$batdau.$ketthuc]:1 ?>" ><?php if(isset($check_lock_all[$batdau.$ketthuc]) && $check_lock_all[$batdau.$ketthuc]==0){ echo "Kí duyệt tất cả"; }else{ echo "Mở tất cả"; } ?></a>
                         <?php } ?>
                     </td>
@@ -196,7 +196,7 @@ $tongtien = 0;
 
         var w = $(".report").width();
 
-      $(".report-right-fix").width(w-360);
+      $(".report-right-fix").width(w-380);
 
 
     var pickerOpts = {

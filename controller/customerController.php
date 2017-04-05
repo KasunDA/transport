@@ -174,6 +174,7 @@ Class customerController Extends baseController {
             $contact_person = $_POST['contact_person'];
 
             $data = array(
+                        'customer_code' => trim($_POST['customer_code']),
                         'customer_name' => trim($_POST['customer_name']),
                         'customer_company' => trim($_POST['customer_company']),
                         'customer_mst' => trim($_POST['customer_mst']),
@@ -184,6 +185,7 @@ Class customerController Extends baseController {
                         'customer_bank_account' => trim($_POST['customer_bank_account']),
                         'customer_bank_name' => trim($_POST['customer_bank_name']),
                         'customer_bank_branch' => trim($_POST['customer_bank_branch']),
+                        'type_customer' => trim($_POST['type_customer']),
                         );
 
             $customer_sub_model = $this->model->get('customersubModel');
@@ -218,7 +220,15 @@ Class customerController Extends baseController {
 
             if ($_POST['yes'] != "") {
 
-                if ($customer->getAllCustomerByWhere($_POST['yes'].' AND customer_name = "'.$data['customer_name'].'"')) {
+                if ($customer->getAllCustomerByWhere($_POST['yes'].' AND customer_code = "'.$data['customer_code'].'"')) {
+                    $mess = array(
+                        'msg' => 'Mã khách hàng đã tồn tại',
+                        'id' => $_POST['yes'],
+                    );
+
+                    echo json_encode($mess);
+                }
+                else if ($customer->getAllCustomerByWhere($_POST['yes'].' AND customer_name = "'.$data['customer_name'].'"')) {
                     $mess = array(
                         'msg' => 'Tên khách hàng đã tồn tại',
                         'id' => $_POST['yes'],
@@ -228,7 +238,7 @@ Class customerController Extends baseController {
                 }
                 else if ($customer->getAllCustomerByWhere($_POST['yes'].' AND customer_mst = "'.$data['customer_mst'].'"')) {
                     $mess = array(
-                        'msg' => 'Tên khách hàng đã tồn tại',
+                        'msg' => 'Khách hàng đã tồn tại',
                         'id' => $_POST['yes'],
                     );
 
@@ -263,7 +273,16 @@ Class customerController Extends baseController {
             }
             else{
 
-                if ($customer->getCustomerByWhere(array('customer_name'=>$data['customer_name']))) {
+                if ($customer->getCustomerByWhere(array('customer_code'=>$data['customer_code']))) {
+                    $mess = array(
+                        'msg' => 'Mã khách hàng đã tồn tại',
+                        'id' => "",
+                    );
+
+                    echo json_encode($mess);
+                    
+                }
+                else if ($customer->getCustomerByWhere(array('customer_name'=>$data['customer_name']))) {
                     $mess = array(
                         'msg' => 'Tên khách hàng đã tồn tại',
                         'id' => "",
@@ -274,7 +293,7 @@ Class customerController Extends baseController {
                 }
                 else if ($customer->getCustomerByWhere(array('customer_mst'=>$data['customer_mst']))) {
                     $mess = array(
-                        'msg' => 'Tên khách hàng đã tồn tại',
+                        'msg' => 'Khách hàng đã tồn tại',
                         'id' => "",
                     );
 
