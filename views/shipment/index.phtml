@@ -3,6 +3,10 @@
 <script src="<?php echo BASE_URL ?>/public/js/tag-it.js" type="text/javascript" charset="utf-8"></script>
 <script src="<?php echo BASE_URL ?>/public/js/jquery.maskedinput.js" type="text/javascript" charset="utf-8"></script>
 
+
+<link rel="stylesheet" type="text/css" href="<?php BASE_URL ?>/public/css/jquery.multiselect.css" />
+<script type="text/javascript" src="<?php BASE_URL ?>/public/js/jquery.multiselect.js"></script>
+
 <?php
 $url_order = 'ASC';
 if ($order_by == 'shipment_id')
@@ -515,11 +519,11 @@ $this->helper('slidePaginator');
                                 </div>
                                 <div class="form-group">
                                   <label for="shipment_date">Ngày</label>
-                                  <input style="width:100px" type="text" autofocus id="shipment_date" name="shipment_date" tabindex="2" required="required" >
+                                  <input style="width:100px" type="text" id="shipment_date" name="shipment_date" tabindex="2" required="required" >
                                 </div>
                                 <div class="form-group">
                                   <label for="vehicle">Xe <a target="_blank" title="Thêm xe" href="<?php echo $this->url('vehicle') ?>"><i class="fa fa-plus"></i></a></label>
-                                  <input style="width:150px" type="text"  autocomplete="off"   id="vehicle" name="vehicle" tabindex="3" required="required" placeholder="Nhập tên hoặc * để chọn" >
+                                  <input style="width:150px" autofocus type="text"  autocomplete="off"   id="vehicle" name="vehicle" tabindex="3" required="required" placeholder="Nhập tên hoặc * để chọn" >
                                             <ul id="vehicle_list_id"></ul>
                                 </div>
                                 <div class="form-group">
@@ -528,10 +532,11 @@ $this->helper('slidePaginator');
                                   <a title="Thông tin thay thế lắp ráp mooc" target="_blank" href="<?php echo $this->url('vehicleromooc/vehicle') ?>"><i class="fa fa-th-list"></i></a>
                                 </div>
                                 <div class="form-group">
-                                  <label for="customer">Khách hàng <a target="_blank" title="Thêm khách hàng" href="<?php echo $this->url('customer/newcus') ?>"><i class="fa fa-plus"></i></a></label>
-                                  <input type="text" autocomplete="off" id="customer"  name="customer" tabindex="4" required="required" placeholder="Nhập tên hoặc * để chọn"  >
-                                            <ul id="customer_list_id"></ul>
+                                  <label for="sub_driver">Tài xế phụ <input type="checkbox"  id="sub_driver" name="sub_driver" value="0" tabindex="4" ></label>
+                                    <input type="text" disabled id="sub_driver_name" name="sub_driver_name" >
+                                    <ul id="staff_list_id"></ul>
                                 </div>
+                                
                                 
                               </div>
                               <!-- /.box-body -->
@@ -540,29 +545,33 @@ $this->helper('slidePaginator');
                             <div class="col-md-3 col-xs-6">
                               <div class="box-body">
                                 <div class="form-group">
+                                  <label for="customer">Khách hàng <a target="_blank" title="Thêm khách hàng" href="<?php echo $this->url('customer/newcus') ?>"><i class="fa fa-plus"></i></a></label>
+                                  <input type="text" autocomplete="off" id="customer"  name="customer" tabindex="5" required="required" placeholder="Nhập tên hoặc * để chọn"  >
+                                            <ul id="customer_list_id"></ul>
+                                </div>
+                                <div class="form-group">
+                                  <label for="customer_type">Loại hàng</label>
+                                    <input type="text" id="customer_type" tabindex="6" />
+                                            <ul id="mytags"></ul>
+                                </div>
+                                <div class="form-group">
                                   <label for="shipment_from">Kho đi <a target="_blank" title="Thêm kho" href="<?php echo $this->url('place') ?>"><i class="fa fa-plus"></i></a></label>
-                                  <input type="text"  autocomplete="off"  id="shipment_from" name="shipment_from" tabindex="5" required="required" placeholder="Nhập tên hoặc * để chọn" >
+                                  <input type="text"  autocomplete="off"  id="shipment_from" name="shipment_from" tabindex="7" required="required" placeholder="Nhập tên hoặc * để chọn" >
                                     <ul id="shipment_from_list_id"></ul>
                                 </div>
                                 <div class="form-group">
                                   <label for="shipment_to">Kho đến <a target="_blank" title="Thêm kho" href="<?php echo $this->url('place') ?>"><i class="fa fa-plus"></i></a></label>
-                                  <input type="text"  autocomplete="off"  id="shipment_to" name="shipment_to" tabindex="6" required="required" placeholder="Nhập tên hoặc * để chọn" >
+                                  <input type="text"  autocomplete="off"  id="shipment_to" name="shipment_to" tabindex="8" required="required" placeholder="Nhập tên hoặc * để chọn" >
                                             <ul id="shipment_to_list_id"></ul>
                                 </div>
                                 <div class="form-group">
-                                  <label for="oil_cost">Giá dầu</label>
-                                  <input type="text" class="number" id="oil_cost" name="oil_cost" tabindex="7" required="required" >
+                                  <label for="route">Tuyến đường <a target="_blank" title="Chọn tuyến đường" href="<?php echo $this->url('road') ?>">  <i class="fa fa-road"></i></a></label>
+                                  <select id="route" name="route" required="required" multiple="multiple" tabindex="9">
+                                    
+                                  </select>
                                 </div>
-                                <div class="form-group">
-                                  <label for="sub_driver">Tài xế phụ <input type="checkbox"  id="sub_driver" name="sub_driver" value="0" tabindex="8" ></label>
-                                    <input type="text" disabled id="sub_driver_name" name="sub_driver_name" >
-                                    <ul id="staff_list_id"></ul>
-                                </div>
-                                <div class="form-group">
-                                  <label for="customer_type">Loại hàng</label>
-                                    <input type="text" id="customer_type" tabindex="9" />
-                                            <ul id="mytags"></ul>
-                                </div>
+                                
+                                
                                 
                               </div>
                               <!-- /.box-body -->
@@ -570,6 +579,7 @@ $this->helper('slidePaginator');
                             </div>
                             <div class="col-md-3 col-xs-6">
                               <div class="box-body">
+                                
                                 <div class="form-group">
                                     <label for="shipment_ton">Sản lượng</label>
                                       <input style="width:50px" type="text" class="numbers" id="shipment_ton" name="shipment_ton" tabindex="10" >
@@ -608,16 +618,7 @@ $this->helper('slidePaginator');
                             </div>
                             <div class="col-md-3 col-xs-6">
                               <div class="box-body">
-                                <div class="form-group">
-                                  <label for="commission">Hoa hồng</label>
-                                  <input style="width:100px" type="text" class="number" id="commission" name="commission" tabindex="15" >
-                                    <input style="width:50px" type="text" class="number" id="commission_number" name="commission_number" tabindex="14" >
-                                </div>
-                                <div class="form-group">
-                                  <label for="shipment_loan"><a class="loan_shipment" title="Thêm chi hộ" href="<?php echo $this->url('shipment/loan') ?>"> Chi hộ <i class="fa fa-external-link"></i></a></label>
-                                  <input disabled style="width:70px" type="text" class="number" id="shipment_loan" name="shipment_loan" tabindex="16" data="" >
-                                  <input type="hidden" id="loan_content" name="loan_content">
-                                </div>
+                                
                                 <div class="form-group">
                                   <label for="oil_add">Ứng dầu lần 1</label>
                                   <select name="oil_add_dc" id="oil_add_dc" style="width:120px">
@@ -634,7 +635,15 @@ $this->helper('slidePaginator');
                                         <option value="5"> Dọc đường </option>
                                     </select>
                                     
-                                    <input style="width:50px" type="text" class="numbers" id="oil_add2" name="oil_add2" tabindex="18" >
+                                    <input style="width:50px" type="text" class="numbers" id="oil_add2" name="oil_add2" tabindex="15" >
+                                </div>
+                                <div class="form-group">
+                                  <label for="oil_cost">Giá dầu</label>
+                                  <input type="text" class="number" id="oil_cost" name="oil_cost" tabindex="16" required="required" >
+                                </div>
+                                <div class="form-group">
+                                  <label for="shipment_salary">Lương chuyến</label>
+                                  <input type="text" class="number" id="shipment_salary" name="shipment_salary" tabindex="17" required="required" >
                                 </div>
                                 
                               </div>
@@ -651,47 +660,72 @@ $this->helper('slidePaginator');
                                                     <span><h3>Chi phí</h3></span>
                                                 </legend>
 
-                                                <table style="width:100%">
-                                                    <tr>
-                                                        <td>Chi phí phát sinh </td>
-                                                        <td><input type="text" class="number" id="cost_add" name="cost_add" tabindex="17" ></td>
-                                                        <td>Nội dung </td>
-                                                        <td><textarea type="text"  id="cost_add_comment" name="cost_add_comment" tabindex="18" placeholder="Nội dung chi phí phát sinh" ></textarea></td>
+                                                <input disabled style="width:70px" type="hidden" class="number" id="shipment_loan" name="shipment_loan" tabindex="16" data="" >
+                                                <input type="hidden" id="loan_content" name="loan_content">
+                                                <input style="width:100px" type="hidden" class="number" id="commission" name="commission" tabindex="15" >
+                                                <input style="width:50px" type="hidden" class="number" id="commission_number" name="commission_number" tabindex="14" >
+                                                <input type="hidden" class="number" id="cost_add" name="cost_add" tabindex="17" >
+                                                <input type="hidden"  id="cost_add_comment" name="cost_add_comment" tabindex="18" placeholder="Nội dung chi phí phát sinh" >
+                                                <input style="width:30px" type="hidden" class="numbers" id="oil_excess" name="oil_excess" tabindex="20" >
+                                                <input type="hidden" id="oil_excess_comment" name="oil_excess_comment" placeholder="Nội dung" >
+                                                <input type="hidden" class="number" id="advance" name="advance" tabindex="21" >
+                                                <input type="hidden" style="width:140px" id="oil_excess_dc" name="oil_excess_dc" placeholder="Địa điểm đổ dầu" >
+                                                <input type="hidden"  id="advance_comment" name="advance_comment" tabindex="22" placeholder="Nội dung tạm ứng" >
+                                                <input style="width:30px" type="hidden" class="numbers" id="oil_residual" name="oil_residual" tabindex="24" >
+                                                <input type="hidden" style="width:150px"  id="oil_residual_comment" name="oil_residual_comment" placeholder="Nội dung" >
+                                                <input type="hidden" class="number" id="cost_excess" name="cost_excess" tabindex="25" >
+                                                <input type="hidden"  id="cost_excess_comment" name="cost_excess_comment" tabindex="26" placeholder="Nội dung phi phí thừa" >
+                                                <input type="hidden" class="number" id="bridge_cost_add" name="bridge_cost_add" tabindex="27" >
+                                                <input type="hidden" class="number" id="cost_vat" name="cost_vat" tabindex="19" >
+                                                <input type="hidden"  id="cost_vat_comment" name="cost_vat_comment" tabindex="23" placeholder="Nội dung phi phí có HĐ" >
+                                                
+                                                <table id="dataTable" border="1" style="width: 100%; border: 1px solid rgb(221, 217, 217); margin-bottom: 10px" >
+                                                    <tbody>
+                                                        <tr>
+                                                            <td><input type="checkbox" name="chk"></td>
+                                                            <td>
+                                                                <table style="width:100%">
+                                                                    <tr>
+                                                                        <td>Chi phí <a target="_blank" title="Thêm chi phí" href="<?php echo $this->url('costlist') ?>"><i class="fa fa-plus"></i></a></td>
+                                                                        <td>
+                                                                            <select style="width:150px" name="cost_list[]" class="cost_list" >
+                                                                                <?php foreach ($cost_lists as $cost) { ?>
+                                                                                    <option value="<?php echo $cost->cost_list_id ?>"><?php echo $cost->cost_list_name ?></option>
+                                                                                <?php } ?>
+                                                                            </select>
+                                                                        </td>
+                                                                        <td>Số tiền</td>
+                                                                        <td>
+                                                                            <input type="text" class="cost number" name="cost[]" style="width:120px">
+                                                                            <input type="checkbox" class="cost_vat" name="cost_vat[]" value="1"> VAT
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Nội dung</td>
+                                                                        <td>
+                                                                            <textarea class="comment" name="comment[]"></textarea>
+                                                                        </td>
+                                                                        <td>Người nhận <a target="_blank" title="Thêm người nhận" href="<?php echo $this->url('customer') ?>"><i class="fa fa-plus"></i></a></td>
+                                                                        <td>
+                                                                            <input type="text" autocomplete="off" class="receiver" name="receiver[]" placeholder="Nhập tên hoặc * để chọn" >
+                                                                            <ul class="name_list_id"></ul>
+                                                                        </td>
+                                                                        
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Số Hóa đơn chứng từ</td>
+                                                                        <td>
+                                                                            <input type="text" class="cost_document" name="cost_document[]" style="width:120px" >
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
                                                         
-                                                        <td>Dầu phát sinh </td>
-                                                        <td><input style="width:30px" type="text" class="numbers" id="oil_excess" name="oil_excess" tabindex="20" >
-                                                            <input type="text" style="width:140px" id="oil_excess_dc" name="oil_excess_dc" placeholder="Địa điểm đổ dầu" ><br>
-                                                            <input type="text" id="oil_excess_comment" name="oil_excess_comment" placeholder="Nội dung" >
-                                                        </td>
-                                                        
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Tạm ứng</td>
-                                                        <td><input type="text" class="number" id="advance" name="advance" tabindex="21" ></td>
-                                                        <td>Nội dung</td>
-                                                        <td><textarea type="text"  id="advance_comment" name="advance_comment" tabindex="22" placeholder="Nội dung tạm ứng" ></textarea></td>
-                                                        
-                                                        <td>Dầu thừa/thiếu </td>
-                                                        <td><input style="width:30px" type="text" class="numbers" id="oil_residual" name="oil_residual" tabindex="24" >
-                                                            <textarea style="width:150px"  id="oil_residual_comment" name="oil_residual_comment" placeholder="Nội dung" ></textarea>
-                                                        </td>
-                                                        
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Chi phí thừa</td>
-                                                        <td><input type="text" class="number" id="cost_excess" name="cost_excess" tabindex="25" ></td>
-                                                        <td>Nội dung</td>
-                                                        <td><textarea type="text"  id="cost_excess_comment" name="cost_excess_comment" tabindex="26" placeholder="Nội dung phi phí thừa" ></textarea></td>
-                                                        <td>Cầu đường phát sinh</td>
-                                                        <td><input type="text" class="number" id="bridge_cost_add" name="bridge_cost_add" tabindex="27" ></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Chi phí có HĐ </td>
-                                                        <td><input type="text" class="number" id="cost_vat" name="cost_vat" tabindex="19" ></td>
-                                                        <td>Nội dung</td>
-                                                        <td><textarea type="text"  id="cost_vat_comment" name="cost_vat_comment" tabindex="23" placeholder="Nội dung phi phí có HĐ" ></textarea></td>
-                                                    </tr>
+                                                    </tbody>
                                                 </table>
+                                                <input type="button" value="Thêm" onclick="addRow('dataTable')">
+                                                <input type="button" value="Xóa" onclick="deleteRow('dataTable')">
 
                                             </fieldset>
                                     </div>
@@ -703,8 +737,8 @@ $this->helper('slidePaginator');
                                 <div class="box-footer">
                                 <input type="hidden" readonly id="yes" name="yes" required="required" >
                                 <input type="hidden" readonly id="check_temp" name="check_temp" required="required" >
-                                <button type="submit" class="btn btn-primary" tabindex="7">Hoàn thành</button>
-                                <button type="reset" class="btn" tabindex="8">Nhập lại</button>
+                                <button type="submit" class="btn btn-primary" tabindex="18">Hoàn thành</button>
+                                <button type="reset" class="btn" tabindex="19">Nhập lại</button>
                               </div>
                               <div class="box-footer">
                                 <div id="error" class="error"><?php echo isset($error) ? $error : null; ?></div>
@@ -720,7 +754,7 @@ $this->helper('slidePaginator');
                         <div class="box box-primary">
                             <!-- /.box-header -->
                             <!-- form start -->
-                            <form id="add_shipment" role="form" method="post" action="" enctype="multipart/form-data">
+                            <form id="add_shipment_sub" role="form" method="post" action="" enctype="multipart/form-data">
                                   <div class="row">
                                     <div class="col-md-3 col-xs-6">
                                       <div class="box-body">
@@ -730,7 +764,7 @@ $this->helper('slidePaginator');
                                         </div>
                                         <div class="form-group">
                                           <label for="shipment_date_sub">Ngày</label>
-                                          <input style="width:100px" type="text" autofocus id="shipment_date_sub" name="shipment_date_sub" tabindex="2" required="required" >
+                                          <input style="width:100px" type="text" id="shipment_date_sub" name="shipment_date_sub" tabindex="2" required="required" >
                                         </div>
                                         <div class="form-group">
                                           <label for="vehicle_sub">Xe <a target="_blank" title="Thêm xe" href="<?php echo $this->url('vehicle') ?>"><i class="fa fa-plus"></i></a></label>
@@ -742,11 +776,8 @@ $this->helper('slidePaginator');
                                           <input style="width:150px" type="text"  id="romooc_sub" name="romooc_sub" tabindex="3" disabled >
                                           <a title="Thông tin thay thế lắp ráp mooc" target="_blank" href="<?php echo $this->url('vehicleromooc/vehicle') ?>"><i class="fa fa-th-list"></i></a>
                                         </div>
-                                        <div class="form-group">
-                                          <label for="customer_sub">Khách hàng <a target="_blank" title="Thêm khách hàng" href="<?php echo $this->url('customer/newcus') ?>"><i class="fa fa-plus"></i></a></label>
-                                          <input type="text" autocomplete="off" id="customer_sub"  name="customer_sub" tabindex="4" required="required" placeholder="Nhập tên hoặc * để chọn"  >
-                                                    <ul id="customer_sub_list_id"></ul>
-                                        </div>
+                                        
+                                        
                                         
                                       </div>
                                       <!-- /.box-body -->
@@ -754,30 +785,29 @@ $this->helper('slidePaginator');
                                     </div>
                                     <div class="col-md-3 col-xs-6">
                                       <div class="box-body">
+                                        
                                         <div class="form-group">
                                           <label for="shipment_from_sub">Kho đi <a target="_blank" title="Thêm kho" href="<?php echo $this->url('place') ?>"><i class="fa fa-plus"></i></a></label>
-                                          <input type="text"  autocomplete="off"  id="shipment_from_sub" name="shipment_from_sub" tabindex="5" required="required" placeholder="Nhập tên hoặc * để chọn" >
+                                          <input type="text"  autocomplete="off"  id="shipment_from_sub" name="shipment_from_sub" tabindex="7" required="required" placeholder="Nhập tên hoặc * để chọn" >
                                             <ul id="shipment_from_sub_list_id"></ul>
                                         </div>
                                         <div class="form-group">
                                           <label for="shipment_to_sub">Kho đến <a target="_blank" title="Thêm kho" href="<?php echo $this->url('place') ?>"><i class="fa fa-plus"></i></a></label>
-                                          <input type="text"  autocomplete="off"  id="shipment_to_sub" name="shipment_to_sub" tabindex="6" required="required" placeholder="Nhập tên hoặc * để chọn" >
+                                          <input type="text"  autocomplete="off"  id="shipment_to_sub" name="shipment_to_sub" tabindex="8" required="required" placeholder="Nhập tên hoặc * để chọn" >
                                                     <ul id="shipment_to_sub_list_id"></ul>
                                         </div>
                                         <div class="form-group">
-                                          <label for="oil_cost_sub">Giá dầu</label>
-                                          <input type="text" class="number" id="oil_cost_sub" name="oil_cost_sub" tabindex="7" required="required" >
+                                          <label for="route_sub">Tuyến đường <a target="_blank" title="Chọn tuyến đường" href="<?php echo $this->url('road') ?>">  <i class="fa fa-road"></i></a></label>
+                                          <select id="route_sub" name="route_sub" required="required" multiple="multiple" tabindex="9">
+                                            
+                                          </select>
                                         </div>
                                         <div class="form-group">
-                                          <label for="sub_driver_sub">Tài xế phụ <input type="checkbox"  id="sub_driver_sub" name="sub_driver_sub" value="0" tabindex="8" ></label>
+                                          <label for="sub_driver_sub">Tài xế phụ <input type="checkbox"  id="sub_driver_sub" name="sub_driver_sub" value="0" tabindex="4" ></label>
                                             <input type="text" disabled id="sub_driver_name_sub" name="sub_driver_name_sub" >
                                             <ul id="code_list_id"></ul>
                                         </div>
-                                        <div class="form-group">
-                                          <label for="customer_type_sub">Loại hàng</label>
-                                            <input type="text" id="customer_type_sub" tabindex="9" />
-                                                    <ul id="mytags_sub"></ul>
-                                        </div>
+                                        
                                         
                                       </div>
                                       <!-- /.box-body -->
@@ -786,13 +816,23 @@ $this->helper('slidePaginator');
                                     <div class="col-md-3 col-xs-6">
                                       <div class="box-body">
                                         <div class="form-group">
-                                          <label for="shipment_ton_sub">Sản lượng</label>
-                                          <input style="width:50px" type="text" class="numbers" id="shipment_ton_sub" name="shipment_ton_sub" tabindex="10" >
-                                            <select style="width:80px" id="cont_unit_sub" name="cont_unit_sub" tabindex="10" >
-                                            <?php foreach ($cont_units as $cont) { ?>
-                                                <option value="<?php echo $cont->cont_unit_id ?>"><?php echo $cont->cont_unit_name ?></option>
-                                            <?php } ?>
-                                          </select>
+                                          <label for="customer_sub">Khách hàng <a target="_blank" title="Thêm khách hàng" href="<?php echo $this->url('customer/newcus') ?>"><i class="fa fa-plus"></i></a></label>
+                                          <input type="text" autocomplete="off" id="customer_sub"  name="customer_sub" tabindex="5" required="required" placeholder="Nhập tên hoặc * để chọn"  >
+                                                    <ul id="customer_sub_list_id"></ul>
+                                        </div>
+                                        <div class="form-group">
+                                          <label for="customer_type_sub">Loại hàng</label>
+                                            <input type="text" id="customer_type_sub" tabindex="6" />
+                                                    <ul id="mytags_sub"></ul>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="shipment_ton_sub">Sản lượng</label>
+                                              <input style="width:50px" type="text" class="numbers" id="shipment_ton_sub" name="shipment_ton_sub" tabindex="10" >
+                                                <select style="width:80px" id="cont_unit_sub" name="cont_unit_sub" tabindex="10" >
+                                                <?php foreach ($cont_units as $cont) { ?>
+                                                    <option value="<?php echo $cont->cont_unit_id ?>"><?php echo $cont->cont_unit_name ?></option>
+                                                <?php } ?>
+                                              </select>
                                         </div>
                                         <div id="sp_thuc_chuyen_sub" class="form-group">
                                             <label for="sp_thuc_chuyen_sub">Thực chuyển</label>
@@ -805,8 +845,16 @@ $this->helper('slidePaginator');
                                         </div>
                                         <div class="form-group">
                                           <label for="shipment_charge_sub">Cước</label>
-                                          <input style="width:90px" type="text" class="number" id="shipment_charge_sub" name="shipment_charge_sub" tabindex="11" >
+                                          <input type="text" class="number" id="shipment_charge_sub" name="shipment_charge_sub" tabindex="11" >
                                         </div>
+                                        
+                                      </div>
+                                      <!-- /.box-body -->
+                                      
+                                    </div>
+                                    <div class="col-md-3 col-xs-6">
+                                      <div class="box-body">
+                                        
                                         <div class="form-group">
                                           <label for="oil_add_sub">Ứng dầu lần 1</label>
                                           <select name="oil_add_dc_sub" id="oil_add_dc_sub" style="width:120px">
@@ -823,45 +871,91 @@ $this->helper('slidePaginator');
                                                 <option value="5"> Dọc đường </option>
                                             </select>
                                             
-                                            <input style="width:50px" type="text" class="numbers" id="oil_add2_sub" name="oil_add2_sub" tabindex="18" >
-                                        </div>
-                                        
-                                        
-                                        
-                                      </div>
-                                      <!-- /.box-body -->
-                                      
-                                    </div>
-                                    <div class="col-md-3 col-xs-6">
-                                      <div class="box-body">
-                                        <div class="form-group">
-                                          <label for="commission_sub">Hoa hồng</label>
-                                          <input style="width:100px" type="text" class="number" id="commission_sub" name="commission_sub" tabindex="15" >
-                                            <input style="width:50px" type="text" class="number" id="commission_number_sub" name="commission_number_sub" tabindex="14" >
+                                            <input style="width:50px" type="text" class="numbers" id="oil_add2_sub" name="oil_add2_sub" tabindex="15" >
                                         </div>
                                         <div class="form-group">
-                                          
+                                          <label for="oil_cost_sub">Giá dầu</label>
+                                          <input type="text" class="number" id="oil_cost_sub" name="oil_cost_sub" tabindex="16" required="required" >
                                         </div>
                                         <div class="form-group">
-                                          <label for="shipment_loan_sub"><a class="loan_shipment" title="Thêm chi hộ" href="<?php echo $this->url('shipment/loan') ?>"> Chi hộ <i class="fa fa-external-link"></i></a></label>
-                                          <input style="width:70px" disabled type="text" class="number" id="shipment_loan_sub" name="shipment_loan_sub" tabindex="16" data="" >
-                                          <input type="hidden" id="loan_content_sub" name="loan_content_sub"
+                                          <label for="shipment_salary_sub">Lương chuyến</label>
+                                          <input type="text" class="number" id="shipment_salary_sub" name="shipment_salary_sub" tabindex="17" required="required" >
                                         </div>
-                                        <div class="form-group">
-                                          <label for="cost_add_sub">Chi phí phát sinh</label>
-                                          <input type="text" class="number" id="cost_add_sub" name="cost_add_sub" tabindex="17" >
-                                        </div>
-                                        <div class="form-group">
-                                          <label for="cost_add_comment_sub">Nội dung</label>
-                                          <textarea type="text"  id="cost_add_comment_sub" name="cost_add_comment_sub" tabindex="18" placeholder="Nội dung chi phí phát sinh" ></textarea>
-                                        </div>
-                                        
                                         
                                       </div>
                                       <!-- /.box-body -->
                                       
                                     </div>
-                                </div>
+
+                                  </div>
+                                  <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="box-body">
+                                                <fieldset class="groupbox">
+                                                        <legend>
+                                                            <span><h3>Chi phí</h3></span>
+                                                        </legend>
+
+                                                        <input disabled style="width:70px" type="hidden" class="number" id="shipment_loan_sub" name="shipment_loan_sub" tabindex="16" data="" >
+                                                        <input type="hidden" id="loan_content_sub" name="loan_content_sub">
+                                                        <input style="width:100px" type="hidden" class="number" id="commission_sub" name="commission_sub" tabindex="15" >
+                                                        <input style="width:50px" type="hidden" class="number" id="commission_number_sub" name="commission_number_sub" tabindex="14" >
+                                                        <input type="hidden" class="number" id="cost_add_sub" name="cost_add_sub" tabindex="17" >
+                                                        <input type="hidden"  id="cost_add_comment_sub" name="cost_add_comment_sub" tabindex="18" placeholder="Nội dung chi phí phát sinh" >
+                                                        
+                                                        
+                                                        <table id="dataTable2" border="1" style="width: 100%; border: 1px solid rgb(221, 217, 217); margin-bottom: 10px" >
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td><input type="checkbox" name="chk2"></td>
+                                                                    <td>
+                                                                        <table style="width:100%">
+                                                                            <tr>
+                                                                                <td>Chi phí <a target="_blank" title="Thêm chi phí" href="<?php echo $this->url('costlist') ?>"><i class="fa fa-plus"></i></a></td>
+                                                                                <td>
+                                                                                    <select style="width:150px" name="cost_list_sub[]" class="cost_list_sub" >
+                                                                                        <?php foreach ($cost_lists as $cost) { ?>
+                                                                                            <option value="<?php echo $cost->cost_list_id ?>"><?php echo $cost->cost_list_name ?></option>
+                                                                                        <?php } ?>
+                                                                                    </select>
+                                                                                </td>
+                                                                                <td>Số tiền</td>
+                                                                                <td>
+                                                                                    <input type="text" class="cost_sub number" name="cost_sub[]" style="width:120px">
+                                                                                    <input type="checkbox" class="cost_vat_sub" name="cost_vat_sub[]" value="1"> VAT
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td>Nội dung</td>
+                                                                                <td>
+                                                                                    <textarea class="comment_sub" name="comment_sub[]"></textarea>
+                                                                                </td>
+                                                                                <td>Người nhận <a target="_blank" title="Thêm người nhận" href="<?php echo $this->url('customer') ?>"><i class="fa fa-plus"></i></a></td>
+                                                                                <td>
+                                                                                    <input type="text" autocomplete="off" class="receiver_sub" name="receiver_sub[]" placeholder="Nhập tên hoặc * để chọn" >
+                                                                                    <ul class="name_list_id_2"></ul>
+                                                                                </td>
+                                                                                
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td>Số Hóa đơn chứng từ</td>
+                                                                                <td>
+                                                                                    <input type="text" class="cost_document_sub" name="cost_document_sub[]" style="width:120px" >
+                                                                                </td>
+                                                                            </tr>
+                                                                        </table>
+                                                                    </td>
+                                                                </tr>
+                                                                
+                                                            </tbody>
+                                                        </table>
+                                                        <input type="button" value="Thêm" onclick="addRow2('dataTable2')">
+                                                        <input type="button" value="Xóa" onclick="deleteRow2('dataTable2')">
+
+                                                    </fieldset>
+                                            </div>
+                                        </div>
+                                    </div>
                                 <?php if(!isset($disable_control)){ ?>
                                   <div class="row">
                                     <div class="col-md-12">
@@ -914,6 +1008,8 @@ $('html').click(function(e) {
     $('#customer_sub_list_id').slideUp(200);
     $('#staff_list_id').slideUp(200);
     $('#code_list_id').slideUp(200);
+    $('.name_list_id').slideUp(200);
+    $('.name_list_id_2').slideUp(200);
 });
     $('.edit_tr').click(function(e){
         var check_sub = $(this).attr('title');
@@ -931,6 +1027,93 @@ $('html').click(function(e) {
                 if(!$('.checkbox').is(':checked')){
                     $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
                 }
+
+                $('#dataTable2 tbody tr').remove();
+        
+                    var shipment_id = $(this).attr('id');
+                    $.ajax({
+                        url: '<?php echo BASE_URL ?>/shipment/getcost',
+                        type: 'POST',
+                        data: {shipment:shipment_id},
+                        success:function(data){
+                            //alert(data);
+                            $('#dataTable2 tbody').append(data);
+
+                            $('.receiver_sub').keyup(function(){
+                                var row = $(this).parent().parent().parent().parent().parent().parent();
+                                var rowIndex = row[0].rowIndex;
+
+                                var keyword = $(this).val();
+                                $.ajax({
+                                    url: '<?php echo BASE_URL ?>/shipment/getreceiversub',
+                                    type: 'POST',
+                                    data: {keyword:keyword, offset:rowIndex},
+                                    success:function(data){
+                                        $('.name_list_id_2:eq('+rowIndex+')').slideDown(200);
+                                        $('.name_list_id_2:eq('+rowIndex+')').html(data);
+                                    }
+                                });
+                                if ($('.receiver_sub:eq('+rowIndex+')').val() == "" || $('.receiver_sub:eq('+rowIndex+')').attr('data') == "") {
+                                    
+                                    $('.receiver_sub:eq('+rowIndex+')').attr('data',"");
+                                }
+
+                                
+                            });
+
+                            $('.receiver_sub').on('keydown', function() {
+                                var row = $(this).parent().parent().parent().parent().parent().parent();
+                                var rowIndex = row[0].rowIndex;
+
+                                var key = event.keyCode || event.charCode;
+
+                                if( key == 8 || key == 46 ){
+                                    $('.receiver_sub:eq('+rowIndex+')').attr('data',"");
+                                }
+                                    
+                              });
+
+                            function set_item_receiver_sub(value,name,vitri) {
+                                // change input value
+                                $('.receiver_sub:eq('+vitri+')').val(name);
+                                $('.receiver_sub:eq('+vitri+')').attr("data",value);
+                                
+                                // hide proposition list
+                                $('.name_list_id_2').hide();
+                                $('.receiver_sub:eq('+vitri+')').focus();
+                                 
+                                 
+                            }
+
+
+                                $('.number').focus(function(){
+                                        if ( $(this).val() == '0') {
+                                           $(this).val(""); 
+                                        };
+                                        
+                                    });
+                                    $('.number').blur(function(){
+                                        if ( $(this).val() == "") {
+                                            $(this).val(0);
+                                        };
+                                        
+                                    });
+
+                                     $('.number').keyup(function(event) {
+
+                                      // skip for arrow keys
+                                  if(event.which >= 37 && event.which <= 40) return;
+
+                                  // format number
+                                  $(this).val(function(index, value) {
+                                    return value
+                                      .replace(/[^0-9-.]/g, "")
+                                      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    ;
+                                  });
+                                });
+                        }
+                    });
                 
                 var shipment_from = $(this).find("#shipment_from_"+$(this).attr('id')).text();
                 var shipment_to = $(this).find("#shipment_to_"+$(this).attr('id')).text();
@@ -1085,6 +1268,94 @@ $('html').click(function(e) {
                 if(!$('.checkbox').is(':checked')){
                     $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
                 }
+
+
+                $('#dataTable tbody tr').remove();
+        
+                    var shipment_id = $(this).attr('id');
+                    $.ajax({
+                        url: '<?php echo BASE_URL ?>/shipment/getcost',
+                        type: 'POST',
+                        data: {shipment:shipment_id},
+                        success:function(data){
+                            //alert(data);
+                            $('#dataTable tbody').append(data);
+
+                            $('.receiver').keyup(function(){
+                                var row = $(this).parent().parent().parent().parent().parent().parent();
+                                var rowIndex = row[0].rowIndex;
+
+                                var keyword = $(this).val();
+                                $.ajax({
+                                    url: '<?php echo BASE_URL ?>/shipment/getreceiver',
+                                    type: 'POST',
+                                    data: {keyword:keyword, offset:rowIndex},
+                                    success:function(data){
+                                        $('.name_list_id:eq('+rowIndex+')').slideDown(200);
+                                        $('.name_list_id:eq('+rowIndex+')').html(data);
+                                    }
+                                });
+                                if ($('.receiver:eq('+rowIndex+')').val() == "" || $('.receiver:eq('+rowIndex+')').attr('data') == "") {
+                                    
+                                    $('.receiver:eq('+rowIndex+')').attr('data',"");
+                                }
+
+                                
+                            });
+
+                            $('.receiver').on('keydown', function() {
+                                var row = $(this).parent().parent().parent().parent().parent().parent();
+                                var rowIndex = row[0].rowIndex;
+
+                                var key = event.keyCode || event.charCode;
+
+                                if( key == 8 || key == 46 ){
+                                    $('.receiver:eq('+rowIndex+')').attr('data',"");
+                                }
+                                    
+                              });
+
+                            function set_item_receiver(value,name,vitri) {
+                                // change input value
+                                $('.receiver:eq('+vitri+')').val(name);
+                                $('.receiver:eq('+vitri+')').attr("data",value);
+                                
+                                // hide proposition list
+                                $('.name_list_id').hide();
+                                $('.receiver:eq('+vitri+')').focus();
+                                 
+                                 
+                            }
+
+                                $('.number').focus(function(){
+                                        if ( $(this).val() == '0') {
+                                           $(this).val(""); 
+                                        };
+                                        
+                                    });
+                                    $('.number').blur(function(){
+                                        if ( $(this).val() == "") {
+                                            $(this).val(0);
+                                        };
+                                        
+                                    });
+
+                                     $('.number').keyup(function(event) {
+
+                                      // skip for arrow keys
+                                  if(event.which >= 37 && event.which <= 40) return;
+
+                                  // format number
+                                  $(this).val(function(index, value) {
+                                    return value
+                                      .replace(/[^0-9-.]/g, "")
+                                      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    ;
+                                  });
+                                });
+                        }
+                    });
+
                 
                 var shipment_from = $(this).find("#shipment_from_"+$(this).attr('id')).text();
                 var shipment_to = $(this).find("#shipment_to_"+$(this).attr('id')).text();
@@ -1309,7 +1580,7 @@ function add_click(){
     $('.add-field').slideDown(500);
     $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
 
-        $('#vehicle').focus();
+        
         
         $('#shipment_charge').val(0);
         $('#shipment_ton').val(0);
@@ -1319,7 +1590,7 @@ function add_click(){
         $('#cost_add').val(0);
         $('#oil_cost').val(<?php echo $giadauhientai ?>);
         $('#cost_add_comment').val("");
-        $('#shipment_date').val("");
+        $('#shipment_date').val("<?php echo date('d-m-Y') ?>");
         $('#oil_add_dc option[value=1]').attr('selected','selected');
         $('#oil_add_dc2 option[value=1]').attr('selected','selected');
         $('#loan_content').val("");
@@ -1433,7 +1704,7 @@ function add_click(){
         $('#cost_add_sub').val(0);
         $('#oil_cost_sub').val(<?php echo $giadauhientai ?>);
         $('#cost_add_comment_sub').val("");
-        $('#shipment_date_sub').val("");
+        $('#shipment_date_sub').val("<?php echo date('d-m-Y') ?>");
         $('#oil_add_dc_sub option[value=1]').attr('selected','selected');
         $('#oil_add_dc2_sub option[value=1]').attr('selected','selected');
         $('#loan_content_sub').val("");
@@ -2223,6 +2494,76 @@ $('#shipment_date_sub').change(function(){
     $("#romooc_sub").attr("code",'false');
 });
    
+
+   $('.receiver').keyup(function(){
+        var row = $(this).parent().parent().parent().parent().parent().parent();
+        var rowIndex = row[0].rowIndex;
+
+        var keyword = $(this).val();
+        $.ajax({
+            url: '<?php echo BASE_URL ?>/shipment/getreceiver',
+            type: 'POST',
+            data: {keyword:keyword, offset:rowIndex},
+            success:function(data){
+                $('.name_list_id:eq('+rowIndex+')').slideDown(200);
+                $('.name_list_id:eq('+rowIndex+')').html(data);
+            }
+        });
+        if ($('.receiver:eq('+rowIndex+')').val() == "" || $('.receiver:eq('+rowIndex+')').attr('data') == "") {
+            
+            $('.receiver:eq('+rowIndex+')').attr('data',"");
+        }
+
+        
+    });
+
+$('.receiver').on('keydown', function() {
+        var row = $(this).parent().parent().parent().parent().parent().parent();
+        var rowIndex = row[0].rowIndex;
+
+        var key = event.keyCode || event.charCode;
+
+        if( key == 8 || key == 46 ){
+            $('.receiver:eq('+rowIndex+')').attr('data',"");
+        }
+            
+      });  
+
+$('.receiver_sub').keyup(function(){
+        var row = $(this).parent().parent().parent().parent().parent().parent();
+        var rowIndex = row[0].rowIndex;
+
+        var keyword = $(this).val();
+        $.ajax({
+            url: '<?php echo BASE_URL ?>/shipment/getreceiversub',
+            type: 'POST',
+            data: {keyword:keyword, offset:rowIndex},
+            success:function(data){
+                $('.name_list_id_2:eq('+rowIndex+')').slideDown(200);
+                $('.name_list_id_2:eq('+rowIndex+')').html(data);
+            }
+        });
+        if ($('.receiver_sub:eq('+rowIndex+')').val() == "" || $('.receiver_sub:eq('+rowIndex+')').attr('data') == "") {
+            
+            $('.receiver_sub:eq('+rowIndex+')').attr('data',"");
+        }
+
+        
+    });
+
+$('.receiver_sub').on('keydown', function() {
+        var row = $(this).parent().parent().parent().parent().parent().parent();
+        var rowIndex = row[0].rowIndex;
+
+        var key = event.keyCode || event.charCode;
+
+        if( key == 8 || key == 46 ){
+            $('.receiver_sub:eq('+rowIndex+')').attr('data',"");
+        }
+            
+      });  
+
+
    $('.number').keyup(function(event) {
 
           // skip for arrow keys
@@ -2267,6 +2608,7 @@ function set_item_shipment_from(value,name) {
 
     var from = value;
     var to = $('#shipment_to').attr("data");
+    var ngay = $('#shipment_date').val();
     if(to != ""){
         $.ajax({
             url: '<?php echo BASE_URL ?>/shipment/checkroad',
@@ -2285,6 +2627,17 @@ function set_item_shipment_from(value,name) {
                 }
             }
         });
+
+        $.ajax({
+            url: '<?php echo BASE_URL ?>/shipment/getroute',
+            type: 'POST',
+            data: {road_from:from, road_to:to, ngay:ngay},
+            success:function(data){
+
+                $('#route').html(data);
+                $('#route').multiselect( 'refresh' );
+            }
+        });
     }
 }
 function set_item_shipment_to(value,name) {
@@ -2299,6 +2652,7 @@ function set_item_shipment_to(value,name) {
      
     var from = $('#shipment_from').attr("data");
     var to = value;
+    var ngay = $('#shipment_date').val();
     if(from != ""){
         $.ajax({
             url: '<?php echo BASE_URL ?>/shipment/checkroad',
@@ -2317,6 +2671,17 @@ function set_item_shipment_to(value,name) {
                     $('#shipment_charge').prop('disabled',false);
                     $('#shipment_ton').prop('disabled',false);
                 }
+            }
+        });
+
+        $.ajax({
+            url: '<?php echo BASE_URL ?>/shipment/getroute',
+            type: 'POST',
+            data: {road_from:from, road_to:to, ngay:ngay},
+            success:function(data){
+
+                $('#route').html(data);
+                $('#route').multiselect( 'refresh' );
             }
         });
     } 
@@ -2373,6 +2738,7 @@ function set_item_shipment_from_sub(value,name) {
 
     var from = value;
     var to = $('#shipment_to_sub').attr("data");
+    var ngay = $('#shipment_date_sub').val();
     if(to != ""){
         $.ajax({
             url: '<?php echo BASE_URL ?>/shipment/checkroad',
@@ -2391,6 +2757,17 @@ function set_item_shipment_from_sub(value,name) {
                 }
             }
         });
+
+        $.ajax({
+            url: '<?php echo BASE_URL ?>/shipment/getroute',
+            type: 'POST',
+            data: {road_from:from, road_to:to, ngay:ngay},
+            success:function(data){
+
+                $('#route_sub').html(data);
+                $('#route_sub').multiselect( 'refresh' );
+            }
+        });
     }
 }
 function set_item_shipment_to_sub(value,name) {
@@ -2405,6 +2782,7 @@ function set_item_shipment_to_sub(value,name) {
      
     var from = $('#shipment_from_sub').attr("data");
     var to = value;
+    var ngay = $('#shipment_date_sub').val();
     if(from != ""){
         $.ajax({
             url: '<?php echo BASE_URL ?>/shipment/checkroad',
@@ -2423,6 +2801,17 @@ function set_item_shipment_to_sub(value,name) {
                     $('#shipment_charge_sub').prop('disabled',false);
                     $('#shipment_ton_sub').prop('disabled',false);
                 }
+            }
+        });
+
+        $.ajax({
+            url: '<?php echo BASE_URL ?>/shipment/getroute',
+            type: 'POST',
+            data: {road_from:from, road_to:to, ngay:ngay},
+            success:function(data){
+
+                $('#route_sub').html(data);
+                $('#route_sub').multiselect( 'refresh' );
             }
         });
     } 
@@ -2487,6 +2876,29 @@ function set_item_driver_sub(value,name) {
     // hide proposition list
     $('#code_list_id').hide();
     $('#sub_driver_name_sub').focus();
+     
+     
+}
+
+function set_item_receiver(value,name,vitri) {
+    // change input value
+    $('.receiver:eq('+vitri+')').val(name);
+    $('.receiver:eq('+vitri+')').attr("data",value);
+    
+    // hide proposition list
+    $('.name_list_id').hide();
+    $('.receiver:eq('+vitri+')').focus();
+     
+     
+}
+function set_item_receiver_sub(value,name,vitri) {
+    // change input value
+    $('.receiver_sub:eq('+vitri+')').val(name);
+    $('.receiver_sub:eq('+vitri+')').attr("data",value);
+    
+    // hide proposition list
+    $('.name_list_id_2').hide();
+    $('.receiver_sub:eq('+vitri+')').focus();
      
      
 }
@@ -2865,7 +3277,7 @@ $('.approve').click(function(){
 </style>
 <script type="text/javascript">
     $(function() {
-    var pickerOpts = {
+    var pickerOpts5 = {
         closeText: "Đóng",
         currentText: "Hiện tại",
         nextText: "Tiếp",
@@ -2894,7 +3306,7 @@ $('.approve').click(function(){
          },
          
     };  
-    $("#batdau").datepicker(pickerOpts);
+    $("#batdau").datepicker(pickerOpts5);
 
     var pickerOpts4 = {
         closeText: "Đóng",
@@ -3297,4 +3709,301 @@ $( "#dialogContent2" ).dialog({
       }, 100);
     },
 });
+
+function addRow(tableID){
+    var table=document.getElementById(tableID);
+    var rowCount=table.rows.length;
+    var row=table.insertRow(rowCount);
+    var colCount=table.rows[0].cells.length;
+    for(var i=0;i<colCount;i++){
+        var newcell=row.insertCell(i);
+        newcell.innerHTML=table.rows[0].cells[i].innerHTML;
+        switch(newcell.childNodes[0].type){
+            case"text":newcell.childNodes[0].value="";
+            break;
+            case"checkbox":newcell.childNodes[0].checked=false;
+            break;
+            case"select-one":newcell.childNodes[0].selectedIndex=0;
+            break;
+        }
+    }
+
+    $('.cost_list:last').attr('disabled',false);
+    $('.receiver:last').attr('disabled',false);
+    $('.receiver:last').attr('data',"");
+    $('.receiver:last').val("");
+    $('.cost:last').val("");
+    $('.comment:last').val("");
+    $('.cost_document:last').val("");
+    $('.cost_vat:last').attr('checked',false);
+    
+    $('input[name="chk"]:last').attr('data',"");
+    $('input[name="chk"]:last').attr('tabindex',0);
+    $('input[name="chk"]:last').attr('title',"");
+    $('input[name="chk"]:last').attr('class',"");
+    $('input[name="chk"]:last').attr('alt',0);
+
+    $('.receiver').keyup(function(){
+        var row = $(this).parent().parent().parent().parent().parent().parent();
+        var rowIndex = row[0].rowIndex;
+
+        var keyword = $(this).val();
+        $.ajax({
+            url: '<?php echo BASE_URL ?>/shipment/getreceiver',
+            type: 'POST',
+            data: {keyword:keyword, offset:rowIndex},
+            success:function(data){
+                $('.name_list_id:eq('+rowIndex+')').slideDown(200);
+                $('.name_list_id:eq('+rowIndex+')').html(data);
+            }
+        });
+        if ($('.receiver:eq('+rowIndex+')').val() == "" || $('.receiver:eq('+rowIndex+')').attr('data') == "") {
+            
+            $('.receiver:eq('+rowIndex+')').attr('data',"");
+        }
+
+        
+    });
+
+    $('.receiver').on('keydown', function() {
+        var row = $(this).parent().parent().parent().parent().parent().parent();
+        var rowIndex = row[0].rowIndex;
+
+        var key = event.keyCode || event.charCode;
+
+        if( key == 8 || key == 46 ){
+            $('.receiver:eq('+rowIndex+')').attr('data',"");
+        }
+            
+      });
+
+    function set_item_receiver(value,name,vitri) {
+        // change input value
+        $('.receiver:eq('+vitri+')').val(name);
+        $('.receiver:eq('+vitri+')').attr("data",value);
+        
+        // hide proposition list
+        $('.name_list_id').hide();
+        $('.receiver:eq('+vitri+')').focus();
+         
+         
+    }
+
+    function get_number(id){
+        return $(id).val().replace(/[^0-9\.-]+/g,"");
+    }
+
+    $('.number').focus(function(){
+            if ( $(this).val() == '0') {
+               $(this).val(""); 
+            };
+            
+        });
+        $('.number').blur(function(){
+            if ( $(this).val() == "") {
+                $(this).val(0);
+            };
+            
+        });
+
+         $('.number').keyup(function(event) {
+
+          // skip for arrow keys
+      if(event.which >= 37 && event.which <= 40) return;
+
+      // format number
+      $(this).val(function(index, value) {
+        return value
+          .replace(/[^0-9-.]/g, "")
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+        ;
+      });
+    });
+
+}
+function deleteRow(tableID){
+    try{
+        var table=document.getElementById(tableID);
+        var rowCount=table.rows.length;
+
+        var r = confirm("Bạn có chắc chắn không?");
+        if (r == true){
+            for(var i=0;i<rowCount;i++){
+                var row=table.rows[i];
+                var chkbox=row.cells[0].childNodes[0];
+                if(null!=chkbox&&true==chkbox.checked){
+                    if(chkbox.getAttribute("data") > 0){
+                        
+                            var shipment_cost_id = chkbox.getAttribute("data");
+                            $.post("<?php echo BASE_URL ?>/shipment/deletecost", {shipment_cost_id: shipment_cost_id},
+                               function(data){
+                                //alert(data);
+                               }); 
+                        
+                    }
+                    if(rowCount<=1){
+                        alert("Cannot delete all the rows.");
+                        break;
+                    }
+                    table.deleteRow(i);
+                    rowCount--;
+                    i--;
+                }
+            }
+        }
+    }
+    catch(e){
+        alert(e);
+    }
+}
+
+function addRow2(tableID){
+    var table=document.getElementById(tableID);
+    var rowCount=table.rows.length;
+    var row=table.insertRow(rowCount);
+    var colCount=table.rows[0].cells.length;
+    for(var i=0;i<colCount;i++){
+        var newcell=row.insertCell(i);
+        newcell.innerHTML=table.rows[0].cells[i].innerHTML;
+        switch(newcell.childNodes[0].type){
+            case"text":newcell.childNodes[0].value="";
+            break;
+            case"checkbox":newcell.childNodes[0].checked=false;
+            break;
+            case"select-one":newcell.childNodes[0].selectedIndex=0;
+            break;
+        }
+    }
+
+    $('.cost_list_sub:last').attr('disabled',false);
+    $('.receiver_sub:last').attr('disabled',false);
+    $('.receiver_sub:last').attr('data',"");
+    $('.receiver_sub:last').val("");
+    $('.cost_sub:last').val("");
+    $('.comment_sub:last').val("");
+    $('.cost_document_sub:last').val("");
+    $('.cost_vat_sub:last').attr('checked',false);
+    
+    $('input[name="chk2"]:last').attr('data',"");
+    $('input[name="chk2"]:last').attr('tabindex',0);
+    $('input[name="chk2"]:last').attr('title',"");
+    $('input[name="chk2"]:last').attr('class',"");
+    $('input[name="chk2"]:last').attr('alt',0);
+
+    $('.receiver_sub').keyup(function(){
+        var row = $(this).parent().parent().parent().parent().parent().parent();
+        var rowIndex = row[0].rowIndex;
+
+        var keyword = $(this).val();
+        $.ajax({
+            url: '<?php echo BASE_URL ?>/shipment/getreceiversub',
+            type: 'POST',
+            data: {keyword:keyword, offset:rowIndex},
+            success:function(data){
+                $('.name_list_id_2:eq('+rowIndex+')').slideDown(200);
+                $('.name_list_id_2:eq('+rowIndex+')').html(data);
+            }
+        });
+        if ($('.receiver_sub:eq('+rowIndex+')').val() == "" || $('.receiver_sub:eq('+rowIndex+')').attr('data') == "") {
+            
+            $('.receiver_sub:eq('+rowIndex+')').attr('data',"");
+        }
+
+        
+    });
+
+    $('.receiver_sub').on('keydown', function() {
+        var row = $(this).parent().parent().parent().parent().parent().parent();
+        var rowIndex = row[0].rowIndex;
+
+        var key = event.keyCode || event.charCode;
+
+        if( key == 8 || key == 46 ){
+            $('.receiver_sub:eq('+rowIndex+')').attr('data',"");
+        }
+            
+      });
+
+    function set_item_receiver_sub(value,name,vitri) {
+        // change input value
+        $('.receiver_sub:eq('+vitri+')').val(name);
+        $('.receiver_sub:eq('+vitri+')').attr("data",value);
+        
+        // hide proposition list
+        $('.name_list_id_2').hide();
+        $('.receiver_sub:eq('+vitri+')').focus();
+         
+         
+    }
+
+    function get_number(id){
+        return $(id).val().replace(/[^0-9\.-]+/g,"");
+    }
+
+    $('.number').focus(function(){
+            if ( $(this).val() == '0') {
+               $(this).val(""); 
+            };
+            
+        });
+        $('.number').blur(function(){
+            if ( $(this).val() == "") {
+                $(this).val(0);
+            };
+            
+        });
+
+         $('.number').keyup(function(event) {
+
+          // skip for arrow keys
+      if(event.which >= 37 && event.which <= 40) return;
+
+      // format number
+      $(this).val(function(index, value) {
+        return value
+          .replace(/[^0-9-.]/g, "")
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+        ;
+      });
+    });
+
+}
+function deleteRow2(tableID){
+    try{
+        var table=document.getElementById(tableID);
+        var rowCount=table.rows.length;
+
+        var r = confirm("Bạn có chắc chắn không?");
+        if (r == true){
+            for(var i=0;i<rowCount;i++){
+                var row=table.rows[i];
+                var chkbox=row.cells[0].childNodes[0];
+                if(null!=chkbox&&true==chkbox.checked){
+                    if(chkbox.getAttribute("data") > 0){
+                        
+                            var shipment_cost_id = chkbox.getAttribute("data");
+                            $.post("<?php echo BASE_URL ?>/shipment/deletecost", {shipment_cost_id: shipment_cost_id},
+                               function(data){
+                                //alert(data);
+                               }); 
+                        
+                    }
+                    if(rowCount<=1){
+                        alert("Cannot delete all the rows.");
+                        break;
+                    }
+                    table.deleteRow(i);
+                    rowCount--;
+                    i--;
+                }
+            }
+        }
+    }
+    catch(e){
+        alert(e);
+    }
+}
+
+$("#route").multiselect({});
+$("#route_sub").multiselect({});
 </script>

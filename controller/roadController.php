@@ -39,11 +39,14 @@ Class roadController Extends baseController {
             $batdau = isset($_POST['batdau']) ? $_POST['batdau'] : null;
             $ketthuc = isset($_POST['ketthuc']) ? $_POST['ketthuc'] : null;
 
+            $di = isset($_POST['xe']) ? $_POST['xe'] : null;
+            $den = isset($_POST['trangthai']) ? $_POST['trangthai'] : null;
+
         }
 
         else{
 
-            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'road_id';
+            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'road_from ASC, road_to';
 
             $order = $this->registry->router->order_by ? $this->registry->router->order_by : 'ASC';
 
@@ -57,6 +60,9 @@ Class roadController Extends baseController {
 
             $batdau = 0;
             $ketthuc = 0;
+
+            $di = 0;
+            $den = 0;
 
         }
 
@@ -74,19 +80,26 @@ Class roadController Extends baseController {
 
         $pagination_stages = 2;
 
-        $data = array('where'=>'1=1');
+        $qr = 'SELECT * FROM road WHERE 1=1 ';
 
-        if ($batdau > 0 && $ketthuc > 0) {
-            $data['where'] .= ' AND road_from = '.$batdau.' AND road_to = '.$ketthuc;
+        if ($batdau > 0) {
+            $qr .= ' AND road_from = '.$batdau;
         }
 
-        $tongsodong = count($road_model->getAllRoad($data,$join));
+        if ($ketthuc > 0) {
+            $qr .= ' AND road_to = '.$ketthuc;
+        }
+
+        $qr .= ' GROUP BY road_from, road_to ORDER BY road_from ASC, road_to ASC';
+
+        $tongsodong = count($road_model->queryRoad($qr));
 
         $tongsotrang = ceil($tongsodong / $sonews);
 
-        
+        $qr .= ', '.$order_by.' '.$order.' LIMIT '.$x.','.$sonews;
 
-
+        $road_warehouses = $road_model->queryRoad($qr);
+        $this->view->data['road_warehouses'] = $road_warehouses;
 
         $this->view->data['page'] = $page;
 
@@ -109,40 +122,59 @@ Class roadController Extends baseController {
         $this->view->data['batdau'] = $batdau;
         $this->view->data['ketthuc'] = $ketthuc;
 
+        $this->view->data['di'] = $di;
+        $this->view->data['den'] = $den;
+
+        $roads = array();
+        foreach ($road_warehouses as $r) {
+            
+
+            $data = array(
+                'where'=>'road_from = '.$r->road_from.' AND road_to = '.$r->road_to,
+                );
+
+            if ($di > 0) {
+                $data['where'] .= ' AND route_from = '.$di;
+            }
+
+            if ($den > 0) {
+                $data['where'] .= ' AND route_to = '.$den;
+            }
+
+            
+
+            if ($di > 0) {
+                $data['where'] .= ' AND route_from = '.$di;
+            }
+
+            if ($den > 0) {
+                $data['where'] .= ' AND route_to = '.$den;
+            }
 
 
-        $data = array(
+            if ($keyword != '') {
 
-            'order_by'=>$order_by,
+                $search = ' AND ( road_from in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
 
-            'order'=>$order,
+                            OR road_to in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
+                            OR route_from in (SELECT route_id FROM route WHERE route_name LIKE "%'.$keyword.'%" )
+                            OR route_to in (SELECT route_id FROM route WHERE route_name LIKE "%'.$keyword.'%" ) )';
 
-            'limit'=>$x.','.$sonews,
+                $data['where'] .= $search;
 
-            'where'=>'1=1',
+            }
 
-            );
-
-        if ($batdau > 0 && $ketthuc > 0) {
-            $data['where'] .= ' AND road_from = '.$batdau.' AND road_to = '.$ketthuc;
+            $roads[$r->road_from][$r->road_to] = $road_model->getAllRoad($data,$join);
+            
         }
 
-
-        if ($keyword != '') {
-
-            $search = ' AND ( road_from in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
-
-                        OR road_to in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) )';
-
-            $data['where'] .= $search;
-
-        }
+        $this->view->data['roads'] = $roads;
 
         
 
         $place_model = $this->model->get('placeModel');
 
-        $places = $place_model->getAllplace(array('order_by'=>'place_name','order'=>'ASC'));
+        $places = $place_model->getAllPlace(array('order_by'=>'place_name','order'=>'ASC'));
 
         
 
@@ -164,9 +196,31 @@ Class roadController Extends baseController {
 
         $this->view->data['place'] = $place_data;
 
+
+        $route_model = $this->model->get('routeModel');
+
+        $routes = $route_model->getAllPlace(array('order_by'=>'route_name','order'=>'ASC'));
+
         
 
-        $this->view->data['roads'] = $road_model->getAllRoad($data,$join);
+        $this->view->data['routes'] = $routes;
+
+
+
+        $route_data = array();
+
+        foreach ($routes as $route) {
+
+            $route_data['route_id'][$route->route_id] = $route->route_id;
+
+            $route_data['route_name'][$route->route_id] = $route->route_name;
+
+        }
+
+        
+
+        $this->view->data['route'] = $route_data;
+
 
 
 
@@ -503,6 +557,10 @@ Class roadController Extends baseController {
             $shipment = $this->model->get('shipmentModel');
 
             $data = array(
+                        'road_from' => trim($_POST['road_from']),
+                        'road_to' => trim($_POST['road_to']),
+                        'route_from' => trim($_POST['route_from']),
+                        'route_to' => trim($_POST['route_to']),
 
                         'road_oil' => trim($_POST['road_oil']),
 
@@ -519,6 +577,8 @@ Class roadController Extends baseController {
                         'tire_cost' => trim(str_replace(',','',$_POST['tire_cost'])),
 
                         'charge_add' => trim(str_replace(',','',$_POST['charge_add'])),
+
+                        'road_add' => trim(str_replace(',','',$_POST['road_add'])),
 
                         'start_time' => strtotime(trim($_POST['start_time'])),
 
@@ -540,14 +600,17 @@ Class roadController Extends baseController {
 
                 $road_d = $road->getRoad($_POST['yes']);
 
-                $road1 = $road->getRoadByWhere(array('road_from'=>$road_d->road_from,'road_to'=>$road_d->road_to,'end_time'=>(strtotime(date('d-m-Y',strtotime(date('d-m-Y',$road_d->start_time).' -1 day'))))));
-                $road2 = $road->getRoadByWhere(array('road_from'=>$road_d->road_from,'road_to'=>$road_d->road_to,'start_time'=>(strtotime(date('d-m-Y',strtotime(date('d-m-Y',$road_d->end_time).' +1 day'))))));
+                $road1 = $road->getRoadByWhere(array('route_from'=>$road_d->route_from,'route_to'=>$road_d->route_to,'road_from'=>$road_d->road_from,'road_to'=>$road_d->road_to,'end_time'=>(strtotime(date('d-m-Y',strtotime(date('d-m-Y',$road_d->start_time).' -1 day'))))));
+                $road2 = $road->getRoadByWhere(array('route_from'=>$road_d->route_from,'route_to'=>$road_d->route_to,'road_from'=>$road_d->road_from,'road_to'=>$road_d->road_to,'start_time'=>(strtotime(date('d-m-Y',strtotime(date('d-m-Y',$road_d->end_time).' +1 day'))))));
                 if($road1)
-                    $road->updateRoad(array('road_from'=>$road_d->road_from,'road_to'=>$road_d->road_to,'end_time'=>(strtotime(date('d-m-Y',strtotime($_POST['start_time'].' -1 day'))))),array('road_id' => $road1->road_id));
+                    $road->updateRoad(array('route_from'=>$road_d->route_from,'route_to'=>$road_d->route_to,'road_from'=>$road_d->road_from,'road_to'=>$road_d->road_to,'end_time'=>(strtotime(date('d-m-Y',strtotime($_POST['start_time'].' -1 day'))))),array('road_id' => $road1->road_id));
                 if($road2)
-                    $road->updateRoad(array('road_from'=>$road_d->road_from,'road_to'=>$road_d->road_to,'start_time'=>(strtotime(date('d-m-Y',strtotime($_POST['end_time'].' +1 day'))))),array('road_id' => $road2->road_id));
+                    $road->updateRoad(array('route_from'=>$road_d->route_from,'route_to'=>$road_d->route_to,'road_from'=>$road_d->road_from,'road_to'=>$road_d->road_to,'start_time'=>(strtotime(date('d-m-Y',strtotime($_POST['end_time'].' +1 day'))))),array('road_id' => $road2->road_id));
 
 
+                $route_from = $road_d->route_from;
+
+                $route_to = $road_d->route_to;
 
                 $warehouse_from = $road_d->road_from;
 
@@ -749,9 +812,7 @@ Class roadController Extends baseController {
 
                 //var_dump($data);
 
-                $data['road_from'] = trim($_POST['road_from']);
-
-                $data['road_to'] = trim($_POST['road_to']);
+                
 
                 if ($road->getRoadByWhere(array('road_from'=>$_POST['road_from'],'road_to'=>$_POST['road_to'],'start_time'=>$_POST['start_time'],'end_time'=>$_POST['end_time']))) {
 
@@ -763,9 +824,9 @@ Class roadController Extends baseController {
 
                 else{
 
-                    $dm1 = $road->queryRoad('SELECT * FROM road WHERE road_from='.$data['road_from'].' AND road_to='.$data['road_to'].' AND start_time <= '.$data['start_time'].' AND end_time <= '.$data['end_time'].' AND end_time >= '.$data['start_time'].' ORDER BY end_time ASC LIMIT 1');
-                    $dm2 = $road->queryRoad('SELECT * FROM road WHERE road_from='.$data['road_from'].' AND road_to='.$data['road_to'].' AND end_time >= '.$data['end_time'].' AND start_time >= '.$data['start_time'].' AND start_time <= '.$data['end_time'].' ORDER BY end_time ASC LIMIT 1');
-                    $dm3 = $road->queryRoad('SELECT * FROM road WHERE road_from='.$data['road_from'].' AND road_to='.$data['road_to'].' AND start_time <= '.$data['start_time'].' AND end_time >= '.$data['end_time'].' ORDER BY end_time ASC LIMIT 1');
+                    $dm1 = $road->queryRoad('SELECT * FROM road WHERE route_from='.$data['route_from'].' AND route_to='.$data['route_to'].' AND road_from='.$data['road_from'].' AND road_to='.$data['road_to'].' AND start_time <= '.$data['start_time'].' AND end_time <= '.$data['end_time'].' AND end_time >= '.$data['start_time'].' ORDER BY end_time ASC LIMIT 1');
+                    $dm2 = $road->queryRoad('SELECT * FROM road WHERE route_from='.$data['route_from'].' AND route_to='.$data['route_to'].' AND road_from='.$data['road_from'].' AND road_to='.$data['road_to'].' AND end_time >= '.$data['end_time'].' AND start_time >= '.$data['start_time'].' AND start_time <= '.$data['end_time'].' ORDER BY end_time ASC LIMIT 1');
+                    $dm3 = $road->queryRoad('SELECT * FROM road WHERE route_from='.$data['route_from'].' AND route_to='.$data['route_to'].' AND road_from='.$data['road_from'].' AND road_to='.$data['road_to'].' AND start_time <= '.$data['start_time'].' AND end_time >= '.$data['end_time'].' ORDER BY end_time ASC LIMIT 1');
 
                     if ($dm3) {
                             foreach ($dm3 as $row) {
@@ -775,6 +836,8 @@ Class roadController Extends baseController {
                                 $road->updateRoad($d,array('road_id'=>$row->road_id));
 
                                 $c = array(
+                                    'route_from' => $row->route_from,
+                                    'route_to' => $row->route_to,
                                     'road_from' => $row->road_from,
                                     'road_to' => $row->road_to,
                                     'road_oil' => $row->road_oil,
@@ -785,6 +848,7 @@ Class roadController Extends baseController {
                                     'police_cost' => $row->police_cost,
                                     'tire_cost' => $row->tire_cost,
                                     'charge_add' => $row->charge_add,
+                                    'road_add' => $row->road_add,
                                     'start_time' => strtotime(date('d-m-Y',strtotime($_POST['end_time'].' +1 day'))),
                                     'end_time' => $row->end_time,
                                     'status' => $row->status
@@ -1023,11 +1087,7 @@ Class roadController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
-
-            return $this->view->redirect('user/login');
-
-        }
+       
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -1089,11 +1149,6 @@ Class roadController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
-
-            return $this->view->redirect('user/login');
-
-        }
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -1139,6 +1194,127 @@ Class roadController Extends baseController {
                 // add new option
 
                 echo '<li onclick="set_item_road_to(\''.$rs->place_id.'\',\''.$rs->place_name.'\')">'.$place_name.'</li>';
+
+            }
+
+        }
+
+    }
+
+    public function getroutefrom(){
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $place_model = $this->model->get('routeModel');
+
+            
+
+            if ($_POST['keyword'] == "*") {
+
+                $list = $place_model->getAllPlace();
+
+            }
+
+            else{
+
+                $data = array(
+
+                'where'=>'( route_name LIKE "%'.$_POST['keyword'].'%" )',
+
+                );
+
+                $list = $place_model->getAllPlace($data);
+
+            }
+
+            
+
+            foreach ($list as $rs) {
+
+                // put in bold the written text
+
+                $place_name = $rs->route_name;
+
+                if ($_POST['keyword'] != "*") {
+
+                    $place_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', $rs->route_name);
+
+                }
+
+                
+
+                // add new option
+
+                echo '<li onclick="set_item_route_from(\''.$rs->route_id.'\',\''.$rs->route_name.'\')">'.$place_name.'</li>';
+
+            }
+
+        }
+
+    }
+
+
+
+    public function getrouteto(){
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $place_model = $this->model->get('routeModel');
+
+            
+
+            if ($_POST['keyword'] == "*") {
+
+
+                $list = $place_model->getAllPlace();
+
+            }
+
+            else{
+
+                $data = array(
+
+                'where'=>'( route_name LIKE "%'.$_POST['keyword'].'%" )',
+
+                );
+
+                $list = $place_model->getAllPlace($data);
+
+            }
+
+            
+
+            foreach ($list as $rs) {
+
+                // put in bold the written text
+
+                $place_name = $rs->route_name;
+
+                if ($_POST['keyword'] != "*") {
+
+                    $place_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', $rs->route_name);
+
+                }
+
+                
+
+                // add new option
+
+                echo '<li onclick="set_item_route_to(\''.$rs->route_id.'\',\''.$rs->route_name.'\')">'.$place_name.'</li>';
 
             }
 

@@ -295,6 +295,9 @@ Class noinvoiceController Extends baseController {
         $place_data = array();
 
 
+        $customer_sub_model = $this->model->get('customersubModel');
+
+        $customer_types = array();
 
         
         $k=0;
@@ -437,6 +440,20 @@ Class noinvoiceController Extends baseController {
                         
 
                     }
+
+                    $customer_sub = "";
+                    $sts = explode(',', $ship->customer_type);
+                    foreach ($sts as $key) {
+                        $subs = $customer_sub_model->getCustomer($key);
+                        if ($subs) {
+                            if ($customer_sub == "")
+                                $customer_sub .= $subs->customer_sub_name;
+                            else
+                                $customer_sub .= ','.$subs->customer_sub_name;
+                        }
+                        
+                    }
+                    $customer_types[$ship->shipment_id] = $customer_sub;
             }
 
            $k++;
@@ -450,6 +467,8 @@ Class noinvoiceController Extends baseController {
         $this->view->data['road'] = $road_data;
 
         $this->view->data['place'] = $place_data;
+
+        $this->view->data['customer_types'] = $customer_types;
 
         
 

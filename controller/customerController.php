@@ -170,6 +170,7 @@ Class customerController Extends baseController {
         if (isset($_POST['yes'])) {
             $customer = $this->model->get('customerModel');
             $contact_person_model = $this->model->get('contactpersonModel');
+            $customer_temp = $this->model->get('customertempModel');
 
             $contact_person = $_POST['contact_person'];
 
@@ -259,6 +260,10 @@ Class customerController Extends baseController {
 
                     echo json_encode($mess);
 
+                    $data2 = array('customer_id'=>$_POST['yes'],'customer_temp_date'=>strtotime(date('d-m-Y')),'customer_temp_action'=>2,'customer_temp_user'=>$_SESSION['userid_logined'],'name'=>'Khách hàng');
+                    $data_temp = array_merge($data, $data2);
+                    $customer_temp->createCustomer($data_temp);
+
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
                         $filename = "action_logs.txt";
                         $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."edit"."|".$_POST['yes']."|customer|".implode("-",$data)."\n"."\r\n";
@@ -315,6 +320,10 @@ Class customerController Extends baseController {
 
                     echo json_encode($mess);
 
+                    $data2 = array('customer_id'=>$customer->getLastCustomer()->customer_id,'customer_temp_date'=>strtotime(date('d-m-Y')),'customer_temp_action'=>1,'customer_temp_user'=>$_SESSION['userid_logined'],'name'=>'Khách hàng');
+                    $data_temp = array_merge($data, $data2);
+                    $customer_temp->createCustomer($data_temp);
+
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
                         $filename = "action_logs.txt";
                         $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."add"."|".$customer->getLastCustomer()->customer_id."|customer|".implode("-",$data)."\n"."\r\n";
@@ -364,10 +373,17 @@ Class customerController Extends baseController {
         }
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $customer = $this->model->get('customerModel');
+            $customer_temp = $this->model->get('customertempModel');
             if (isset($_POST['xoa'])) {
                 $data = explode(',', $_POST['xoa']);
                 foreach ($data as $data) {
+                    $customer_data = (array)$customer->getCustomer($data); 
                     $customer->deleteCustomer($data);
+
+                    $data2 = array('customer_id'=>$data,'customer_temp_date'=>strtotime(date('d-m-Y')),'customer_temp_action'=>3,'customer_temp_user'=>$_SESSION['userid_logined'],'name'=>'Khách hàng');
+                    $data_temp = array_merge($customer_data, $data2);
+                    $customer_temp->createCustomer($data_temp);
+
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
                         $filename = "action_logs.txt";
                         $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."delete"."|".$data."|customer|"."\n"."\r\n";
@@ -385,6 +401,11 @@ Class customerController Extends baseController {
             else{
                 /*Log*/
                     /**/
+                    $customer_data = (array)$customer->getCustomer($_POST['data']); 
+                    $data2 = array('customer_id'=>$_POST['data'],'customer_temp_date'=>strtotime(date('d-m-Y')),'customer_temp_action'=>3,'customer_temp_user'=>$_SESSION['userid_logined'],'name'=>'Khách hàng');
+                    $data_temp = array_merge($customer_data, $data2);
+                    $customer_temp->createCustomer($data_temp);
+
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
                         $filename = "action_logs.txt";
                         $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."delete"."|".$_POST['data']."|customer|"."\n"."\r\n";

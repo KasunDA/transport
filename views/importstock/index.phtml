@@ -13,6 +13,8 @@ elseif ($order_by == 'import_stock_price')
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
 elseif ($order_by == 'username')
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+elseif ($order_by == 'invoice_number')
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
 
 
     $i = $sonews*$page-($sonews-1);
@@ -119,6 +121,9 @@ elseif ($order_by == 'username')
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','import_stock_price','<?php echo $url_order ?>')">Giá trị <?php if ($order_by == 'import_stock_price'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','invoice_number','<?php echo $url_order ?>')">Số hóa đơn <?php if ($order_by == 'invoice_number'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+        </th>
+        <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','username','<?php echo $url_order ?>')">Người lập <?php if ($order_by == 'username'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         
@@ -139,7 +144,10 @@ elseif ($order_by == 'username')
             <td class="fix" id="import_stock_date_<?php echo $import_stock->import_stock_id; ?>"><?php echo $lib->hien_thi_ngay_thang($import_stock->import_stock_date) ?></td>
             <td class="fix"  id="import_stock_total_<?php echo $import_stock->import_stock_id; ?>"><?php echo $import_stock->import_stock_total ?></td>
             <td class="fix"  id="import_stock_price_<?php echo $import_stock->import_stock_id; ?>"><?php echo $lib->formatMoney($import_stock->import_stock_price) ?></td>
+            <td class="fix"  id="invoice_number_<?php echo $import_stock->import_stock_id; ?>"><?php echo $import_stock->invoice_number ?></td>
             <td class="fix"  id="username_<?php echo $import_stock->import_stock_id; ?>"><?php echo $import_stock->username ?></td>
+            <td class="fix" style="display:none" id="invoice_date_<?php echo $import_stock->import_stock_id; ?>"><?php echo $import_stock->invoice_date>0?$lib->hien_thi_ngay_thang($import_stock->invoice_date):null ?></td>
+            <td class="fix" style="display:none" data="<?php echo $import_stock->invoice_customer ?>" id="invoice_customer_<?php echo $import_stock->import_stock_id; ?>"><?php echo isset($customer_data['customer_id'][$import_stock->invoice_customer])?$customer_data['customer_name'][$import_stock->invoice_customer]:null ?></td>
         
             <?php if(!isset($disable_control)){ ?>
             <td class="pull-right">
@@ -168,8 +176,20 @@ $this->helper('slidePaginator');
                 <div class="col-md-6 col-xs-6">
                   <div class="box-body">
                     <div class="form-group">
-                      <label for="import_stock_date">Ngày</label>
+                      <label for="import_stock_date">Ngày nhập kho</label>
                       <input class="ngay" type="text" id="import_stock_date"  name="import_stock_date" tabindex="1" required="required" >
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-6 col-xs-6">
+                              <label for="invoice_number">Hóa đơn số</label>
+                              <input style="width:120px" type="text" id="invoice_number"  name="invoice_number" tabindex="3"  >
+                          </div>
+                          <div class="col-md-6 col-xs-6">
+                            <label for="invoice_date">Ngày</label>
+                              <input style="width:80px" class="ngay" type="text" id="invoice_date"  name="invoice_date" tabindex="4"  >
+                          </div>
+                      </div>
                     </div>
                     
                   </div>
@@ -182,7 +202,11 @@ $this->helper('slidePaginator');
                       <label for="import_stock_code">Số phiếu</label>
                       <input type="text" id="import_stock_code"  name="import_stock_code" tabindex="2" required="required" >
                     </div>
-                    
+                    <div class="form-group">
+                      <label for="invoice_customer">Đơn vị bán <a target="_blank" title="Thêm khách hàng" href="<?php echo $this->url('customer/newcus') ?>"><i class="fa fa-plus"></i></a></label>
+                      <input type="text" autocomplete="off" id="invoice_customer"  name="invoice_customer" tabindex="5"  placeholder="Nhập tên hoặc * để chọn"  >
+                        <ul id="customer_list_id"></ul>
+                    </div>
                     
                   </div>
                   <!-- /.box-body -->
@@ -273,8 +297,8 @@ $this->helper('slidePaginator');
                 <div class="col-md-12">
                     <div class="box-footer">
                     <input type="hidden" readonly id="yes" name="yes" required="required" >
-                    <button type="submit" class="btn btn-primary" tabindex="3">Hoàn thành</button>
-                    <button type="reset" class="btn" tabindex="4">Nhập lại</button>
+                    <button type="submit" class="btn btn-primary" tabindex="6">Hoàn thành</button>
+                    <button type="reset" class="btn" tabindex="7">Nhập lại</button>
                   </div>
                   <div class="box-footer">
                     <div id="error" class="error"><?php echo isset($error) ? $error : null; ?></div>
@@ -302,6 +326,7 @@ $('html').click(function(e) {
     
     $('.name_list_id').slideUp(200);
     $('.name_list_id_2').slideUp(200);
+    $('#customer_list_id').slideUp(200);
 });
 
     $('.edit_tr').click(function(e){
@@ -311,12 +336,21 @@ $('html').click(function(e) {
             }
             var import_stock_code = $(this).find("#import_stock_code_"+$(this).attr('id')).text();
             var import_stock_date = $(this).find("#import_stock_date_"+$(this).attr('id')).text();
+            var invoice_number = $(this).find("#invoice_number_"+$(this).attr('id')).text();
+            var invoice_date = $(this).find("#invoice_date_"+$(this).attr('id')).text();
+            var invoice_customer = $(this).find("#invoice_customer_"+$(this).attr('id')).attr('data');
+            var invoice_customer_name = $(this).find("#invoice_customer_"+$(this).attr('id')).text();
             
             //alert(import_stock_code);
             $('#yes').val($(this).attr('id'));
             
             $('#import_stock_date').val(import_stock_date.replace(/\//g,"-"));
             $('#import_stock_code').val(import_stock_code);
+
+            $('#invoice_date').val(invoice_date.replace(/\//g,"-"));
+            $('#invoice_number').val(invoice_number);
+            $('#invoice_customer').attr('data',invoice_customer);
+            $('#invoice_customer').val(invoice_customer_name);
 
             $('#dataTable tbody tr').remove();
         
@@ -465,6 +499,10 @@ function add_click(){
      $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);   
         $('#import_stock_code').val("");
         $('#import_stock_date').val("");
+        $('#invoice_date').val("");
+            $('#invoice_number').val("");
+            $('#invoice_customer').attr('data',"");
+            $('#invoice_customer').val("");
         
         
         $('.number').focus(function(){
@@ -497,6 +535,9 @@ $(document).ready(function(){
                 
                     var import_stock_code = $('#import_stock_code').attr('value');
                     var import_stock_date = $('#import_stock_date').attr('value');
+                    var invoice_number = $('#invoice_number').attr('value');
+                    var invoice_date = $('#invoice_date').attr('value');
+                    var invoice_customer = $('#invoice_customer').attr('data');
 
                     var spare_part = [];
 
@@ -561,6 +602,9 @@ $(document).ready(function(){
                         data: {
                             import_stock_code: import_stock_code,
                             import_stock_date: import_stock_date,
+                            invoice_date: invoice_date,
+                            invoice_number: invoice_number,
+                            invoice_customer: invoice_customer,
                             spare_part: spare_part,
                             yes: yes,
                             }, // giá trị post
@@ -602,7 +646,26 @@ $(document).ready(function(){
                  }
             });
    
-   
+   $('#invoice_customer').keyup(function(){
+      
+        var keyword = $(this).val();
+        $.ajax({
+            url: '<?php echo BASE_URL ?>/importstock/getcustomer',
+            type: 'POST',
+            data: {keyword:keyword},
+            success:function(data){
+                $('#customer_list_id').slideDown(200);
+                $('#customer_list_id').html(data);
+            }
+        });
+        if ($('#invoice_customer').val() == "" || $('#invoice_customer').attr('data') == "") {
+            //$('#loc_from').val("");
+            $('#invoice_customer').attr('data',"");
+            $('#invoice_customer').attr('code',false);
+        }
+      
+   });
+
    $('.spare_part').keyup(function(){
         var row = $(this).parent().parent().parent().parent().parent().parent();
         var rowIndex = row[0].rowIndex;
@@ -727,6 +790,17 @@ function set_item_other(item,value,code,seri,date,brand,vitri,unit,price) {
     });
 
   }
+  function set_item_customer(value,name) {
+    // change input value
+    $('#invoice_customer').val(name);
+    $("#invoice_customer").attr("data",value);
+    $("#invoice_customer").attr("code",'true');
+    
+    // hide proposition list
+    $('#customer_list_id').hide();
+    $('#invoice_customer').focus();
+     
+}
 </script>
 <div style="display:none" id="lasted"></div>
 <script type="text/javascript">

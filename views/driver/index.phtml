@@ -271,6 +271,7 @@ $('html').click(function(e) {
         $('#steersman_phone').val(steersman_phone);
         $('#vehicle_number').val(vehicle_number);
         $("#vehicle option:contains(" + vehicle_number + ")").attr('selected', 'selected');
+        $("#vehicle").prop('disabled', true);
         
         $('#start_work').val(start_work.replace(/\//g,"-"));
         $('#end_work').val(end_work.replace(/\//g,"-"));
@@ -296,6 +297,7 @@ function add_click(){
         $('#steersman_birth').val("");
         $('#steersman_cmnd').val("");
         $('#steersman_name').attr('data', "");
+        $("#vehicle").prop('disabled', false);
 
         $('.number').focus(function(){
             if ( $(this).val() == '0') {

@@ -289,6 +289,7 @@ $this->helper('slidePaginator');
 
         $('#warehouse_name').val(warehouse_name);
         $('#warehouse_name').attr('data',warehouse_code);
+        $("#warehouse_name").prop('disabled', true);
         $('#warehouse_cont').val(warehouse_cont);
         $('#warehouse_ton').val(warehouse_ton);
         
@@ -326,6 +327,7 @@ function add_click(){
         $('#warehouse_name').focus();
         $('#warehouse_name').val("");
         $('#warehouse_name').attr('data',"");
+        $("#warehouse_name").prop('disabled', false);
         $('#warehouse_cont').val(0);
         $('#warehouse_ton').val(0);
 
@@ -333,8 +335,8 @@ function add_click(){
         $('#warehouse_clean').val(0);
         $('#warehouse_gate').val(0);
         $('#warehouse_add').val(0);
-        $('#start_time').val("<?php echo date('d-m-Y') ?>");
-        $('#end_time').val("<?php echo date('d-m-Y', strtotime('+10 years')) ?>");
+        $('#start_time').val("");
+        $('#end_time').val("");
         
         $('.number').focus(function(){
             if ( $(this).val() == '0') {

@@ -12,7 +12,7 @@
   <!-- Bootstrap 3.3.6 -->
   <link rel="stylesheet" href="<?php BASE_URL ?>/public/js/adminbar/bootstrap/css/bootstrap.min.css">
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <!-- Ionicons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
   <!-- Morris chart -->
@@ -583,6 +583,9 @@
                 <li><a data="tolls" href="<?php echo $this->url('tolls') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Phí cầu đường</a></li>
               </ul>
             </li>
+            <li><a data="costlist" href="<?php echo $this->url('costlist') ?>"><i class="fa fa-fw fa-file-text text-aqua"></i>Danh mục chi phí</a></li>
+            <li><a data="bank" href="<?php echo $this->url('bank') ?>"><i class="fa fa-fw fa-bank text-aqua"></i>Tiền mặt - Ngân hàng</a></li>
+            <li><a data="account" href="<?php echo $this->url('account') ?>"><i class="fa fa-fw fa-list-ol text-aqua"></i>Tài khoản</a></li>
           </ul>
         </li>
         <?php } ?>
@@ -661,6 +664,7 @@
             <li><a data="exportstock" href="<?php echo $this->url('exportstock') ?>"><i class="fa fa-fw fa-upload text-aqua"></i>Xuất kho</a></li>
             <li><a data="sparepart" href="<?php echo $this->url('sparepart') ?>"><i class="fa fa-fw fa-dropbox text-aqua"></i>Danh sách vật tư</a></li>
             <li><a data="sparevehicle" href="<?php echo $this->url('sparevehicle') ?>"><i class="fa fa-fw fa-wrench text-aqua"></i>Thay thế phụ tùng</a></li>
+            <li><a data="sparevehiclelist" href="<?php echo $this->url('sparevehiclelist') ?>"><i class="fa fa-fw fa-microchip text-aqua"></i>Phụ tùng sử dụng</a></li>
             <li><a data="sparedrap" href="<?php echo $this->url('sparedrap') ?>"><i class="fa fa-fw fa-plug text-aqua"></i>Vật tư thay ra</a></li>
             <li><a data="stock" href="<?php echo $this->url('stock') ?>"><i class="fa fa-fw fa-database text-aqua"></i>Tồn kho</a></li>
             <li><a data="used" href="<?php echo $this->url('used') ?>"><i class="fa fa-fw fa-clock-o text-aqua"></i>Tình trạng sử dụng</a></li>
@@ -678,6 +682,7 @@
           <ul class="treeview-menu">
             <li><a data="steersman" href="<?php echo $this->url('steersman') ?>"><i class="fa fa-fw fa-user-secret text-aqua"></i>Danh sách tài xế</a></li>
             <li><a data="salary/driver" href="<?php echo $this->url('salary/driver') ?>"><i class="fa fa-fw fa-money text-aqua"></i>Lương tài xế</a></li>
+            <li><a data="salarybonus" href="<?php echo $this->url('salarybonus') ?>"><i class="fa fa-fw fa-flask text-aqua"></i>Thưởng phạt dầu</a></li>
           </ul>
         </li>
         <li class="treeview">
@@ -722,7 +727,7 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a data="info" href="<?php echo $this->url('info') ?>"><i class="fa fa-fw fa-info text-aqua"></i>Thông tin doanh nghiệp</a></li>
+            <li><a data="info" href="<?php echo $this->url('info') ?>"><i class="fa fa-fw fa-info-circle text-aqua"></i>Thông tin doanh nghiệp</a></li>
             <li><a data="user" href="<?php echo $this->url('user') ?>"><i class="fa fa-fw fa-user text-aqua"></i>Tài khoản</a></li>
           </ul>
         </li>
@@ -752,15 +757,15 @@
 
     </section>
     <!-- /.content -->
-    <footer class="main-footer">
-      <div class="pull-right hidden-xs">
-        <b>Version</b> 3.0
-      </div>
-      <span style="font-size:5px">Powered by <a target="_blank" style="color:#fff" href="http://www.tinhoctainha.com">Dịch vụ Tin Học Tại Nhà</a></span>
-    </footer>
+    
   </div>
   <!-- /.content-wrapper -->
-  
+  <footer class="main-footer">
+    <div class="pull-right hidden-xs">
+      <b>Version</b> 3.0
+    </div>
+    <span style="font-size:5px">Powered by <a target="_blank" style="color:#fff" href="http://www.tinhoctainha.com">Dịch vụ Tin Học Tại Nhà</a></span>
+  </footer>
 
   <!-- Control Sidebar -->
   

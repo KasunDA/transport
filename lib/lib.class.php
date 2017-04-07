@@ -11,10 +11,13 @@ class Library{
     }
 
 	public function hien_thi_ngay_thang($day){
-		$i = date('d',$day);
-		$j = date('m',$day);
-		$k = date('Y',$day);
-		$result = $i.'/'.$j.'/'.$k;
+		$result = null;
+		if ($day > 0) {
+			$i = date('d',$day);
+			$j = date('m',$day);
+			$k = date('Y',$day);
+			$result = $i.'/'.$j.'/'.$k;
+		}
 		return $result;
 	}
 

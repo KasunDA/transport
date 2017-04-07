@@ -95,6 +95,9 @@ Class shipmentController Extends baseController {
         $this->view->data['cont_units'] = $contunit_model->getAllUnit();
         $this->view->data['loan_units'] = $loanunit_model->getAllUnit();
 
+        $costlist_model = $this->model->get('costlistModel');
+        $this->view->data['cost_lists'] = $costlist_model->getAllCost();
+
 
         $place_model = $this->model->get('placeModel');
 
@@ -2690,11 +2693,6 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
-
-            return $this->view->redirect('user/login');
-
-        }
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -2756,11 +2754,6 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
-
-            return $this->view->redirect('user/login');
-
-        }
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -3183,6 +3176,316 @@ Class shipmentController Extends baseController {
         }
         
         echo json_encode($arr);
+    }
+
+    public function getreceiver(){
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $customer_model = $this->model->get('customerModel');
+
+            
+
+            if ($_POST['keyword'] == "*") {
+
+
+
+                $list = $customer_model->getAllCustomer();
+
+            }
+
+            else{
+
+                $data = array(
+
+                'where'=>'( customer_name LIKE "%'.$_POST['keyword'].'%" )',
+
+                );
+
+                $list = $customer_model->getAllCustomer($data);
+
+            }
+
+            
+
+            foreach ($list as $rs) {
+
+                // put in bold the written text
+
+                $customer_name = '['.$rs->customer_code.']-'.$rs->customer_name;
+
+                if ($_POST['keyword'] != "*") {
+
+                    $customer_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', '['.$rs->customer_code.']-'.$rs->customer_name);
+
+                }
+
+                
+
+                // add new option
+
+                echo '<li onclick="set_item_receiver(\''.$rs->customer_id.'\',\''.$rs->customer_name.'\',\''.$_POST['offset'].'\')">'.$customer_name.'</li>';
+
+            }
+
+        }
+
+    }
+    public function getreceiversub(){
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $customer_model = $this->model->get('customerModel');
+
+            
+
+            if ($_POST['keyword'] == "*") {
+
+
+
+                $list = $customer_model->getAllCustomer();
+
+            }
+
+            else{
+
+                $data = array(
+
+                'where'=>'( customer_name LIKE "%'.$_POST['keyword'].'%" )',
+
+                );
+
+                $list = $customer_model->getAllCustomer($data);
+
+            }
+
+            
+
+            foreach ($list as $rs) {
+
+                // put in bold the written text
+
+                $customer_name = '['.$rs->customer_code.']-'.$rs->customer_name;
+
+                if ($_POST['keyword'] != "*") {
+
+                    $customer_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', '['.$rs->customer_code.']-'.$rs->customer_name);
+
+                }
+
+                
+
+                // add new option
+
+                echo '<li onclick="set_item_receiver_sub(\''.$rs->customer_id.'\',\''.$rs->customer_name.'\',\''.$_POST['offset'].'\')">'.$customer_name.'</li>';
+
+            }
+
+        }
+
+    }
+
+    public function deletecost(){
+
+        if (isset($_POST['shipment_cost_id'])) {
+
+            $shipment_cost_model = $this->model->get('shipmentcostModel');
+
+
+
+            $shipment_cost_model->queryShipment('DELETE FROM shipment_cost WHERE shipment_cost_id = '.$_POST['shipment_cost_id']);
+
+            echo 'Đã xóa thành công';
+
+        }
+
+    }
+
+    public function getcost(){
+
+        if(isset($_POST['shipment'])){
+
+            
+
+            $shipment_cost_model = $this->model->get('shipmentcostModel');
+            $cost_list_model = $this->model->get('costlistModel');
+
+            $cost_lists = $cost_list_model->getAllCost();
+
+
+            $join = array('table'=>'customer, cost_list','where'=>'receiver = customer_id AND cost_list = cost_list_id');
+
+            $data = array(
+
+                'where' => 'shipment = '.$_POST['shipment'],
+
+            );
+
+            $costs = $shipment_cost_model->getAllShipment($data,$join);
+
+
+
+            $str = "";
+
+            if (!$costs) {
+
+                $cost_data = "";
+                foreach ($cost_lists as $cost) {
+                    $cost_data .= '<option value="'.$cost->cost_list_id.'">'.$cost->cost_list_name.'</option>';
+                }
+
+                $str .= '<tr class="'.$_POST['shipment'].'">';
+
+                $str .= '<td><input type="checkbox"  name="chk"></td>';
+
+                $str .= '<td><table style="width: 100%">';
+
+                $str .= '<tr class="'.$_POST['shipment'] .'">';
+
+                $str .= '<td>Chi phí <a target="_blank" title="Thêm chi phí" href="'.BASE_URL.'/costlist"><i class="fa fa-plus"></i></a></td>';
+
+                $str .= '<td><select style="width:150px" name="cost_list[]" class="cost_list" >';
+
+                    $str .= $cost_data;
+
+                $str .= '</select></td>';
+
+                $str .= '<td>Số tiền</td>';
+
+                $str .= '<td><input style="width:120px" type="text" class="cost number" name="cost[]"><input type="checkbox" class="cost_vat" name="cost_vat[]" value="1"> VAT</td></tr>';
+
+                $str .= '<tr><td>Nội dung</td>';
+
+                $str .= '<td><textarea class="comment" name="comment[]"></textarea></td>';
+
+                $str .= '<td>Người nhận <a target="_blank" title="Thêm người nhận" href="'.BASE_URL.'/customer"><i class="fa fa-plus"></i></a></td>';
+
+                $str .= '<td><input type="text" autocomplete="off" class="receiver" name="receiver[]" placeholder="Nhập tên hoặc * để chọn" >';
+                $str .= '<ul class="name_list_id"></ul></td></tr>';
+
+                $str .= '<tr><td>Số Hóa đơn chứng từ</td>';
+
+                $str .= '<td><input type="text" class="cost_document" name="cost_document[]" style="width:120px" ></td>';
+
+                $str .= '</tr></table></td></tr>';
+
+            }
+
+            else{
+
+                foreach ($costs as $v) {
+
+                    $cost_data = "";
+                    foreach ($cost_lists as $cost) {
+                        $cost_data .= '<option '.($v->cost_list==$cost->cost_list_id?'selected="selected"':null).' value="'.$cost->cost_list_id.'">'.$cost->cost_list_name.'</option>';
+                    }
+
+                    $checked = $v->cost_vat==1?'checked="checked"':null;
+
+                    $str .= '<tr class="'.$_POST['shipment'].'">';
+
+                    $str .= '<td><input type="checkbox" data="'.$v->shipment_cost_id.'"  ></td>';
+
+                    $str .= '<td><table style="width: 100%">';
+
+                    $str .= '<tr class="'.$_POST['shipment'] .'">';
+
+                    $str .= '<td>Chi phí <a target="_blank" title="Thêm chi phí" href="'.BASE_URL.'/costlist"><i class="fa fa-plus"></i></a></td>';
+
+                    $str .= '<td><select style="width:150px" name="cost_list[]" class="cost_list" >';
+
+                        $str .= $cost_data;
+
+                    $str .= '</select></td>';
+
+                    $str .= '<td>Số tiền</td>';
+
+                    $str .= '<td><input style="width:120px" type="text" class="cost number" name="cost[]" value="'.$this->lib->formatMoney($v->cost).'" ><input '.$checked.' type="checkbox" class="cost_vat" name="cost_vat[]" value="1"> VAT</td></tr>';
+
+                    $str .= '<tr><td>Nội dung</td>';
+
+                    $str .= '<td><textarea class="comment" name="comment[]">'.$v->comment.'</textarea></td>';
+
+                    $str .= '<td>Người nhận <a target="_blank" title="Thêm người nhận" href="'.BASE_URL.'/customer"><i class="fa fa-plus"></i></a></td>';
+
+                    $str .= '<td><input type="text" autocomplete="off" class="receiver" name="receiver[]" placeholder="Nhập tên hoặc * để chọn" value="'.$v->customer_name.'" data="'.$v->customer_id.'" >';
+                    $str .= '<ul class="name_list_id"></ul></td></tr>';
+
+                    $str .= '<tr><td>Số Hóa đơn chứng từ</td>';
+
+                    $str .= '<td><input type="text" class="cost_document" name="cost_document[]" style="width:120px" value="'.$v->cost_document.'" ></td>';
+
+                    $str .= '</tr></table></td></tr>';
+
+                }
+
+            }
+
+
+
+            echo $str;
+
+        }
+
+    }
+
+    public function getroute(){
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $route_model = $this->model->get('routeModel');
+
+            $routes = $route_model->getAllPlace(array('order_by'=>'route_name','order'=>'ASC'));
+
+            $route_data = array();
+
+            foreach ($routes as $route) {
+
+                $route_data['route_id'][$route->route_id] = $route->route_id;
+
+                $route_data['route_name'][$route->route_id] = $route->route_name;
+
+            }
+
+            $road_model = $this->model->get('roadModel');
+
+            $data = array(
+                'where' => 'road_from = '.trim($_POST['road_from']).' AND road_to = '.trim($_POST['road_to']).' AND start_time <= '.strtotime($_POST['ngay']).' AND end_time >= '.strtotime($_POST['ngay']),
+            );
+
+            $roads = $road_model->getAllRoad($data);
+
+            $str = "";
+
+            foreach ($roads as $road) {
+                $str .= '<option selected value="'.$road->road_id.'">'.(isset($route_data['route_id'][$road->route_from])?$route_data['route_name'][$road->route_from]:null).'-'.(isset($route_data['route_id'][$road->route_to])?$route_data['route_name'][$road->route_to]:null).' ['.$road->road_km.'km]'.'</option>';
+            }
+
+            echo $str;
+
+        }
+
     }
 
     public function bill(){

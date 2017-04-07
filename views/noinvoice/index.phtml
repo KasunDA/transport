@@ -254,7 +254,7 @@ elseif ($order_by == 'shipment_round')
         	<td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $shipment->shipment_id ?>"></td>
             <td  class="fix"><?php echo $ii++; ?></td>
             <td nowrap class="fix" data="<?php echo $shipment->customer; ?>" id="customer_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('customer/index/'.$shipment->customer) ?>" ><?php echo $shipment->customer_name; ?></a></td>
-            <td  class="fix"  id="customer_type_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->customer_type; ?></td>
+            <td  class="fix"  id="customer_type_<?php echo $shipment->shipment_id; ?>"><?php echo $customer_types[$shipment->shipment_id]; ?></td>
             <td nowrap class="fix" data="<?php echo $shipment->vehicle; ?>" id="vehicle_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('vehicle/index/'.$shipment->vehicle) ?>" ><?php echo $shipment->vehicle_number; ?></a></td>
             
             <td class="fix" id="shipment_date_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment->shipment_date); ?></td>

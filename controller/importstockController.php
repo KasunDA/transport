@@ -46,6 +46,22 @@ Class importstockController Extends baseController {
         $trangthai = date('Y',strtotime($batdau));
         
 
+        $customer_model = $this->model->get('customerModel');
+
+        $customers = $customer_model->getAllCustomer(array('order_by'=>'customer_name','order'=>'ASC'));
+
+        $customer_data = array();
+
+        foreach ($customers as $customer) {
+
+            $customer_data['customer_id'][$customer->customer_id] = $customer->customer_id;
+
+            $customer_data['customer_name'][$customer->customer_id] = $customer->customer_name;
+
+        }
+        $this->view->data['customer_data'] = $customer_data;
+
+
         $import_model = $this->model->get('importstockModel');
         $sonews = $limit;
         $x = ($page-1) * $sonews;
@@ -100,6 +116,67 @@ Class importstockController Extends baseController {
         $this->view->show('importstock/index');
     }
 
+    public function getcustomer(){
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $customer_model = $this->model->get('customerModel');
+
+            
+
+            if ($_POST['keyword'] == "*") {
+
+
+
+                $list = $customer_model->getAllCustomer();
+
+            }
+
+            else{
+
+                $data = array(
+
+                'where'=>'( customer_name LIKE "%'.$_POST['keyword'].'%" )',
+
+                );
+
+                $list = $customer_model->getAllCustomer($data);
+
+            }
+
+            
+
+            foreach ($list as $rs) {
+
+                // put in bold the written text
+
+                $customer_name = $rs->customer_name;
+
+                if ($_POST['keyword'] != "*") {
+
+                    $customer_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', $rs->customer_name);
+
+                }
+
+                
+
+                // add new option
+
+                echo '<li onclick="set_item_customer(\''.$rs->customer_id.'\',\''.$rs->customer_name.'\')">'.$customer_name.'</li>';
+
+            }
+
+        }
+
+    }
+
     public function add(){
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
@@ -111,12 +188,16 @@ Class importstockController Extends baseController {
             $import_model = $this->model->get('importstockModel');
             $stock_model = $this->model->get('sparestockModel');
             $spare_model = $this->model->get('sparepartModel');
+            $spare_temp = $this->model->get('spareparttempModel');
 
             $data = array(
                         
                         'import_stock_code' => trim($_POST['import_stock_code']),
                         'import_stock_date' => strtotime($_POST['import_stock_date']),
                         'import_stock_user' => $_SESSION['userid_logined'],
+                        'invoice_number' => trim($_POST['invoice_number']),
+                        'invoice_date' => strtotime($_POST['invoice_date']),
+                        'invoice_customer' => trim($_POST['invoice_customer']),
                         );
 
 
@@ -201,6 +282,10 @@ Class importstockController Extends baseController {
                         $spare_model->createStock($data_spare_part);
 
                         $id_spare_part = $spare_model->getLastStock()->spare_part_id;
+
+                        $data2 = array('spare_part_id'=>$id_spare_part,'spare_part_temp_date'=>strtotime(date('d-m-Y')),'spare_part_temp_action'=>1,'spare_part_temp_user'=>$_SESSION['userid_logined'],'name'=>'Vật tư');
+                        $data_temp = array_merge($data_spare_part, $data2);
+                        $spare_temp->createStock($data_temp);
 
                     }
 

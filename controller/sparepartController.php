@@ -128,6 +128,7 @@ Class sparepartController Extends baseController {
         }
         if (isset($_POST['yes'])) {
             $spare = $this->model->get('sparepartModel');
+            $spare_temp = $this->model->get('spareparttempModel');
             $data = array(
                         
                         'spare_part_name' => trim($_POST['spare_part_name']),
@@ -184,6 +185,10 @@ Class sparepartController Extends baseController {
                     /**/
                     echo "Cập nhật thành công";
 
+                    $data2 = array('spare_part_id'=>$_POST['yes'],'spare_part_temp_date'=>strtotime(date('d-m-Y')),'spare_part_temp_action'=>2,'spare_part_temp_user'=>$_SESSION['userid_logined'],'name'=>'Vật tư');
+                    $data_temp = array_merge($data, $data2);
+                    $spare_temp->createStock($data_temp);
+
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
                         $filename = "action_logs.txt";
                         $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."edit"."|".$_POST['yes']."|spare_part|".implode("-",$data)."\n"."\r\n";
@@ -214,6 +219,10 @@ Class sparepartController Extends baseController {
 
                     echo "Thêm thành công";
 
+                    $data2 = array('spare_part_id'=>$spare->getLastStock()->spare_part_id,'spare_part_temp_date'=>strtotime(date('d-m-Y')),'spare_part_temp_action'=>1,'spare_part_temp_user'=>$_SESSION['userid_logined'],'name'=>'Vật tư');
+                    $data_temp = array_merge($data, $data2);
+                    $spare_temp->createStock($data_temp);
+
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
                         $filename = "action_logs.txt";
                         $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."add"."|".$spare->getLastStock()->spare_part_id."|spare_part|".implode("-",$data)."\n"."\r\n";
@@ -238,11 +247,17 @@ Class sparepartController Extends baseController {
         }
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $spare = $this->model->get('sparepartModel');
+            $spare_temp = $this->model->get('spareparttempModel');
             
             if (isset($_POST['xoa'])) {
                 $data = explode(',', $_POST['xoa']);
                 foreach ($data as $data) {
+                    $spare_data = (array)$spare->getStock($data); 
                     $spare->deleteStock($data);
+
+                    $data2 = array('spare_part_id'=>$data,'spare_part_temp_date'=>strtotime(date('d-m-Y')),'spare_part_temp_action'=>3,'spare_part_temp_user'=>$_SESSION['userid_logined'],'name'=>'Vật tư');
+                    $data_temp = array_merge($spare_data, $data2);
+                    $spare_temp->createStock($data_temp);
                     
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
                         $filename = "action_logs.txt";
@@ -261,6 +276,12 @@ Class sparepartController Extends baseController {
             else{
                 /*Log*/
                     /**/
+                    $spare_data = (array)$spare->getStock($_POST['data']);
+
+                    $data2 = array('spare_part_id'=>$_POST['data'],'spare_part_temp_date'=>strtotime(date('d-m-Y')),'spare_part_temp_action'=>3,'spare_part_temp_user'=>$_SESSION['userid_logined'],'name'=>'Vật tư');
+                    $data_temp = array_merge($spare_data, $data2);
+                    $spare_temp->createStock($data_temp);
+
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
                         $filename = "action_logs.txt";
                         $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."delete"."|".$_POST['data']."|spare_part|"."\n"."\r\n";

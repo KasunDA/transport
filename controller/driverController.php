@@ -432,7 +432,7 @@ Class driverController Extends baseController {
                     $driver->deleteDriver($data);
                     
                     $data2 = array('driver_id'=>$data,'driver_temp_date'=>strtotime(date('d-m-Y')),'driver_temp_action'=>3,'driver_temp_user'=>$_SESSION['userid_logined'],'name'=>'Bàn giao xe');
-                    $data_temp = array_merge($place_data, $data2);
+                    $data_temp = array_merge($driver_data, $data2);
                     $driver_temp->createDriver($data_temp);
 
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
@@ -459,7 +459,7 @@ Class driverController Extends baseController {
 
                 $driver_data = (array)$driver->getDriver($_POST['data']);
                 $data2 = array('driver_id'=>$_POST['data'],'driver_temp_date'=>strtotime(date('d-m-Y')),'driver_temp_action'=>3,'driver_temp_user'=>$_SESSION['userid_logined'],'name'=>'Bàn giao xe');
-                    $data_temp = array_merge($place_data, $data2);
+                    $data_temp = array_merge($driver_data, $data2);
                     $driver_temp->createDriver($data_temp);
 
                 date_default_timezone_set("Asia/Ho_Chi_Minh"); 
