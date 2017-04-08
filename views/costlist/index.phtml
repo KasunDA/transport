@@ -94,7 +94,7 @@ elseif ($order_by == 'cost_list_name')
             <td class="fix" id="cost_list_code_<?php echo $cost_list->cost_list_id; ?>"><?php echo $cost_list->cost_list_code; ?></td>
             <td class="fix" id="cost_list_name_<?php echo $cost_list->cost_list_id; ?>"><?php echo $cost_list->cost_list_name; ?></td>
             
-            <td class="fix" data="<?php echo $cost_list->cost_list_type; ?>" id="cost_list_type_<?php echo $cost_list->cost_list_id; ?>"><?php echo $cost_list->cost_list_type==1?"Công ty":($cost_list->cost_list_type==1?"Chi hộ":"Khác"); ?></td>
+            <td class="fix" data="<?php echo $cost_list->cost_list_type; ?>" id="cost_list_type_<?php echo $cost_list->cost_list_id; ?>"><?php echo $cost_list->cost_type_name; ?></td>
             
             <?php if(!isset($disable_control)){ ?>
             <td class="pull-right">
@@ -149,9 +149,9 @@ $this->helper('slidePaginator');
                     <div class="form-group">
                       <label for="cost_list_type">Loại chi phí</label>
                       <select name="cost_list_type" id="cost_list_type" tabindex="3">
-                            <option value="1">Công ty</option>
-                            <option value="2">Chi hộ</option>
-                            <option value="3">Khác</option>
+                            <?php foreach ($cost_types as $cost) { ?>
+                              <option value="<?php echo $cost->cost_type_id ?>"><?php echo $cost->cost_type_name ?></option>
+                            <?php } ?>
                             
                         </select>
                     </div>

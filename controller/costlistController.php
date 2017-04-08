@@ -25,8 +25,11 @@ Class costlistController Extends baseController {
             $keyword = "";
             $limit = 100;
         }
-        
+        $cost_type_model = $this->model->get('costtypeModel');
+        $this->view->data['cost_types'] = $cost_type_model->getAllCost();
+
         $cost_list_model = $this->model->get('costlistModel');
+        $join = array('table'=>'cost_type','where'=>'cost_list_type = cost_type_id');
 
         $sonews = $limit;
         $x = ($page-1) * $sonews;
@@ -37,7 +40,7 @@ Class costlistController Extends baseController {
         );
         
         
-        $tongsodong = count($cost_list_model->getAllCost($data));
+        $tongsodong = count($cost_list_model->getAllCost($data,$join));
         $tongsotrang = ceil($tongsodong / $sonews);
         
 
@@ -69,7 +72,7 @@ Class costlistController Extends baseController {
         
 
         
-        $this->view->data['costs'] = $cost_list_model->getAllCost($data);
+        $this->view->data['costs'] = $cost_list_model->getAllCost($data,$join);
         $this->view->data['lastID'] = isset($cost_list_model->getLastCost()->cost_list_id)?$cost_list_model->getLastCost()->cost_list_id:0;
 
         /* Lấy tổng doanh thu*/

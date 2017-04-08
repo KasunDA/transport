@@ -38,7 +38,7 @@ Class driverController Extends baseController {
 
         else{
 
-            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'vehicle_number';
+            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'vehicle_number ASC, start_work';
 
             $order = $this->registry->router->order ? $this->registry->router->order : 'ASC';
 

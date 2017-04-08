@@ -91,10 +91,39 @@ Class usedController Extends baseController {
             foreach ($stock_ims as $im) {
                 $data_vehicle[$spare->spare_part_id]['import'] = $im->start_time;
 
+                $end_time = 0;
+                $data_ex = array(
+                    'where' => 'spare_part = '.$spare->spare_part_id.' AND end_time > 0 AND end_time >= '.$im->start_time,
+                    'order_by' => 'end_time ASC',
+                    'limit' => 1,
+                );
+                $stock_exs = $spare_vehicle_model->getAllStock($data_ex);
+                foreach ($stock_exs as $ex) {
+                    $end_time = $ex->end_time;
+                }
+
                 if ($im->vehicle > 0) {
                     $data_ship = array(
                         'where'=>'vehicle = '.$im->vehicle.' AND shipment_date >= '.$im->start_time,
                     );
+                    if ($end_time > 0) {
+                        $data_ship['where'] .= ' AND shipment_date <= '.$end_time;
+                    }
+                    $shipments = $shipment_model->getAllShipment($data_ship);
+                    foreach ($shipments as $ship) {
+                        $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$ship->shipment_from.' AND road_to = '.$ship->shipment_to.' AND start_time <= '.$ship->shipment_date.' AND end_time >= '.$ship->shipment_date));
+                        foreach ($roads as $road) {
+                            $data_vehicle[$spare->spare_part_id]['km'] = isset($data_vehicle[$spare->spare_part_id]['km'])?$data_vehicle[$spare->spare_part_id]['km']+$road->road_km:$road->road_km;
+                        }
+                    }
+                }
+                if ($im->romooc > 0) {
+                    $data_ship = array(
+                        'where'=>'romooc = '.$im->romooc.' AND shipment_date >= '.$im->start_time,
+                    );
+                    if ($end_time > 0) {
+                        $data_ship['where'] .= ' AND shipment_date <= '.$end_time;
+                    }
                     $shipments = $shipment_model->getAllShipment($data_ship);
                     foreach ($shipments as $ship) {
                         $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$ship->shipment_from.' AND road_to = '.$ship->shipment_to.' AND start_time <= '.$ship->shipment_date.' AND end_time >= '.$ship->shipment_date));

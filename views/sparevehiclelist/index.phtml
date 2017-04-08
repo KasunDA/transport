@@ -290,6 +290,7 @@ $('html').click(function(e) {
             
             $('#spare_part_name').val(spare_part_name);
             $('#spare_part_name').attr('data',spare_part);
+            $('#spare_part_name').attr('code','true');
             $('#spare_part_code').val(spare_part_code);
             $('#spare_part_seri').val(spare_part_seri);
             $('#spare_part_brand').val(spare_part_brand);
@@ -322,6 +323,7 @@ function add_click(){
         $('#spare_part_name').focus();
         $('#spare_part_name').val("");
         $('#spare_part_name').attr('data',"");
+        $('#spare_part_name').attr('code','false');
         $('#spare_part_code').val("");
         $('#spare_part_seri').val("");
         $('#spare_part_brand').val("");
@@ -361,7 +363,11 @@ $(document).ready(function(){
                 },
                 submitHandler: function(form) {
                 
-                    
+                    if ($('#spare_part_name').attr('code') == 'false') {
+                        $('#spare_part_name').val("");
+                        $('#spare_part_name').focus();
+                        return false;
+                    };
                 
                     var vehicle = $('#vehicle').attr('value');
                     var romooc = $('#romooc').attr('value');

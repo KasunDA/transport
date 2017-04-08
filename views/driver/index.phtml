@@ -265,6 +265,7 @@ $('html').click(function(e) {
         $('#steersman_birth').val(steersman_birth.replace(/\//g,"-"));
         $('#steersman_name').val(steersman_name);
         $('#steersman_name').attr('data', steersman);
+        $('#steersman_name').attr('code', 'true');
         $('#steersman_bank').val(steersman_bank);
         $('#steersman_cmnd').val(steersman_cmnd);
         $('#steersman_code').val(steersman_code);
@@ -297,6 +298,7 @@ function add_click(){
         $('#steersman_birth').val("");
         $('#steersman_cmnd').val("");
         $('#steersman_name').attr('data', "");
+        $('#steersman_name').attr('code', 'false');
         $("#vehicle").prop('disabled', false);
 
         $('.number').focus(function(){
@@ -325,7 +327,11 @@ $(document).ready(function(){
                 },
                 submitHandler: function(form) {
                 
-                    
+                    if ($('#steersman_name').attr('code') == 'false') {
+                        $('#steersman_name').val("");
+                        $('#steersman_name').focus();
+                        return false;
+                    };
                 
                     var steersman_name = $('#steersman_name').attr('value');
                     var steersman_phone = $('#steersman_phone').attr('value');

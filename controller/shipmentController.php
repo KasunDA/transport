@@ -406,6 +406,8 @@ Class shipmentController Extends baseController {
 
                 $road_data['road_time'][$ship->shipment_id] = ($road->road_time)*$check_sub;
 
+                $road_data['road_km'][$ship->shipment_id] = $road->road_km;
+
 
 
                 $chek_rong = ($road->way == 0)?1:0;
@@ -1067,7 +1069,17 @@ Class shipmentController Extends baseController {
 
         if (isset($_POST['yes'])) {
 
+            $debit = $this->model->get('debitModel');
+
             $shipment = $this->model->get('shipmentModel');
+
+            $shipment_cost_model = $this->model->get('shipmentcostModel');
+
+            /**************/
+
+            $shipment_cost_list = $_POST['shipment_cost'];
+
+            /**************/
 
             //$ad = mktime(date("H"), date("i"), date("s"), date("m"), date("d")+1, date("Y")); 
 
@@ -1153,6 +1165,8 @@ Class shipmentController Extends baseController {
 
                         'bridge_cost_add' => trim(str_replace(',','',$_POST['bridge_cost_add'])),
 
+                        'shipment_salary' => trim(str_replace(',','',$_POST['shipment_salary'])),
+
                         );
 
             $customer_sub_model = $this->model->get('customersubModel');
@@ -1198,6 +1212,15 @@ Class shipmentController Extends baseController {
             }
             $data['customer_type'] = $contributor;
 
+            $contributor = "";
+            foreach ($_POST['route'] as $key) {
+                if ($contributor == "")
+                    $contributor .= $key;
+                else
+                    $contributor .= ','.$key;
+            }
+            $data['route'] = $contributor;
+
 
             $road_model = $this->model->get('roadModel');
 
@@ -1207,8 +1230,9 @@ Class shipmentController Extends baseController {
 
             $warehouse_datas = $warehouse_model->getAllWarehouse(array('where'=>'(warehouse_code = '.$data['shipment_from'].' OR warehouse_code = '.$data['shipment_to'].') AND start_time <= '.$data['shipment_date'].' AND end_time >= '.$data['shipment_date']));
 
-            $road_datas = $road_model->getAllRoad(array('where'=>'road_from = '.$data['shipment_from'].' AND road_to = '.$data['shipment_to'].' AND start_time <= '.$data['shipment_date'].' AND end_time >= '.$data['shipment_date']));
+            //$road_datas = $road_model->getAllRoad(array('where'=>'road_from = '.$data['shipment_from'].' AND road_to = '.$data['shipment_to'].' AND start_time <= '.$data['shipment_date'].' AND end_time >= '.$data['shipment_date']));
 
+            $road_datas = $road_model->queryRoad('SELECT * FROM road WHERE road_id IN ('.$data['route'].')');
 
 
             if (trim($_POST['shipment_ton_net']) != "") {
@@ -1282,13 +1306,13 @@ Class shipmentController Extends baseController {
 
                         $boiduong += ($road_data->way == 0)?0:($boiduong_tan+$boiduong_cont);
 
-                        $chiphi += $boiduong+$road_data->police_cost+round($road_data->bridge_cost*1.1)+$road_data->tire_cost+($road_data->road_oil*$giadau);
+                        $chiphi += $boiduong+$road_data->police_cost+round($road_data->bridge_cost*1.1)+$road_data->tire_cost+($road_data->road_oil*$giadau)+$road_data->road_add;
 
                         //$thuong = ($data['shipment_ton']>29.7)?round(($data['shipment_ton']-29.7)+0.4)*$road_data->charge_add:0;
 
                         $thuong = ($data['shipment_ton']>29000)?round($data['shipment_ton']-29000)*$road_data->charge_add:0;
 
-                        $chiphi_tam += $boiduong+$road_data->police_cost+round($road_data->bridge_cost*1.1)+$road_data->tire_cost;
+                        $chiphi_tam += $boiduong+$road_data->police_cost+round($road_data->bridge_cost*1.1)+$road_data->tire_cost+$road_data->road_add;
 
                     }
 
@@ -1574,6 +1598,87 @@ Class shipmentController Extends baseController {
 
 
 
+                    
+
+                    $id_shipment = $_POST['yes'];
+
+                    $data_debit = array(
+                        'debit_date'=>$data['shipment_date'],
+                        'customer'=>$data['customer'],
+                        'money'=>$data['shipment_revenue']+$data['shipment_charge_excess'],
+                        'money_vat'=>0,
+                        'comment'=>'Vận chuyển',
+                        'check_debit'=>1,
+                        'shipment'=>$id_shipment,
+                    );
+                    $debit->updateDebit($data_debit,array('shipment'=>$id_shipment));
+
+
+                    foreach ($shipment_cost_list as $v) {
+
+                        $data_cost = array(
+
+                            'shipment' => $id_shipment,
+
+                            'cost' => trim(str_replace(',','',$v['cost'])),
+
+                            'cost_list' => $v['cost_list'],
+
+                            'check_vat' => $v['check_vat'],
+
+                            'comment' => trim($v['comment']),
+
+                            'receiver' => isset($v['receiver'])?$v['receiver']:null,
+
+                            'cost_document' => trim($v['cost_document']),
+
+                        );
+
+                        if ($data_cost['receiver'] > 0) {
+                            $chiphi += trim(str_replace(',','',$v['cost']));
+                        }
+
+                        if ($v['shipment_cost_id'] == "") {
+
+                            if ($data_cost['receiver'] > 0) {
+                                $shipment_cost_model->createShipment($data_cost);
+
+                                $data_debit = array(
+                                    'debit_date'=>$data['shipment_date'],
+                                    'customer'=>$data_cost['receiver'],
+                                    'money'=>$data_cost['cost'],
+                                    'money_vat'=>$data_cost['check_vat'],
+                                    'comment'=>$data_cost['comment'],
+                                    'check_debit'=>2,
+                                    'shipment_cost'=>$shipment_cost_model->getLastShipment()->shipment_cost_id,
+                                );
+                                $debit->createDebit($data_debit);
+                            }
+                            
+
+                        }
+
+                        else if ($v['shipment_cost_id'] > 0) {
+
+                            $shipment_cost_model->updateShipment($data_cost,array('shipment_cost_id'=>$v['shipment_cost_id']));
+
+                            $data_debit = array(
+                                'debit_date'=>$data['shipment_date'],
+                                'customer'=>$data_cost['receiver'],
+                                'money'=>$data_cost['cost'],
+                                'money_vat'=>$data_cost['check_vat'],
+                                'comment'=>$data_cost['comment'],
+                                'check_debit'=>2,
+                                'shipment_cost'=>$v['shipment_cost_id'],
+                            );
+                            $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id']));
+
+                        }
+
+                    }
+
+                    $data['shipment_cost'] = $chiphi;
+
                     $shipment->updateShipment($data,array('shipment_id' => $_POST['yes']));
 
                     $result['err'] =  "Cập nhật thành công";
@@ -1585,9 +1690,6 @@ Class shipmentController Extends baseController {
                     $result['profit'] = $loinhuan;
 
                     echo json_encode($result);
-
-                    $id_shipment = $_POST['yes'];
-
 
 
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
@@ -1776,6 +1878,92 @@ Class shipmentController Extends baseController {
 
                     $shipment->createShipment($data);
 
+                    
+
+
+                    $id_shipment = $shipment->getLastShipment()->shipment_id;
+
+                    $data_debit = array(
+                        'debit_date'=>$data['shipment_date'],
+                        'customer'=>$data['customer'],
+                        'money'=>$data['shipment_revenue']+$data['shipment_charge_excess'],
+                        'money_vat'=>0,
+                        'comment'=>'Vận chuyển',
+                        'check_debit'=>1,
+                        'shipment'=>$id_shipment,
+                    );
+                    $debit->createDebit($data_debit,array('shipment'=>$id_shipment));
+
+
+                    foreach ($shipment_cost_list as $v) {
+
+                        $data_cost = array(
+
+                            'shipment' => $id_shipment,
+
+                            'cost' => trim(str_replace(',','',$v['cost'])),
+
+                            'cost_list' => $v['cost_list'],
+
+                            'check_vat' => $v['check_vat'],
+
+                            'comment' => trim($v['comment']),
+
+                            'receiver' => isset($v['receiver'])?$v['receiver']:null,
+
+                            'cost_document' => trim($v['cost_document']),
+
+                        );
+
+                        if ($data_cost['receiver'] > 0) {
+                            $chiphi += trim(str_replace(',','',$v['cost']));
+                        }
+
+                        if ($v['shipment_cost_id'] == "") {
+
+                            if ($data_cost['receiver'] > 0) {
+
+                                $shipment_cost_model->createShipment($data_cost);
+
+                                $data_debit = array(
+                                    'debit_date'=>$data['shipment_date'],
+                                    'customer'=>$data_cost['receiver'],
+                                    'money'=>$data_cost['cost'],
+                                    'money_vat'=>$data_cost['check_vat'],
+                                    'comment'=>$data_cost['comment'],
+                                    'check_debit'=>2,
+                                    'shipment_cost'=>$shipment_cost_model->getLastShipment()->shipment_cost_id,
+                                );
+                                $debit->createDebit($data_debit);
+
+                            }
+
+                        }
+
+                        else if ($v['shipment_cost_id'] > 0) {
+
+                            $shipment_cost_model->updateShipment($data_cost,array('shipment_cost_id'=>$v['shipment_cost_id']));
+
+                            $data_debit = array(
+                                'debit_date'=>$data['shipment_date'],
+                                'customer'=>$data_cost['receiver'],
+                                'money'=>$data_cost['cost'],
+                                'money_vat'=>$data_cost['check_vat'],
+                                'comment'=>$data_cost['comment'],
+                                'check_debit'=>2,
+                                'shipment_cost'=>$v['shipment_cost_id'],
+                            );
+                            $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id']));
+
+                        }
+
+                    }
+
+                    $data['shipment_cost'] = $chiphi;
+
+                    $shipment->updateShipment(array('shipment_cost'=>$chiphi),array('shipment_id'=>$id_shipment));
+
+
                     $result['err'] = "Thêm thành công";
 
                     $result['revenue'] = $doanhthu;
@@ -1785,9 +1973,6 @@ Class shipmentController Extends baseController {
                     $result['profit'] = $loinhuan;
 
                     echo json_encode($result);
-
-
-                    $id_shipment = $shipment->getLastShipment()->shipment_id;
 
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
 
@@ -1849,7 +2034,17 @@ Class shipmentController Extends baseController {
 
         if (isset($_POST['yes'])) {
 
+            $debit = $this->model->get('debitModel');
+
             $shipment = $this->model->get('shipmentModel');
+
+            $shipment_cost_model = $this->model->get('shipmentcostModel');
+
+            /**************/
+
+            $shipment_cost_list = $_POST['shipment_cost'];
+
+            /**************/
 
             //$ad = mktime(date("H"), date("i"), date("s"), date("m"), date("d")+1, date("Y")); 
 
@@ -1907,6 +2102,8 @@ Class shipmentController Extends baseController {
 
                         'shipment_sub' => 1,
 
+                        'shipment_salary' => trim(str_replace(',','',$_POST['shipment_salary'])),
+
                         );
 
             $customer_sub_model = $this->model->get('customersubModel');
@@ -1937,6 +2134,15 @@ Class shipmentController Extends baseController {
 
             }
             $data['customer_type'] = $contributor;
+
+            $contributor = "";
+            foreach ($_POST['route'] as $key) {
+                if ($contributor == "")
+                    $contributor .= $key;
+                else
+                    $contributor .= ','.$key;
+            }
+            $data['route'] = $contributor;
 
 
 
@@ -2065,6 +2271,89 @@ Class shipmentController Extends baseController {
                     echo json_encode($result);
 
                     $id_shipment = $_POST['yes'];
+
+                    $data_debit = array(
+                        'debit_date'=>$data['shipment_date'],
+                        'customer'=>$data['customer'],
+                        'money'=>$data['shipment_revenue']+$data['shipment_charge_excess'],
+                        'money_vat'=>0,
+                        'comment'=>'Vận chuyển',
+                        'check_debit'=>1,
+                        'shipment'=>$id_shipment,
+                    );
+                    $debit->updateDebit($data_debit,array('shipment'=>$id_shipment));
+
+
+                    foreach ($shipment_cost_list as $v) {
+
+                    
+
+                        $data_cost = array(
+
+                            'shipment' => $id_shipment,
+
+                            'cost' => trim(str_replace(',','',$v['cost'])),
+
+                            'cost_list' => $v['cost_list'],
+
+                            'check_vat' => $v['check_vat'],
+
+                            'comment' => trim($v['comment']),
+
+                            'receiver' => isset($v['receiver'])?$v['receiver']:null,
+
+                            'cost_document' => trim($v['cost_document']),
+
+                        );
+
+                        if ($data_cost['receiver'] > 0) {
+                            $chiphi += trim(str_replace(',','',$v['cost']));
+                        }
+
+                        if ($v['shipment_cost_id'] == "") {
+
+                            if ($data_cost['receiver'] > 0) {
+                                $shipment_cost_model->createShipment($data_cost);
+
+                                $data_debit = array(
+                                    'debit_date'=>$data['shipment_date'],
+                                    'customer'=>$data_cost['receiver'],
+                                    'money'=>$data_cost['cost'],
+                                    'money_vat'=>$data_cost['check_vat'],
+                                    'comment'=>$data_cost['comment'],
+                                    'check_debit'=>2,
+                                    'shipment_cost'=>$shipment_cost_model->getLastShipment()->shipment_cost_id,
+                                );
+                                $debit->createDebit($data_debit);
+                            }
+                            
+
+                        }
+
+                        else if ($v['shipment_cost_id'] > 0) {
+
+                            $shipment_cost_model->updateShipment($data_cost,array('shipment_cost_id'=>$v['shipment_cost_id']));
+
+                            $data_debit = array(
+                                'debit_date'=>$data['shipment_date'],
+                                'customer'=>$data_cost['receiver'],
+                                'money'=>$data_cost['cost'],
+                                'money_vat'=>$data_cost['check_vat'],
+                                'comment'=>$data_cost['comment'],
+                                'check_debit'=>2,
+                                'shipment_cost'=>$v['shipment_cost_id'],
+                            );
+                            $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id']));
+
+                        }
+
+                    }
+
+                    $data['shipment_cost'] = $chiphi;
+
+                    $shipment->updateShipment($data,array('shipment_id' => $_POST['yes']));
+
+
 
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
 
@@ -2195,6 +2484,86 @@ Class shipmentController Extends baseController {
                     echo json_encode($result);
 
                     $id_shipment = $shipment->getLastShipment()->shipment_id;
+
+                    $data_debit = array(
+                        'debit_date'=>$data['shipment_date'],
+                        'customer'=>$data['customer'],
+                        'money'=>$data['shipment_revenue']+$data['shipment_charge_excess'],
+                        'money_vat'=>0,
+                        'comment'=>'Vận chuyển',
+                        'check_debit'=>1,
+                        'shipment'=>$id_shipment,
+                    );
+                    $debit->createDebit($data_debit,array('shipment'=>$id_shipment));
+
+
+                    foreach ($shipment_cost_list as $v) {
+
+                        $data_cost = array(
+
+                            'shipment' => $id_shipment,
+
+                            'cost' => trim(str_replace(',','',$v['cost'])),
+
+                            'cost_list' => $v['cost_list'],
+
+                            'check_vat' => $v['check_vat'],
+
+                            'comment' => trim($v['comment']),
+
+                            'receiver' => isset($v['receiver'])?$v['receiver']:null,
+
+                            'cost_document' => trim($v['cost_document']),
+
+                        );
+
+                        if ($data_cost['receiver'] > 0) {
+                            $chiphi += trim(str_replace(',','',$v['cost']));
+                        }
+
+                        if ($v['shipment_cost_id'] == "") {
+
+                            if ($data_cost['receiver'] > 0) {
+
+                                $shipment_cost_model->createShipment($data_cost);
+
+                                $data_debit = array(
+                                    'debit_date'=>$data['shipment_date'],
+                                    'customer'=>$data_cost['receiver'],
+                                    'money'=>$data_cost['cost'],
+                                    'money_vat'=>$data_cost['check_vat'],
+                                    'comment'=>$data_cost['comment'],
+                                    'check_debit'=>2,
+                                    'shipment_cost'=>$shipment_cost_model->getLastShipment()->shipment_cost_id,
+                                );
+                                $debit->createDebit($data_debit);
+
+                            }
+
+                        }
+
+                        else if ($v['shipment_cost_id'] > 0) {
+
+                            $shipment_cost_model->updateShipment($data_cost,array('shipment_cost_id'=>$v['shipment_cost_id']));
+
+                            $data_debit = array(
+                                'debit_date'=>$data['shipment_date'],
+                                'customer'=>$data_cost['receiver'],
+                                'money'=>$data_cost['cost'],
+                                'money_vat'=>$data_cost['check_vat'],
+                                'comment'=>$data_cost['comment'],
+                                'check_debit'=>2,
+                                'shipment_cost'=>$v['shipment_cost_id'],
+                            );
+                            $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id']));
+
+                        }
+
+                    }
+
+                    $data['shipment_cost'] = $chiphi;
+
+                    $shipment->updateShipment(array('shipment_cost'=>$chiphi),array('shipment_id'=>$id_shipment));
 
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
 
@@ -3350,7 +3719,7 @@ Class shipmentController Extends baseController {
 
                 $str .= '<tr class="'.$_POST['shipment'].'">';
 
-                $str .= '<td><input type="checkbox"  name="chk"></td>';
+                $str .= '<td><input type="checkbox"  name="chk" data=""></td>';
 
                 $str .= '<td><table style="width: 100%">';
 
@@ -3366,7 +3735,7 @@ Class shipmentController Extends baseController {
 
                 $str .= '<td>Số tiền</td>';
 
-                $str .= '<td><input style="width:120px" type="text" class="cost number" name="cost[]"><input type="checkbox" class="cost_vat" name="cost_vat[]" value="1"> VAT</td></tr>';
+                $str .= '<td><input style="width:120px" type="text" class="cost number" name="cost[]"><input type="checkbox" class="check_vat" name="check_vat[]" value="1"> VAT</td></tr>';
 
                 $str .= '<tr><td>Nội dung</td>';
 
@@ -3394,11 +3763,11 @@ Class shipmentController Extends baseController {
                         $cost_data .= '<option '.($v->cost_list==$cost->cost_list_id?'selected="selected"':null).' value="'.$cost->cost_list_id.'">'.$cost->cost_list_name.'</option>';
                     }
 
-                    $checked = $v->cost_vat==1?'checked="checked"':null;
+                    $checked = $v->check_vat==1?'checked="checked"':null;
 
                     $str .= '<tr class="'.$_POST['shipment'].'">';
 
-                    $str .= '<td><input type="checkbox" data="'.$v->shipment_cost_id.'"  ></td>';
+                    $str .= '<td><input type="checkbox" name="chk" data="'.$v->shipment_cost_id.'"  ></td>';
 
                     $str .= '<td><table style="width: 100%">';
 
@@ -3414,7 +3783,7 @@ Class shipmentController Extends baseController {
 
                     $str .= '<td>Số tiền</td>';
 
-                    $str .= '<td><input style="width:120px" type="text" class="cost number" name="cost[]" value="'.$this->lib->formatMoney($v->cost).'" ><input '.$checked.' type="checkbox" class="cost_vat" name="cost_vat[]" value="1"> VAT</td></tr>';
+                    $str .= '<td><input style="width:120px" type="text" class="cost number" name="cost[]" value="'.$this->lib->formatMoney($v->cost).'" ><input '.$checked.' type="checkbox" class="check_vat" name="check_vat[]" value="1"> VAT</td></tr>';
 
                     $str .= '<tr><td>Nội dung</td>';
 
@@ -3428,6 +3797,133 @@ Class shipmentController Extends baseController {
                     $str .= '<tr><td>Số Hóa đơn chứng từ</td>';
 
                     $str .= '<td><input type="text" class="cost_document" name="cost_document[]" style="width:120px" value="'.$v->cost_document.'" ></td>';
+
+                    $str .= '</tr></table></td></tr>';
+
+                }
+
+            }
+
+
+
+            echo $str;
+
+        }
+
+    }
+    public function getcostsub(){
+
+        if(isset($_POST['shipment'])){
+
+            
+
+            $shipment_cost_model = $this->model->get('shipmentcostModel');
+            $cost_list_model = $this->model->get('costlistModel');
+
+            $cost_lists = $cost_list_model->getAllCost();
+
+
+            $join = array('table'=>'customer, cost_list','where'=>'receiver = customer_id AND cost_list = cost_list_id');
+
+            $data = array(
+
+                'where' => 'shipment = '.$_POST['shipment'],
+
+            );
+
+            $costs = $shipment_cost_model->getAllShipment($data,$join);
+
+
+
+            $str = "";
+
+            if (!$costs) {
+
+                $cost_data = "";
+                foreach ($cost_lists as $cost) {
+                    $cost_data .= '<option value="'.$cost->cost_list_id.'">'.$cost->cost_list_name.'</option>';
+                }
+
+                $str .= '<tr class="'.$_POST['shipment'].'">';
+
+                $str .= '<td><input type="checkbox"  name="chk2" data=""></td>';
+
+                $str .= '<td><table style="width: 100%">';
+
+                $str .= '<tr class="'.$_POST['shipment'] .'">';
+
+                $str .= '<td>Chi phí <a target="_blank" title="Thêm chi phí" href="'.BASE_URL.'/costlist"><i class="fa fa-plus"></i></a></td>';
+
+                $str .= '<td><select style="width:150px" name="cost_list_sub[]" class="cost_list_sub" >';
+
+                    $str .= $cost_data;
+
+                $str .= '</select></td>';
+
+                $str .= '<td>Số tiền</td>';
+
+                $str .= '<td><input style="width:120px" type="text" class="cost_sub number" name="cost_sub[]"><input type="checkbox" class="check_vat" name="check_vat[]" value="1"> VAT</td></tr>';
+
+                $str .= '<tr><td>Nội dung</td>';
+
+                $str .= '<td><textarea class="comment_sub" name="comment_sub[]"></textarea></td>';
+
+                $str .= '<td>Người nhận <a target="_blank" title="Thêm người nhận" href="'.BASE_URL.'/customer"><i class="fa fa-plus"></i></a></td>';
+
+                $str .= '<td><input type="text" autocomplete="off" class="receiver_sub" name="receiver_sub[]" placeholder="Nhập tên hoặc * để chọn" >';
+                $str .= '<ul class="name_list_id_2"></ul></td></tr>';
+
+                $str .= '<tr><td>Số Hóa đơn chứng từ</td>';
+
+                $str .= '<td><input type="text" class="cost_document_sub" name="cost_document_sub[]" style="width:120px" ></td>';
+
+                $str .= '</tr></table></td></tr>';
+
+            }
+
+            else{
+
+                foreach ($costs as $v) {
+
+                    $cost_data = "";
+                    foreach ($cost_lists as $cost) {
+                        $cost_data .= '<option '.($v->cost_list==$cost->cost_list_id?'selected="selected"':null).' value="'.$cost->cost_list_id.'">'.$cost->cost_list_name.'</option>';
+                    }
+
+                    $checked = $v->check_vat==1?'checked="checked"':null;
+
+                    $str .= '<tr class="'.$_POST['shipment'].'">';
+
+                    $str .= '<td><input type="checkbox" name="chk2" data="'.$v->shipment_cost_id.'"  ></td>';
+
+                    $str .= '<td><table style="width: 100%">';
+
+                    $str .= '<tr class="'.$_POST['shipment'] .'">';
+
+                    $str .= '<td>Chi phí <a target="_blank" title="Thêm chi phí" href="'.BASE_URL.'/costlist"><i class="fa fa-plus"></i></a></td>';
+
+                    $str .= '<td><select style="width:150px" name="cost_list_sub[]" class="cost_list_sub" >';
+
+                        $str .= $cost_data;
+
+                    $str .= '</select></td>';
+
+                    $str .= '<td>Số tiền</td>';
+
+                    $str .= '<td><input style="width:120px" type="text" class="cost_sub number" name="cost_sub[]" value="'.$this->lib->formatMoney($v->cost).'" ><input '.$checked.' type="checkbox" class="check_vat" name="check_vat[]" value="1"> VAT</td></tr>';
+
+                    $str .= '<tr><td>Nội dung</td>';
+
+                    $str .= '<td><textarea class="comment_sub" name="comment_sub[]">'.$v->comment.'</textarea></td>';
+
+                    $str .= '<td>Người nhận <a target="_blank" title="Thêm người nhận" href="'.BASE_URL.'/customer"><i class="fa fa-plus"></i></a></td>';
+
+                    $str .= '<td><input type="text" autocomplete="off" class="receiver_sub" name="receiver_sub[]" placeholder="Nhập tên hoặc * để chọn" value="'.$v->customer_name.'" data="'.$v->customer_id.'" >';
+                    $str .= '<ul class="name_list_id_2"></ul></td></tr>';
+
+                    $str .= '<tr><td>Số Hóa đơn chứng từ</td>';
+
+                    $str .= '<td><input type="text" class="cost_document_sub" name="cost_document_sub[]" style="width:120px" value="'.$v->cost_document.'" ></td>';
 
                     $str .= '</tr></table></td></tr>';
 
@@ -3480,6 +3976,62 @@ Class shipmentController Extends baseController {
 
             foreach ($roads as $road) {
                 $str .= '<option selected value="'.$road->road_id.'">'.(isset($route_data['route_id'][$road->route_from])?$route_data['route_name'][$road->route_from]:null).'-'.(isset($route_data['route_id'][$road->route_to])?$route_data['route_name'][$road->route_to]:null).' ['.$road->road_km.'km]'.'</option>';
+            }
+
+            echo $str;
+
+        }
+
+    }
+
+    public function getrouteadd(){
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $route_model = $this->model->get('routeModel');
+
+            $routes = $route_model->getAllPlace(array('order_by'=>'route_name','order'=>'ASC'));
+
+            $route_data = array();
+
+            foreach ($routes as $route) {
+
+                $route_data['route_id'][$route->route_id] = $route->route_id;
+
+                $route_data['route_name'][$route->route_id] = $route->route_name;
+
+            }
+
+            $route_add = explode(',', trim($_POST['route']));
+
+            $road_model = $this->model->get('roadModel');
+
+            $data = array(
+                'where' => 'road_from = '.trim($_POST['road_from']).' AND road_to = '.trim($_POST['road_to']).' AND start_time <= '.strtotime($_POST['ngay']).' AND end_time >= '.strtotime($_POST['ngay']),
+            );
+
+            $roads = $road_model->getAllRoad($data);
+
+            $str = "";
+
+            foreach ($roads as $road) {
+
+                foreach ($route_add as $key) {
+                    if ($road->road_id == $key) {
+                        $str .= '<option selected value="'.$road->road_id.'">'.(isset($route_data['route_id'][$road->route_from])?$route_data['route_name'][$road->route_from]:null).'-'.(isset($route_data['route_id'][$road->route_to])?$route_data['route_name'][$road->route_to]:null).' ['.$road->road_km.'km]'.'</option>';
+                    }
+                    else{
+                        $str .= '<option value="'.$road->road_id.'">'.(isset($route_data['route_id'][$road->route_from])?$route_data['route_name'][$road->route_from]:null).'-'.(isset($route_data['route_id'][$road->route_to])?$route_data['route_name'][$road->route_to]:null).' ['.$road->road_km.'km]'.'</option>';
+                    }
+                }
+                
             }
 
             echo $str;
@@ -3629,6 +4181,10 @@ Class shipmentController Extends baseController {
 
             $shipment = $this->model->get('shipmentModel');
 
+            $shipment_cost = $this->model->get('shipmentcostModel');
+
+            $debit = $this->model->get('debitModel');
+
             $shipment_temp = $this->model->get('shipmenttempModel');
 
             if (isset($_POST['xoa'])) {
@@ -3657,7 +4213,8 @@ Class shipmentController Extends baseController {
 
                     }
 
-
+                    $shipment_cost->queryShipment('DELETE FROM shipment_cost WHERE shipment = '.$data);
+                    $debit->queryDebit('DELETE FROM debit WHERE shipment = '.$data);
 
                     $shipment->deleteShipment($data);
 
@@ -3709,7 +4266,8 @@ Class shipmentController Extends baseController {
 
                 }
 
-
+                $shipment_cost->queryShipment('DELETE FROM shipment_cost WHERE shipment = '.$_POST['data']);
+                $debit->queryDebit('DELETE FROM debit WHERE shipment = '.$_POST['data']);
 
                 date_default_timezone_set("Asia/Ho_Chi_Minh"); 
 

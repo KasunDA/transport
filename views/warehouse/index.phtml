@@ -290,6 +290,7 @@ $this->helper('slidePaginator');
         $('#warehouse_name').val(warehouse_name);
         $('#warehouse_name').attr('data',warehouse_code);
         $("#warehouse_name").prop('disabled', true);
+        $("#warehouse_name").attr("code",'true');
         $('#warehouse_cont').val(warehouse_cont);
         $('#warehouse_ton').val(warehouse_ton);
         
@@ -328,6 +329,7 @@ function add_click(){
         $('#warehouse_name').val("");
         $('#warehouse_name').attr('data',"");
         $("#warehouse_name").prop('disabled', false);
+        $("#warehouse_name").attr("code",'false');
         $('#warehouse_cont').val(0);
         $('#warehouse_ton').val(0);
 
@@ -364,7 +366,11 @@ $(document).ready(function(){
                 },
                 submitHandler: function(form) {
                 
-                    
+                    if ($('#warehouse_name').attr('code') == 'false') {
+                        $('#warehouse_name').val("");
+                        $('#warehouse_name').focus();
+                        return false;
+                    };
                 
                     var warehouse_cont = $('#warehouse_cont').attr('value');
                     var warehouse_ton = $('#warehouse_ton').attr('value');

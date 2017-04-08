@@ -167,11 +167,15 @@ elseif ($order_by == 'oil_excess')
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_to','<?php echo $url_order ?>')">Kho đến <?php if ($order_by == 'shipment_to'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_to','<?php echo $url_order ?>')">Km <?php if ($order_by == 'shipment_to'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+        </th>
+        <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','customer','<?php echo $url_order ?>')">Khách hàng <?php if ($order_by == 'customer'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_charge','<?php echo $url_order ?>')">Cước<?php if ($order_by == 'shipment_charge'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','customer_type','<?php echo $url_order ?>')">Mặt hàng <?php if ($order_by == 'customer_type'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
+        
         <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_ton','<?php echo $url_order ?>')">Sản lượng <?php if ($order_by == 'shipment_ton'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
@@ -179,30 +183,14 @@ elseif ($order_by == 'oil_excess')
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','cont_unit','<?php echo $url_order ?>')">ĐVT <?php if ($order_by == 'cont_unit'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','road_oil','<?php echo $url_order ?>')">Định mức lit dầu <?php if ($order_by == 'road_oil'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','oil_cost','<?php echo $url_order ?>')">Chi phí dầu <?php if ($order_by == 'oil_cost'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_charge','<?php echo $url_order ?>')">Cước<?php if ($order_by == 'shipment_charge'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_cost','<?php echo $url_order ?>')">Chi phí cố định <?php if ($order_by == 'shipment_cost'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','cost_add','<?php echo $url_order ?>')">Chi phí phát sinh <?php if ($order_by == 'cost_add'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','cost_vat','<?php echo $url_order ?>')">Chi phí có HĐ <?php if ($order_by == 'cost_vat'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','oil_excess','<?php echo $url_order ?>')">Dầu phát sinh <?php if ($order_by == 'oil_excess'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
         <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_revenue','<?php echo $url_order ?>')">Doanh thu <?php if ($order_by == 'shipment_revenue'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_cost','<?php echo $url_order ?>')">Tổng chi phí <?php if ($order_by == 'shipment_cost'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_cost','<?php echo $url_order ?>')">Chi phí <?php if ($order_by == 'shipment_cost'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_profit','<?php echo $url_order ?>')">Lợi nhuận <?php if ($order_by == 'shipment_profit'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
@@ -234,34 +222,38 @@ elseif ($order_by == 'oil_excess')
             
             <td class="fix" data="<?php echo $shipment->shipment_from; ?>" id="shipment_from_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$shipment->shipment_from) ?>" ><?php echo $shipment->shipment_from==$place['place_id'][$shipment->shipment_from]?$place['place_name'][$shipment->shipment_from]:null ?></a></td>
             <td class="fix" data="<?php echo $shipment->shipment_to; ?>" id="shipment_to_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$shipment->shipment_to) ?>" ><?php echo $shipment->shipment_to==$place['place_id'][$shipment->shipment_to]?$place['place_name'][$shipment->shipment_to]:null ?></a></td>
+
+            <td class="fix" ><?php echo $lib->formatMoney($road['road_km'][$shipment->shipment_id]); ?></td>
             
             <td class="fix" data="<?php echo $shipment->customer; ?>" id="customer_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('customer/index/'.$shipment->customer) ?>" ><?php echo $shipment->customer_name; ?></a></td>
-            <td  class="fix" style="display:none" id="customer_type_<?php echo $shipment->shipment_id; ?>"><?php echo $customer_types[$shipment->shipment_id]; ?></td>
-            <td class="fix" id="shipment_charge_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_charge); ?></td>
+            <td  class="fix" id="customer_type_<?php echo $shipment->shipment_id; ?>"><?php echo $customer_types[$shipment->shipment_id]; ?></td>
+            
             <td class="fix" id="shipment_ton_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_ton; ?></td>
             <td class="fix" id="cont_unit_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->cont_unit_name; ?></td>
+            <td class="fix" id="shipment_charge_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_charge); ?></td>
+            <td class="fix" id="shipment_revenue_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess); ?></td>
+            <td class="fix" id="shipment_cost_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_cost); ?></td>
+            <td class="fix" id="shipment_profit_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_profit+$shipment->revenue_other+$shipment->shipment_charge_excess); ?></td>
 
             <td class="fix" style="display:none" id="shipment_ton_net_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_ton_net; ?></td>
             <td class="fix" style="display:none" id="cont_unit_net_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->cont_unit_net; ?></td>
 
-            <td class="fix" ><?php echo $lib->formatMoney($road['road_oil'][$shipment->shipment_id]); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($road['oil_cost'][$shipment->shipment_id]); ?></td>
+            <td class="fix" style="display:none" ><?php echo $lib->formatMoney($road['road_oil'][$shipment->shipment_id]); ?></td>
+            <td class="fix" style="display:none" ><?php echo $lib->formatMoney($road['oil_cost'][$shipment->shipment_id]); ?></td>
             
-            <td class="fix" ><?php echo $lib->formatMoney($warehouse['boiduong_cn'][$shipment->shipment_id]+$road['bridge_cost'][$shipment->shipment_id]+$road['police_cost'][$shipment->shipment_id]+$road['tire_cost'][$shipment->shipment_id]+$shipment->bridge_cost_add); ?></td>
+            <td class="fix" style="display:none" ><?php echo $lib->formatMoney($warehouse['boiduong_cn'][$shipment->shipment_id]+$road['bridge_cost'][$shipment->shipment_id]+$road['police_cost'][$shipment->shipment_id]+$road['tire_cost'][$shipment->shipment_id]+$shipment->bridge_cost_add); ?></td>
 
             
 
-            <td <?php if($shipment->approve!=1 && $shipment->cost_add > 0) echo 'style="background: url(../public/images/no.png) bottom left  no-repeat"'; else echo 'style="background:  url(../public/images/ok.png) bottom left no-repeat"' ?>  id="cost_add1_<?php echo $shipment->shipment_id; ?>" class="fix masterTooltip" title="<?php echo $shipment->cost_add_comment; echo ($shipment->approve==1)?' (đã chấp nhận)': (($shipment->approve!=1 && $shipment->cost_add > 0)?' (chưa chấp nhận)':null); ?>" >
+            <td  style="display:none" <?php if($shipment->approve!=1 && $shipment->cost_add > 0) echo 'style="background: url(../public/images/no.png) bottom left  no-repeat"'; else echo 'style="background:  url(../public/images/ok.png) bottom left no-repeat"' ?>  id="cost_add1_<?php echo $shipment->shipment_id; ?>" class="fix masterTooltip" title="<?php echo $shipment->cost_add_comment; echo ($shipment->approve==1)?' (đã chấp nhận)': (($shipment->approve!=1 && $shipment->cost_add > 0)?' (chưa chấp nhận)':null); ?>" >
                 <?php echo $lib->formatMoney($shipment->cost_add); ?> <br>
                 <?php if($shipment->approve!=1 && $shipment->cost_add > 0 && ($_SESSION['role_logined'] == 1 || $_SESSION['role_logined'] == 2)) { ?>
                 <button data="<?php echo $shipment->shipment_id ?>"  class="ok approve">OK</button> 
                 <?php } ?>
             </td>
-            <td id="cost_vat_<?php echo $shipment->shipment_id; ?>" class="fix masterTooltip" title="<?php echo $shipment->cost_vat_comment; ?>" ><?php echo $lib->formatMoney($shipment->cost_vat); ?></td>
-            <td class="fix" id="oil_excess_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->oil_excess); ?></td>
-            <td class="fix" id="shipment_revenue_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess); ?></td>
-            <td class="fix" id="shipment_cost_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_cost); ?></td>
-            <td class="fix" id="shipment_profit_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_profit+$shipment->revenue_other+$shipment->shipment_charge_excess); ?></td>
+            <td style="display:none" id="cost_vat_<?php echo $shipment->shipment_id; ?>" class="fix masterTooltip" title="<?php echo $shipment->cost_vat_comment; ?>" ><?php echo $lib->formatMoney($shipment->cost_vat); ?></td>
+            <td style="display:none" class="fix" id="oil_excess_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->oil_excess); ?></td>
+            
 
             <td style="display:none" id="oil_cost_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney(round($shipment->oil_cost*1.1)); ?></td>
             <td style="display:none" id="oil_add_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->oil_add; ?></td>
@@ -292,28 +284,36 @@ elseif ($order_by == 'oil_excess')
             <td class="fix" style="display:none"  id="shipment_charge_excess_comment_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_charge_excess_comment; ?></td>
             <td class="fix" style="display:none"  id="bridge_cost_add_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->bridge_cost_add); ?></td>
 
+            <td class="fix" style="display:none"  id="shipment_salary_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_salary); ?></td>
+            <td class="fix" style="display:none"  id="route_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->route; ?></td>
+
 
             <?php if(!isset($disable_control)){ ?>
             <td class="pull-right">
-                <button title="Phiếu giao nhận vận chuyển" class="btn btn-sm btn-flat btn-primary editButton" data="<?php echo $shipment->shipment_id; ?>" data-receive-date="<?php echo $shipment->bill_receive_date>0?$lib->hien_thi_ngay_thang($shipment->bill_receive_date):null; ?>" data-receive-ton="<?php echo $shipment->bill_receive_ton; ?>" data-receive-unit="<?php echo $shipment->bill_receive_unit; ?>" data-bill="<?php echo $shipment->bill_number; ?>" data-delivery-date="<?php echo $shipment->bill_delivery_date>0?$lib->hien_thi_ngay_thang($shipment->bill_delivery_date):null; ?>" data-delivery-ton="<?php echo $shipment->bill_delivery_ton; ?>" data-delivery-unit="<?php echo $shipment->bill_delivery_unit; ?>" data-date-in="<?php echo $shipment->bill_in>0?date('H:i:s',$shipment->bill_in):null; ?>" data-date-out="<?php echo $shipment->bill_out>0?date('H:i:s',$shipment->bill_out):null; ?>" >D.O</button>
-                <button class="btn btn-sm btn-flat btn-success editButton2" data="<?php echo $shipment->shipment_id; ?>" data-oil="<?php echo $shipment->shipment_oil ?>" data-export="<?php echo $export_stocks[$shipment->shipment_id] ?>" >Dầu</button>
-                    <?php if($shipment->shipment_complete != 1){ ?>
-                     <?php if($shipment->not_del != 1){ ?>
-                    <button class="error" onclick="del(<?php echo $shipment->shipment_id ?>)" >Xóa</button>
-                    <?php } } ?>
+                <?php if($shipment->shipment_complete != 1){ ?>
+                
+
+                    <button title="Phiếu giao nhận vận chuyển" class="btn btn-sm btn-flat btn-primary editButton" data="<?php echo $shipment->shipment_id; ?>" data-receive-date="<?php echo $shipment->bill_receive_date>0?$lib->hien_thi_ngay_thang($shipment->bill_receive_date):null; ?>" data-receive-ton="<?php echo $shipment->bill_receive_ton; ?>" data-receive-unit="<?php echo $shipment->bill_receive_unit; ?>" data-bill="<?php echo $shipment->bill_number; ?>" data-delivery-date="<?php echo $shipment->bill_delivery_date>0?$lib->hien_thi_ngay_thang($shipment->bill_delivery_date):null; ?>" data-delivery-ton="<?php echo $shipment->bill_delivery_ton; ?>" data-delivery-unit="<?php echo $shipment->bill_delivery_unit; ?>" data-date-in="<?php echo $shipment->bill_in>0?date('H:i:s',$shipment->bill_in):null; ?>" data-date-out="<?php echo $shipment->bill_out>0?date('H:i:s',$shipment->bill_out):null; ?>" ><i class="fa fa-file-text-o"></i> D.O</button>
+                    <button class="btn btn-sm btn-flat btn-success editButton2" data="<?php echo $shipment->shipment_id; ?>" data-oil="<?php echo $shipment->shipment_oil ?>" data-export="<?php echo $export_stocks[$shipment->shipment_id] ?>" ><i class="fa fa-flask"></i> Dầu</button>
+                    <button class="hoantat btn btn-sm btn-flat btn-default" data="<?php echo $shipment->shipment_id ?>" ><i class="fa fa-check"></i> Hoàn tất</button>
+                    
+                    <?php } ?>
 
                     <?php if($shipment->shipment_complete != 1){ ?>
-                    <button class="hoantat" data="<?php echo $shipment->shipment_id ?>" >Hoàn tất</button>
-                    <?php } ?>
+                     <?php if($shipment->not_del != 1){ ?>
+                    <button class="btn btn-sm btn-flat btn-danger" onclick="del(<?php echo $shipment->shipment_id ?>)" ><i class="fa fa-remove"></i> Xóa</button>
+                    <?php } } ?>
+
+                    
 
                 <?php if($_SESSION['role_logined'] == 1 || $_SESSION['role_logined'] == 2 ){ ?>
                 <?php if($shipment->shipment_complete == 1 || $shipment->not_del == 1){ ?>
-                    <button value="0" class="unlock" data="<?php echo $shipment->shipment_id ?>" >Mở</button>
+                    <button value="0" class="unlock btn btn-sm btn-flat btn-default" data="<?php echo $shipment->shipment_id ?>" ><i class="fa fa-unlock"></i> Mở</button>
                 <?php } } ?>
 
                 <?php if($_SESSION['role_logined'] == 1 || $_SESSION['role_logined'] == 2 ){ ?>
                 <?php if($shipment->approve_oil == 1){ ?>
-                    <button value="0" class="unlock_oil" data="<?php echo $shipment->shipment_id ?>" >Mở dầu</button>
+                    <button value="0" class="unlock_oil btn btn-sm btn-flat btn-default" data="<?php echo $shipment->shipment_id ?>" ><i class="fa fa-unlock"></i> Mở dầu</button>
                 <?php } } ?>
 
             </td>
@@ -357,18 +357,18 @@ elseif ($order_by == 'oil_excess')
         if($arr[$shipment->vehicle.$shipment->shipment_round.$month.$year] == $v[$shipment->vehicle.$shipment->shipment_round.$month.$year]){
             ?>
                 <tr  style="font-weight: bold; color: rgb(23, 119, 226);background-color: rgb(222, 239, 236);" >
-                    <td class="fix" colspan="9" ></td>
+                    <td class="fix" colspan="11" ></td>
                     <th style="background: rgb(23, 119, 226); color: white; border-right: 1px solid rgb(236, 235, 235);border-top: 1px solid #80C8E5;padding: 7px;" colspan="2">
                         Tổng cộng
                     </th>
-                    <td class="fix " ><?php echo $lib->formatMoney($litdau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year]) ?></td>
-                    <td class="fix " ><?php echo $lib->formatMoney($chiphidau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year]) ?></td>
+                    <td style="display:none" class="fix " ><?php echo $lib->formatMoney($litdau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year]) ?></td>
+                    <td style="display:none" class="fix " ><?php echo $lib->formatMoney($chiphidau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year]) ?></td>
                    
-                    <td class="fix " ><?php echo $lib->formatMoney($chiphicodinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year]) ?></td>
+                    <td style="display:none" class="fix " ><?php echo $lib->formatMoney($chiphicodinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year]) ?></td>
                     
-                    <td class="fix " ><?php echo $lib->formatMoney($phiphatsinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year]) ?></td>
-                    <td class="fix " ><?php echo $lib->formatMoney($phihd[$shipment->vehicle_id][$shipment->shipment_round.$month.$year]) ?></td>
-                    <td class="fix " ><?php echo $lib->formatMoney($dauphatsinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year]) ?></td>
+                    <td style="display:none" class="fix " ><?php echo $lib->formatMoney($phiphatsinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year]) ?></td>
+                    <td style="display:none" class="fix " ><?php echo $lib->formatMoney($phihd[$shipment->vehicle_id][$shipment->shipment_round.$month.$year]) ?></td>
+                    <td style="display:none" class="fix " ><?php echo $lib->formatMoney($dauphatsinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year]) ?></td>
                     <td class="fix " ><?php echo $lib->formatMoney($doanhthu[$shipment->vehicle_id][$shipment->shipment_round.$month.$year]) ?></td>
                     <td id="total_shipment_cost" class="fix " ><?php echo $lib->formatMoney($chiphi[$shipment->vehicle_id][$shipment->shipment_round.$month.$year]) ?></td>
                     <td class="fix " ><?php echo $lib->formatMoney($loinhuan[$shipment->vehicle_id][$shipment->shipment_round.$month.$year]) ?></td>
@@ -682,7 +682,7 @@ $this->helper('slidePaginator');
                                                 <table id="dataTable" border="1" style="width: 100%; border: 1px solid rgb(221, 217, 217); margin-bottom: 10px" >
                                                     <tbody>
                                                         <tr>
-                                                            <td><input type="checkbox" name="chk"></td>
+                                                            <td><input type="checkbox" name="chk" data=""></td>
                                                             <td>
                                                                 <table style="width:100%">
                                                                     <tr>
@@ -697,7 +697,7 @@ $this->helper('slidePaginator');
                                                                         <td>Số tiền</td>
                                                                         <td>
                                                                             <input type="text" class="cost number" name="cost[]" style="width:120px">
-                                                                            <input type="checkbox" class="cost_vat" name="cost_vat[]" value="1"> VAT
+                                                                            <input type="checkbox" class="check_vat" name="check_vat[]" value="1"> VAT
                                                                         </td>
                                                                     </tr>
                                                                     <tr>
@@ -705,7 +705,7 @@ $this->helper('slidePaginator');
                                                                         <td>
                                                                             <textarea class="comment" name="comment[]"></textarea>
                                                                         </td>
-                                                                        <td>Người nhận <a target="_blank" title="Thêm người nhận" href="<?php echo $this->url('customer') ?>"><i class="fa fa-plus"></i></a></td>
+                                                                        <td>Người nhận <a target="_blank" title="Thêm người nhận" href="<?php echo $this->url('customer/newcus') ?>"><i class="fa fa-plus"></i></a></td>
                                                                         <td>
                                                                             <input type="text" autocomplete="off" class="receiver" name="receiver[]" placeholder="Nhập tên hoặc * để chọn" >
                                                                             <ul class="name_list_id"></ul>
@@ -907,7 +907,7 @@ $this->helper('slidePaginator');
                                                         <table id="dataTable2" border="1" style="width: 100%; border: 1px solid rgb(221, 217, 217); margin-bottom: 10px" >
                                                             <tbody>
                                                                 <tr>
-                                                                    <td><input type="checkbox" name="chk2"></td>
+                                                                    <td><input type="checkbox" name="chk2" data=""></td>
                                                                     <td>
                                                                         <table style="width:100%">
                                                                             <tr>
@@ -922,7 +922,7 @@ $this->helper('slidePaginator');
                                                                                 <td>Số tiền</td>
                                                                                 <td>
                                                                                     <input type="text" class="cost_sub number" name="cost_sub[]" style="width:120px">
-                                                                                    <input type="checkbox" class="cost_vat_sub" name="cost_vat_sub[]" value="1"> VAT
+                                                                                    <input type="checkbox" class="check_vat_sub" name="check_vat_sub[]" value="1"> VAT
                                                                                 </td>
                                                                             </tr>
                                                                             <tr>
@@ -930,7 +930,7 @@ $this->helper('slidePaginator');
                                                                                 <td>
                                                                                     <textarea class="comment_sub" name="comment_sub[]"></textarea>
                                                                                 </td>
-                                                                                <td>Người nhận <a target="_blank" title="Thêm người nhận" href="<?php echo $this->url('customer') ?>"><i class="fa fa-plus"></i></a></td>
+                                                                                <td>Người nhận <a target="_blank" title="Thêm người nhận" href="<?php echo $this->url('customer/newcus') ?>"><i class="fa fa-plus"></i></a></td>
                                                                                 <td>
                                                                                     <input type="text" autocomplete="off" class="receiver_sub" name="receiver_sub[]" placeholder="Nhập tên hoặc * để chọn" >
                                                                                     <ul class="name_list_id_2"></ul>
@@ -1032,7 +1032,7 @@ $('html').click(function(e) {
         
                     var shipment_id = $(this).attr('id');
                     $.ajax({
-                        url: '<?php echo BASE_URL ?>/shipment/getcost',
+                        url: '<?php echo BASE_URL ?>/shipment/getcostsub',
                         type: 'POST',
                         data: {shipment:shipment_id},
                         success:function(data){
@@ -1160,6 +1160,9 @@ $('html').click(function(e) {
 
                 var customer_type = $(this).find("#customer_type_"+$(this).attr('id')).text();
 
+                var shipment_salary = $(this).find("#shipment_salary_"+$(this).attr('id')).text();
+                var route = $(this).find("#route_"+$(this).attr('id')).text();
+
 
                 $('.loan_shipment').attr("href","<?php echo $this->url('shipment/loan/') ?>"+$(this).attr('id'));
 
@@ -1228,6 +1231,8 @@ $('html').click(function(e) {
                 $('#shipment_ton_net_sub').val(shipment_ton);
                 $("#shipment_ton_net_sub").attr("required",'required');
 
+                $('#shipment_salary_sub').val(shipment_salary);
+
 
                 dd = oil_add_dc;
                 ud = oil_add;
@@ -1249,6 +1254,22 @@ $('html').click(function(e) {
                   },
                   allowSpaces: true,
                 });
+
+                var from = $(this).find("#shipment_from_"+$(this).attr('id')).attr('data');
+                var to = $(this).find("#shipment_to_"+$(this).attr('id')).attr('data');
+                var ngay = shipment_date.replace(/\//g,"-");
+
+                $.ajax({
+                    url: '<?php echo BASE_URL ?>/shipment/getrouteadd',
+                    type: 'POST',
+                    data: {road_from:from, road_to:to, ngay:ngay, route:route},
+                    success:function(data){
+
+                        $('#route_sub').html(data);
+                        $('#route_sub').multiselect( 'refresh' );
+                    }
+                });
+
 
                 $( ".add-field" ).dialog( "open" );
 
@@ -1405,6 +1426,9 @@ $('html').click(function(e) {
 
                 var customer_type = $(this).find("#customer_type_"+$(this).attr('id')).text();
 
+                var shipment_salary = $(this).find("#shipment_salary_"+$(this).attr('id')).text();
+                var route = $(this).find("#route_"+$(this).attr('id')).text();
+
                 //var revenue_other = $(this).find("#revenue_other_"+$(this).attr('id')).text();
 
                 $('.loan_shipment').attr("href","<?php echo $this->url('shipment/loan/') ?>"+$(this).attr('id'));
@@ -1494,6 +1518,8 @@ $('html').click(function(e) {
                 $('#shipment_ton_net').val(shipment_ton);
                 $("#shipment_ton_net").attr("required",'required');
 
+                $('#shipment_salary').val(shipment_salary);
+
 
                 dd = oil_add_dc;
                 ud = oil_add;
@@ -1514,6 +1540,21 @@ $('html').click(function(e) {
                     });
                   },
                   allowSpaces: true,
+                });
+
+                var from = $(this).find("#shipment_from_"+$(this).attr('id')).attr('data');
+                var to = $(this).find("#shipment_to_"+$(this).attr('id')).attr('data');
+                var ngay = shipment_date.replace(/\//g,"-");
+
+                $.ajax({
+                    url: '<?php echo BASE_URL ?>/shipment/getrouteadd',
+                    type: 'POST',
+                    data: {road_from:from, road_to:to, ngay:ngay, route:route},
+                    success:function(data){
+
+                        $('#route').html(data);
+                        $('#route').multiselect( 'refresh' );
+                    }
                 });
 
                 $( ".add-field" ).dialog( "open" );
@@ -1623,6 +1664,8 @@ function add_click(){
         $('#bridge_cost_add').val(0);
 
         $('.loan_shipment').attr("href","<?php echo $this->url('shipment/loan') ?>");
+
+        $('#shipment_salary').val(0);
 
 
         $('.number').focus(function(){
@@ -1744,6 +1787,9 @@ function add_click(){
         $('#sp_thuc_chuyen_sub').hide();
         $('#shipment_ton_net_sub').hide();
         $('#shipment_ton_net_sub').val("");
+
+        $('#shipment_salary_sub').val(0);
+
 
         $('#tab1').show();
         $('.tab-links li:nth-child(2)').show();
@@ -1934,6 +1980,56 @@ $(document).ready(function(){
 
                     var bridge_cost_add = $('#bridge_cost_add').attr('value');
 
+                    var shipment_salary = $('#shipment_salary').attr('value');
+                    var route = $('#route').val();
+
+                    var shipment_cost = [];
+
+                    var shipment_cost_id = [];
+                    var cost_list = [];
+                    var cost = [];
+                    var check_vat = [];
+                    var comment = [];
+                    var receiver = [];
+                    var cost_document = [];
+
+                    $("input[name='chk']").each( function () {
+                        shipment_cost_id.push($(this).attr('data'));
+                    });
+                    $('.cost_list').each(function() { 
+                        cost_list.push($(this).val());
+                    });
+                    $('.cost').each(function() { 
+                        cost.push($(this).val());
+                    });
+                    $('.check_vat').each(function() { 
+                        if($(this).is(':checked'))
+                            check_vat.push($(this).val());
+                        else
+                            check_vat.push(0);
+                    });
+                    $('.comment').each(function() { 
+                        comment.push($(this).val());
+                    });
+                    $('.receiver').each(function() { 
+                        if ($(this).attr('data') != "") {
+                            receiver.push($(this).attr('data'));
+                        }
+                        else{
+                            receiver.push(0);
+                        }
+                        
+                    });
+                    $('.cost_document').each(function() { 
+                        cost_document.push($(this).val());
+                    });
+
+                    for (var i = 0; i < receiver.length; i++) {
+                        shipment_cost.push({'shipment_cost_id':shipment_cost_id[i], 'cost_list':cost_list[i], 'cost':cost[i], 'check_vat':check_vat[i], 'comment':comment[i], 'receiver':receiver[i], 'cost_document':cost_document[i]});
+                        
+                        
+                    };
+
 
                     //var revenue_other = $('#revenue_other').val();
                     var check_temp = $('#check_temp').attr('value');
@@ -1991,9 +2087,13 @@ $(document).ready(function(){
                             shipment_charge_excess_comment: shipment_charge_excess_comment,
                             bridge_cost_add: bridge_cost_add,
 
+                            shipment_salary: shipment_salary,
+                            route: route,
+                            shipment_cost: shipment_cost,
+
                             }, // giá trị post
                         success: function(answer){ // if everything goes well
-                            //alert(answer);
+                            //console.log(answer);
                             var data = jQuery.parseJSON(answer);
                             
                             $('#error').hide();
@@ -2139,6 +2239,57 @@ $(document).ready(function(){
                     var loan_content = $('#loan_content_sub').val();
                     var loan = $('#shipment_loan_sub').attr('data');
 
+                    var shipment_salary = $('#shipment_salary_sub').attr('value');
+                    var route = $('#route_sub').val();
+
+                    var shipment_cost = [];
+
+                    var shipment_cost_id = [];
+                    var cost_list = [];
+                    var cost = [];
+                    var check_vat = [];
+                    var comment = [];
+                    var receiver = [];
+                    var cost_document = [];
+
+                    $("input[name='chk2']").each( function () {
+                        shipment_cost_id.push($(this).attr('data'));
+                    });
+                    $('.cost_list_sub').each(function() { 
+                        cost_list.push($(this).val());
+                    });
+                    $('.cost_sub').each(function() { 
+                        cost.push($(this).val());
+                    });
+                    $('.check_vat_sub').each(function() { 
+                        if($(this).is(':checked'))
+                            check_vat.push($(this).val());
+                        else
+                            check_vat.push(0);
+                    });
+                    $('.comment_sub').each(function() { 
+                        comment.push($(this).val());
+                    });
+                    $('.receiver_sub').each(function() { 
+                        if ($(this).attr('data') != "") {
+                            receiver.push($(this).attr('data'));
+                        }
+                        else{
+                            receiver.push(0);
+                        }
+                        
+                        
+                    });
+                    $('.cost_document_sub').each(function() { 
+                        cost_document.push($(this).val());
+                    });
+
+                    for (var i = 0; i < receiver.length; i++) {
+                        shipment_cost.push({'shipment_cost_id':shipment_cost_id[i], 'cost_list':cost_list[i], 'cost':cost[i], 'check_vat':check_vat[i], 'comment':comment[i], 'receiver':receiver[i], 'cost_document':cost_document[i]});
+                        
+                        
+                    };
+
                     var check_temp = $('#check_temp_sub').attr('value');
 
                     var yes = $('#yes_sub').attr('value');
@@ -2177,6 +2328,10 @@ $(document).ready(function(){
                             loan: loan,
                             commission_number: commission_number,
                             commission: commission,
+
+                            shipment_salary: shipment_salary,
+                            route: route,
+                            shipment_cost: shipment_cost,
                             
                             yes: yes,
                             check_temp: check_temp,
@@ -3497,6 +3652,22 @@ $('#shipment_temp').change(function(){
               }       
             }); 
 
+            var ngay = $('#shipment_date').val();
+
+            $.ajax({
+                url: '<?php echo BASE_URL ?>/shipment/getroute',
+                type: 'POST',
+                data: {road_from:data.shipment_from, road_to:data.shipment_to, ngay:ngay},
+                success:function(data){
+
+                    $('#route').html(data);
+                    $('#route').multiselect( 'refresh' );
+
+                    $('#route_sub').html(data);
+                    $('#route_sub').multiselect( 'refresh' );
+                }
+            });
+
             $('.number').val(function(index, value) {
                 return value
                   .replace(/[^0-9-.]/g, "")
@@ -3735,7 +3906,7 @@ function addRow(tableID){
     $('.cost:last').val("");
     $('.comment:last').val("");
     $('.cost_document:last').val("");
-    $('.cost_vat:last').attr('checked',false);
+    $('.check_vat:last').attr('checked',false);
     
     $('input[name="chk"]:last').attr('data',"");
     $('input[name="chk"]:last').attr('tabindex',0);
@@ -3882,7 +4053,7 @@ function addRow2(tableID){
     $('.cost_sub:last').val("");
     $('.comment_sub:last').val("");
     $('.cost_document_sub:last').val("");
-    $('.cost_vat_sub:last').attr('checked',false);
+    $('.check_vat_sub:last').attr('checked',false);
     
     $('input[name="chk2"]:last').attr('data',"");
     $('input[name="chk2"]:last').attr('tabindex',0);

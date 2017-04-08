@@ -190,6 +190,8 @@ Class importstockController Extends baseController {
             $spare_model = $this->model->get('sparepartModel');
             $spare_temp = $this->model->get('spareparttempModel');
 
+            $debit = $this->model->get('debitModel');
+
             $data = array(
                         
                         'import_stock_code' => trim($_POST['import_stock_code']),
@@ -207,10 +209,40 @@ Class importstockController Extends baseController {
                     return false;
                 }
                 else{
+                    $import = $import_model->getStock($_POST['yes']);
+
                     $import_model->updateStock($data,array('import_stock_id' => $_POST['yes']));
                     $id_import = $_POST['yes'];
                     /*Log*/
                     /**/
+                    if (($import->invoice_customer == "" || $import->invoice_customer == 0 ) && $data['invoice_customer'] > 0) {
+                        $data_debit = array(
+                                'debit_date'=>$data['import_stock_date'],
+                                'customer'=>$data['invoice_customer'],
+                                'money'=>0,
+                                'money_vat'=>1,
+                                'comment'=>'Mua hàng HD số '.$data['invoice_number'],
+                                'check_debit'=>2,
+                                'import_stock'=>$id_import,
+                            );
+                            $debit->createDebit($data_debit);
+                    }
+                    else if($import->invoice_customer > 0 && $data['invoice_customer'] > 0){
+                        $data_debit = array(
+                            'debit_date'=>$data['import_stock_date'],
+                            'customer'=>$data['invoice_customer'],
+                            'money'=>0,
+                            'money_vat'=>1,
+                            'comment'=>'Mua hàng HD số '.$data['invoice_number'],
+                            'check_debit'=>2,
+                            'import_stock'=>$id_import,
+                        );
+                        $debit->updateDebit($data_debit,array('import_stock'=>$id_import));
+                    }
+                    else if($import->invoice_customer > 0 && ($data['invoice_customer'] == 0 || $data['invoice_customer'] == "")){
+                        $debit->queryDebit('DELETE FROM debit WHERE import_stock = '.$id_import);
+                    }
+
                     echo "Cập nhật thành công";
 
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
@@ -235,6 +267,19 @@ Class importstockController Extends baseController {
                     $id_import = $import_model->getLastStock()->import_stock_id;
                     /*Log*/
                     /**/
+
+                    if ($data['invoice_customer'] > 0) {
+                        $data_debit = array(
+                                'debit_date'=>$data['import_stock_date'],
+                                'customer'=>$data['invoice_customer'],
+                                'money'=>0,
+                                'money_vat'=>1,
+                                'comment'=>'Mua hàng HD số '.$data['invoice_number'],
+                                'check_debit'=>2,
+                                'import_stock'=>$id_import,
+                            );
+                            $debit->createDebit($data_debit);
+                    }
 
                     echo "Thêm thành công";
 
@@ -317,6 +362,11 @@ Class importstockController Extends baseController {
                 }
 
                 $import_model->updateStock(array('import_stock_total'=>$total_number,'import_stock_price'=>$total_price),array('import_stock_id'=>$id_import));
+
+                $data_debit = array(
+                    'money'=>$total_price,
+                );
+                $debit->updateDebit($data_debit,array('import_stock'=>$id_import));
                     
         }
     }
@@ -330,11 +380,13 @@ Class importstockController Extends baseController {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $import_model = $this->model->get('importstockModel');
             $stock_model = $this->model->get('sparestockModel');
+            $debit = $this->model->get('debitModel');
             if (isset($_POST['xoa'])) {
                 $data = explode(',', $_POST['xoa']);
                 foreach ($data as $data) {
                     $import_model->deleteStock($data);
                     $stock_model->query('DELETE FROM spare_stock WHERE import_stock = '.$data);
+                    $debit->queryDebit('DELETE FROM debit WHERE import_stock = '.$data);
                     
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 
                         $filename = "action_logs.txt";
@@ -352,6 +404,7 @@ Class importstockController Extends baseController {
             }
             else{
                 $stock_model->query('DELETE FROM spare_stock WHERE import_stock = '.$_POST['data']);
+                $debit->queryDebit('DELETE FROM debit WHERE import_stock = '.$_POST['data']);
                 /*Log*/
                     /**/
                     date_default_timezone_set("Asia/Ho_Chi_Minh"); 

@@ -9,7 +9,7 @@ Class customerController Extends baseController {
             $this->view->data['disable_control'] = 1;
         }
         $this->view->data['lib'] = $this->lib;
-        $this->view->data['title'] = 'Quản lý Khách hàng';
+        $this->view->data['title'] = 'Quản lý Khách hàng - Đối tác - Người thụ hưởng';
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $order_by = isset($_POST['order_by']) ? $_POST['order_by'] : null;
@@ -91,7 +91,7 @@ Class customerController Extends baseController {
             return $this->view->redirect('user/login');
         }
         $this->view->data['lib'] = $this->lib;
-        $this->view->data['title'] = 'Thêm Khách hàng';
+        $this->view->data['title'] = 'Thêm Khách hàng - Đối tác - Người thụ hưởng';
         $this->view->show('customer/newcus');
     }
     public function editcus($id){
@@ -106,7 +106,7 @@ Class customerController Extends baseController {
             return $this->view->redirect('customer');
         }
         $this->view->data['lib'] = $this->lib;
-        $this->view->data['title'] = 'Cập nhật khách hàng';
+        $this->view->data['title'] = 'Cập nhật khách hàng - Đối tác - Người thụ hưởng';
 
         $customer_model = $this->model->get('customerModel');
         $customers = $customer_model->getCustomer($id);

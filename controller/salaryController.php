@@ -12,13 +12,157 @@ Class salaryController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 7) {
-            $this->view->data['disable_control'] = 1;
-        }
-
         $this->view->data['lib'] = $this->lib;
 
-        $this->view->data['title'] = 'Bảng lương';
+        $this->view->data['title'] = 'Bảng lương tài xế';
+
+
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $batdau = isset($_POST['batdau']) ? $_POST['batdau'] : null;
+
+            $ketthuc = isset($_POST['ketthuc']) ? $_POST['ketthuc'] : null;
+
+            $trangthai = isset($_POST['sl_trangthai']) ? $_POST['sl_trangthai'] : null;
+
+        }
+
+        else{
+
+           
+
+            $batdau = date('m');
+
+            
+
+            $ketthuc = date('Y'); //cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')).'-'.date('m-Y');
+
+            $trangthai = -1;
+
+            
+
+        }
+
+
+
+        $dauthang = '01-'.$batdau.'-'.$ketthuc;
+
+        $cuoithang = date('t-'.$batdau.'-'.$ketthuc);
+
+
+
+        $vehicle_model = $this->model->get('vehicleModel');
+
+        $vehicles = $vehicle_model->getAllVehicle();
+
+        foreach ($vehicles as $vehicle) {
+
+            $vehicle_data[$vehicle->vehicle_id] = $vehicle->vehicle_number;
+
+        }
+
+        $this->view->data['vehicle_data'] = $vehicle_data;
+
+
+        $d_join = array('table'=>'steersman','where'=>'steersman = steersman_id');
+        $d_data = array(
+
+            'where'=> 'end_work > '.strtotime($dauthang),
+
+            'order_by'=>'steersman_name ASC',
+
+        );
+
+        if ($trangthai > 0) {
+
+            $d_data['where'] .= ' AND steersman_id = '.$trangthai;
+
+        }
+
+        $driver_model = $this->model->get('driverModel');
+
+        $drivers = $driver_model->getAllDriver($d_data,$d_join);
+
+        $steersman_model = $this->model->get('steersmanModel');
+
+        $steersmans_data = $steersman_model->getAllSteersman(array('order_by'=>'steersman_name ASC'));
+
+        $this->view->data['steersmans_data'] = $steersmans_data;
+
+
+
+        $shipment_model = $this->model->get('shipmentModel');
+
+        $warehouse_model = $this->model->get('warehouseModel');
+
+        $road_model = $this->model->get('roadModel');
+
+        $bonus_model = $this->model->get('salarybonusModel');
+
+        $shipment_bonuss = $bonus_model->getAllSalary(array('where'=>'start_time >= '.strtotime($dauthang).' AND end_time <= '.strtotime($cuoithang)));
+
+        $thuongphat = array();
+        foreach ($shipment_bonuss as $bonus) {
+            $thuongphat['thuong'] = $bonus->bonus;
+            $thuongphat['phat'] = $bonus->deduct;
+        }
+
+
+        $luongchuyen = array();
+        $daudinhmuc = array();
+        $dauthuclanh = array();
+
+
+
+        foreach ($drivers as $driver) {
+
+
+            $steersmans[$driver->steersman_id][$driver->vehicle] = $steersman_model->getSteersman($driver->steersman);
+
+               
+
+            $join = array('table'=>'customer, vehicle','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle');
+
+            $shipments = $shipment_model->getAllShipment(array('where'=>'vehicle = '.$driver->vehicle.' AND shipment_date >= '.$driver->start_work.' AND shipment_date <= '.$driver->end_work),$join);
+
+
+
+            foreach ($shipments as $shipment) {
+
+                $luongchuyen[$driver->steersman_id][$shipment->vehicle] = isset($luongchuyen[$driver->steersman_id][$shipment->vehicle])?($luongchuyen[$driver->steersman_id][$shipment->vehicle]+$shipment->shipment_salary) : (0+$shipment->shipment_salary);
+                $dauthuclanh[$driver->steersman_id][$shipment->vehicle] = isset($dauthuclanh[$driver->steersman_id][$shipment->vehicle])?($dauthuclanh[$driver->steersman_id][$shipment->vehicle]+$shipment->shipment_oil) : (0+$shipment->shipment_oil);
+
+                $roads = $road_model->queryRoad('SELECT * FROM road WHERE road_id IN ('.$shipment->route.')');
+
+                foreach ($roads as $road) {
+                    $daudinhmuc[$driver->steersman_id][$shipment->vehicle] = isset($daudinhmuc[$driver->steersman_id][$shipment->vehicle])?($daudinhmuc[$driver->steersman_id][$shipment->vehicle]+$road->road_oil) : (0+$road->road_oil);
+                }
+
+
+            }
+
+        }
+
+
+
+        $this->view->data['drivers'] = $drivers;
+
+        $this->view->data['luongchuyen'] = $luongchuyen;
+
+        $this->view->data['daudinhmuc'] = $daudinhmuc;
+
+        $this->view->data['dauthuclanh'] = $dauthuclanh;
+
+        $this->view->data['thuongphat'] = $thuongphat;
+
+
+
+        $this->view->data['batdau'] = $batdau;
+
+        $this->view->data['ketthuc'] = $ketthuc;
+
+        $this->view->data['trangthai'] = $trangthai;
 
 
 
