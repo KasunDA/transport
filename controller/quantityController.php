@@ -78,7 +78,7 @@ Class quantityController Extends baseController {
 
         }
 
-
+        $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
 
         $vong = (int)date('m',strtotime($batdau));
 
@@ -128,7 +128,7 @@ Class quantityController Extends baseController {
 
         if($batdau != "" && $ketthuc != "" ){
 
-            $query = $query.' AND shipment_date >= '.strtotime($batdau).' AND shipment_date <= '.strtotime($ketthuc);
+            $query = $query.' AND shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc);
 
         }
 
@@ -216,7 +216,7 @@ Class quantityController Extends baseController {
 
         if($batdau != "" && $ketthuc != "" ){
 
-            $query = $query.' AND shipment_date >= '.strtotime($batdau).' AND shipment_date <= '.strtotime($ketthuc);
+            $query = $query.' AND shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc);
 
         }
 
@@ -316,7 +316,7 @@ Class quantityController Extends baseController {
 
 
 
-            $query2 = 'SELECT *, max(shipment_charge) AS giathitruong FROM shipment WHERE shipment_from = '.$ship->shipment_from.' AND shipment_to = '.$ship->shipment_to.' AND shipment_date >= '.strtotime($batdau).' AND shipment_date <= '.strtotime($ketthuc).' ORDER BY shipment_date DESC LIMIT 3';
+            $query2 = 'SELECT *, max(shipment_charge) AS giathitruong FROM shipment WHERE shipment_from = '.$ship->shipment_from.' AND shipment_to = '.$ship->shipment_to.' AND shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc).' ORDER BY shipment_date DESC LIMIT 3';
 
             
 

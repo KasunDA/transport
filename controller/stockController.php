@@ -25,7 +25,7 @@ Class stockController Extends baseController {
             $trangthai = isset($_POST['staff']) ? $_POST['staff'] : null;
         }
         else{
-            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'spare_part_code';
+            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'code';
             $order = $this->registry->router->order_by ? $this->registry->router->order_by : 'ASC';
             $page = $this->registry->router->page ? (int) $this->registry->router->page : 1;
             $keyword = "";
@@ -47,7 +47,8 @@ Class stockController Extends baseController {
         
         $id = $this->registry->router->param_id;
 
-        $spare_model = $this->model->get('sparepartModel');
+        $spare_code_model = $this->model->get('sparepartcodeModel');
+
         $sonews = $limit;
         $x = ($page-1) * $sonews;
         $pagination_stages = 2;
@@ -57,10 +58,10 @@ Class stockController Extends baseController {
         );
 
         if (isset($id) && $id > 0) {
-            $data['where'] .= ' AND spare_part_id = '.$id;
+            $data['where'] .= ' AND spare_part_code_id = '.$id;
         }
 
-        $tongsodong = count($spare_model->getAllStock($data));
+        $tongsodong = count($spare_code_model->getAllStock($data));
         $tongsotrang = ceil($tongsodong / $sonews);
         
 
@@ -88,18 +89,16 @@ Class stockController Extends baseController {
             );
 
         if (isset($id) && $id > 0) {
-            $data['where'] .= ' AND spare_part_id = '.$id;
+            $data['where'] .= ' AND spare_part_code_id = '.$id;
         }
         
         if ($keyword != '') {
-            $search = ' AND ( spare_part_code LIKE "%'.$keyword.'%" 
-                        OR spare_part_name LIKE "%'.$keyword.'%" 
-                        OR spare_part_seri LIKE "%'.$keyword.'%" 
-                        OR spare_part_brand LIKE "%'.$keyword.'%" )';
+            $search = ' AND ( code LIKE "%'.$keyword.'%" 
+                        OR name LIKE "%'.$keyword.'%" )';
             $data['where'] .= $search;
         }
         
-        $spares = $spare_model->getAllStock($data);
+        $spares = $spare_code_model->getAllStock($data);
         $this->view->data['spares'] = $spares;
 
         $spare_stock_model = $this->model->get('sparestockModel');
@@ -108,48 +107,48 @@ Class stockController Extends baseController {
         foreach ($spares as $spare) {
             
 
-            $join_im = array('table'=>'import_stock','where'=>'import_stock = import_stock_id');
+            $join_im = array('table'=>'import_stock, spare_part','where'=>'import_stock = import_stock_id AND spare_part = spare_part_id');
             $data_im = array(
-                'where' => 'spare_part = '.$spare->spare_part_id.' AND import_stock_date >= '.strtotime($batdau).' AND import_stock_date <= '.strtotime($ketthuc),
+                'where' => 'code_list = '.$spare->spare_part_code_id.' AND import_stock_date >= '.strtotime($batdau).' AND import_stock_date < '.strtotime($ngayketthuc),
             );
             $stock_ims = $spare_stock_model->getAllStock($data_im,$join_im);
             foreach ($stock_ims as $im) {
-                $data_stock[$spare->spare_part_id]['import']['unit'] = $im->spare_stock_unit;
-                $data_stock[$spare->spare_part_id]['import']['number'] = isset($data_stock[$spare->spare_part_id]['import']['number'])?$data_stock[$spare->spare_part_id]['import']['number']+$im->spare_stock_number:$im->spare_stock_number;
-                $data_stock[$spare->spare_part_id]['import']['price'] = isset($data_stock[$spare->spare_part_id]['import']['price'])?$data_stock[$spare->spare_part_id]['import']['price']+($im->spare_stock_number*$im->spare_stock_price):($im->spare_stock_number*$im->spare_stock_price);
+                $data_stock[$spare->spare_part_code_id]['import']['unit'] = $im->spare_stock_unit;
+                $data_stock[$spare->spare_part_code_id]['import']['number'] = isset($data_stock[$spare->spare_part_code_id]['import']['number'])?$data_stock[$spare->spare_part_code_id]['import']['number']+$im->spare_stock_number:$im->spare_stock_number;
+                $data_stock[$spare->spare_part_code_id]['import']['price'] = isset($data_stock[$spare->spare_part_code_id]['import']['price'])?$data_stock[$spare->spare_part_code_id]['import']['price']+($im->spare_stock_number*$im->spare_stock_price+$im->spare_stock_vat_price):($im->spare_stock_number*$im->spare_stock_price+$im->spare_stock_vat_price);
             }
 
-            $join_ex = array('table'=>'export_stock','where'=>'export_stock = export_stock_id');
+            $join_ex = array('table'=>'export_stock, spare_part','where'=>'export_stock = export_stock_id AND spare_part = spare_part_id');
             $data_ex = array(
-                'where' => 'spare_part = '.$spare->spare_part_id.' AND export_stock_date >= '.strtotime($batdau).' AND export_stock_date <= '.strtotime($ketthuc),
+                'where' => 'code_list = '.$spare->spare_part_code_id.' AND export_stock_date >= '.strtotime($batdau).' AND export_stock_date < '.strtotime($ngayketthuc),
             );
             $stock_exs = $spare_stock_model->getAllStock($data_ex,$join_ex);
             foreach ($stock_exs as $ex) {
-                $data_stock[$spare->spare_part_id]['export']['unit'] = $ex->spare_stock_unit;
-                $data_stock[$spare->spare_part_id]['export']['number'] = isset($data_stock[$spare->spare_part_id]['export']['number'])?$data_stock[$spare->spare_part_id]['export']['number']+$ex->spare_stock_number:$ex->spare_stock_number;
-                $data_stock[$spare->spare_part_id]['export']['price'] = isset($data_stock[$spare->spare_part_id]['export']['price'])?$data_stock[$spare->spare_part_id]['export']['price']+($ex->spare_stock_number*$ex->spare_stock_price):($ex->spare_stock_number*$ex->spare_stock_price);
+                $data_stock[$spare->spare_part_code_id]['export']['unit'] = $ex->spare_stock_unit;
+                $data_stock[$spare->spare_part_code_id]['export']['number'] = isset($data_stock[$spare->spare_part_code_id]['export']['number'])?$data_stock[$spare->spare_part_code_id]['export']['number']+$ex->spare_stock_number:$ex->spare_stock_number;
+                $data_stock[$spare->spare_part_code_id]['export']['price'] = isset($data_stock[$spare->spare_part_code_id]['export']['price'])?$data_stock[$spare->spare_part_code_id]['export']['price']+($ex->spare_stock_number*$ex->spare_stock_price+$ex->spare_stock_vat_price):($ex->spare_stock_number*$ex->spare_stock_price+$ex->spare_stock_vat_price);
             }
 
             ////
-            $join_im = array('table'=>'import_stock','where'=>'import_stock = import_stock_id');
+            $join_im = array('table'=>'import_stock, spare_part','where'=>'import_stock = import_stock_id AND spare_part = spare_part_id');
             $data_im = array(
-                'where' => 'spare_part = '.$spare->spare_part_id.' AND import_stock_date < '.strtotime($batdau),
+                'where' => 'code_list = '.$spare->spare_part_code_id.' AND import_stock_date < '.strtotime($batdau),
             );
             $stock_ims = $spare_stock_model->getAllStock($data_im,$join_im);
             foreach ($stock_ims as $im) {
-                $data_stock[$spare->spare_part_id]['dauki']['unit'] = $im->spare_stock_unit;
-                $data_stock[$spare->spare_part_id]['dauki']['number'] = isset($data_stock[$spare->spare_part_id]['dauki']['number'])?$data_stock[$spare->spare_part_id]['dauki']['number']+$im->spare_stock_number:$im->spare_stock_number;
-                $data_stock[$spare->spare_part_id]['dauki']['price'] = isset($data_stock[$spare->spare_part_id]['dauki']['price'])?$data_stock[$spare->spare_part_id]['dauki']['price']+($im->spare_stock_number*$im->spare_stock_price):($im->spare_stock_number*$im->spare_stock_price);
+                $data_stock[$spare->spare_part_code_id]['dauki']['unit'] = $im->spare_stock_unit;
+                $data_stock[$spare->spare_part_code_id]['dauki']['number'] = isset($data_stock[$spare->spare_part_code_id]['dauki']['number'])?$data_stock[$spare->spare_part_code_id]['dauki']['number']+$im->spare_stock_number:$im->spare_stock_number;
+                $data_stock[$spare->spare_part_code_id]['dauki']['price'] = isset($data_stock[$spare->spare_part_code_id]['dauki']['price'])?$data_stock[$spare->spare_part_code_id]['dauki']['price']+($im->spare_stock_number*$im->spare_stock_price+$im->spare_stock_vat_price):($im->spare_stock_number*$im->spare_stock_price+$im->spare_stock_vat_price);
             }
 
-            $join_ex = array('table'=>'export_stock','where'=>'export_stock = export_stock_id');
+            $join_ex = array('table'=>'export_stock, spare_part','where'=>'export_stock = export_stock_id AND spare_part = spare_part_id');
             $data_ex = array(
-                'where' => 'spare_part = '.$spare->spare_part_id.' AND export_stock_date < '.strtotime($batdau),
+                'where' => 'code_list = '.$spare->spare_part_code_id.' AND export_stock_date < '.strtotime($batdau),
             );
             $stock_exs = $spare_stock_model->getAllStock($data_ex,$join_ex);
             foreach ($stock_exs as $ex) {
-                $data_stock[$spare->spare_part_id]['dauki']['number'] = isset($data_stock[$spare->spare_part_id]['dauki']['number'])?$data_stock[$spare->spare_part_id]['dauki']['number']-$ex->spare_stock_number:(0-$ex->spare_stock_number);
-                $data_stock[$spare->spare_part_id]['dauki']['price'] = isset($data_stock[$spare->spare_part_id]['dauki']['price'])?$data_stock[$spare->spare_part_id]['dauki']['price']-($ex->spare_stock_number*$ex->spare_stock_price):0-($ex->spare_stock_number*$ex->spare_stock_price);
+                $data_stock[$spare->spare_part_code_id]['dauki']['number'] = isset($data_stock[$spare->spare_part_code_id]['dauki']['number'])?$data_stock[$spare->spare_part_code_id]['dauki']['number']-$ex->spare_stock_number:(0-$ex->spare_stock_number);
+                $data_stock[$spare->spare_part_code_id]['dauki']['price'] = isset($data_stock[$spare->spare_part_code_id]['dauki']['price'])?$data_stock[$spare->spare_part_code_id]['dauki']['price']-($ex->spare_stock_number*$ex->spare_stock_price+$ex->spare_stock_vat_price):0-($ex->spare_stock_number*$ex->spare_stock_price+$ex->spare_stock_vat_price);
             }
 
         }
@@ -161,7 +160,7 @@ Class stockController Extends baseController {
 
         
 
-        $this->view->data['lastID'] = isset($spare_model->getLastStock()->spare_part_id)?$spare_model->getLastStock()->spare_part_id:0;
+        $this->view->data['lastID'] = isset($spare_code_model->getLastStock()->spare_part_code_id)?$spare_code_model->getLastStock()->spare_part_code_id:0;
         
         $this->view->show('stock/index');
     }

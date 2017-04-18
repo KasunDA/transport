@@ -71,7 +71,7 @@ Class profitController Extends baseController {
             $trangthai = date('Y',strtotime($batdau));
 
         }
-
+        $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
 
 
         $vong = (int)date('m',strtotime($batdau));
@@ -106,7 +106,7 @@ Class profitController Extends baseController {
 
         $data = array(
 
-            'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date <= '.strtotime($ketthuc),
+            'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc),
 
             );
 
@@ -178,7 +178,7 @@ Class profitController Extends baseController {
 
             'limit'=>$x.','.$sonews,
 
-            'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date <= '.strtotime($ketthuc),
+            'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc),
 
             );
 

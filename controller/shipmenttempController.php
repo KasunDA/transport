@@ -60,6 +60,8 @@ Class shipmenttempController Extends baseController {
 
         }
 
+        $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
+
         $customer_sub_model = $this->model->get('customersubModel');
         $customer_subs = $customer_sub_model->getAllCustomer();
         $customer_sub_data = array();
@@ -85,7 +87,7 @@ Class shipmenttempController Extends baseController {
 
         $data = array(
 
-            'where' => 'shipment_temp_date >= '.strtotime($batdau).' AND shipment_temp_date <= '.strtotime($ketthuc),
+            'where' => 'shipment_temp_date >= '.strtotime($batdau).' AND shipment_temp_date < '.strtotime($ngayketthuc),
 
             );
 
@@ -131,7 +133,7 @@ Class shipmenttempController Extends baseController {
 
             'limit'=>$x.','.$sonews,
 
-            'where' => 'shipment_temp_date >= '.strtotime($batdau).' AND shipment_temp_date <= '.strtotime($ketthuc),
+            'where' => 'shipment_temp_date >= '.strtotime($batdau).' AND shipment_temp_date < '.strtotime($ngayketthuc),
 
             );
 

@@ -34,6 +34,8 @@ Class customershipController Extends baseController {
 
         }
 
+        $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
+
         $vehicle_model = $this->model->get('vehicleModel');
 
         $vehicles = $vehicle_model->getAllVehicle();
@@ -49,7 +51,7 @@ Class customershipController Extends baseController {
         $customer_sub_model = $this->model->get('customersubModel');
 
         $data = array(
-            'where' => '1=1',
+            'where' => 'customer_id IN (SELECT customer FROM shipment)',
         );
 
         if ($keyword != '') {
@@ -102,7 +104,7 @@ Class customershipController Extends baseController {
 
         $data = array(
 
-            'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date <= '.strtotime($ketthuc),
+            'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc),
 
             );
 

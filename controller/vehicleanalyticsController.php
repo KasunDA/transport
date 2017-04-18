@@ -119,7 +119,7 @@ Class vehicleanalyticsController Extends baseController {
             foreach ($shipments as $ship) {
                 if ($xem == 0) {
                     $data_vehicle[$vehicle->vehicle_id]['ship'] = isset($data_vehicle[$vehicle->vehicle_id]['ship'])?$data_vehicle[$vehicle->vehicle_id]['ship']+1:1;
-                    $data_vehicle[$vehicle->vehicle_id]['oil'] = isset($data_vehicle[$vehicle->vehicle_id]['oil'])?$data_vehicle[$vehicle->vehicle_id]['oil']+$ship->oil_add+$ship->oil_add2+$ship->oil_excess-$ship->oil_residual:$ship->oil_add+$ship->oil_add2+$ship->oil_excess-$ship->oil_residual;
+                    $data_vehicle[$vehicle->vehicle_id]['oil'] = isset($data_vehicle[$vehicle->vehicle_id]['oil'])?$data_vehicle[$vehicle->vehicle_id]['oil']+$ship->shipment_oil:$ship->shipment_oil;
                     $data_vehicle[$vehicle->vehicle_id]['revenue'] = isset($data_vehicle[$vehicle->vehicle_id]['revenue'])?$data_vehicle[$vehicle->vehicle_id]['revenue']+$ship->shipment_revenue+$ship->shipment_charge_excess:$ship->shipment_revenue+$ship->shipment_charge_excess;
 
                     $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$ship->shipment_from.' AND road_to = '.$ship->shipment_to.' AND start_time <= '.$ship->shipment_date.' AND end_time >= '.$ship->shipment_date));
@@ -130,7 +130,7 @@ Class vehicleanalyticsController Extends baseController {
                 else{
                     $thang = (int)date('m',$ship->shipment_date).'-'.date('Y',$ship->shipment_date);
                     $data_vehicle[$vehicle->vehicle_id]['ship'][$thang] = isset($data_vehicle[$vehicle->vehicle_id]['ship'][$thang])?$data_vehicle[$vehicle->vehicle_id]['ship'][$thang]+1:1;
-                    $data_vehicle[$vehicle->vehicle_id]['oil'][$thang] = isset($data_vehicle[$vehicle->vehicle_id]['oil'][$thang])?$data_vehicle[$vehicle->vehicle_id]['oil'][$thang]+$ship->oil_add+$ship->oil_add2+$ship->oil_excess-$ship->oil_residual:$ship->oil_add+$ship->oil_add2+$ship->oil_excess-$ship->oil_residual;
+                    $data_vehicle[$vehicle->vehicle_id]['oil'][$thang] = isset($data_vehicle[$vehicle->vehicle_id]['oil'][$thang])?$data_vehicle[$vehicle->vehicle_id]['oil'][$thang]+$ship->shipment_oil:$ship->shipment_oil;
                     $data_vehicle[$vehicle->vehicle_id]['revenue'][$thang] = isset($data_vehicle[$vehicle->vehicle_id]['revenue'][$thang])?$data_vehicle[$vehicle->vehicle_id]['revenue'][$thang]+$ship->shipment_revenue+$ship->shipment_charge_excess:$ship->shipment_revenue+$ship->shipment_charge_excess;
 
                     $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$ship->shipment_from.' AND road_to = '.$ship->shipment_to.' AND start_time <= '.$ship->shipment_date.' AND end_time >= '.$ship->shipment_date));

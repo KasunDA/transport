@@ -692,59 +692,52 @@ Class roadController Extends baseController {
 
                     else{
 
-                        $data_toll_booth = array(
+                        if (trim($v['toll_booth_name']) != "") {
+                            $data_toll_booth = array(
 
-                            'toll_name' => $v['toll_booth_name'],
+                                'toll_name' => $v['toll_booth_name'],
 
-                            'toll_mst' => $v['toll_mst'],
+                                'toll_mst' => $v['toll_mst'],
 
-                            'toll_symbol' => $v['toll_symbol'],
+                                'toll_symbol' => $v['toll_symbol'],
 
-                            'toll_type' => $v['toll_type'],
+                                'toll_type' => $v['toll_type'],
 
-                        );
+                            );
 
-                        $toll_booth_model->createToll($data_toll_booth);
+                            $toll_booth_model->createToll($data_toll_booth);
 
-                        $id_toll_booth = $toll_booth_model->getLastToll()->toll_id;
-
-                    }
-
-                    $data_bridge_cost = array(
-
-                        'toll_booth' => $id_toll_booth,
-
-                        'road' => $_POST['yes'],
-
-                        'toll_booth_cost' => trim(str_replace(',','',$v['toll_booth_cost'])),
-                        'check_vat' => $v['check_vat'],
-
-                    );
-
-                    $id_bridgecost = isset($v['bridge_cost_id'])?$v['bridge_cost_id']:0;
-
-                    if ($id_bridgecost > 0) {
-                        $bridge_cost_model->updateBridgecost($data_bridge_cost,array('bridge_cost_id'=>$id_bridgecost));
-                    }
-                    else{
-                        $bridge_cost_model->createBridgecost($data_bridge_cost);
-                    }
-
-                    /*if (!$bridge_cost_model->getBridgecostByWhere(array('road'=>$_POST['yes'],'toll_booth'=>$id_toll_booth))) {
-
-                        $bridge_cost_model->createBridgecost($data_bridge_cost);
-
-                    }
-
-                    else if ($bridge_cost_model->getBridgecostByWhere(array('road'=>$_POST['yes'],'toll_booth'=>$id_toll_booth))) {
-
-                        $id_bridge_cost = $bridge_cost_model->getBridgecostByWhere(array('road'=>$_POST['yes'],'toll_booth'=>$id_toll_booth))->bridge_cost_id;
+                            $id_toll_booth = $toll_booth_model->getLastToll()->toll_id;
+                        }
 
                         
 
-                        $bridge_cost_model->updateBridgecost($data_bridge_cost,array('bridge_cost_id'=>$id_bridge_cost));
+                    }
 
-                    }*/
+                    if (isset($id_toll_booth)) {
+                        $data_bridge_cost = array(
+
+                            'toll_booth' => $id_toll_booth,
+
+                            'road' => $_POST['yes'],
+
+                            'toll_booth_cost' => trim(str_replace(',','',$v['toll_booth_cost'])),
+                            'check_vat' => $v['check_vat'],
+
+                        );
+
+                        $id_bridgecost = isset($v['bridge_cost_id'])?$v['bridge_cost_id']:0;
+
+                        if ($id_bridgecost > 0) {
+                            $bridge_cost_model->updateBridgecost($data_bridge_cost,array('bridge_cost_id'=>$id_bridgecost));
+                        }
+                        else{
+                            $bridge_cost_model->createBridgecost($data_bridge_cost);
+                        }
+                    }
+
+                    
+
 
                 }
 
@@ -985,39 +978,47 @@ Class roadController Extends baseController {
 
                         else{
 
-                            $data_toll_booth = array(
+                            if (trim($v['toll_booth_name']) != "") {
+                                $data_toll_booth = array(
 
-                                'toll_name' => $v['toll_booth_name'],
+                                    'toll_name' => $v['toll_booth_name'],
 
-                                'toll_mst' => $v['toll_mst'],
+                                    'toll_mst' => $v['toll_mst'],
 
-                                'toll_symbol' => $v['toll_symbol'],
+                                    'toll_symbol' => $v['toll_symbol'],
 
-                                'toll_type' => $v['toll_type'],
+                                    'toll_type' => $v['toll_type'],
 
-                            );
+                                );
 
-                            $toll_booth_model->createToll($data_toll_booth);
+                                $toll_booth_model->createToll($data_toll_booth);
 
-                            $id_toll_booth = $toll_booth_model->getLastToll()->toll_id;
+                                $id_toll_booth = $toll_booth_model->getLastToll()->toll_id;
+                            }
+
+                            
 
                         }
 
-                        $data_bridge_cost = array(
+                        if (isset($id_toll_booth)) {
+                            $data_bridge_cost = array(
 
-                            'toll_booth' => $id_toll_booth,
+                                'toll_booth' => $id_toll_booth,
 
-                            'road' => $road_id,
+                                'road' => $road_id,
 
-                            'toll_booth_cost' => trim(str_replace(',','',$v['toll_booth_cost'])),
+                                'toll_booth_cost' => trim(str_replace(',','',$v['toll_booth_cost'])),
 
-                            'check_vat' => $v['check_vat'],
+                                'check_vat' => $v['check_vat'],
 
-                        );
+                            );
 
 
 
-                        $bridge_cost_model->createBridgecost($data_bridge_cost);
+                            $bridge_cost_model->createBridgecost($data_bridge_cost);
+                        }
+
+                        
 
                        
                     }

@@ -1,4 +1,5 @@
-
+<link rel="stylesheet" type="text/css" href="<?php BASE_URL ?>/public/css/jquery.multiselect.css" />
+<script type="text/javascript" src="<?php BASE_URL ?>/public/js/jquery.multiselect.js"></script>
 <?php
 $url_order = 'ASC';
 if ($order_by == 'export_stock_id')
@@ -119,6 +120,9 @@ elseif ($order_by == 'username')
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','export_stock_price','<?php echo $url_order ?>')">Giá trị <?php if ($order_by == 'export_stock_price'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','export_stock_comment','<?php echo $url_order ?>')">Nội dung <?php if ($order_by == 'export_stock_comment'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+        </th>
+        <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','username','<?php echo $url_order ?>')">Người lập <?php if ($order_by == 'username'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         
@@ -139,7 +143,11 @@ elseif ($order_by == 'username')
             <td class="fix" id="export_stock_date_<?php echo $export_stock->export_stock_id; ?>"><?php echo $lib->hien_thi_ngay_thang($export_stock->export_stock_date) ?></td>
             <td class="fix"  id="export_stock_total_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->export_stock_total ?></td>
             <td class="fix"  id="export_stock_price_<?php echo $export_stock->export_stock_id; ?>"><?php echo $lib->formatMoney($export_stock->export_stock_price) ?></td>
+            <td class="fix"  id="export_stock_comment_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->export_stock_comment ?></td>
             <td class="fix"  id="username_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->username ?></td>
+
+            <td class="fix" style="display:none" data="<?php echo $export_stock->steersman ?>"  id="steersman_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->steersman_name ?></td>
+            <td class="fix" style="display:none" data="<?php echo $export_stock->house ?>" id="house_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->house_name ?></td>
         
             <?php if(!isset($disable_control)){ ?>
             <td class="pull-right">
@@ -165,24 +173,47 @@ $this->helper('slidePaginator');
             <!-- form start -->
             <form id="add_export_stock" role="form" method="post" action="" enctype="multipart/form-data">
               <div class="row">
-                <div class="col-md-6 col-xs-6">
+                <div class="col-md-4 col-xs-6">
                   <div class="box-body">
                     <div class="form-group">
                       <label for="export_stock_date">Ngày</label>
                       <input class="ngay" type="text" id="export_stock_date"  name="export_stock_date" tabindex="1" required="required" >
+                    </div>
+                    <div class="form-group">
+                      <label for="steersman">Người nhận <a target="_blank" title="Thêm tài xế" href="<?php echo $this->url('steersman') ?>"><i class="fa fa-plus"></i></a></label>
+                      <input type="text" autocomplete="off" id="steersman"  name="steersman" tabindex="4"  placeholder="Nhập tên hoặc * để chọn" required="required" >
+                        <ul id="customer_list_id"></ul>
                     </div>
                     
                   </div>
                   <!-- /.box-body -->
                   
                 </div>
-                <div class="col-md-6 col-xs-6">
+                <div class="col-md-4 col-xs-6">
                   <div class="box-body">
                     <div class="form-group">
                       <label for="export_stock_code">Số phiếu</label>
                       <input type="text" id="export_stock_code"  name="export_stock_code" tabindex="2" required="required" >
                     </div>
+                    <div class="form-group">
+                      <label for="house">Kho xuất <a target="_blank" title="Thêm kho" href="<?php echo $this->url('house') ?>"><i class="fa fa-plus"></i></a></label>
+                      <select id="house" name="house" tabindex="5">
+                        <?php foreach ($houses as $house) { ?>
+                            <option value="<?php echo $house->house_id ?>"><?php echo $house->house_name.' ['.$house->house_place.']' ?></option>
+                        <?php } ?>
+                      </select>
+                    </div>
                     
+                  </div>
+                  <!-- /.box-body -->
+                  
+                </div>
+                <div class="col-md-4 col-xs-6">
+                  <div class="box-body">
+                    <div class="form-group">
+                      <label for="export_stock_comment">Nội dung</label>
+                      <input type="text" id="export_stock_comment"  name="export_stock_comment" tabindex="3" required="required" >
+                    </div>
                     
                   </div>
                   <!-- /.box-body -->
@@ -219,44 +250,41 @@ $this->helper('slidePaginator');
                                         </td>
                                         
                                     </tr>
-                                    <tr>
-                                      <td>
-                                            Nhà sản xuất
-                                        </td>
+                                    <tr class="show_seri">
+                                        <td>Chọn 1 sản phẩm</td>
                                         <td>
-                                            <input type="text" class="spare_part_brand" name="spare_part_brand[]" tabindex="5" >
-                                        </td>
-                                        <td>Số seri</td>
-                                        <td>
-                                            <input type="text" class="spare_part_seri" name="spare_part_seri[]" tabindex="6" >
+                                            <select class="choose_seri" name="choose_seri[]" multiple="multiple" tabindex="11" data="0">
+                                    
+                                            </select>
                                         </td>
                                     </tr>
                                     <tr>
                                         
-                                        
-                                        <td>
-                                            Ngày sản xuất
-                                        </td>
-                                        <td>
-                                            <input type="text" class="spare_part_date_manufacture ngay" name="spare_part_date_manufacture[]" tabindex="7" >
-                                        </td>
                                         <td>
                                             Đơn vị tính
                                         </td>
                                         <td>
-                                            <input type="text" class="spare_stock_unit" name="spare_stock_unit[]" tabindex="8" >
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Số lượng</td>
-                                        <td>
-                                            <input type="text" class="spare_stock_number number" name="spare_stock_number[]" tabindex="9" >
+                                            <input type="text" class="spare_stock_unit" name="spare_stock_unit[]" tabindex="7" >
                                         </td>
                                         <td>Đơn giá</td>
                                         <td>
-                                            <input type="text" class="spare_stock_price numbers" name="spare_stock_price[]" tabindex="10" >
+                                            <input type="text" class="spare_stock_price numbers" name="spare_stock_price[]" tabindex="8" >
                                         </td>
                                     </tr>
+                                    <tr>
+                                        
+                                        <td>Số lượng</td>
+                                        <td>
+                                          <input style="width:80px" type="number" step="any" class="spare_stock_number number" name="spare_stock_number[]" tabindex="10" value="0" max="0" >
+                                        </td>
+                                        <td>VAT</td>
+                                        <td>
+                                          <input style="width:50px" type="text" class="spare_stock_vat_percent number" name="spare_stock_vat_percent[]" tabindex="9" placeholder="%" >
+                                            <input style="width:120px" type="text" class="spare_stock_vat_price numbers" name="spare_stock_vat_price[]" tabindex="9" placeholder="Tổng tiền thuế" >
+                                            
+                                        </td>
+                                    </tr>
+                                    
                                 </table>
                             </td>
                         </tr>
@@ -273,8 +301,8 @@ $this->helper('slidePaginator');
                 <div class="col-md-12">
                     <div class="box-footer">
                     <input type="hidden" readonly id="yes" name="yes" required="required" >
-                    <button type="submit" class="btn btn-primary" tabindex="3">Hoàn thành</button>
-                    <button type="reset" class="btn" tabindex="4">Nhập lại</button>
+                    <button type="submit" class="btn btn-primary" tabindex="6">Hoàn thành</button>
+                    <button type="reset" class="btn" tabindex="7">Nhập lại</button>
                   </div>
                   <div class="box-footer">
                     <div id="error" class="error"><?php echo isset($error) ? $error : null; ?></div>
@@ -299,7 +327,7 @@ $this->helper('slidePaginator');
 
 <script type="text/javascript">
 $('html').click(function(e) {
-    
+    $('#customer_list_id').slideUp(200);
     $('.name_list_id').slideUp(200);
     $('.name_list_id_2').slideUp(200);
 });
@@ -311,12 +339,22 @@ $('html').click(function(e) {
             }
             var export_stock_code = $(this).find("#export_stock_code_"+$(this).attr('id')).text();
             var export_stock_date = $(this).find("#export_stock_date_"+$(this).attr('id')).text();
+            var export_stock_comment = $(this).find("#export_stock_comment_"+$(this).attr('id')).text();
+
+            var steersman = $(this).find("#steersman_"+$(this).attr('id')).attr('data');
+            var steersman_name = $(this).find("#steersman_"+$(this).attr('id')).text();
+            var house = $(this).find("#house_"+$(this).attr('id')).attr('data');
             
             //alert(export_stock_code);
             $('#yes').val($(this).attr('id'));
             
             $('#export_stock_date').val(export_stock_date.replace(/\//g,"-"));
             $('#export_stock_code').val(export_stock_code);
+            $('#export_stock_comment').val(export_stock_comment);
+
+            $('#steersman').val(steersman_name);
+            $('#steersman').attr('data',steersman);
+            $('#house option[value='+house+']').attr('selected','selected');
 
             $('#dataTable tbody tr').remove();
         
@@ -328,6 +366,9 @@ $('html').click(function(e) {
                 success:function(data){
                     //alert(data);
                     $('#dataTable tbody').append(data);
+
+                    $(".choose_seri").multiselect({});
+
                     $('.spare_part').keyup(function(){
                         var row = $(this).parent().parent().parent().parent().parent().parent();
                         var rowIndex = row[0].rowIndex;
@@ -384,17 +425,77 @@ $('html').click(function(e) {
                       
                   });
 
-              $('.spare_part_code').on('keydown', function() {
-                      var row = $(this).parent().parent().parent().parent().parent().parent();
-                      var rowIndex = row[0].rowIndex;
+             
 
-                      var key = event.keyCode || event.charCode;
+              $('.spare_stock_vat_percent').keyup(function(){
+                          var row = $(this).parent().parent().parent().parent().parent().parent();
+                          var rowIndex = row[0].rowIndex;
 
-                      if( key == 8 || key == 46 ){
-                          $('.spare_part:eq('+rowIndex+')').attr('data',"");
-                      }
+                          var percent = parseFloat($(this).val());
+                          var number = parseFloat(get_number('.spare_stock_number:eq('+rowIndex+')')) || 0;
+
+                          $('.spare_stock_vat_price:eq('+rowIndex+')').val(
+                              Math.round(
+                              (parseFloat(get_number('.spare_stock_price:eq('+rowIndex+')'))*percent/100)*number
+                              )
+                          );
+
+                          $('.spare_stock_vat_price:eq('+rowIndex+')').val(function(index, value) {
+                              return value
+                                .replace(/\D/g, "")
+                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              ;
+                            });
                           
-                    }); 
+                      });
+                    $('.spare_stock_price').keyup(function(){
+                          var row = $(this).parent().parent().parent().parent().parent().parent();
+                          var rowIndex = row[0].rowIndex;
+
+                          var percent = parseFloat(get_number('.spare_stock_vat_percent:eq('+rowIndex+')')) || 0;
+                          var price = parseFloat($(this).val().replace(/\,/g,''));
+                          var number = parseFloat(get_number('.spare_stock_number:eq('+rowIndex+')')) || 0;
+
+                          $('.spare_stock_vat_price:eq('+rowIndex+')').val(
+                              Math.round(
+                              (price*percent/100)*number
+                              )
+                          );
+
+                          $('.spare_stock_vat_price:eq('+rowIndex+')').val(function(index, value) {
+                              return value
+                                .replace(/\D/g, "")
+                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              ;
+                            });
+                          
+                      });
+                      $('.spare_stock_number').keyup(function(){
+                          var row = $(this).parent().parent().parent().parent().parent().parent();
+                          var rowIndex = row[0].rowIndex;
+
+                          var seri = $('.spare_part_seri:eq('+rowIndex+')').val().trim();
+                          if (seri != "") {
+                            $(this).val(1);
+                          }
+
+                          var number = parseFloat($(this).val());
+                          var percent = parseFloat(get_number('.spare_stock_vat_percent:eq('+rowIndex+')')) || 0;
+
+                          $('.spare_stock_vat_price:eq('+rowIndex+')').val(
+                              Math.round(
+                              (parseFloat(get_number('.spare_stock_price:eq('+rowIndex+')'))*percent/100)*number
+                              )
+                          );
+
+                          $('.spare_stock_vat_price:eq('+rowIndex+')').val(function(index, value) {
+                              return value
+                                .replace(/\D/g, "")
+                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              ;
+                            });
+                          
+                      });
 
                    
                     $('.number').keyup(function(event) {
@@ -427,16 +528,88 @@ $('html').click(function(e) {
                    function get_number(id){
                     return $(id).val().replace(/\,/g,'');
                   }
-                  function set_item_other(item,value,code,seri,date,brand,vitri,unit,price) {
+                  function set_item_other(item,value,code,vitri,unit,price) {
                       // change input value
                       $('.spare_part:eq('+vitri+')').val(value);
                       $('.spare_part:eq('+vitri+')').attr("data",item);
                       $('.spare_part_code:eq('+vitri+')').val(code);
-                      $('.spare_part_seri:eq('+vitri+')').val(seri);
-                      $('.spare_part_date_manufacture:eq('+vitri+')').val(date);
-                      $('.spare_part_brand:eq('+vitri+')').val(brand);
                       $('.spare_stock_unit:eq('+vitri+')').val(unit);
                       $('.spare_stock_price:eq('+vitri+')').val(price);
+                      $('.spare_stock_number:eq('+vitri+')').val(0);
+                      $('.spare_stock_vat_price:eq('+vitri+')').val(0);
+
+
+                      $.ajax({
+                            url: '<?php echo BASE_URL ?>/exportstock/getseri',
+                            type: 'POST',
+                            data: {data:item},
+                            success:function(data){
+                                $(".choose_seri:eq("+vitri+")").html(data);
+                                  $(".choose_seri:eq("+vitri+")").multiselect( 'refresh' );
+                                  $(".choose_seri:eq("+vitri+")").multiselect({
+                                    click: function(event, ui){
+                                        var percent = parseFloat(get_number('.spare_stock_vat_percent:eq('+vitri+')')) || 0;
+                                        var number = parseFloat($('.spare_stock_number:eq('+vitri+')').val()) || 0;
+                                        var new_num = parseFloat(ui.text);
+                                        if(ui.checked == 1){
+                                            $('.spare_stock_number:eq('+vitri+')').val(number+new_num);
+                                            $('.spare_stock_number:eq('+vitri+')').attr('max',number+new_num);
+
+                                            $('.spare_stock_vat_price:eq('+vitri+')').val(
+                                                  Math.round(
+                                                  (parseFloat(get_number('.spare_stock_price:eq('+vitri+')'))*percent/100)*(number+new_num)
+                                                  )
+                                              );
+                                        }
+                                        else{
+                                            $('.spare_stock_number:eq('+vitri+')').val(number-new_num);
+                                            $('.spare_stock_number:eq('+vitri+')').attr('max',number-new_num);
+
+                                            $('.spare_stock_vat_price:eq('+vitri+')').val(
+                                                  Math.round(
+                                                  (parseFloat(get_number('.spare_stock_price:eq('+vitri+')'))*percent/100)*(number-new_num)
+                                                  )
+                                              );
+                                        }
+                                        
+                                          $('.spare_stock_vat_price:eq('+vitri+')').val(function(index, value) {
+                                              return value
+                                                .replace(/\D/g, "")
+                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                              ;
+                                            });
+                                    },
+                                    checkAll: function(){
+                                        var percent = parseFloat(get_number('.spare_stock_vat_percent:eq('+vitri+')')) || 0;
+                                        var number = parseFloat($('.spare_stock_number:eq('+vitri+')').val()) || 0;
+                                        var new_num = 0;
+                                        $(".choose_seri:eq("+vitri+")").multiselect("widget").find(":checkbox").each(function(){
+                                           new_num += parseFloat(this.title);
+                                        });
+
+                                        $('.spare_stock_number:eq('+vitri+')').val(number+new_num);
+                                        $('.spare_stock_number:eq('+vitri+')').attr('max',number+new_num);
+
+                                        $('.spare_stock_vat_price:eq('+vitri+')').val(
+                                              Math.round(
+                                              (parseFloat(get_number('.spare_stock_price:eq('+vitri+')'))*percent/100)*(number+new_num)
+                                              )
+                                          );
+                                        $('.spare_stock_vat_price:eq('+vitri+')').val(function(index, value) {
+                                              return value
+                                                .replace(/\D/g, "")
+                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                              ;
+                                            });
+                                    },
+                                    uncheckAll: function(){
+                                        $('.spare_stock_number:eq('+vitri+')').val(0);
+                                        $('.spare_stock_number:eq('+vitri+')').attr('max',0);
+                                        $('.spare_stock_vat_price:eq('+vitri+')').val(0);
+                                    }
+                                  });
+                            }
+                        });
                       
                       // hide proposition list
                       $('.name_list_id').hide();
@@ -465,7 +638,12 @@ function add_click(){
      $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);   
         $('#export_stock_code').val("");
         $('#export_stock_date').val("");
+        $('#export_stock_comment').val("");
+
+        $('#steersman').val("");
+        $('#steersman').attr('data',"");
         
+        $('input[name="chk"]').attr('data',"");
         
         $('.number').focus(function(){
             if ( $(this).val() == '0') {
@@ -495,41 +673,30 @@ $(document).ready(function(){
                 },
                 submitHandler: function(form) {
                 
+                    if ($('#steersman').attr('code') == 'false') {
+                        $('#steersman').val("");
+                        $('#steersman').focus();
+                        return false;
+                    };
+
                     var export_stock_code = $('#export_stock_code').attr('value');
                     var export_stock_date = $('#export_stock_date').attr('value');
+                    var export_stock_comment = $('#export_stock_comment').attr('value');
+                    var steersman = $('#steersman').attr('data');
+                    var house = $('#house').attr('value');
 
                     var spare_part = [];
 
-                    var spare_part_name = [];
+                    var spare_part_code_id = [];
                     var spare_part_id = [];
-                    var spare_part_code = [];
-                    var spare_part_seri = [];
-                    var spare_part_brand = [];
-                    var spare_part_date_manufacture = [];
                     var spare_stock_unit = [];
                     var spare_stock_number = [];
                     var spare_stock_price = [];
+                    var spare_stock_vat_percent = [];
+                    var spare_stock_vat_price = [];
 
-                    $('.spare_part').each(function() { 
-                        spare_part_name.push($(this).val());
-                        spare_part_id.push($(this).attr('data'));
-                    });
-
-                    $('.spare_part_code').each(function() { 
-                        spare_part_code.push($(this).val());
-                    });
-
-                    $('.spare_part_seri').each(function() { 
-                        spare_part_seri.push($(this).val());
-                    });
-
-                    $('.spare_part_brand').each(function() { 
-                        spare_part_brand.push($(this).val());
-                    });
-
-                    $('.spare_part_date_manufacture').each(function() { 
-                        spare_part_date_manufacture.push($(this).val());
-                    });
+                    var spare_stock_number2 = [];
+                    var spare_stock_vat_price2 = [];
 
                     $('.spare_stock_unit').each(function() { 
                         spare_stock_unit.push($(this).val());
@@ -537,19 +704,34 @@ $(document).ready(function(){
 
                     $('.spare_stock_number').each(function() { 
                         spare_stock_number.push($(this).val());
+                        spare_stock_number2.push($(this).val());
                     });
 
                     $('.spare_stock_price').each(function() { 
                         spare_stock_price.push($(this).val());
                     });
+                    $('.spare_stock_vat_percent').each(function() { 
+                        spare_stock_vat_percent.push($(this).val());
+                    });
+                    $('.spare_stock_vat_price').each(function() { 
+                        spare_stock_vat_price2.push($(this).val());
+                    });
+
+                    $('.spare_part').each(function(index) { 
+                      var $this = $(this);
+                      spare_part_code_id.push($this.attr('data'));
+                      spare_stock_vat_price.push(parseInt(spare_stock_vat_price2[index].replace(/\,/g,'')/spare_stock_number2[index]));
+                      spare_part_id.push($('.choose_seri[data='+index+']').val());  
+                    });
 
 
-
-                    for (var i = 0; i < spare_part_name.length; i++) {
-                        spare_part.push({'spare_part_name':spare_part_name[i], 'spare_part_id':spare_part_id[i], 'spare_part_code':spare_part_code[i], 'spare_part_seri':spare_part_seri[i], 'spare_part_brand':spare_part_brand[i], 'spare_part_date_manufacture':spare_part_date_manufacture[i], 'spare_stock_unit':spare_stock_unit[i], 'spare_stock_number':spare_stock_number[i], 'spare_stock_price':spare_stock_price[i]});
+                    for (var i = 0; i < spare_part_code_id.length; i++) {
+                        spare_part.push({'spare_part_code_id':spare_part_code_id[i],'spare_stock_unit':spare_stock_unit[i], 'spare_stock_number':spare_stock_number[i], 'spare_stock_price':spare_stock_price[i], 'spare_stock_vat_percent':spare_stock_vat_percent[i], 'spare_stock_vat_price':spare_stock_vat_price[i], 'spare_part_id':spare_part_id[i]});
                         
                         
                     };
+
+                   
                     
                     var yes = $('#yes').attr('value');
                     
@@ -561,7 +743,10 @@ $(document).ready(function(){
                         data: {
                             export_stock_code: export_stock_code,
                             export_stock_date: export_stock_date,
+                            export_stock_comment: export_stock_comment,
                             spare_part: spare_part,
+                            steersman: steersman,
+                            house: house,
                             yes: yes,
                             }, // giá trị post
                         success: function(answer){ // if everything goes well
@@ -572,7 +757,7 @@ $(document).ready(function(){
                             $('#error').fadeOut(10000);
 
                             if (yes != "") {
-                                if (answer.trim() != "Tên đã được sử dụng" ) {
+                                if (answer.trim() != "Thông tin này đã tồn tại" ) {
                                   setTimeout(function() {
                                         sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
                                       }, 200);
@@ -581,7 +766,7 @@ $(document).ready(function(){
                                 }
                             }
                             else{
-                                if (answer.trim() != "Tên đã được sử dụng") {
+                                if (answer.trim() != "Thông tin này đã tồn tại") {
                                   setTimeout(function() {
                                         sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
                                       }, 200);
@@ -602,6 +787,25 @@ $(document).ready(function(){
                  }
             });
    
+   $('#steersman').keyup(function(){
+      
+        var keyword = $(this).val();
+        $.ajax({
+            url: '<?php echo BASE_URL ?>/exportstock/getsteersman',
+            type: 'POST',
+            data: {keyword:keyword},
+            success:function(data){
+                $('#customer_list_id').slideDown(200);
+                $('#customer_list_id').html(data);
+            }
+        });
+        if ($('#steersman').val() == "" || $('#steersman').attr('data') == "") {
+            //$('#loc_from').val("");
+            $('#steersman').attr('data',"");
+            $('#steersman').attr('code',false);
+        }
+      
+   });
    
    $('.spare_part').keyup(function(){
         var row = $(this).parent().parent().parent().parent().parent().parent();
@@ -659,18 +863,134 @@ $('.spare_part_code').keyup(function(){
         
     });
 
-$('.spare_part_code').on('keydown', function() {
-        var row = $(this).parent().parent().parent().parent().parent().parent();
-        var rowIndex = row[0].rowIndex;
 
-        var key = event.keyCode || event.charCode;
 
-        if( key == 8 || key == 46 ){
-            $('.spare_part:eq('+rowIndex+')').attr('data',"");
+$('.spare_part_code').blur(function(){
+    var row = $(this).parent().parent().parent().parent().parent().parent();
+    var rowIndex = row[0].rowIndex;
+
+    var check_type = 0;
+
+    var val = $(this).val().trim();
+    
+    $('.spare_part_code').each(function() { 
+        if (val != "" && val == $(this).val().trim()) {
+            check_type ++;
         }
-            
-      }); 
+    });
 
+    
+
+    if (check_type >= 2) {
+        alert('Sản phẩm này đã có!');
+        $(this).val("");
+        $('.spare_part:eq('+rowIndex+')').attr('data',"");
+        $('.spare_part:eq('+rowIndex+')').val("");
+        $('.spare_part_brand:eq('+rowIndex+')').val("");
+        $('.spare_part_seri:eq('+rowIndex+')').val("");
+        $('.spare_part_date_manufacture:eq('+rowIndex+')').val("");
+        
+    };
+    
+});
+$('.spare_part').blur(function(){
+    var row = $(this).parent().parent().parent().parent().parent().parent();
+    var rowIndex = row[0].rowIndex;
+
+    var check_type = 0;
+
+    var val = $(this).val().trim();
+    
+    $('.spare_part').each(function() { 
+        if (val != "" && val == $(this).val().trim()) {
+            check_type ++;
+        }
+    });
+
+    
+
+    if (check_type >= 2) {
+        alert('Sản phẩm này đã có!');
+        $(this).val("");
+        $('.spare_part:eq('+rowIndex+')').attr('data',"");
+        $('.spare_part_code:eq('+rowIndex+')').val("");
+        $('.spare_part_brand:eq('+rowIndex+')').val("");
+        $('.spare_part_seri:eq('+rowIndex+')').val("");
+        $('.spare_part_date_manufacture:eq('+rowIndex+')').val("");
+        
+    };
+    
+});
+
+$('.spare_stock_vat_percent').keyup(function(){
+      var row = $(this).parent().parent().parent().parent().parent().parent();
+      var rowIndex = row[0].rowIndex;
+
+      var percent = parseFloat($(this).val());
+      var number = parseFloat(get_number('.spare_stock_number:eq('+rowIndex+')')) || 0;
+
+      $('.spare_stock_vat_price:eq('+rowIndex+')').val(
+          Math.round(
+          (parseFloat(get_number('.spare_stock_price:eq('+rowIndex+')'))*percent/100)*number
+          )
+      );
+
+      $('.spare_stock_vat_price:eq('+rowIndex+')').val(function(index, value) {
+          return value
+            .replace(/\D/g, "")
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+          ;
+        });
+      
+  });
+$('.spare_stock_price').keyup(function(){
+      var row = $(this).parent().parent().parent().parent().parent().parent();
+      var rowIndex = row[0].rowIndex;
+
+      var percent = parseFloat(get_number('.spare_stock_vat_percent:eq('+rowIndex+')')) || 0;
+      var price = parseFloat($(this).val().replace(/\,/g,''));
+      var number = parseFloat(get_number('.spare_stock_number:eq('+rowIndex+')')) || 0;
+
+      $('.spare_stock_vat_price:eq('+rowIndex+')').val(
+          Math.round(
+          (price*percent/100)*number
+          )
+      );
+
+      $('.spare_stock_vat_price:eq('+rowIndex+')').val(function(index, value) {
+          return value
+            .replace(/\D/g, "")
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+          ;
+        });
+      
+  });
+  $('.spare_stock_number').keyup(function(){
+      var row = $(this).parent().parent().parent().parent().parent().parent();
+      var rowIndex = row[0].rowIndex;
+
+      var seri = $('.spare_part_seri:eq('+rowIndex+')').val().trim();
+      if (seri != "") {
+        $(this).val(1);
+      }
+
+      var number = parseFloat($(this).val());
+      var percent = parseFloat(get_number('.spare_stock_vat_percent:eq('+rowIndex+')')) || 0;
+
+      $('.spare_stock_vat_price:eq('+rowIndex+')').val(
+          Math.round(
+          (parseFloat(get_number('.spare_stock_price:eq('+rowIndex+')'))*percent/100)*number
+          )
+      );
+
+      $('.spare_stock_vat_price:eq('+rowIndex+')').val(function(index, value) {
+          return value
+            .replace(/\D/g, "")
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+          ;
+        });
+      
+  });
    
     $('.number').keyup(function(event) {
 
@@ -704,16 +1024,88 @@ $('.spare_part_code').on('keydown', function() {
 function get_number(id){
     return $(id).val().replace(/\,/g,'');
 }
-function set_item_other(item,value,code,seri,date,brand,vitri,unit,price) {
+function set_item_other(item,value,code,vitri,unit,price) {
       // change input value
       $('.spare_part:eq('+vitri+')').val(value);
       $('.spare_part:eq('+vitri+')').attr("data",item);
       $('.spare_part_code:eq('+vitri+')').val(code);
-      $('.spare_part_seri:eq('+vitri+')').val(seri);
-      $('.spare_part_date_manufacture:eq('+vitri+')').val(date);
-      $('.spare_part_brand:eq('+vitri+')').val(brand);
       $('.spare_stock_unit:eq('+vitri+')').val(unit);
       $('.spare_stock_price:eq('+vitri+')').val(price);
+      $('.spare_stock_number:eq('+vitri+')').val(0);
+      $('.spare_stock_vat_price:eq('+vitri+')').val(0);
+
+
+      $.ajax({
+            url: '<?php echo BASE_URL ?>/exportstock/getseri',
+            type: 'POST',
+            data: {data:item},
+            success:function(data){
+                $(".choose_seri:eq("+vitri+")").html(data);
+                  $(".choose_seri:eq("+vitri+")").multiselect( 'refresh' );
+                  $(".choose_seri:eq("+vitri+")").multiselect({
+                    click: function(event, ui){
+                        var percent = parseFloat(get_number('.spare_stock_vat_percent:eq('+vitri+')')) || 0;
+                        var number = parseFloat($('.spare_stock_number:eq('+vitri+')').val()) || 0;
+                        var new_num = parseFloat(ui.text);
+                        if(ui.checked == 1){
+                            $('.spare_stock_number:eq('+vitri+')').val(number+new_num);
+                            $('.spare_stock_number:eq('+vitri+')').attr('max',number+new_num);
+
+                            $('.spare_stock_vat_price:eq('+vitri+')').val(
+                                  Math.round(
+                                  (parseFloat(get_number('.spare_stock_price:eq('+vitri+')'))*percent/100)*(number+new_num)
+                                  )
+                              );
+                        }
+                        else{
+                            $('.spare_stock_number:eq('+vitri+')').val(number-new_num);
+                            $('.spare_stock_number:eq('+vitri+')').attr('max',number-new_num);
+
+                            $('.spare_stock_vat_price:eq('+vitri+')').val(
+                                  Math.round(
+                                  (parseFloat(get_number('.spare_stock_price:eq('+vitri+')'))*percent/100)*(number-new_num)
+                                  )
+                              );
+                        }
+                        
+                          $('.spare_stock_vat_price:eq('+vitri+')').val(function(index, value) {
+                              return value
+                                .replace(/\D/g, "")
+                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              ;
+                            });
+                    },
+                    checkAll: function(){
+                        var percent = parseFloat(get_number('.spare_stock_vat_percent:eq('+vitri+')')) || 0;
+                        var number = parseFloat($('.spare_stock_number:eq('+vitri+')').val()) || 0;
+                        var new_num = 0;
+                        $(".choose_seri:eq("+vitri+")").multiselect("widget").find(":checkbox").each(function(){
+                           new_num += parseFloat(this.title);
+                        });
+
+                        $('.spare_stock_number:eq('+vitri+')').val(number+new_num);
+                        $('.spare_stock_number:eq('+vitri+')').attr('max',number+new_num);
+
+                        $('.spare_stock_vat_price:eq('+vitri+')').val(
+                              Math.round(
+                              (parseFloat(get_number('.spare_stock_price:eq('+vitri+')'))*percent/100)*(number+new_num)
+                              )
+                          );
+                        $('.spare_stock_vat_price:eq('+vitri+')').val(function(index, value) {
+                              return value
+                                .replace(/\D/g, "")
+                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              ;
+                            });
+                    },
+                    uncheckAll: function(){
+                        $('.spare_stock_number:eq('+vitri+')').val(0);
+                        $('.spare_stock_number:eq('+vitri+')').attr('max',0);
+                        $('.spare_stock_vat_price:eq('+vitri+')').val(0);
+                    }
+                  });
+            }
+        });
       
       // hide proposition list
       $('.name_list_id').hide();
@@ -727,6 +1119,17 @@ function set_item_other(item,value,code,seri,date,brand,vitri,unit,price) {
     });
 
   }
+function set_item_steersman(value,name) {
+    // change input value
+    $('#steersman').val(name);
+    $("#steersman").attr("data",value);
+    $("#steersman").attr("code",'true');
+    
+    // hide proposition list
+    $('#customer_list_id').hide();
+    $('#steersman').focus();
+     
+}
 </script>
 <div style="display:none" id="lasted"></div>
 <script type="text/javascript">
@@ -812,12 +1215,21 @@ function addRow(tableID){
     $('.spare_stock_unit:last').val("");
     $('.spare_stock_price:last').val("");
     $('.spare_stock_number:last').val("");
+    $('.spare_stock_number:last').attr('max',0);
+    $('.spare_stock_vat_percent:last').val("");
+    $('.spare_stock_vat_price:last').val("");
     
     $('input[name="chk"]:last').attr('data',"");
     $('input[name="chk"]:last').attr('tabindex',0);
     $('input[name="chk"]:last').attr('title',"");
     $('input[name="chk"]:last').attr('class',"");
     $('input[name="chk"]:last').attr('alt',0);
+
+    $('.choose_seri:last').attr('data',rowCount);
+    $(".choose_seri:last").multiselect({});
+    $(".choose_seri:last").empty();
+    $(".choose_seri:last").multiselect( 'refresh' );
+    $(".ui-multiselect:last").remove();
 
     $('.spare_part').keyup(function(){
         var row = $(this).parent().parent().parent().parent().parent().parent();
@@ -875,18 +1287,134 @@ $('.spare_part_code').keyup(function(){
         
     });
 
-$('.spare_part_code').on('keydown', function() {
-        var row = $(this).parent().parent().parent().parent().parent().parent();
-        var rowIndex = row[0].rowIndex;
 
-        var key = event.keyCode || event.charCode;
 
-        if( key == 8 || key == 46 ){
-            $('.spare_part:eq('+rowIndex+')').attr('data',"");
+    $('.spare_part_code').blur(function(){
+    var row = $(this).parent().parent().parent().parent().parent().parent();
+    var rowIndex = row[0].rowIndex;
+
+    var check_type = 0;
+
+    var val = $(this).val().trim();
+    
+    $('.spare_part_code').each(function() { 
+        if (val != "" && val == $(this).val().trim()) {
+            check_type ++;
         }
-            
-      }); 
+    });
 
+    
+
+    if (check_type >= 2) {
+        alert('Sản phẩm này đã có!');
+        $(this).val("");
+        $('.spare_part:eq('+rowIndex+')').attr('data',"");
+        $('.spare_part:eq('+rowIndex+')').val("");
+        $('.spare_part_brand:eq('+rowIndex+')').val("");
+        $('.spare_part_seri:eq('+rowIndex+')').val("");
+        $('.spare_part_date_manufacture:eq('+rowIndex+')').val("");
+        
+    };
+    
+});
+$('.spare_part').blur(function(){
+    var row = $(this).parent().parent().parent().parent().parent().parent();
+    var rowIndex = row[0].rowIndex;
+
+    var check_type = 0;
+
+    var val = $(this).val().trim();
+    
+    $('.spare_part').each(function() { 
+        if (val != "" && val == $(this).val().trim()) {
+            check_type ++;
+        }
+    });
+
+    
+
+    if (check_type >= 2) {
+        alert('Sản phẩm này đã có!');
+        $(this).val("");
+        $('.spare_part:eq('+rowIndex+')').attr('data',"");
+        $('.spare_part_code:eq('+rowIndex+')').val("");
+        $('.spare_part_brand:eq('+rowIndex+')').val("");
+        $('.spare_part_seri:eq('+rowIndex+')').val("");
+        $('.spare_part_date_manufacture:eq('+rowIndex+')').val("");
+        
+    };
+    
+});
+
+$('.spare_stock_vat_percent').keyup(function(){
+      var row = $(this).parent().parent().parent().parent().parent().parent();
+      var rowIndex = row[0].rowIndex;
+
+      var percent = parseFloat($(this).val());
+      var number = parseFloat(get_number('.spare_stock_number:eq('+rowIndex+')')) || 0;
+
+      $('.spare_stock_vat_price:eq('+rowIndex+')').val(
+          Math.round(
+          (parseFloat(get_number('.spare_stock_price:eq('+rowIndex+')'))*percent/100)*number
+          )
+      );
+
+      $('.spare_stock_vat_price:eq('+rowIndex+')').val(function(index, value) {
+          return value
+            .replace(/\D/g, "")
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+          ;
+        });
+      
+  });
+$('.spare_stock_price').keyup(function(){
+      var row = $(this).parent().parent().parent().parent().parent().parent();
+      var rowIndex = row[0].rowIndex;
+
+      var percent = parseFloat(get_number('.spare_stock_vat_percent:eq('+rowIndex+')')) || 0;
+      var price = parseFloat($(this).val().replace(/\,/g,''));
+      var number = parseFloat(get_number('.spare_stock_number:eq('+rowIndex+')')) || 0;
+
+      $('.spare_stock_vat_price:eq('+rowIndex+')').val(
+          Math.round(
+          (price*percent/100)*number
+          )
+      );
+
+      $('.spare_stock_vat_price:eq('+rowIndex+')').val(function(index, value) {
+          return value
+            .replace(/\D/g, "")
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+          ;
+        });
+      
+  });
+  $('.spare_stock_number').keyup(function(){
+      var row = $(this).parent().parent().parent().parent().parent().parent();
+      var rowIndex = row[0].rowIndex;
+
+      var seri = $('.spare_part_seri:eq('+rowIndex+')').val().trim();
+      if (seri != "") {
+        $(this).val(1);
+      }
+
+      var number = parseFloat($(this).val());
+      var percent = parseFloat(get_number('.spare_stock_vat_percent:eq('+rowIndex+')')) || 0;
+
+      $('.spare_stock_vat_price:eq('+rowIndex+')').val(
+          Math.round(
+          (parseFloat(get_number('.spare_stock_price:eq('+rowIndex+')'))*percent/100)*number
+          )
+      );
+
+      $('.spare_stock_vat_price:eq('+rowIndex+')').val(function(index, value) {
+          return value
+            .replace(/\D/g, "")
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+          ;
+        });
+      
+  });
    
     $('.number').keyup(function(event) {
 
@@ -918,16 +1446,88 @@ $('.spare_part_code').on('keydown', function() {
    function get_number(id){
     return $(id).val().replace(/\,/g,'');
   }
-  function set_item_other(item,value,code,seri,date,brand,vitri,unit,price) {
+  function set_item_other(item,value,code,vitri,unit,price) {
       // change input value
       $('.spare_part:eq('+vitri+')').val(value);
       $('.spare_part:eq('+vitri+')').attr("data",item);
       $('.spare_part_code:eq('+vitri+')').val(code);
-      $('.spare_part_seri:eq('+vitri+')').val(seri);
-      $('.spare_part_date_manufacture:eq('+vitri+')').val(date);
-      $('.spare_part_brand:eq('+vitri+')').val(brand);
       $('.spare_stock_unit:eq('+vitri+')').val(unit);
       $('.spare_stock_price:eq('+vitri+')').val(price);
+      $('.spare_stock_number:eq('+vitri+')').val(0);
+      $('.spare_stock_vat_price:eq('+vitri+')').val(0);
+
+
+      $.ajax({
+            url: '<?php echo BASE_URL ?>/exportstock/getseri',
+            type: 'POST',
+            data: {data:item},
+            success:function(data){
+                $(".choose_seri:eq("+vitri+")").html(data);
+                  $(".choose_seri:eq("+vitri+")").multiselect( 'refresh' );
+                  $(".choose_seri:eq("+vitri+")").multiselect({
+                    click: function(event, ui){
+                        var percent = parseFloat(get_number('.spare_stock_vat_percent:eq('+vitri+')')) || 0;
+                        var number = parseFloat($('.spare_stock_number:eq('+vitri+')').val()) || 0;
+                        var new_num = parseFloat(ui.text);
+                        if(ui.checked == 1){
+                            $('.spare_stock_number:eq('+vitri+')').val(number+new_num);
+                            $('.spare_stock_number:eq('+vitri+')').attr('max',number+new_num);
+
+                            $('.spare_stock_vat_price:eq('+vitri+')').val(
+                                  Math.round(
+                                  (parseFloat(get_number('.spare_stock_price:eq('+vitri+')'))*percent/100)*(number+new_num)
+                                  )
+                              );
+                        }
+                        else{
+                            $('.spare_stock_number:eq('+vitri+')').val(number-new_num);
+                            $('.spare_stock_number:eq('+vitri+')').attr('max',number-new_num);
+
+                            $('.spare_stock_vat_price:eq('+vitri+')').val(
+                                  Math.round(
+                                  (parseFloat(get_number('.spare_stock_price:eq('+vitri+')'))*percent/100)*(number-new_num)
+                                  )
+                              );
+                        }
+                        
+                          $('.spare_stock_vat_price:eq('+vitri+')').val(function(index, value) {
+                              return value
+                                .replace(/\D/g, "")
+                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              ;
+                            });
+                    },
+                    checkAll: function(){
+                        var percent = parseFloat(get_number('.spare_stock_vat_percent:eq('+vitri+')')) || 0;
+                        var number = parseFloat($('.spare_stock_number:eq('+vitri+')').val()) || 0;
+                        var new_num = 0;
+                        $(".choose_seri:eq("+vitri+")").multiselect("widget").find(":checkbox").each(function(){
+                           new_num += parseFloat(this.title);
+                        });
+
+                        $('.spare_stock_number:eq('+vitri+')').val(number+new_num);
+                        $('.spare_stock_number:eq('+vitri+')').attr('max',number+new_num);
+
+                        $('.spare_stock_vat_price:eq('+vitri+')').val(
+                              Math.round(
+                              (parseFloat(get_number('.spare_stock_price:eq('+vitri+')'))*percent/100)*(number+new_num)
+                              )
+                          );
+                        $('.spare_stock_vat_price:eq('+vitri+')').val(function(index, value) {
+                              return value
+                                .replace(/\D/g, "")
+                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              ;
+                            });
+                    },
+                    uncheckAll: function(){
+                        $('.spare_stock_number:eq('+vitri+')').val(0);
+                        $('.spare_stock_number:eq('+vitri+')').attr('max',0);
+                        $('.spare_stock_vat_price:eq('+vitri+')').val(0);
+                    }
+                  });
+            }
+        });
       
       // hide proposition list
       $('.name_list_id').hide();
@@ -974,22 +1574,21 @@ function deleteRow(tableID){
                 var row=table.rows[i];
                 var chkbox=row.cells[0].childNodes[0];
                 if(null!=chkbox&&true==chkbox.checked){
-                    if(chkbox.getAttribute("data") > 0){
+                    if(rowCount<=1){
+                        alert("Cannot delete all the rows.");
+                        break;
+                    }
+                    else if(chkbox.getAttribute("data") > 0){
                         
                             var export_stock = chkbox.getAttribute("data");
-                            var spare_part = chkbox.getAttribute("tabindex");
-                            var spare_stock_price = chkbox.getAttribute("alt");
-                            var spare_stock_number = chkbox.getAttribute("title");
-                            $.post("<?php echo BASE_URL ?>/exportstock/deletespare", {export_stock: export_stock, spare_part: spare_part, spare_stock_price: spare_stock_price, spare_stock_number: spare_stock_number},
+                            var spare_part_code = chkbox.getAttribute("alt");
+                            $.post("<?php echo BASE_URL ?>/exportstock/deletesparecode", {export_stock: export_stock, spare_part_code: spare_part_code},
                                function(data){
                                 //alert(data);
                                }); 
                         
                     }
-                    if(rowCount<=1){
-                        alert("Cannot delete all the rows.");
-                        break;
-                    }
+                    
                     table.deleteRow(i);
                     rowCount--;
                     i--;
@@ -1108,5 +1707,13 @@ $('#sl_staff option[value='+tt+']').attr('selected','selected');
         $('#ketthuc').datepicker("setDate", lastDay );
 
     });
-
+$(".choose_seri").multiselect({});
 </script>
+<style type="text/css">
+.ui-multiselect-menu {
+    z-index: 9999999;
+}
+.ui-widget .ui-widget {
+    max-width: 205px;
+}
+</style>

@@ -100,7 +100,7 @@ Class salaryController Extends baseController {
 
         $bonus_model = $this->model->get('salarybonusModel');
 
-        $shipment_bonuss = $bonus_model->getAllSalary(array('where'=>'start_time >= '.strtotime($dauthang).' AND end_time <= '.strtotime($cuoithang)));
+        $shipment_bonuss = $bonus_model->getAllSalary(array('where'=>'start_time <= '.strtotime($dauthang).' AND end_time >= '.strtotime($cuoithang)));
 
         $thuongphat = array();
         foreach ($shipment_bonuss as $bonus) {
@@ -118,7 +118,7 @@ Class salaryController Extends baseController {
         foreach ($drivers as $driver) {
 
 
-            $steersmans[$driver->steersman_id][$driver->vehicle] = $steersman_model->getSteersman($driver->steersman);
+            $steersmans[$driver->steersman_id] = $steersman_model->getSteersman($driver->steersman);
 
                
 
@@ -130,13 +130,13 @@ Class salaryController Extends baseController {
 
             foreach ($shipments as $shipment) {
 
-                $luongchuyen[$driver->steersman_id][$shipment->vehicle] = isset($luongchuyen[$driver->steersman_id][$shipment->vehicle])?($luongchuyen[$driver->steersman_id][$shipment->vehicle]+$shipment->shipment_salary) : (0+$shipment->shipment_salary);
-                $dauthuclanh[$driver->steersman_id][$shipment->vehicle] = isset($dauthuclanh[$driver->steersman_id][$shipment->vehicle])?($dauthuclanh[$driver->steersman_id][$shipment->vehicle]+$shipment->shipment_oil) : (0+$shipment->shipment_oil);
+                $luongchuyen[$driver->steersman_id] = isset($luongchuyen[$driver->steersman_id])?($luongchuyen[$driver->steersman_id]+$shipment->shipment_salary) : (0+$shipment->shipment_salary);
+                $dauthuclanh[$driver->steersman_id] = isset($dauthuclanh[$driver->steersman_id])?($dauthuclanh[$driver->steersman_id]+$shipment->shipment_oil) : (0+$shipment->shipment_oil);
 
-                $roads = $road_model->queryRoad('SELECT * FROM road WHERE road_id IN ('.$shipment->route.')');
+                $roads = $road_model->queryRoad('SELECT * FROM road WHERE road_id IN ('.$shipment->route.') AND start_time <= '.$shipment->shipment_date.' AND end_time >= '.$shipment->shipment_date);
 
                 foreach ($roads as $road) {
-                    $daudinhmuc[$driver->steersman_id][$shipment->vehicle] = isset($daudinhmuc[$driver->steersman_id][$shipment->vehicle])?($daudinhmuc[$driver->steersman_id][$shipment->vehicle]+$road->road_oil) : (0+$road->road_oil);
+                    $daudinhmuc[$driver->steersman_id] = isset($daudinhmuc[$driver->steersman_id])?($daudinhmuc[$driver->steersman_id]+$road->road_oil) : (0+$road->road_oil);
                 }
 
 

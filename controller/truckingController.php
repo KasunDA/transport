@@ -60,7 +60,7 @@ Class truckingController Extends baseController {
             $ketthuc = date('t-m-Y'); //cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')).'-'.date('m-Y');
 
         }
-
+        $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
 
         $contunit_model = $this->model->get('contunitModel');
         $loanunit_model = $this->model->get('loanunitModel');
@@ -148,7 +148,7 @@ Class truckingController Extends baseController {
 
         $data = array(
 
-            'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date <= '.strtotime($ketthuc),
+            'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc),
 
             );
 
@@ -215,7 +215,7 @@ Class truckingController Extends baseController {
 
             'limit'=>$x.','.$sonews,
 
-            'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date <= '.strtotime($ketthuc),
+            'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc),
 
             );
 

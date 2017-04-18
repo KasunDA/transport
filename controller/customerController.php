@@ -5,9 +5,7 @@ Class customerController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 4 && $_SESSION['role_logined'] != 5) {
-            $this->view->data['disable_control'] = 1;
-        }
+        
         $this->view->data['lib'] = $this->lib;
         $this->view->data['title'] = 'Quản lý Khách hàng - Đối tác - Người thụ hưởng';
 
@@ -87,9 +85,7 @@ Class customerController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 4 && $_SESSION['role_logined'] != 5) {
-            return $this->view->redirect('user/login');
-        }
+        
         $this->view->data['lib'] = $this->lib;
         $this->view->data['title'] = 'Thêm Khách hàng - Đối tác - Người thụ hưởng';
         $this->view->show('customer/newcus');
@@ -99,9 +95,7 @@ Class customerController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 4 && $_SESSION['role_logined'] != 5) {
-            $this->view->data['disable_control'] = 1;
-        }
+        
         if (!$id) {
             return $this->view->redirect('customer');
         }
@@ -164,9 +158,7 @@ Class customerController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 4 && $_SESSION['role_logined'] != 5) {
-            return $this->view->redirect('user/login');
-        }
+        
         if (isset($_POST['yes'])) {
             $customer = $this->model->get('customerModel');
             $contact_person_model = $this->model->get('contactpersonModel');
@@ -368,9 +360,7 @@ Class customerController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 4 && $_SESSION['role_logined'] != 5) {
-            return $this->view->redirect('user/login');
-        }
+        
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $customer = $this->model->get('customerModel');
             $customer_temp = $this->model->get('customertempModel');

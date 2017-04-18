@@ -44,15 +44,22 @@ Class exportstockController Extends baseController {
 
         $trangthai = date('Y',strtotime($batdau));
 
+        $costlist_model = $this->model->get('costlistModel');
+        $this->view->data['cost_lists'] = $costlist_model->getAllCost();
+
+        $house_model = $this->model->get('houseModel');
+        $houses = $house_model->getAllHouse();
+        $this->view->data['houses'] = $houses;
+
         $export_model = $this->model->get('exportstockModel');
         $sonews = $limit;
         $x = ($page-1) * $sonews;
         $pagination_stages = 2;
 
-        $join = array('table'=>'user','where'=>'export_stock_user=user_id');
+        $join = array('table'=>'user, steersman, house','where'=>'export_stock_user=user_id AND steersman = steersman_id AND house = house_id');
 
         $data = array(
-            'where' => 'export_stock_date >= '.strtotime($batdau).' AND export_stock_date <= '.strtotime($ketthuc),
+            'where' => 'export_stock_date >= '.strtotime($batdau).' AND export_stock_date < '.strtotime($ngayketthuc),
         );
 
         
@@ -80,7 +87,7 @@ Class exportstockController Extends baseController {
             'order_by'=>$order_by,
             'order'=>$order,
             'limit'=>$x.','.$sonews,
-            'where' => 'export_stock_date >= '.strtotime($batdau).' AND export_stock_date <= '.strtotime($ketthuc),
+            'where' => 'export_stock_date >= '.strtotime($batdau).' AND export_stock_date < '.strtotime($ngayketthuc),
             );
 
        
@@ -115,6 +122,9 @@ Class exportstockController Extends baseController {
                         'export_stock_code' => trim($_POST['export_stock_code']),
                         'export_stock_date' => strtotime($_POST['export_stock_date']),
                         'export_stock_user' => $_SESSION['userid_logined'],
+                        'export_stock_comment' => trim($_POST['export_stock_comment']),
+                        'steersman' => trim($_POST['steersman']),
+                        'house' => trim($_POST['house']),
                         );
 
 
@@ -167,69 +177,75 @@ Class exportstockController Extends baseController {
                 
             }
 
+            $arr = array();
+
             $total_number = 0;
             $total_price = 0;
+            $total_vat = 0;
 
             $spare_part = $_POST['spare_part'];
 
             foreach ($spare_part as $v) {
 
-                    if (isset($v['spare_part_id']) && $v['spare_part_id'] != "") {
+                    if(is_array($v['spare_part_id'])){
+                        if ($v['spare_stock_number'] == count($v['spare_part_id'])) {
+                            $num = 1;
+                        }
+                        else{
+                            $num = $v['spare_stock_number'];
+                        }
+                        foreach ($v['spare_part_id'] as $key) {
+                            $id_spare_part = $key;
 
-                        $id_spare_part = $v['spare_part_id'];
+                            $data_stock = array(
 
+                                'export_stock' => $id_export,
+
+                                'spare_part' => $id_spare_part,
+
+                                'spare_stock_unit' => $v['spare_stock_unit'],
+
+                                'spare_stock_number' => $num,
+
+                                'spare_stock_price' => trim(str_replace(',','',$v['spare_stock_price'])),
+
+                                'spare_stock_vat_percent' => $v['spare_stock_vat_percent'],
+
+                                'spare_stock_vat_price' => trim(str_replace(',','',$v['spare_stock_vat_price'])),
+                                
+
+                            );
+
+                            if (!$stock_model->getStockByWhere(array('export_stock'=>$id_export,'spare_part'=>$id_spare_part))) {
+                                $stock_model->createStock($data_stock);
+                            }
+                            else{
+                                $id_stock = $stock_model->getStockByWhere(array('export_stock'=>$id_export,'spare_part'=>$id_spare_part))->spare_stock_id;
+                                $stock_model->updateStock($data_stock,array('spare_stock_id'=>$id_stock));
+                            }
+
+                            $total_number += $data_stock['spare_stock_number'];
+                            $total_price += $data_stock['spare_stock_price']*$data_stock['spare_stock_number'];
+                            $total_vat += $data_stock['spare_stock_vat_price'];
+
+                            $arr[] = $id_spare_part;
+                        }
                     }
 
-                    else{
-
-                        $data_spare_part = array(
-
-                            'spare_part_name' => trim($v['spare_part_name']),
-
-                            'spare_part_code' => trim($v['spare_part_code']),
-
-                            'spare_part_seri' => trim($v['spare_part_seri']),
-
-                            'spare_part_brand' => trim($v['spare_part_brand']),
-
-                            'spare_part_date_manufacture' => strtotime($v['spare_part_date_manufacture']),
-
-                        );
-
-                        $spare_model->createStock($data_spare_part);
-
-                        $id_spare_part = $spare_model->getLastStock()->spare_part_id;
-
-                    }
-
-                    $data_stock = array(
-
-                        'export_stock' => $id_export,
-
-                        'spare_part' => $id_spare_part,
-
-                        'spare_stock_unit' => $v['spare_stock_unit'],
-
-                        'spare_stock_number' => $v['spare_stock_number'],
-
-                        'spare_stock_price' => trim(str_replace(',','',$v['spare_stock_price'])),
-                        
-
-                    );
-
-                    if (!$stock_model->getStockByWhere(array('export_stock'=>$id_export,'spare_part'=>$id_spare_part))) {
-                        $stock_model->createStock($data_stock);
-                    }
-                    else{
-                        $id_stock = $stock_model->getStockByWhere(array('export_stock'=>$id_export,'spare_part'=>$id_spare_part))->spare_stock_id;
-                        $stock_model->updateStock($data_stock,array('spare_stock_id'=>$id_stock));
-                    }
-
-                    $total_number += $data_stock['spare_stock_number'];
-                    $total_price += $data_stock['spare_stock_price']*$data_stock['spare_stock_number'];
+                    
                 }
 
-                $export_model->updateStock(array('export_stock_total'=>$total_number,'export_stock_price'=>$total_price),array('export_stock_id'=>$id_export));
+                $old_stock = $stock_model->getAllStock(array('where'=>'export_stock = '.$id_export));
+                if($old_stock){
+                    foreach ($old_stock as $old) {
+                        if(!in_array($old->spare_part, $arr)){
+                            $stock_model->queryStock('DELETE FROM spare_stock WHERE export_stock = '.$old->export_stock.' AND spare_part = '.$old->spare_part);
+                        }
+                    }
+                }
+
+
+                $export_model->updateStock(array('export_stock_total'=>$total_number,'export_stock_price'=>$total_price,'export_stock_vat'=>$total_vat),array('export_stock_id'=>$id_export));
                     
         }
     }
@@ -281,6 +297,67 @@ Class exportstockController Extends baseController {
         }
     }
 
+    public function getsteersman(){
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $steersman_model = $this->model->get('steersmanModel');
+
+            
+
+            if ($_POST['keyword'] == "*") {
+
+
+
+                $list = $steersman_model->getAllSteersman();
+
+            }
+
+            else{
+
+                $data = array(
+
+                'where'=>'( steersman_name LIKE "%'.$_POST['keyword'].'%" )',
+
+                );
+
+                $list = $steersman_model->getAllSteersman($data);
+
+            }
+
+            
+
+            foreach ($list as $rs) {
+
+                // put in bold the written text
+
+                $steersman_name = $rs->steersman_name;
+
+                if ($_POST['keyword'] != "*") {
+
+                    $steersman_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', $rs->steersman_name);
+
+                }
+
+                
+
+                // add new option
+
+                echo '<li onclick="set_item_steersman(\''.$rs->steersman_id.'\',\''.$rs->steersman_name.'\')">'.$steersman_name.'</li>';
+
+            }
+
+        }
+
+    }
+
     public function getSpare(){
 
         if (!isset($_SESSION['userid_logined'])) {
@@ -291,6 +368,7 @@ Class exportstockController Extends baseController {
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
+            $spare_code_model = $this->model->get('sparepartcodeModel');
             $spare_model = $this->model->get('sparepartModel');
             $spare_stock_model = $this->model->get('sparestockModel');
 
@@ -298,7 +376,7 @@ Class exportstockController Extends baseController {
 
                 
 
-                $list = $spare_model->getAllStock();
+                $list = $spare_code_model->getAllStock();
 
             }
 
@@ -306,20 +384,20 @@ Class exportstockController Extends baseController {
 
                 $data = array(
 
-                'where'=>'( spare_part_name LIKE "%'.$_POST['keyword'].'%" )',
+                'where'=>'( name LIKE "%'.$_POST['keyword'].'%" )',
 
                 );
 
-                $list = $spare_model->getAllStock($data);
+                $list = $spare_code_model->getAllStock($data);
 
                 if (!$list) {
                     $data = array(
 
-                    'where'=>'( spare_part_code LIKE "%'.$_POST['keyword'].'%" )',
+                    'where'=>'( code LIKE "%'.$_POST['keyword'].'%" )',
 
                     );
 
-                    $list = $spare_model->getAllStock($data);
+                    $list = $spare_code_model->getAllStock($data);
                 }
 
             }
@@ -331,28 +409,85 @@ Class exportstockController Extends baseController {
                 // put in bold the written text
                 
 
-                $spare_name = '['.$rs->spare_part_code.']-'.$rs->spare_part_name;
+                $spare_name = '['.$rs->code.']-'.$rs->name;
 
                 if ($_POST['keyword'] != "*") {
 
-                    $spare_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', '['.$rs->spare_part_code.']-'.$rs->spare_part_name);
+                    $spare_name = str_replace($_POST['keyword'], '<b>'.$_POST['keyword'].'</b>', '['.$rs->code.']-'.$rs->name);
 
                 }
 
-                $stocks = $spare_stock_model->queryStock('SELECT * FROM spare_stock WHERE export_stock > 0 AND spare_part = '.$rs->spare_part_id.' ORDER BY spare_stock_id DESC LIMIT 1');
+                $stocks = $spare_stock_model->queryStock('SELECT * FROM spare_stock, spare_part WHERE spare_part = spare_part_id AND import_stock > 0 AND spare_part IN (SELECT spare_part_id FROM spare_part WHERE code_list = '.$rs->spare_part_code_id.') ORDER BY spare_stock_id DESC LIMIT 1');
                 if ($stocks) {
                     foreach ($stocks as $stock) {
-                        echo '<li onclick="set_item_other(\''.$rs->spare_part_id.'\',\''.$rs->spare_part_name.'\',\''.$rs->spare_part_code.'\',\''.$rs->spare_part_seri.'\',\''.($rs->spare_part_date_manufacture>0?date('d-m-Y',$rs->spare_part_date_manufacture):null).'\',\''.$rs->spare_part_brand.'\',\''.$_POST['offset'].'\',\''.$stock->spare_stock_unit.'\',\''.$stock->spare_stock_price.'\')">'.$spare_name.'</li>';
+                        echo '<li onclick="set_item_other(\''.$rs->spare_part_code_id.'\',\''.$rs->name.'\',\''.$rs->code.'\',\''.$_POST['offset'].'\',\''.$stock->spare_stock_unit.'\',\''.$stock->spare_stock_price.'\')">'.$spare_name.'</li>';
                     }
                     
                 }
                 else{
-                    echo '<li onclick="set_item_other(\''.$rs->spare_part_id.'\',\''.$rs->spare_part_name.'\',\''.$rs->spare_part_code.'\',\''.$rs->spare_part_seri.'\',\''.($rs->spare_part_date_manufacture>0?date('d-m-Y',$rs->spare_part_date_manufacture):null).'\',\''.$rs->spare_part_brand.'\',\''.$_POST['offset'].'\',\'\',\'\')">'.$spare_name.'</li>';
+                    $spares = $spare_model->getAllStock(array('where'=>'code_list = '.$rs->spare_part_code_id,'order_by'=>'spare_part_id DESC','limit'=>1));
+                    foreach ($spares as $spare) {
+                        echo '<li onclick="set_item_other(\''.$rs->spare_part_code_id.'\',\''.$rs->name.'\',\''.$rs->code.'\',\''.$_POST['offset'].'\',\'\',\'\')">'.$spare_name.'</li>';
+                    }
+                    
                 }
 
                 
 
             }
+
+        }
+
+    }
+    public function getseri(){
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $spare_model = $this->model->get('sparepartModel');
+            $spare_stock_model = $this->model->get('sparestockModel');
+
+            $join = array('table'=>'spare_part','where'=>'spare_part = spare_part_id');
+            $data_im = array(
+                'where' => 'import_stock > 0 AND code_list = '.trim($_POST['data']),
+            );
+            $stock_ims = $spare_stock_model->getAllStock($data_im,$join);
+
+            $data_ex = array(
+                'where' => 'export_stock > 0 AND code_list = '.trim($_POST['data']),
+            );
+            $stock_exs = $spare_stock_model->getAllStock($data_ex,$join);
+        
+            $data_stock = array();
+            foreach ($stock_ims as $stock) {
+                $data_stock[$stock->spare_part] = isset($data_stock[$stock->spare_part])?$data_stock[$stock->spare_part]+$stock->spare_stock_number:$stock->spare_stock_number;
+            }
+            foreach ($stock_exs as $stock) {
+                $data_stock[$stock->spare_part] = isset($data_stock[$stock->spare_part])?$data_stock[$stock->spare_part]-$stock->spare_stock_number:0-$stock->spare_stock_number;
+            }
+
+            $data = array(
+                'where' => 'code_list = '.trim($_POST['data']),
+            );
+
+            $spares = $spare_model->getAllStock($data);
+
+            $str = "";
+
+            foreach ($spares as $spare) {
+                if (isset($data_stock[$spare->spare_part_id]) && $data_stock[$spare->spare_part_id]>0) {
+                    $str .= '<option title="'.$data_stock[$spare->spare_part_id].'" value="'.$spare->spare_part_id.'">'.($spare->spare_part_seri!=""?$spare->spare_part_seri:$spare->spare_part_name).' ['.$data_stock[$spare->spare_part_id].']</option>';
+                }
+                
+            }
+
+            echo $str;
 
         }
 
@@ -365,7 +500,22 @@ Class exportstockController Extends baseController {
 
 
 
-            $spare_model->queryStock('DELETE FROM spare_stock WHERE export_stock = '.$_POST['export_stock'].' AND spare_part = '.$_POST['spare_part'].' AND spare_stock_price = '.$_POST['spare_stock_price'].' AND spare_stock_number = '.$_POST['spare_stock_number']);
+            $spare_model->queryStock('DELETE FROM spare_stock WHERE export_stock = '.$_POST['export_stock'].' AND spare_part = '.$_POST['spare_part']);
+
+            echo 'Đã xóa thành công';
+
+        }
+
+    }
+    public function deletesparecode(){
+
+        if (isset($_POST['export_stock'])) {
+
+            $spare_model = $this->model->get('sparestockModel');
+
+
+
+            $spare_model->queryStock('DELETE FROM spare_stock WHERE export_stock = '.$_POST['export_stock'].' AND spare_part IN (SELECT spare_part_id FROM spare_part WHERE code_list = '.$_POST['spare_part_code'].')');
 
             echo 'Đã xóa thành công';
 
@@ -376,27 +526,77 @@ Class exportstockController Extends baseController {
 
         if(isset($_POST['export_stock'])){
 
-            
+            $spare_part_model = $this->model->get('sparepartModel');
 
             $spare_model = $this->model->get('sparestockModel');
 
+            $spare_code_model = $this->model->get('sparepartcodeModel');
 
-
-            $join = array('table'=>'spare_part','where'=>'spare_stock.spare_part = spare_part.spare_part_id');
-
+            $join = array('table'=>'spare_part, spare_stock','where'=>'code_list = spare_part_code_id AND spare_part_id = spare_part GROUP BY spare_part_code_id');
             $data = array(
 
                 'where' => 'export_stock = '.$_POST['export_stock'],
 
             );
 
-            $exports = $spare_model->getAllStock($data,$join);
+            $codes = $spare_code_model->getAllStock($data,$join);
 
+            $count = array();
+            $number = array();
+            $vat_price = array();
+            $exports = array();
+            $spares = array();
+            $data_stock = array();
+            foreach ($codes as $code) {
+                $join = array('table'=>'spare_part','where'=>'spare_stock.spare_part = spare_part.spare_part_id');
+
+                $data = array(
+
+                    'where' => 'code_list = '.$code->spare_part_code_id.' AND export_stock = '.$_POST['export_stock'],
+
+                );
+
+                $exports[$code->spare_part_code_id] = $spare_model->getAllStock($data,$join);
+
+                foreach ($exports[$code->spare_part_code_id] as $spare) {
+                    $number[$code->spare_part_code_id] = isset($number[$code->spare_part_code_id])?$number[$code->spare_part_code_id]+$spare->spare_stock_number:$spare->spare_stock_number;
+                    $vat_price[$code->spare_part_code_id] = isset($vat_price[$code->spare_part_code_id])?$vat_price[$code->spare_part_code_id]+$spare->spare_stock_vat_price:$spare->spare_stock_vat_price;
+                }
+
+                $count[$code->spare_part_code_id] = count($exports[$code->spare_part_code_id]);
+
+                $join = array('table'=>'spare_part','where'=>'spare_part = spare_part_id');
+                $data_im = array(
+                    'where' => 'import_stock > 0 AND code_list = '.$code->spare_part_code_id,
+                );
+                $stock_ims = $spare_model->getAllStock($data_im,$join);
+
+                $data_ex = array(
+                    'where' => 'export_stock > 0 AND code_list = '.$code->spare_part_code_id,
+                );
+                $stock_exs = $spare_model->getAllStock($data_ex,$join);
+            
+                
+                foreach ($stock_ims as $stock) {
+                    $data_stock[$stock->spare_part] = isset($data_stock[$stock->spare_part])?$data_stock[$stock->spare_part]+$stock->spare_stock_number:$stock->spare_stock_number;
+                }
+                foreach ($stock_exs as $stock) {
+                    $data_stock[$stock->spare_part] = isset($data_stock[$stock->spare_part])?$data_stock[$stock->spare_part]-$stock->spare_stock_number:0-$stock->spare_stock_number;
+                }
+
+                $data = array(
+                    'where' => 'spare_part_id NOT IN (SELECT spare_part FROM spare_stock WHERE export_stock = '.$_POST['export_stock'].') AND code_list = '.$code->spare_part_code_id,
+                );
+
+                $spares[$code->spare_part_code_id] = $spare_part_model->getAllStock($data);
+            }
+
+            
 
 
             $str = "";
 
-            if (!$exports) {
+            if (!$codes) {
 
                 $str .= '<tr class="'.$_POST['export_stock'].'">';
 
@@ -414,44 +614,47 @@ Class exportstockController Extends baseController {
 
                 $str .= '<td>Mã sản phẩm</td>';
 
-                $str .= '<td><input type="text" class="spare_part_code" name="spare_part_code[]"></td></tr>';
+                $str .= '<td><input autocomplete="off" type="text" class="spare_part_code" name="spare_part_code[]" tabindex="4" placeholder="Nhập tên hoặc * để chọn" >';
 
-                $str .= '<tr><td>Nhà sản xuất</td>';
+                $str .= '<ul class="name_list_id_2"></ul></td></tr>';
 
-                $str .= '<td><input type="text" class="spare_part_brand" name="spare_part_brand[]"></td>';
+                $str .= '<tr class="show_seri"><td>Chọn 1 sản phẩm</td>';
 
-                $str .= '<td>Số seri</td>';
+                $str .= '<td><select class="choose_seri" name="choose_seri[]" multiple="multiple" tabindex="11" data="0"></select></td>';
 
-                $str .= '<td><input type="text" class="spare_part_seri" name="spare_part_seri[]"></td></tr>';
+                $str .= '<td></td>';
 
-                $str .= '<tr><td>Ngày sản xuất</td>';
+                $str .= '<td></td></tr>';
 
-                $str .= '<td><input type="text" class="spare_part_date_manufacture ngay" name="spare_part_date_manufacture[]"></td>';
+                $str .= '<tr><td>Đơn vị tính</td>';
 
-                $str .= '<td>Đơn vị tính</td>';
-
-                $str .= '<td><input type="text" class="spare_stock_unit" name="spare_stock_unit[]"></td></tr>';
-
-                $str .= '<tr><td>Số lượng</td>';
-
-                $str .= '<td><input type="text" class="spare_stock_number number" name="spare_stock_number[]"></td>';
+                $str .= '<td><input type="text" class="spare_stock_unit" name="spare_stock_unit[]"></td>';
 
                 $str .= '<td>Đơn giá</td>';
 
-                $str .= '<td><input type="text" class="spare_stock_price numbers" name="spare_stock_price[]"></td>';
+                $str .= '<td><input type="text" class="spare_stock_price numbers" name="spare_stock_price[]"></td></tr>';
 
-                $str .= '</tr></table></td></tr>';
+                $str .= '<tr><td>Số lượng</td>';
+
+                $str .= '<td><input style="width:80px" type="number" class="spare_stock_number number" name="spare_stock_number[]" tabindex="10" value="0" max="0" ></td>';
+
+                $str .= '<td>VAT</td>';
+
+                $str .= '<td><input style="width:50px" type="text" class="spare_stock_vat_percent number" name="spare_stock_vat_percent[]" tabindex="11" placeholder="%" >';
+                
+                $str .= '<input style="width:120px" type="text" class="spare_stock_vat_price numbers" name="spare_stock_vat_price[]" tabindex="12" placeholder="Tổng tiền thuế" ></td></tr>';
+
+                $str .= '</table></td></tr>';
 
             }
 
             else{
-
-                foreach ($exports as $v) {
-
+                $i = 0;
+                foreach ($codes as $code) {
 
                     $str .= '<tr class="'.$_POST['export_stock'].'">';
 
-                    $str .= '<td><input type="checkbox" title="'.$v->spare_stock_number.'" alt="'.$v->spare_stock_price.'"  name="chk" tabindex="'.$v->spare_part.'" data="'.$v->export_stock.'" ></td>';
+                    $str .= '<td><input type="checkbox"  name="chk" alt="'.$code->spare_part_code_id.'"  data="'.$_POST['export_stock'].'"></td>';
 
                     $str .= '<td><table style="width: 100%">';
 
@@ -459,39 +662,57 @@ Class exportstockController Extends baseController {
 
                     $str .= '<td>Tên sản phẩm</td>';
 
-                    $str .= '<td><input type="text" autocomplete="off" class="spare_part" name="spare_part[]" placeholder="Nhập tên hoặc * để chọn" value="'.$v->spare_part_name.'" data="'.$v->spare_part.'" >';
+                    $str .= '<td><input type="text" autocomplete="off" class="spare_part" name="spare_part[]" placeholder="Nhập tên hoặc * để chọn" value="'.$code->name.'" data="'.$code->code.'" >';
 
                     $str .= '<ul class="name_list_id"></ul></td>';
 
                     $str .= '<td>Mã sản phẩm</td>';
 
-                    $str .= '<td><input type="text" class="spare_part_code" name="spare_part_code[]" value="'.$v->spare_part_code.'"></td></tr>';
+                    $str .= '<td><input autocomplete="off" type="text" class="spare_part_code" name="spare_part_code[]" tabindex="4" placeholder="Nhập tên hoặc * để chọn" value="'.$code->code.'" >';
 
-                    $str .= '<tr><td>Nhà sản xuất</td>';
+                    $str .= '<ul class="name_list_id_2"></ul></td></tr>';
 
-                    $str .= '<td><input type="text" class="spare_part_brand" name="spare_part_brand[]" value="'.$v->spare_part_brand.'"></td>';
+                    $str .= '<tr class="show_seri"><td>Chọn 1 sản phẩm</td>';
 
-                    $str .= '<td>Số seri</td>';
+                    $str .= '<td><select class="choose_seri" name="choose_seri[]" multiple="multiple" tabindex="11" data="'.$i.'">';
 
-                    $str .= '<td><input type="text" class="spare_part_seri" name="spare_part_seri[]" value="'.$v->spare_part_seri.'"></td></tr>';
+                        foreach ($exports[$code->spare_part_code_id] as $v) {
+                            $str .= '<option selected title="'.$v->spare_stock_number.'" value="'.$v->spare_part_id.'">'.($v->spare_part_seri!=""?$v->spare_part_seri:$v->spare_part_name).' ['.$v->spare_stock_number.']</option>';
+                        }
+                        foreach ($spares[$code->spare_part_code_id] as $v) {
+                            if (isset($data_stock[$v->spare_part_id]) && $data_stock[$v->spare_part_id]>0) {
+                                $str .= '<option title="'.$data_stock[$v->spare_part_id].'" value="'.$v->spare_part_id.'">'.($v->spare_part_seri!=""?$v->spare_part_seri:$v->spare_part_name).' ['.$data_stock[$v->spare_part_id].']</option>';
+                            }
+                        }
+                    $str .= '</select></td>';
 
-                    $str .= '<tr><td>Ngày sản xuất</td>';
+                    $str .= '<td></td>';
 
-                    $str .= '<td><input type="text" class="spare_part_date_manufacture ngay" name="spare_part_date_manufacture[]" value="'.($v->spare_part_date_manufacture>0?date('d-m-Y',$v->spare_part_date_manufacture):null).'"></td>';
+                    $str .= '<td></td></tr>';
 
-                    $str .= '<td>Đơn vị tính</td>';
+                    $str .= '<tr><td>Đơn vị tính</td>';
 
-                    $str .= '<td><input type="text" class="spare_stock_unit" name="spare_stock_unit[]" value="'.$v->spare_stock_unit.'"></td></tr>';
-
-                    $str .= '<tr><td>Số lượng</td>';
-
-                    $str .= '<td><input type="text" class="spare_stock_number number" name="spare_stock_number[]" value="'.$v->spare_stock_number.'"></td>';
+                    $str .= '<td><input type="text" class="spare_stock_unit" name="spare_stock_unit[]" value="'.$code->spare_stock_unit.'"></td>';
 
                     $str .= '<td>Đơn giá</td>';
 
-                    $str .= '<td><input type="text" class="spare_stock_price numbers" name="spare_stock_price[]" value="'.$this->lib->formatMoney($v->spare_stock_price).'"></td>';
+                    $str .= '<td><input type="text" class="spare_stock_price numbers" name="spare_stock_price[]" value="'.$this->lib->formatMoney($code->spare_stock_price).'"></td></tr>';
 
-                    $str .= '</tr></table></td></tr>';
+                    $str .= '<tr><td>Số lượng</td>';
+
+                    $str .= '<td><input style="width:80px" type="number" class="spare_stock_number number" name="spare_stock_number[]" tabindex="10" value="'.$number[$code->spare_part_code_id].'" ></td>';
+
+                    $str .= '<td>VAT</td>';
+
+                    $str .= '<td><input style="width:50px" type="text" class="spare_stock_vat_percent number" name="spare_stock_vat_percent[]" tabindex="11" placeholder="%" value="'.$code->spare_stock_vat_percent.'" >';
+                    
+                    $str .= '<input style="width:120px" type="text" class="spare_stock_vat_price numbers" name="spare_stock_vat_price[]" tabindex="12" placeholder="Tổng tiền thuế" value="'.$this->lib->formatMoney($vat_price[$code->spare_part_code_id]).'" ></td></tr>';
+
+                    $str .= '</table></td></tr>';
+
+                    
+
+                    $i++;
 
                 }
 
@@ -504,6 +725,7 @@ Class exportstockController Extends baseController {
         }
 
     }
+    
 
 
 }

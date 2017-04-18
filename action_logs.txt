@@ -228,3 +228,103 @@
 
 08/04/2017 11:21:55|admin|edit|12183|shipment|2-1-1-2-1-1-1-500000-2-0-0-12236-1490824800-1-1-1--0-0--0--0---0-0--1-0--0--0--0--0-200000-3-2178-1-1-1-500000-790216--240216-0-611000
 
+10/04/2017 14:55:24|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+10/04/2017 14:55:58|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+10/04/2017 14:56:23|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+10/04/2017 16:36:00|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+10/04/2017 16:48:49|admin|edit|2|export_stock|XK000002-1490911200-41-Xuất kho-1-1
+
+10/04/2017 16:49:28|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+12/04/2017 16:50:54|admin|add|2|import_stock|NK0009-1490997600-41-000552-1492639200-1-Lốp-Hoàng-ĐN-1
+
+13/04/2017 08:32:09|admin|add|3|import_stock|NK000232-1492120800-41----Lốp---1
+
+13/04/2017 08:51:22|admin|delete|3|import_stock|
+
+13/04/2017 08:51:22|admin|delete|2|import_stock|
+
+13/04/2017 08:52:24|admin|add|4|import_stock|NK909999-1492120800-41----Lốp---1
+
+13/04/2017 11:22:37|admin|add|5|import_stock|as-1491516000-41----as---1
+
+13/04/2017 11:37:40|admin|edit|6|spare_part|Double Road-DR801-5111144565-Double Road-1491948000-
+
+13/04/2017 15:11:48|admin|add|6|import_stock|dasds-1491429600-41----sds---1
+
+13/04/2017 15:12:02|admin|delete|6|import_stock|
+
+13/04/2017 15:15:36|admin|add|7|import_stock|fdd-1492120800-41----ddd---1
+
+13/04/2017 15:15:54|admin|delete|7|import_stock|
+
+13/04/2017 15:19:24|admin|add|8|import_stock|ddd-1491516000-41----dd---1
+
+13/04/2017 15:51:10|admin|delete|5|import_stock|
+
+13/04/2017 15:51:13|admin|delete|8|import_stock|
+
+13/04/2017 15:51:51|admin|add|9|import_stock|aaaa-1492034400-41----a---1
+
+13/04/2017 16:35:27|admin|edit|9|import_stock|aaaa-1492034400-41---0-a---1
+
+13/04/2017 16:45:38|admin|edit|9|import_stock|aaaa-1492034400-41---0-a---1
+
+13/04/2017 16:48:02|admin|edit|9|import_stock|aaaa-1492034400-41---0-a---1
+
+14/04/2017 10:15:12|admin|delete|2|export_stock|
+
+14/04/2017 10:15:12|admin|delete|1|export_stock|
+
+14/04/2017 10:15:25|admin|delete|10|sparevehicle|
+
+14/04/2017 10:15:25|admin|delete|11|sparevehicle|
+
+14/04/2017 10:15:25|admin|delete|9|sparevehicle|
+
+14/04/2017 10:15:25|admin|delete|18|sparevehicle|
+
+14/04/2017 10:15:25|admin|delete|19|sparevehicle|
+
+17/04/2017 11:49:04|admin|lock|12184|shipment|0
+
+17/04/2017 11:49:22|admin|edit|12184|bill|20000-3-20000-3-70143659-1491084000-1491170400-20000-3-20000-3-1491217200-1491220800
+
+17/04/2017 14:27:46|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+17/04/2017 14:28:08|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800--Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+17/04/2017 14:28:18|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+17/04/2017 14:28:58|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+17/04/2017 14:28:58|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+17/04/2017 14:31:59|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800--Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+17/04/2017 14:32:00|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800--Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+17/04/2017 14:33:26|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+17/04/2017 14:34:45|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+17/04/2017 14:35:25|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+17/04/2017 14:38:17|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+17/04/2017 14:38:36|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+17/04/2017 14:38:51|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+17/04/2017 14:40:50|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+17/04/2017 14:51:00|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-1-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+18/04/2017 09:22:55|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800--Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+
+18/04/2017 09:23:04|admin|edit|1|import_stock|A3353511-1490911200-41-000032424-1488322800-4-Nhập kho-Hoàng Nam-TP Hồ Chí Minh-1
+

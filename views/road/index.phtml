@@ -880,7 +880,8 @@ $('.add_new').click(function(){
         $('#route_to').val("");
         $('#route_to').attr('data',"");
 
-        
+        $('input[name="chk"]').attr('data',"");
+        $('input[name="chk2"]').attr('data',"");
 
         $( ".add-field" ).dialog( "open" );
 });
@@ -940,7 +941,8 @@ function add_click(){
         $('#route_to').val("");
         $('#route_to').attr('data',"");
 
-        
+        $('input[name="chk"]').attr('data',"");
+        $('input[name="chk2"]').attr('data',"");
 
         $( ".add-field" ).dialog( "open" );
 }
@@ -1647,7 +1649,11 @@ function deleteRow(tableID){
                 var row=table.rows[i];
                 var chkbox=row.cells[0].childNodes[0];
                 if(null!=chkbox&&true==chkbox.checked){
-                    if(chkbox.getAttribute("data") > 0){
+                    if(rowCount<=1){
+                        alert("Cannot delete all the rows.");
+                        break;
+                    }
+                    else if(chkbox.getAttribute("data") > 0){
                         
                             var road = chkbox.getAttribute("data");
                             var toll_booth = chkbox.getAttribute("tabindex");
@@ -1658,10 +1664,7 @@ function deleteRow(tableID){
                                }); 
                         
                     }
-                    if(rowCount<=1){
-                        alert("Cannot delete all the rows.");
-                        break;
-                    }
+                    
                     table.deleteRow(i);
                     rowCount--;
                     i--;
@@ -1821,7 +1824,11 @@ function deleteRow2(tableID){
                 var row=table.rows[i];
                 var chkbox=row.cells[0].childNodes[0];
                 if(null!=chkbox&&true==chkbox.checked){
-                    if(chkbox.getAttribute("title") > 0){
+                    if(rowCount<=1){
+                        alert("Cannot delete all the rows.");
+                        break;
+                    }
+                    else if(chkbox.getAttribute("title") > 0){
                         
                             var km = chkbox.getAttribute("data");
                             var road = chkbox.getAttribute("tabindex");
@@ -1833,10 +1840,7 @@ function deleteRow2(tableID){
                                }); 
                         
                     }
-                    if(rowCount<=1){
-                        alert("Cannot delete all the rows.");
-                        break;
-                    }
+                    
                     table.deleteRow(i);
                     rowCount--;
                     i--;

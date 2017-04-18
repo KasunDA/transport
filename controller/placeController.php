@@ -103,7 +103,7 @@ Class placeController Extends baseController {
             if ($_POST['yes'] != "") {
 
                 if ($place->checkPlace($_POST['yes'],trim($_POST['place_name']))) {
-                    echo "Thông tin này đã tồn tại";
+                    echo "Tên đã được sử dụng";
                     return false;
                 }
                 else{
@@ -132,7 +132,7 @@ Class placeController Extends baseController {
             else{
 
                 if ($place->getPlaceByWhere(array('place_name'=>$data['place_name']))) {
-                    echo "Thông tin này đã tồn tại";
+                    echo "Tên đã được sử dụng";
                     return false;
                 }
                 else{

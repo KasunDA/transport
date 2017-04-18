@@ -100,7 +100,7 @@ Class bankController Extends baseController {
             if ($_POST['yes'] != "") {
                 $check = $bank_model->queryBank('SELECT * FROM bank WHERE (bank_code='.$data['bank_code'].' OR bank_name='.$data['bank_name'].' OR account_number='.$data['account_number'].') AND bank_id!='.$_POST['yes']);
                 if($check){
-                    echo "Danh mục đã tồn tại";
+                    echo "Tài khoản đã tồn tại";
                     return false;
                 }
                 else{
@@ -120,7 +120,7 @@ Class bankController Extends baseController {
             else{
                 $check = $bank_model->queryBank('SELECT * FROM bank WHERE (bank_code='.$data['bank_code'].' OR bank_name='.$data['bank_name'].' OR account_number='.$data['account_number'].')');
                 if($check){
-                    echo "Danh mục đã tồn tại";
+                    echo "Tài khoản đã tồn tại";
                     return false;
                 }
                 else{

@@ -69,7 +69,7 @@ Class sparedrapController Extends baseController {
 
         $json = array('table'=>'spare_part, spare_vehicle','where'=>'spare_drap.spare_part = spare_part_id AND spare_vehicle = spare_vehicle_id');
         $data = array(
-            'where' => 'end_time >= '.strtotime($batdau).' AND end_time <= '.strtotime($ketthuc),
+            'where' => 'end_time >= '.strtotime($batdau).' AND end_time < '.strtotime($ngayketthuc),
         );
         
         $tongsodong = count($spare_model->getAllStock($data,$json));
@@ -96,7 +96,7 @@ Class sparedrapController Extends baseController {
             'order_by'=>$order_by,
             'order'=>$order,
             'limit'=>$x.','.$sonews,
-            'where' => 'end_time >= '.strtotime($batdau).' AND end_time <= '.strtotime($ketthuc),
+            'where' => 'end_time >= '.strtotime($batdau).' AND end_time < '.strtotime($ngayketthuc),
             );
 
         

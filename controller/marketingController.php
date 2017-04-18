@@ -59,6 +59,7 @@ Class marketingController Extends baseController {
             $ketthuc = date('t-m-Y');
 
         }
+        $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
 
         $contunit_model = $this->model->get('contunitModel');
 
@@ -80,7 +81,7 @@ Class marketingController Extends baseController {
 
         $data = array(
 
-            'where' => 'marketing_date >= '.strtotime($batdau).' AND marketing_date <= '.strtotime($ketthuc),
+            'where' => 'marketing_date >= '.strtotime($batdau).' AND marketing_date < '.strtotime($ngayketthuc),
 
             );
 
@@ -126,7 +127,7 @@ Class marketingController Extends baseController {
 
             'limit'=>$x.','.$sonews,
 
-            'where' => 'marketing_date >= '.strtotime($batdau).' AND marketing_date <= '.strtotime($ketthuc),
+            'where' => 'marketing_date >= '.strtotime($batdau).' AND marketing_date < '.strtotime($ngayketthuc),
 
             );
 

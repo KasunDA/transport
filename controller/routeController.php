@@ -103,7 +103,7 @@ Class routeController Extends baseController {
             if ($_POST['yes'] != "") {
 
                 if ($route->checkPlace($_POST['yes'],trim($_POST['route_name']))) {
-                    echo "Thông tin này đã tồn tại";
+                    echo "Tên đã được sử dụng";
                     return false;
                 }
                 else{
@@ -132,7 +132,7 @@ Class routeController Extends baseController {
             else{
 
                 if ($route->getPlaceByWhere(array('route_name'=>$data['route_name']))) {
-                    echo "Thông tin này đã tồn tại";
+                    echo "Tên đã được sử dụng";
                     return false;
                 }
                 else{

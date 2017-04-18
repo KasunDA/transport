@@ -38,7 +38,8 @@ elseif ($order_by == 'spare_part_date_manufacture')
         <input type="button" name="" id="search-submit" class="button-search" value="Tìm kiếm" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">
         <?php if(!isset($disable_control)){ ?>
         <div class="add-box"><a class="add_button" id="btnExport" ><i class="fa fa-download"></i> Xuất</a></div>
-        <div class="add-box"><a class="add_button" onClick="add_click();"><i class="fa fa-plus"></i> Thêm mới</a></div>
+        <div class="add-box"><a class="add_button" onClick="add_click();"><i class="fa fa-plus"></i> Thêm vật tư mới</a></div>
+        <div class="add-box"><a class="add_button" onClick="add_click2();"><i class="fa fa-plus"></i> Thêm mã mới</a></div>
         <?php } ?>
     </div>
     <div class="tablenav top">
@@ -103,16 +104,36 @@ elseif ($order_by == 'spare_part_date_manufacture')
     
    </thead>
    <tbody>
-    <?php foreach ($spares as $spare_part) : ?>
-        <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $spare_part->spare_part_id ?>" class="edit_tr">
+    <?php foreach ($spare_codes as $spare) : ?>
+      <tr style="font-weight: bold; color: rgb(23, 119, 226);background-color: rgb(222, 239, 236);" onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $spare->spare_part_code_id ?>" class="edit_tr2">
+          
+          <td class="fix" colspan="2"><?php echo $i++; ?></td>
+          <td class="fix"  id="code_<?php echo $spare->spare_part_code_id; ?>"><?php echo $spare->code ?></td>
+          <td class="fix"  id="name_<?php echo $spare->spare_part_code_id; ?>"><?php echo $spare->name ?></td>
+          <td class="fix" colspan="4" ></td>
+      
+          <?php if(!isset($disable_control)){ ?>
+          <td class="pull-right">
+              <button class="btn btn-sm btn-flat btn-primary"><i class="fa fa-edit"></i> Sửa</button>
+              <button class="btn btn-sm btn-flat btn-danger" onclick="del2(<?php echo $spare->spare_part_code_id ?>)" ><i class="fa fa-remove"></i> Xóa</button>
+          </td>
+          <?php } ?>
+      </tr>
+    <?php 
+      $j = "1";
+    foreach ($spares[$spare->spare_part_code_id] as $spare_part) : ?>
+        <tr style="font-style:italic" onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $spare_part->spare_part_id ?>" class="edit_tr <?php echo $spare->spare_part_code_id ?>">
             <td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $spare_part->spare_part_id ?>"></td>
-            <td class="fix"><?php echo $i++; ?></td>
-            <td class="fix"  id="spare_part_code_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_code ?></td>
-            <td class="fix"  id="spare_part_name_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_name ?></td>
+            <td class="fix"><?php echo $j++; ?></td>
+            <td class="fix"></td>
+            <td class="fix"></td>
             <td class="fix"  id="spare_part_seri_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_seri ?></td>
             <td class="fix"  id="spare_part_brand_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_brand ?></td>
             <td class="fix"  id="spare_part_date_manufacture_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_date_manufacture>0?$lib->hien_thi_ngay_thang($spare_part->spare_part_date_manufacture):null ?></td>
             <td class="fix" id="spare_part_type_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part_types[$spare_part->spare_part_id] ?></td>
+            <td style="display:none" class="fix" id="code_list_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->code_list ?></td>
+            <td style="display:none" class="fix"  id="spare_part_code_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_code ?></td>
+            <td style="display:none" class="fix"  id="spare_part_name_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_name ?></td>
         
             <?php if(!isset($disable_control)){ ?>
             <td class="pull-right">
@@ -121,6 +142,7 @@ elseif ($order_by == 'spare_part_date_manufacture')
             </td>
             <?php } ?>
         </tr>
+    <?php endforeach; ?>
     <?php endforeach; ?>
    </tbody>
 </table>
@@ -142,11 +164,13 @@ $this->helper('slidePaginator');
                   <div class="box-body">
                     <div class="form-group">
                       <label for="spare_part_code">Mã sản phẩm</label>
-                      <input type="text" id="spare_part_code"  name="spare_part_code" tabindex="1" required="required" >
+                      <input type="text" autocomplete="off" id="spare_part_code"  name="spare_part_code" tabindex="1" required="required" placeholder="Nhập tên hoặc * để chọn">
+                      <ul id="code_list_id"></ul>
                     </div>
                     <div class="form-group">
                       <label for="spare_part_name">Tên sản phẩm</label>
-                      <input type="text" id="spare_part_name"  name="spare_part_name" tabindex="2" required="required" >
+                      <input type="text" autocomplete="off" id="spare_part_name"  name="spare_part_name" tabindex="2" required="required" placeholder="Nhập tên hoặc * để chọn">
+                      <ul id="customer_list_id"></ul>
                     </div>
                     
                     
@@ -211,10 +235,77 @@ $this->helper('slidePaginator');
     <!-- /.content -->
        
 </div>
+<div class="add-field2">
+    <section class="content">
+      <div class="row">
+        <!-- left column -->
+        <div class="col-md-12">
+          <!-- general form elements -->
+          <div class="box box-primary">
+            <!-- /.box-header -->
+            <!-- form start -->
+            <form id="add_spare_part2" role="form" method="post" action="" enctype="multipart/form-data">
+              <div class="row">
+                <div class="col-md-6 col-xs-6">
+                  <div class="box-body">
+                    <div class="form-group">
+                      <label for="code">Mã sản phẩm</label>
+                      <input type="text" autocomplete="off" id="code"  name="code" tabindex="1" required="required" >
+                    </div>
+                    
+                    
+                  </div>
+                  <!-- /.box-body -->
+                  
+                </div>
+                <div class="col-md-6 col-xs-6">
+                  <div class="box-body">
+                    <div class="form-group">
+                      <label for="name">Tên sản phẩm</label>
+                      <input type="text" autocomplete="off" id="name"  name="name" tabindex="2" required="required" >
+                    </div>
+                    
+                    
+                  </div>
+                  <!-- /.box-body -->
+                  
+                </div>
 
+              </div>
+              <?php if(!isset($disable_control)){ ?>
+              <div class="row">
+                <div class="col-md-12">
+                    <div class="box-footer">
+                    <input type="hidden" readonly id="yes2" name="yes2" required="required" >
+                    <button type="submit" class="btn btn-primary" tabindex="3">Hoàn thành</button>
+                    <button type="reset" class="btn" tabindex="4">Nhập lại</button>
+                  </div>
+                  <div class="box-footer">
+                    <div id="error2" class="error"><?php echo isset($error) ? $error : null; ?></div>
+                  </div>
+                </div>
+              </div>
+              <?php } ?>
+            </form>
+          </div>
+          <!-- /.box -->
+
+        </div>
+        <!--/.col (left) -->
+        
+      </div>
+      <!-- /.row -->
+    </section>
+    <!-- /.content -->
+       
+</div>
 
 <script type="text/javascript">
-
+$('html').click(function(e) {
+    
+    $('#code_list_id').slideUp(200);
+    $('#customer_list_id').slideUp(200);
+});
     $('.edit_tr').click(function(e){
         if(!$('.checkbox').is(':focus') && e.target.nodeName != "A"){
             if(!$('.checkbox').is(':focus')){
@@ -226,6 +317,7 @@ $this->helper('slidePaginator');
             var spare_part_brand = $(this).find("#spare_part_brand_"+$(this).attr('id')).text();
             var spare_part_date_manufacture = $(this).find("#spare_part_date_manufacture_"+$(this).attr('id')).text();
             var spare_part_type = $(this).find("#spare_part_type_"+$(this).attr('id')).text();
+            var code_list = $(this).find("#code_list_"+$(this).attr('id')).text();
             
             //alert(spare_part_code);
             $('#yes').val($(this).attr('id'));
@@ -236,6 +328,8 @@ $this->helper('slidePaginator');
             $('#spare_part_brand').val(spare_part_brand);
             $('#spare_part_date_manufacture').val(spare_part_date_manufacture.replace(/\//g,"-"));
 
+            $('#spare_part_code').attr('data',code_list);
+            $('#spare_part_name').attr('data',code_list);
 
             $('#spare_part_type').val(spare_part_type.trim());
 
@@ -257,6 +351,26 @@ $this->helper('slidePaginator');
             $( ".add-field" ).dialog( "open" );
         }
     });
+$('.edit_tr2').click(function(e){
+        if(!$('.checkbox').is(':focus') && e.target.nodeName != "A"){
+            if(!$('.checkbox').is(':focus')){
+                $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
+            }
+            var name = $(this).find("#name_"+$(this).attr('id')).text();
+            var code = $(this).find("#code_"+$(this).attr('id')).text();
+            
+            
+            //alert(spare_part_code);
+            $('#yes2').val($(this).attr('id'));
+            
+            $('#code').val(code);
+            $('#name').val(name);
+            
+
+
+            $( ".add-field2" ).dialog( "open" );
+        }
+    });
 </script>
 <script type="text/javascript">
 
@@ -271,6 +385,8 @@ function add_click(){
             $('#spare_part_date_manufacture').val("");
             $('#spare_part_type').val("");
         
+         $('#spare_part_code').attr('data',"");
+            $('#spare_part_name').attr('data',"");
         
         $('.number').focus(function(){
             if ( $(this).val() == '0') {
@@ -302,6 +418,16 @@ function add_click(){
    $( ".add-field" ).dialog( "open" );
 
 }
+function add_click2(){
+    $('#yes2').val("");
+    $('.add-field2').slideDown(500);
+     $("html, body").animate({ scrollTop: $('.add-field2').offset().top }, 300);   
+        $('#code').val("");
+            $('#name').val("");
+
+   $( ".add-field2" ).dialog( "open" );
+
+}
 
 
 $(document).ready(function(){
@@ -315,6 +441,7 @@ $(document).ready(function(){
                 
                     var spare_part_name = $('#spare_part_name').attr('value');
                     var spare_part_code = $('#spare_part_code').attr('value');
+                    var spare_part_code_id = $('#spare_part_code').attr('data');
                     var spare_part_seri = $('#spare_part_seri').attr('value');
                     var spare_part_brand = $('#spare_part_brand').attr('value');
                     var spare_part_date_manufacture = $('#spare_part_date_manufacture').attr('value');
@@ -330,6 +457,7 @@ $(document).ready(function(){
                         data: {
                             spare_part_name: spare_part_name,
                             spare_part_code: spare_part_code,
+                            spare_part_code_id: spare_part_code_id,
                             spare_part_seri: spare_part_seri,
                             spare_part_brand: spare_part_brand,
                             spare_part_date_manufacture: spare_part_date_manufacture,
@@ -344,7 +472,7 @@ $(document).ready(function(){
                             $('#error').fadeOut(10000);
 
                             if (yes != "") {
-                                if (answer.trim() != "Tên đã được sử dụng" ) {
+                                if (answer.trim() != "Thông tin này đã tồn tại" ) {
                                   setTimeout(function() {
                                         sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
                                       }, 200);
@@ -353,7 +481,67 @@ $(document).ready(function(){
                                 }
                             }
                             else{
-                                if (answer.trim() != "Tên đã được sử dụng") {
+                                if (answer.trim() != "Thông tin này đã tồn tại") {
+                                  setTimeout(function() {
+                                        sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
+                                      }, 200);
+                                    var lastID = parseInt($('#lasted').html());
+                                    var rowCount = parseInt($('.table_data > tbody > tr').length);
+                                    $('.table_data > tbody:last')
+                                    .append(
+                                        '<tr onclick="HighLightTR(this,#4d90fe,cc3333);" id="'+parseInt(lastID+1)+'" class="edit_tr"><td><input name="check[]" type="checkbox" class="checkbox" value="'+parseInt(lastID+1)+'"></td><td class="fix">'+parseInt(rowCount+1)+'</td><td class="fix" id="spare_part_name_'+parseInt(lastID+1)+'">'+spare_part_name+'</td><td class="fix" data="'+province+'" id="province_name_'+parseInt(lastID+1)+'">'+$('#province option:selected').text()+'</td><td><a class="error" href="#">Sửa</a> | <a class="error" onclick="del('+parseInt(lastID+1)+')">Xóa</a></td></tr>'
+                                    );
+
+                                    $('#lasted').html(parseInt(lastID+2));
+                                }
+                            }
+                        }
+                    });
+                    return false;
+                     
+                 }
+            });
+
+            $("#add_spare_part2").validate({
+                errorElement: "span", // Định dạng cho thẻ HTML hiện thông báo lỗi
+                rules: {
+                    
+                },
+                submitHandler: function(form) {
+                
+                    var name = $('#name').attr('value');
+                    var code = $('#code').attr('value');
+                    
+                    var yes = $('#yes2').attr('value');
+                    
+                    var action      = "them";
+                 
+                    $.ajax({
+                        type: "POST", // phương thức gởi đi
+                        url: "<?php echo BASE_URL ?>/sparepart/addcode", // nơi mà dữ liệu sẽ chuyển đến khi submit
+                        data: {
+                            name: name,
+                            code: code,
+                            yes: yes,
+                            }, // giá trị post
+                        success: function(answer){ // if everything goes well
+                            //alert(answer);
+                            $('#error2').hide();
+                            $('#error2').slideToggle(100); // hiển thị thẻ div success
+                            $('#error2').html('<div class="successbox">'+answer+'</div>'); // đặt kết quả trả về từ test.php vào thẻ div success
+                            $('#error2').fadeOut(10000);
+
+                            if (yes != "") {
+                                if (answer.trim() != "Thông tin này đã tồn tại" ) {
+                                  setTimeout(function() {
+                                        sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
+                                      }, 200);
+                                    $('#spare_part_name_'+yes).text(spare_part_name);
+                                    $('#province_name_'+yes).text($('#province option:selected').text());
+                                }
+                            }
+                            else{
+                                if (answer.trim() != "Thông tin này đã tồn tại") {
                                   setTimeout(function() {
                                         sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
                                       }, 200);
@@ -374,7 +562,61 @@ $(document).ready(function(){
                  }
             });
    
-   
+   $('#spare_part_code').keyup(function(){
+          var keyword = $(this).val();
+          $.ajax({
+              url: '<?php echo BASE_URL ?>/sparepart/getCode',
+              type: 'POST',
+              data: {keyword:keyword},
+              success:function(data){
+                  $('#code_list_id').slideDown(200);
+                  $('#code_list_id').html(data);
+              }
+          });
+          if ($('#spare_part_code').val() == "" || $('#spare_part_code').attr('data') == "") {
+              
+              $('#spare_part_code').attr('data',"");
+          }
+
+          
+      });
+
+  $('#spare_part_code').on('keydown', function() {
+          var key = event.keyCode || event.charCode;
+
+          if( key == 8 || key == 46 ){
+              $('#spare_part_code').attr('data',"");
+          }
+              
+        }); 
+
+  $('#spare_part_name').keyup(function(){
+          var keyword = $(this).val();
+          $.ajax({
+              url: '<?php echo BASE_URL ?>/sparepart/getCode',
+              type: 'POST',
+              data: {keyword:keyword},
+              success:function(data){
+                  $('#customer_list_id').slideDown(200);
+                  $('#customer_list_id').html(data);
+              }
+          });
+          if ($('#spare_part_name').val() == "" || $('#spare_part_name').attr('data') == "") {
+              
+              $('#spare_part_name').attr('data',"");
+          }
+
+          
+      });
+
+  $('#spare_part_name').on('keydown', function() {
+          var key = event.keyCode || event.charCode;
+
+          if( key == 8 || key == 46 ){
+              $('#spare_part_name').attr('data',"");
+          }
+              
+        }); 
    
     $('.number').keyup(function(event) {
 
@@ -408,7 +650,19 @@ $(document).ready(function(){
 function get_number(id){
     return $(id).val().replace(/\,/g,'');
 }
-
+ function set_item(value,name,code) {
+    // change input value
+    $('#spare_part_name').val(name);
+    $('#spare_part_code').val(code);
+    $("#spare_part_name").attr("data",value);
+    $("#spare_part_code").attr("data",value);
+    
+    // hide proposition list
+    $('#customer_list_id').hide();
+    $('#code_list_id').hide();
+    $('#spare_part_name').focus();
+     
+}
 </script>
 <div style="display:none" id="lasted"></div>
 <script type="text/javascript">
@@ -471,5 +725,35 @@ $( ".add-field" ).dialog({
       }, 200);
     },
 });
+$( ".add-field2" ).dialog({
+    autoOpen: false,
+    modal: true,
+    width: "auto",
+    title: "Thông tin vật tư",
+    hide: 'fold',
+    show: 'blind',
+});
 
+function del2(id)
+{
+  if($('.add-field') != null)
+  {
+    $('.add-field').slideUp();
+  }
+  var r = confirm("Bạn có chắc chắn muốn xóa không?");
+  if (r == true){
+    
+    $.post(window.location.href+"/deletecode", {data: id},
+       function(data){
+        //alert(data);
+        if (data.trim() != 'Bạn không có quyền thực hiện thao tác này') {
+          $('tr#'+id).remove(); 
+          $('tr.'+id).remove(); 
+        };
+        
+        $("html, body").animate({ scrollTop: 0 }, 100);
+       
+       }); 
+  }
+}
 </script>

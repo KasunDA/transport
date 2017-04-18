@@ -107,16 +107,16 @@
     <?php $tongluongchuyen = 0; $tongdaudinhmuc=0; $tongdauthuclanh=0; $tongsl=0; $tongthanhtien=0; $tonglanh=0;
     ?>
 
-    <?php foreach ($drivers as $driver) : ?>
+    <?php foreach ($steersmans_data as $driver) : ?>
 
         <?php 
 
         
-        $lc = (isset($luongchuyen[$driver->steersman_id][$driver->vehicle])?$luongchuyen[$driver->steersman_id][$driver->vehicle]:0);
-        $dm = (isset($daudinhmuc[$driver->steersman_id][$driver->vehicle])?$daudinhmuc[$driver->steersman_id][$driver->vehicle]:0);
-        $dl = (isset($dauthuclanh[$driver->steersman_id][$driver->vehicle])?$dauthuclanh[$driver->steersman_id][$driver->vehicle]:0);
+        $lc = (isset($luongchuyen[$driver->steersman_id])?$luongchuyen[$driver->steersman_id]:0);
+        $dm = (isset($daudinhmuc[$driver->steersman_id])?$daudinhmuc[$driver->steersman_id]:0);
+        $dl = (isset($dauthuclanh[$driver->steersman_id])?$dauthuclanh[$driver->steersman_id]:0);
         $sl = $dm-$dl;
-        $tp = $sl<0?$thuongphat['phat']:$thuongphat['thuong'];
+        $tp = $sl<0?$thuongphat['phat']:($sl>0?$thuongphat['thuong']:0);
         $tt = $sl*$tp;
         $lanh = $lc+$tt;
 

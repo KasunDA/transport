@@ -1173,7 +1173,11 @@ function deleteRow(tableID){
                 var row=table.rows[i];
                 var chkbox=row.cells[0].childNodes[0];
                 if(null!=chkbox&&true==chkbox.checked){
-                    if(chkbox.getAttribute("title") > 0){
+                  if(rowCount<=1){
+                        alert("Cannot delete all the rows.");
+                        break;
+                    }
+                    else if(chkbox.getAttribute("title") > 0){
                         
                             var data = chkbox.getAttribute("data");
                             var customer = chkbox.getAttribute("title");
@@ -1184,10 +1188,7 @@ function deleteRow(tableID){
                                }); 
                         
                     }
-                    if(rowCount<=1){
-                        alert("Cannot delete all the rows.");
-                        break;
-                    }
+                    
                     table.deleteRow(i);
                     rowCount--;
                     i--;
@@ -1281,7 +1282,11 @@ function deleteRow2(tableID){
                 var row=table.rows[i];
                 var chkbox=row.cells[0].childNodes[0];
                 if(null!=chkbox&&true==chkbox.checked){
-                    if(chkbox.getAttribute("title") > 0){
+                  if(rowCount<=1){
+                        alert("Cannot delete all the rows.");
+                        break;
+                    }
+                    else if(chkbox.getAttribute("title") > 0){
                         
                             var data = chkbox.getAttribute("data");
                             var customer = chkbox.getAttribute("title");
@@ -1292,10 +1297,7 @@ function deleteRow2(tableID){
                                }); 
                         
                     }
-                    if(rowCount<=1){
-                        alert("Cannot delete all the rows.");
-                        break;
-                    }
+                    
                     table.deleteRow(i);
                     rowCount--;
                     i--;
