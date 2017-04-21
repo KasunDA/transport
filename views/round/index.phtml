@@ -191,6 +191,13 @@ elseif ($order_by == 'shipment_round')
             $cx = isset($warehouse['warehouse_weight'][$ship])?$warehouse['warehouse_weight'][$ship]:0;
             $qc = isset($warehouse['warehouse_clean'][$ship])?$warehouse['warehouse_clean'][$ship]:0;
             $vc = isset($warehouse['warehouse_gate'][$r[1]])?($r[1]==$place['place_id'][$r[1]]?$warehouse['warehouse_gate'][$r[1]]:0):0;
+
+            $oil = isset($road['road_oil'][$ship])?$road['road_oil'][$ship]:null;
+            $cd = isset($road['bridge_cost'][$ship])?$road['bridge_cost'][$ship]:null;
+            $ca = isset($road['police_cost'][$ship])?$road['police_cost'][$ship]:null;
+            $vv = isset($road['tire_cost'][$ship])?$road['tire_cost'][$ship]:null;
+            $cadd = isset($road['charge_add'][$ship])?$road['charge_add'][$ship]:null;
+            $ngay = isset($road['road_time'][$ship])?$road['road_time'][$ship]:null;
         ?>
         <tr onClick="HighLightTR(this,'#4d90fe','cc3333');"  id="" class="edit_tr">
             <?php if($dem==1){ ?>
@@ -199,28 +206,28 @@ elseif ($order_by == 'shipment_round')
             <td class="fix"><?php echo $i++; ?></td>
             <td nowrap class="fix" data="<?php echo $r[0]; ?>" id=""><?php echo $r[0]==$place['place_id'][$r[0]]?$place['place_name'][$r[0]]:null ?></td>
             <td nowrap class="fix" data="<?php echo $r[1]; ?>" id=""><?php echo $r[1]==$place['place_id'][$r[1]]?$place['place_name'][$r[1]]:null ?></td>
-            <td class="fix" ><?php echo $road['road_time'][$ship]; ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($road['road_oil'][$ship]); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($road['bridge_cost'][$ship]); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($road['police_cost'][$ship]); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($road['tire_cost'][$ship]); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($road['charge_add'][$ship]); ?></td>
+            <td class="fix" ><?php echo $ngay; ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($oil); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($cd); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($ca); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($vv); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($cadd); ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($bd); ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($cx); ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($qc); ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($vc); ?></td>
 
-            <?php $tong = $road['road_oil'][$ship]+$road['bridge_cost'][$ship]+$road['police_cost'][$ship]+$road['tire_cost'][$ship]+$road['charge_add'][$ship]+$bd+$cx+$qc+$vc; ?>
+            <?php $tong = $oil+$cd+$ca+$vv+$cadd+$bd+$cx+$qc+$vc; ?>
             <td class="fix" ><?php echo $lib->formatMoney($tong); ?></td>
             
         </tr>
         <?php
-            $thoigianchay += $road['road_time'][$ship];
-            $tiendau += $road['road_oil'][$ship];
-            $cauduong += $road['bridge_cost'][$ship];
-            $congan += $road['police_cost'][$ship];
-            $vavo += $road['tire_cost'][$ship];
-            $vuottai += $road['charge_add'][$ship];
+            $thoigianchay += $ngay;
+            $tiendau += $oil;
+            $cauduong += $cd;
+            $congan += $ca;
+            $vavo += $vv;
+            $vuottai += $cadd;
             $boiduong += $bd;
             $canxe += $cx;
             $quetcont += $qc;

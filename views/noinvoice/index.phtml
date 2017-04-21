@@ -231,7 +231,7 @@ elseif ($order_by == 'shipment_round')
 
             
         }
-        if ($road['way'][$shipment->shipment_id] == 0) {
+        if (isset($road['way'][$shipment->shipment_id]) && $road['way'][$shipment->shipment_id] == 0) {
 
             $kho['warehouse_weight'][$shipment->shipment_from] = 0;
             $kho['warehouse_clean'][$shipment->shipment_from] = 0;
@@ -248,6 +248,9 @@ elseif ($order_by == 'shipment_round')
                 $kho['warehouse_gate'][$shipment->shipment_to] = $kho['warehouse_gate'][$shipment->shipment_to];
                 $kho['warehouse_gate'][$shipment->shipment_from] = 0;
             }
+
+            $ca = isset($road['police_cost'][$shipment->shipment_id])?$road['police_cost'][$shipment->shipment_id]:null;
+            $vv = isset($road['tire_cost'][$shipment->shipment_id])?$road['tire_cost'][$shipment->shipment_id]:null;
     ?>
         
         <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" data="<?php echo $shipment->vehicle_id.$shipment->shipment_round ?>" id="<?php echo $shipment->shipment_id ?>" class="edit_tr">
@@ -266,8 +269,8 @@ elseif ($order_by == 'shipment_round')
             <td class="fix" id="shipment_charge_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_charge); ?></td>
             <td class="fix" id="shipment_revenue_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_revenue+$shipment->revenue_other); ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($kho['boiduong_cn'][$shipment->shipment_id]); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($road['police_cost'][$shipment->shipment_id]); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($road['tire_cost'][$shipment->shipment_id]); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($ca); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($vv); ?></td>
             <td nowrap class="fix"  id="warehouse_weight_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($kho['warehouse_weight'][$shipment->shipment_from]+$kho['warehouse_weight'][$shipment->shipment_to]) ?></td>
             <td nowrap class="fix"  id="warehouse_clean_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($kho['warehouse_clean'][$shipment->shipment_from]+$kho['warehouse_clean'][$shipment->shipment_to]) ?></td>
             <td nowrap class="fix"  id="warehouse_gate_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney(/*$kho['warehouse_gate'][$shipment->shipment_from]+*/$kho['warehouse_gate'][$shipment->shipment_to]) ?></td>
@@ -281,8 +284,8 @@ elseif ($order_by == 'shipment_round')
         $tong += $shipment->shipment_revenue+$shipment->revenue_other; 
 
         $tongbd += $kho['boiduong_cn'][$shipment->shipment_id];
-        $tongca += $road['police_cost'][$shipment->shipment_id];
-        $tongvavo += $road['tire_cost'][$shipment->shipment_id];
+        $tongca += $ca;
+        $tongvavo += $vv;
         $tongphatsinh += (($shipment->approve==1)?$shipment->cost_add:0);
         $tongcan += ($kho['warehouse_weight'][$shipment->shipment_from]+$kho['warehouse_weight'][$shipment->shipment_to]);
         $tongquet += ($kho['warehouse_clean'][$shipment->shipment_from]+$kho['warehouse_clean'][$shipment->shipment_to]);

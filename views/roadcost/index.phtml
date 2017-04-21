@@ -1,0 +1,1528 @@
+<link rel="stylesheet" type="text/css" href="<?php BASE_URL ?>/public/css/jquery.multiselect.css" />
+
+<script type="text/javascript" src="<?php BASE_URL ?>/public/js/jquery.multiselect.js"></script>
+
+<?php
+
+$url_order = 'ASC';
+
+if ($order_by == 'road_cost_id')
+
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+
+
+
+elseif ($order_by == 'road_cost_date')
+
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+
+elseif ($order_by == 'road_cost_number')
+
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+
+elseif ($order_by == 'customer_name')
+
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+elseif ($order_by == 'road_cost_vat')
+
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+elseif ($order_by == 'road_cost_price')
+
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+
+elseif ($order_by == 'start_time')
+
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+
+elseif ($order_by == 'end_time')
+
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+
+
+    $ii = $sonews*$page-($sonews-1);
+
+
+
+?>
+
+
+
+<div id="loading"></div>
+
+<div id="winpopup"></div>
+
+<section class="content-header">
+
+    <h1>PHÍ SỬ DỤNG ĐƯỜNG BỘ</h1>
+
+  <ol class="breadcrumb">
+
+    <li><a href="<?php echo $this->url('admin') ?>"><i class="fa fa-dashboard"></i> Home</a></li>
+
+    <li class="active"><a href="<?php echo $this->url('roadcost') ?>">Phí đường bộ</a></li>
+
+  </ol>
+
+</section>
+
+<div id="content" style="padding:5px;">
+
+
+
+    <div class="search-box">
+
+        
+
+        <input type="search" id="search-input" name="s" value="<?php echo isset($keyword)?$keyword:null; ?>" placeholder="Tìm kiếm">
+
+        <input type="button" name="" id="search-submit" class="button-search" value="Tìm kiếm" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">
+
+        <?php if(!isset($disable_control)){ ?>
+
+        <div class="add-box"><a class="add_button" id="btnExport" ><i class="fa fa-download"></i> Xuất</a></div>
+
+        <div class="add-box"><a class="add_button" onClick="add_click();"><i class="fa fa-plus"></i> Thêm mới</a></div>
+
+        <?php } ?>
+
+    </div>
+
+    <div class="tablenav top">
+
+        <div class="add-box">
+
+            <select id="sl_round" name="sl_round" style="width:90px">
+
+             <?php 
+
+                for ($k=1; $k < 13; $k++) { 
+
+                    echo '<option value="'.$k.'">Tháng '.$k.'</option>';
+
+                }
+
+             ?>
+
+            </select>
+
+            <select id="sl_staff" name="sl_staff" style="width:100px">
+
+             <?php 
+
+                $nam = date('Y');
+
+                for ($k=($nam-5); $k < ($nam+5); $k++) { 
+
+                    echo '<option value="'.$k.'">Năm '.$k.'</option>';
+
+                }
+
+             ?>
+
+            </select>
+
+
+
+            <input type="button" name="xem" id="xem" value="Xem" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">  
+
+            
+
+        </div>
+
+    </div>
+
+    <div class="tablenav top">
+
+        <div style="clear:both"></div>
+
+        <div class="add-box">
+
+                  
+
+            Từ  <input style="width:80px" type="search" name="batdau" id="batdau" placeholder="Chọn ngày" <?php if(isset($batdau)) echo "value='$batdau'"; ?> >  
+
+            Đến  <input style="width:80px" type="search" name="ketthuc" id="ketthuc" placeholder="Chọn ngày" <?php if(isset($ketthuc)) echo "value='$ketthuc'"; ?> >  
+
+             <input type="button" name="xem" id="xem" value="Xem" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">  
+
+            
+
+        </div>
+
+
+
+      </div>
+
+      <div class="tablenav top">
+
+        <div style="clear:both"></div>
+
+        
+
+        <div class="add-box">
+
+            <input type="button" name="chon" id="chon" value="Chọn" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">  
+
+        </div>
+
+        
+
+        <div class="add-box" style="margin-right: 5px">
+
+
+            <select style="width:120px" name="sl_vehicle" id="sl_vehicle">
+
+                <option value="0">Xe</option>
+
+                <?php foreach ($vehicles as $sm) { ?>
+
+                <option value="<?php echo $sm->vehicle_id ?>"><?php echo $sm->vehicle_number ?></option>
+
+                <?php } ?>
+
+            </select>
+
+
+
+            
+
+            
+
+        </div>
+
+        <?php if(!isset($disable_control)){ ?>
+
+        <div class="alignleft actions">
+
+            <select name="action" id="action">
+
+                <option value="-1" selected="selected">Chọn</option>
+
+                
+
+                <option value="delete">Xóa</option>
+
+            </select>
+
+            <input type="button" name="" id="doaction" class="button action" value="Áp dụng" onclick="action();">
+
+        </div>
+
+        <?php } ?>
+
+        <div class="alignleft actions">
+
+        <select name="m" id="chonloc" style="width:200px">
+
+            <option value="18446744073709">Hiển thị tất cả</option>
+
+            <option value="50">Hiển thị 50 giá trị</option>
+
+            <option value="100">Hiển thị 100 giá trị</option>
+
+            <option value="150">Hiển thị 150 giá trị</option>
+
+            <option value="200">Hiển thị 200 giá trị</option>
+
+            <option selected="selected" value="250">Hiển thị 250 giá trị</option>
+
+        </select>
+
+        <input type="button" name="" id="post-query-submit" class="button" value="Chọn lọc" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">                               
+
+        </div>
+
+
+
+      </div>
+
+</div>
+
+
+
+
+
+<table class="table_data" id="tblExport">
+
+<thead>
+
+    <tr>
+
+    	<th class="fix"><input type="checkbox" onclick="checkall('checkbox', this)" name="checkall"/></th>
+
+        <th  class="fix" >
+
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','road_cost_id','<?php echo $url_order ?>')">STT <?php if ($order_by == 'road_cost_id'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+
+        
+
+        <th  class="fix">
+
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','road_cost_date','<?php echo $url_order ?>')">Ngày <?php if ($order_by == 'road_cost_date'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+
+        <th  class="fix">
+
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','road_cost_comment','<?php echo $url_order ?>')">Nội dung <?php if ($order_by == 'road_cost_comment'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+
+        <th  class="fix">
+
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','road_cost_number','<?php echo $url_order ?>')">Số hóa đơn <?php if ($order_by == 'road_cost_number'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+
+        <th  class="fix">
+
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','customer_name','<?php echo $url_order ?>')">Đơn vị <?php if ($order_by == 'customer_name'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+
+        <th  class="fix">
+
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','road_cost_price','<?php echo $url_order ?>')">Chi phí <?php if ($order_by == 'road_cost_price'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+        <th  class="fix">
+
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','road_cost_vat','<?php echo $url_order ?>')">Thuế GTGT <?php if ($order_by == 'road_cost_vat'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+        <th  class="fix">
+
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','start_time','<?php echo $url_order ?>')">Hiệu lực từ <?php if ($order_by == 'start_time'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+        <th  class="fix">
+
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','end_time','<?php echo $url_order ?>')">Hết hiệu lực <?php if ($order_by == 'end_time'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+
+        <?php if(!isset($disable_control)){ ?>
+
+           
+
+        <th  class="fix">&nbsp;</th>
+
+        <?php } ?>
+
+    </tr>
+
+    
+
+   </thead>
+
+   <tbody>
+
+    <?php 
+    $tongthanhtien = 0; $tongvat = 0;
+    foreach ($road_costs as $road_cost) : 
+      $tongthanhtien += $road_cost->road_cost_price;
+      $tongvat += $road_cost->road_cost_vat;
+      ?>
+
+    
+
+        
+
+        <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $road_cost->road_cost_id ?>" class="edit_tr">
+
+        	<td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $road_cost->road_cost_id ?>"></td>
+
+            <td  class="fix"><?php echo $ii++; ?></td>
+
+            <td class="fix" id="road_cost_date_<?php echo $road_cost->road_cost_id; ?>"><?php echo $lib->hien_thi_ngay_thang($road_cost->road_cost_date); ?></td>
+            <td class="fix" id="road_cost_comment_<?php echo $road_cost->road_cost_id; ?>"><?php echo $road_cost->road_cost_comment; ?></td>
+
+            <td class="fix" id="road_cost_number_<?php echo $road_cost->road_cost_id; ?>"><?php echo $road_cost->road_cost_number; ?></td>
+
+            <td class="fix" data="<?php echo $road_cost->customer; ?>" id="customer_<?php echo $road_cost->road_cost_id; ?>"><?php echo $road_cost->customer_name; ?></td>
+
+            <td class="fix" id="road_cost_price_<?php echo $road_cost->road_cost_id; ?>"><?php echo $lib->formatMoney($road_cost->road_cost_price); ?></td>
+
+            <td class="fix" id="road_cost_vat_<?php echo $road_cost->road_cost_id; ?>"><?php echo $lib->formatMoney($road_cost->road_cost_vat); ?></td>
+
+            <td class="fix" id="start_time_<?php echo $road_cost->road_cost_id; ?>"><?php echo $lib->hien_thi_ngay_thang($road_cost->start_time); ?></td>
+
+            <td class="fix" id="end_time_<?php echo $road_cost->road_cost_id; ?>"><?php echo $lib->hien_thi_ngay_thang($road_cost->end_time); ?></td>
+
+            <td class="fix" style="display:none" id="vehicle_<?php echo $road_cost->road_cost_id; ?>"><?php echo $road_cost->vehicle; ?></td>
+
+            <td class="fix" style="display:none" id="romooc_<?php echo $road_cost->road_cost_id; ?>"><?php echo $road_cost->romooc; ?></td>
+
+            <?php if(!isset($disable_control)){ ?>
+
+            <td class="pull-right">
+
+                <button class="btn btn-sm btn-flat btn-primary"><i class="fa fa-edit"></i> Sửa</button>
+
+                <button class="btn btn-sm btn-flat btn-danger" onclick="del(<?php echo $road_cost->road_cost_id ?>)" ><i class="fa fa-remove"></i> Xóa</button>
+
+            </td>
+
+            <?php } ?>
+
+        </tr>
+
+
+
+    <?php endforeach; ?>
+
+        <tr  style="font-weight: bold; color: rgb(23, 119, 226);" >
+            
+            <th colspan="6" style="border-right: 1px solid rgb(236, 235, 235);border-top: 1px solid #80C8E5;padding: 7px; text-align: right;" >
+                Tổng cộng
+            </th>
+            <td class="fix" ><?php echo $lib->formatMoney($tongthanhtien) ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($tongvat) ?></td>
+            <td class="fix" ></td>
+            <td class="fix" ></td>
+        </tr>
+
+   </tbody>
+
+</table>
+
+<?php
+
+$this->helper('slidePaginator');
+
+?>
+
+
+
+<div class="add-field">
+
+    <section class="content">
+
+      <div class="row">
+
+        <!-- left column -->
+
+        <div class="col-md-12">
+
+          <!-- general form elements -->
+
+          <div class="box box-primary">
+
+            <!-- /.box-header -->
+
+            <!-- form start -->
+
+            <form id="add_road_cost" role="form" method="post" action="" enctype="multipart/form-data">
+
+              <div class="row">
+
+                <div class="col-md-3 col-xs-6">
+
+                  <div class="box-body">
+
+                    <div class="form-group">
+
+                      <label for="road_cost_date">Ngày</label>
+
+                      <input class="ngay" type="text" id="road_cost_date"  name="road_cost_date" tabindex="1" required="required" >
+
+                    </div>
+
+                    
+
+                    <div class="form-group">
+
+                      <label for="road_cost_price">Lệ phí</label>
+
+                      <input type="text" class="numbers" id="road_cost_price"  name="road_cost_price" tabindex="4" required="required" >
+
+                    </div>
+
+                    <div class="form-group">
+
+                      <label for="vehicle">Xe</label>
+
+                      <select id="vehicle" name="vehicle" tabindex="8" required="required" multiple >
+                        <?php foreach ($vehicles as $vehicle) { ?>
+                          <option value="<?php echo $vehicle->vehicle_id ?>"><?php echo $vehicle->vehicle_number ?></option>
+                        <?php } ?>
+                      </select>
+
+                    </div>
+                    
+
+                  </div>
+
+                  <!-- /.box-body -->
+
+                  
+
+                </div>
+
+                <div class="col-md-3 col-xs-6">
+
+                  <div class="box-body">
+
+                    <div class="form-group">
+
+                      <label for="road_cost_number">Số hóa đơn</label>
+
+                      <input type="text" id="road_cost_number"  name="road_cost_number" tabindex="2">
+
+                    </div>
+
+                    <div class="form-group">
+
+                      <label for="road_cost_vat">Thuế GTGT</label>
+
+                      <input type="text" class="numbers" id="road_cost_vat"  name="road_cost_vat" tabindex="6" >
+
+                    </div>
+
+                    <div class="form-group">
+
+                      <label for="romooc">Mooc</label>
+
+                      <select id="romooc" name="romooc" tabindex="10" multiple >
+                        <?php foreach ($romoocs as $romooc) { ?>
+                          <option value="<?php echo $romooc->romooc_id ?>"><?php echo $romooc->romooc_number ?></option>
+                        <?php } ?>
+                      </select>
+
+                    </div>
+
+                    
+
+                  </div>
+
+                  <!-- /.box-body -->
+
+                  
+
+                </div>
+
+                <div class="col-md-3 col-xs-6">
+
+                  <div class="box-body">
+
+                    <div class="form-group">
+
+                      <label for="customer">Đơn vị <a target="_blank" title="Thêm đơn vị" href="<?php echo $this->url('customer') ?>"><i class="fa fa-plus"></i></a></label>
+
+                      <input type="text" autocomplete="off" id="customer"  name="customer" tabindex="3"  placeholder="Nhập tên hoặc * để chọn" required="required" >
+
+                        <ul id="customer_list_id"></ul>
+
+                    </div>
+
+                    
+
+                    <div class="form-group">
+                      <label for="start_time">Hiệu lực từ ngày</label>
+                      <input class="ngay" type="text"   id="start_time" name="start_time" tabindex="7" required="required" >
+                    </div>
+
+                    
+
+                  </div>
+
+                  <!-- /.box-body -->
+
+                  
+
+                </div>
+
+                <div class="col-md-3 col-xs-6">
+
+                  <div class="box-body">
+
+                    <div class="form-group">
+
+                      <label for="road_cost_comment">Nội dung</label>
+
+                      <input type="text" id="road_cost_comment"  name="road_cost_comment" tabindex="11"  required="required" >
+
+                    </div>
+
+                    <div class="form-group">
+                      <label for="end_time">Ngày hết hạn</label>
+                      <input class="ngay" type="text"   id="end_time" name="end_time" tabindex="9" required="required" >
+                    </div>
+
+                </div>
+
+
+
+              </div>
+
+              
+
+              <?php if(!isset($disable_control)){ ?>
+
+              <div class="row">
+
+                <div class="col-md-12">
+
+                    <div class="box-footer">
+
+                    <input type="hidden" readonly id="yes" name="yes" required="required" >
+
+                    <button type="submit" class="btn btn-primary" tabindex="12">Hoàn thành</button>
+
+                    <button type="reset" class="btn" tabindex="13">Nhập lại</button>
+
+                  </div>
+
+                  <div class="box-footer">
+
+                    <div id="error" class="error"><?php echo isset($error) ? $error : null; ?></div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <?php } ?>
+
+            </form>
+
+          </div>
+
+          <!-- /.box -->
+
+
+
+        </div>
+
+        <!--/.col (left) -->
+
+        
+
+      </div>
+
+      <!-- /.row -->
+
+    </section>
+
+    <!-- /.content -->
+
+       
+
+</div>
+
+
+
+<script type="text/javascript">
+
+$('html').click(function(e) {
+
+    $('#customer_list_id').slideUp(200);
+
+});
+
+
+
+    $('.edit_tr').click(function(e){
+
+        if(!$('.checkbox').is(':focus') && e.target.nodeName != "A"){
+
+            if(!$('.checkbox').is(':focus')){
+
+                $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);
+
+            }
+
+            var road_cost_number = $(this).find("#road_cost_number_"+$(this).attr('id')).text();
+
+            var customer_name = $(this).find("#customer_"+$(this).attr('id')).text();
+
+            var customer = $(this).find("#customer_"+$(this).attr('id')).attr('data');
+
+            var road_cost_date = $(this).find("#road_cost_date_"+$(this).attr('id')).text();
+
+            var road_cost_price = $(this).find("#road_cost_price_"+$(this).attr('id')).text();
+
+            var road_cost_vat = $(this).find("#road_cost_vat_"+$(this).attr('id')).text();
+
+            var vehicle = $(this).find("#vehicle_"+$(this).attr('id')).text();
+
+            var romooc = $(this).find("#romooc_"+$(this).attr('id')).text();
+
+            var start_time = $(this).find("#start_time_"+$(this).attr('id')).text();
+
+            var end_time = $(this).find("#end_time_"+$(this).attr('id')).text();
+
+            var road_cost_comment = $(this).find("#road_cost_comment_"+$(this).attr('id')).text();
+
+
+
+            $('#road_cost_number').val(road_cost_number);
+
+            $('#road_cost_comment').val(road_cost_comment);
+
+            $('#customer').val(customer_name);
+
+            $('#customer').attr('data',customer);
+
+            $('#customer').attr('code',true);
+
+            $('#road_cost_date').val(road_cost_date.replace(/\//g,"-"));
+
+            $('#road_cost_price').val(road_cost_price);
+
+            $('#road_cost_vat').val(road_cost_vat);
+
+            $('#start_time').val(start_time.replace(/\//g,"-"));
+
+            $('#end_time').val(end_time.replace(/\//g,"-"));
+
+
+
+            $('#yes').val($(this).attr('id'));
+
+            $.ajax({
+
+                url: '<?php echo BASE_URL ?>/roadcost/getvehicleadd',
+
+                type: 'POST',
+
+                data: {vehicle:vehicle},
+
+                success:function(data){
+
+
+
+                    $('#vehicle').html(data);
+
+                    $('#vehicle').multiselect( 'refresh' );
+
+
+
+                }
+
+            });
+
+            $.ajax({
+
+                url: '<?php echo BASE_URL ?>/roadcost/getromoocadd',
+
+                type: 'POST',
+
+                data: {romooc:romooc},
+
+                success:function(data){
+
+
+
+                    $('#romooc').html(data);
+
+                    $('#romooc').multiselect( 'refresh' );
+
+
+
+                }
+
+            });
+
+
+
+
+            $( ".add-field" ).dialog( "open" );
+
+        }
+
+    });
+
+</script>
+
+<script type="text/javascript">
+
+function add_click(){
+
+    $('#yes').val("");
+
+    $('.add-field').slideDown(500);
+
+     $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);   
+
+        $('#road_cost_number').val("");
+
+        $('#road_cost_comment').val("");
+
+        $('#customer').val("");
+
+        $('#customer').attr('data',"");
+
+        $('#customer').attr('code',false);
+
+        $('#road_cost_date').val("");
+
+        $('#road_cost_price').val("");
+
+        $('#road_cost_vat').val("");
+
+        $('#start_time').val("");
+
+        $('#end_time').val("");
+
+
+
+        $('.number').focus(function(){
+
+            if ( $(this).val() == '0') {
+
+               $(this).val(""); 
+
+            };
+
+            
+
+        });
+
+        $('.number').blur(function(){
+
+            if ( $(this).val() == "") {
+
+                $(this).val(0);
+
+            };
+
+            
+
+        });
+
+
+
+
+
+   $( ".add-field" ).dialog( "open" );
+
+
+
+}
+
+
+
+$(document).ready(function(){
+
+            // Validate form
+
+            $("#add_road_cost").validate({
+
+                errorElement: "span", // Định dạng cho thẻ HTML hiện thông báo lỗi
+
+                rules: {
+
+                    
+
+                },
+
+                submitHandler: function(form) {
+
+                
+
+                    if ($('#customer').attr('code') == 'false') {
+
+                        $('#customer').val("");
+
+                        $('#customer').focus();
+
+                        return false;
+
+                    };
+
+
+
+                    var road_cost_number = $('#road_cost_number').attr('value');
+
+                    var road_cost_comment = $('#road_cost_comment').attr('value');
+
+                    var customer = $('#customer').attr('data');
+
+                    var road_cost_date = $('#road_cost_date').attr('value');
+
+                    var road_cost_price = $('#road_cost_price').attr('value');
+
+                    var road_cost_vat = $('#road_cost_vat').attr('value');
+
+                    var start_time = $('#start_time').attr('value');
+
+                    var end_time = $('#end_time').attr('value');
+
+                    var vehicle = $('#vehicle').val();
+
+                    var romooc = $('#romooc').val();
+
+
+
+                    var yes = $('#yes').attr('value');
+
+                    
+
+                    var action      = "them";
+
+                 
+
+                    $.ajax({
+
+                        type: "POST", // phương thức gởi đi
+
+                        url: "<?php echo BASE_URL ?>/roadcost/add", // nơi mà dữ liệu sẽ chuyển đến khi submit
+
+                        data: {
+
+                            road_cost_number: road_cost_number,
+
+                            road_cost_comment: road_cost_comment,
+
+                            customer: customer,
+
+                            road_cost_date: road_cost_date,
+
+                            road_cost_price: road_cost_price,
+
+                            road_cost_vat: road_cost_vat,
+
+                            start_time: start_time,
+
+                            end_time: end_time,
+
+                            vehicle: vehicle,
+
+                            romooc: romooc,
+
+                            yes: yes,
+
+                            }, // giá trị post
+
+                        success: function(answer){ // if everything goes well
+
+                            //alert(answer);
+
+                            $('#error').hide();
+
+                            $('#error').slideToggle(100); // hiển thị thẻ div success
+
+                            $('#error').html('<div class="successbox">'+answer+'</div>'); // đặt kết quả trả về từ test.php vào thẻ div success
+
+                            $('#error').fadeOut(10000);
+
+
+
+                            if (yes != "") {
+
+                                if (answer.trim() != "Thông tin này đã tồn tại" ) {
+
+                                  setTimeout(function() {
+
+                                        sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
+
+                                      }, 200);
+
+                                    $('#export_stock_name_'+yes).text(export_stock_name);
+
+                                    $('#province_name_'+yes).text($('#province option:selected').text());
+
+                                }
+
+                            }
+
+                            else{
+
+                                if (answer.trim() != "Thông tin này đã tồn tại") {
+
+                                  setTimeout(function() {
+
+                                        sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
+
+                                      }, 200);
+
+                                    var lastID = parseInt($('#lasted').html());
+
+                                    var rowCount = parseInt($('.table_data > tbody > tr').length);
+
+                                    $('.table_data > tbody:last')
+
+                                    .append(
+
+                                        '<tr onclick="HighLightTR(this,#4d90fe,cc3333);" id="'+parseInt(lastID+1)+'" class="edit_tr"><td><input name="check[]" type="checkbox" class="checkbox" value="'+parseInt(lastID+1)+'"></td><td class="fix">'+parseInt(rowCount+1)+'</td><td class="fix" id="export_stock_name_'+parseInt(lastID+1)+'">'+export_stock_name+'</td><td class="fix" data="'+province+'" id="province_name_'+parseInt(lastID+1)+'">'+$('#province option:selected').text()+'</td><td><a class="error" href="#">Sửa</a> | <a class="error" onclick="del('+parseInt(lastID+1)+')">Xóa</a></td></tr>'
+
+                                    );
+
+
+
+                                    $('#lasted').html(parseInt(lastID+2));
+
+                                }
+
+                            }
+
+                        }
+
+                    });
+
+                    return false;
+
+                     
+
+                 }
+
+            });
+
+
+
+    $('#customer').keyup(function(){
+
+      
+
+        var keyword = $(this).val();
+
+        $.ajax({
+
+            url: '<?php echo BASE_URL ?>/roadcost/getcustomer',
+
+            type: 'POST',
+
+            data: {keyword:keyword},
+
+            success:function(data){
+
+                $('#customer_list_id').slideDown(200);
+
+                $('#customer_list_id').html(data);
+
+            }
+
+        });
+
+        if ($('#customer').val() == "" || $('#customer').attr('data') == "") {
+
+            //$('#loc_from').val("");
+
+            $('#customer').attr('data',"");
+
+            $('#customer').attr('code',false);
+
+        }
+
+      
+
+   });
+
+   $('#customer').on('keydown', function() {
+
+        var key = event.keyCode || event.charCode;
+
+
+
+        if( key == 8 || key == 46 ){
+
+            $('#customer').attr('data',"");
+
+        }
+
+            
+
+      }); 
+
+
+
+
+    $('.number').keyup(function(event) {
+
+
+
+          // skip for arrow keys
+
+      if(event.which >= 37 && event.which <= 40) return;
+
+
+
+      // format number
+
+      $(this).val(function(index, value) {
+
+        return value
+
+          .replace(/[^0-9-.]/g, "")
+
+        ;
+
+      });
+
+    });
+
+   
+
+   $('.numbers').keyup(function(event) {
+
+
+
+          // skip for arrow keys
+
+      if(event.which >= 37 && event.which <= 40) return;
+
+
+
+      // format number
+
+      $(this).val(function(index, value) {
+
+        return value
+
+          .replace(/[^0-9]/g, "")
+
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+        ;
+
+      });
+
+    });
+
+
+
+
+
+});
+
+function get_number(id){
+
+    return $(id).val().replace(/\,/g,'');
+
+}
+
+function set_item_customer(value,name,mst,address) {
+
+    // change input value
+
+    $('#customer').val(name);
+
+    $("#customer").attr("data",value);
+
+    $("#customer").attr("code",'true');
+
+
+
+    // hide proposition list
+
+    $('#customer_list_id').hide();
+
+    $('#customer').focus();
+
+     
+
+    $(".numbers").val(function(index, value) {
+
+      return value
+
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+      ;
+
+    }); 
+
+}
+
+</script>
+
+<script type="text/javascript">
+
+
+
+$( ".add-field" ).dialog({
+
+    autoOpen: false,
+
+    modal: true,
+
+    width: "auto",
+
+    title: "Phí sử dụng đường bộ",
+
+    hide: 'fold',
+
+    show: 'blind'
+
+});
+
+
+
+</script>
+
+
+
+<script type="text/javascript">
+
+    $(function() {
+
+    var pickerOpts = {
+
+        closeText: "Đóng",
+
+        currentText: "Hiện tại",
+
+        nextText: "Tiếp",
+
+        prevText: "Quay lại",
+
+        monthNames: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+
+        "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+
+        monthNamesShort: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+
+        "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+
+        dayNames: ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm",
+
+        "Thứ sáu", "Thứ bảy"],
+
+        dayNamesShort: ["CN", "T2", "T3", "T4", "T5",
+
+        "T6", "T7"],
+
+        dayNamesMin: ["CN", "T2", "T3", "T4", "T5",
+
+        "T6", "T7"],
+
+        //defaultDate: "+1w",
+
+        changeMonth: true,
+
+        changeYear: true,
+
+        dateFormat: 'dd-mm-yy',
+
+        firstDay: 1,
+
+        isRTL: false,
+
+        showButtonPanel: true,
+
+         
+
+    };  
+
+    $("#road_cost_date").datepicker(pickerOpts);
+
+
+
+    
+
+              
+
+            
+
+    
+
+});
+
+
+
+$("#vehicle").multiselect({});
+$("#romooc").multiselect({});
+
+
+
+</script>
+
+
+
+
+
+
+
+<style type="text/css">
+
+    #ui-datepicker-div{
+
+        font-size: 13px;
+
+    }
+
+</style>
+
+<script type="text/javascript">
+
+    $(function() {
+
+    var pickerOpts = {
+
+        closeText: "Đóng",
+
+        currentText: "Hiện tại",
+
+        nextText: "Tiếp",
+
+        prevText: "Quay lại",
+
+        monthNames: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+
+        "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+
+        monthNamesShort: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+
+        "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+
+        dayNames: ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm",
+
+        "Thứ sáu", "Thứ bảy"],
+
+        dayNamesShort: ["CN", "T2", "T3", "T4", "T5",
+
+        "T6", "T7"],
+
+        dayNamesMin: ["CN", "T2", "T3", "T4", "T5",
+
+        "T6", "T7"],
+
+        //defaultDate: "+1w",
+
+        changeMonth: true,
+
+        changeYear: true,
+
+        dateFormat: 'dd-mm-yy',
+
+        firstDay: 1,
+
+        isRTL: false,
+
+        showButtonPanel: true,
+
+        onClose: function(selectedDate) {
+
+                
+
+                $( "#ketthuc" ).datepicker( "option", "minDate", selectedDate );
+
+
+
+         },
+
+         
+
+    };  
+
+    $("#batdau").datepicker(pickerOpts);
+
+
+
+    var pickerOpts2 = {
+
+        closeText: "Đóng",
+
+        currentText: "Hiện tại",
+
+        nextText: "Tiếp",
+
+        prevText: "Quay lại",
+
+        monthNames: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+
+        "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+
+        monthNamesShort: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+
+        "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+
+        dayNames: ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm",
+
+        "Thứ sáu", "Thứ bảy"],
+
+        dayNamesShort: ["CN", "T2", "T3", "T4", "T5",
+
+        "T6", "T7"],
+
+        dayNamesMin: ["CN", "T2", "T3", "T4", "T5",
+
+        "T6", "T7"],
+
+        //defaultDate: "+1w",
+
+        changeMonth: true,
+
+        changeYear: true,
+
+        dateFormat: 'dd-mm-yy',
+
+        firstDay: 1,
+
+        isRTL: false,
+
+        showButtonPanel: true,
+
+        onClose: function(selectedDate) {
+
+                
+
+                $( "#batdau" ).datepicker( "option", "maxDate", selectedDate );
+
+                
+
+         },
+
+         
+
+    };  
+
+    $("#ketthuc").datepicker(pickerOpts2);
+
+              
+
+            
+    var pickerOpts3 = {
+        closeText: "Đóng",
+        currentText: "Hiện tại",
+        nextText: "Tiếp",
+        prevText: "Quay lại",
+        monthNames: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+        monthNamesShort: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+        dayNames: ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"],
+        dayNamesShort: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+        dayNamesMin: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+        dateFormat: 'dd-mm-yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: "-100:+5",
+        firstDay: 1,
+        isRTL: false,
+        showButtonPanel: true,
+        onSelect: function(dateStr) {
+          if ($('#end_time').val()=="") {
+            var d = $.datepicker.parseDate('dd-mm-yy', dateStr);
+            var years = parseInt(1, 10);
+
+            d.setFullYear(d.getFullYear() + years);
+
+            $('#end_time').datepicker('setDate', d);
+          }
+            
+        },
+        onClose: function(selectedDate) {
+                
+                $( "#end_time" ).datepicker( "option", "minDate", selectedDate );
+
+         },
+    }; 
+    $("#start_time").datepicker(pickerOpts3);
+
+    var pickerOpts4 = {
+        closeText: "Đóng",
+        currentText: "Hiện tại",
+        nextText: "Tiếp",
+        prevText: "Quay lại",
+        monthNames: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+        monthNamesShort: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+        dayNames: ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"],
+        dayNamesShort: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+        dayNamesMin: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+        dateFormat: 'dd-mm-yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: "-100:+5",
+        firstDay: 1,
+        isRTL: false,
+        showButtonPanel: true,
+        onClose: function(selectedDate) {
+                
+                $( "#start_time" ).datepicker( "option", "maxDate", selectedDate );
+
+         },
+    }; 
+    $("#end_time").datepicker(pickerOpts4);
+    
+
+});
+
+
+
+var ch = "<?php echo $limit ?>";
+
+$('#chonloc option[value='+ch+']').attr('selected','selected');
+
+
+
+var xe = "<?php echo $xe ?>";
+
+$('#sl_vehicle option[value='+xe+']').attr('selected','selected');
+
+
+
+var v = "<?php echo $vong ?>";
+
+$('#sl_round option[value='+v+']').attr('selected','selected');
+
+
+
+var tt = "<?php echo $trangthai ?>";
+
+$('#sl_staff option[value='+tt+']').attr('selected','selected');
+
+
+
+</script>
+
+<script type="text/javascript">
+
+    
+
+    $('#sl_round').change(function(){
+
+        var m = $(this).val();
+
+        var y = $('#sl_staff').val();
+
+        var firstDay = new Date(y, m-1, 1);
+
+        var lastDay = new Date(y, m, 0);
+
+
+
+        $('#batdau').datepicker("setDate", firstDay );
+
+        $('#ketthuc').datepicker("setDate", lastDay );
+
+
+
+    });
+
+
+
+    $('#sl_staff').change(function(){
+
+        var y = $(this).val();
+
+        var m = $('#sl_round').val();
+
+        var firstDay = new Date(y, m-1, 1);
+
+        var lastDay = new Date(y, m, 0);
+
+
+
+        $('#batdau').datepicker("setDate", firstDay );
+
+        $('#ketthuc').datepicker("setDate", lastDay );
+
+
+
+    });
+
+
+
+</script>
+
+<style type="text/css">
+
+.ui-multiselect-menu {
+
+    z-index: 9999999;
+
+}
+
+</style>

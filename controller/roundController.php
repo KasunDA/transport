@@ -287,7 +287,7 @@ Class roundController Extends baseController {
 
 
 
-           $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$ship->shipment_from.' AND road_to = '.$ship->shipment_to.' AND start_time <= '.$ship->shipment_date.' AND end_time >= '.$ship->shipment_date));
+           $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
 
             
 
@@ -593,7 +593,7 @@ Class roundController Extends baseController {
 
 
 
-           $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$ship->shipment_from.' AND road_to = '.$ship->shipment_to.' AND start_time <= '.$ship->shipment_date.' AND end_time >= '.$ship->shipment_date));
+           $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
 
             
 

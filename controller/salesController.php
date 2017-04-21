@@ -301,7 +301,7 @@ Class salesController Extends baseController {
         foreach ($shipments as $ship) {
 
             $qr = "SELECT * FROM vehicle_work WHERE vehicle = ".$ship->vehicle." AND start_work <= ".$ship->shipment_date." AND end_work >= ".$ship->shipment_date;
-            if (!$shipment_model->queryShipment($qr)) {
+            if ($shipment_model->queryShipment($qr)) {
                 unset($shipments[$k]);
             }
             else{
@@ -561,7 +561,7 @@ Class salesController Extends baseController {
                 foreach ($shipments as $row) {
 
                     $qr = "SELECT * FROM vehicle_work WHERE vehicle = ".$row->vehicle." AND start_work <= ".$row->shipment_date." AND end_work >= ".$row->shipment_date;
-                    if ($shipment_model->queryShipment($qr)) {
+                    if (!$shipment_model->queryShipment($qr)) {
                     
                         $places = $place_model->getAllPlace(array('where'=>'place_id = '.$row->shipment_from.' OR place_id = '.$row->shipment_to));
 

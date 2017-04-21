@@ -160,7 +160,7 @@ elseif ($order_by == 'code')
             <td class="fix"  id="name_<?php echo $spare_part->spare_part_code_id; ?>"><?php echo $spare_part->name ?></td>
             <td class="fix" ><?php echo $donvi ?></td>
             <td class="fix" ><?php echo $tondau ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($thanhtien_dau) ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($tondau>0?$thanhtien_dau:null) ?></td>
             <td class="fix" ><?php echo $nhap ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($thanhtien_nhap) ?></td>
             <td class="fix" ><?php echo $xuat ?></td>

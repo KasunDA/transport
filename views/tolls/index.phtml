@@ -164,9 +164,9 @@ elseif ($order_by == 'shipment_round')
     <?php foreach ($shipments as $shipment) : ?>
     
     <?php 
+    $cd = isset($road['bridge_cost'][$shipment->shipment_id])?$road['bridge_cost'][$shipment->shipment_id]:null;
 
-
-    $tong =  round($road['bridge_cost'][$shipment->shipment_id]*1.1)  ?>
+    $tong =  $cd  ?>
 
     <?php if($tong!=0){ ?>
         
@@ -182,7 +182,7 @@ elseif ($order_by == 'shipment_round')
             <td nowrap class="fix" data="<?php echo $shipment->shipment_from; ?>" id="shipment_from_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$shipment->shipment_from) ?>" ><?php echo $shipment->shipment_from==$place['place_id'][$shipment->shipment_from]?$place['place_name'][$shipment->shipment_from]:null ?></a></td>
             <td nowrap class="fix" data="<?php echo $shipment->shipment_to; ?>" id="shipment_to_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$shipment->shipment_to) ?>" ><?php echo $shipment->shipment_to==$place['place_id'][$shipment->shipment_to]?$place['place_name'][$shipment->shipment_to]:null ?></a></td>
             
-            <td class="fix" ><?php echo $lib->formatMoney(round($road['bridge_cost'][$shipment->shipment_id]*1.1)+$shipment->bridge_cost_add); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($cd+$shipment->bridge_cost_add); ?></td>
             
             <?php 
             if(isset($bridge['toll_cost'][$shipment->shipment_id])){
@@ -195,7 +195,7 @@ elseif ($order_by == 'shipment_round')
         
         <?php
 
-        $tongcauduong += round($road['bridge_cost'][$shipment->shipment_id]*1.1)+$shipment->bridge_cost_add;
+        $tongcauduong += $cd+$shipment->bridge_cost_add;
         
 
         }
@@ -206,7 +206,7 @@ elseif ($order_by == 'shipment_round')
     <?php endforeach; ?>
 
         <tr  style="font-weight: bold; color: rgb(23, 119, 226);" >
-            <td class="fix" colspan="4" ></td>
+            <td class="fix" colspan="5" ></td>
             <th style="border-right: 1px solid rgb(236, 235, 235);border-top: 1px solid #80C8E5;padding: 7px; text-align: right;" >
                 Tổng cộng
             </th>

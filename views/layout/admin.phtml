@@ -1090,6 +1090,24 @@
 
             <li><a data="customership" href="<?php echo $this->url('customership') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Sản lượng</a></li>
 
+            <li><a data="truckinglist" href="<?php echo $this->url('truckinglist') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Bảng kê</a></li>
+
+            <li><a data="#" href="#"><i class="fa fa-fw fa-caret-right text-aqua"></i>Chi phí xe</a>
+
+              <ul class="treeview-menu">
+
+                <li><a data="repairlist" href="<?php echo $this->url('repairlist') ?>"><i class="fa fa-circle-o text-aqua"></i>Sửa chữa bảo dưỡng</a></li>
+
+                <li><a data="roadcostlist" href="<?php echo $this->url('roadcostlist') ?>"><i class="fa fa-circle-o text-aqua"></i>Phí sử dụng đường bộ</a></li>
+
+                <li><a data="checkingcostlist" href="<?php echo $this->url('checkingcostlist') ?>"><i class="fa fa-circle-o text-aqua"></i>Phí kiểm định</a></li>
+
+                <li><a data="insurancecostlist" href="<?php echo $this->url('insurancecostlist') ?>"><i class="fa fa-circle-o text-aqua"></i>Bảo hiểm</a></li>
+
+              </ul>
+
+            </li>
+
             <li><a data="oilreport" href="<?php echo $this->url('oilreport') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Báo cáo dầu</a></li>
 
             <li><a data="oilexcess" href="<?php echo $this->url('oilexcess') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Dầu phát sinh</a></li>
@@ -1321,6 +1339,8 @@
 
                 <li><a data="salary" href="<?php echo $this->url('salary') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Lương tài xế</a></li>
 
+                <li><a data="repairsalary" href="<?php echo $this->url('repairsalary') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Sửa chữa bảo dưỡng</a></li>
+
               </ul>
 
             </li>
@@ -1490,6 +1510,28 @@
             <li><a data="sparepart" href="<?php echo $this->url('sparepart') ?>"><i class="fa fa-fw fa-dropbox text-aqua"></i>Danh sách vật tư</a></li>
 
             <li><a data="repair" href="<?php echo $this->url('repair') ?>"><i class="fa fa-fw fa-calendar-check-o text-aqua"></i>Phiếu sửa chữa bảo dưỡng</a></li>
+
+            <li>
+              <a  data="#" href="#">
+
+                <i class="fa fa-calendar fa-fw text-aqua" ></i>
+
+                <span>Kiểm định, bảo hiểm</span>
+
+                <span class="pull-right-container">
+
+                  <i class="fa fa-angle-right pull-right"></i>
+
+                </span>
+
+              </a>
+
+              <ul class="treeview-menu">
+                <li><a data="roadcost" href="<?php echo $this->url('roadcost') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Phí sử dụng đường bộ</a></li>
+                <li><a data="checkingcost" href="<?php echo $this->url('checkingcost') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Phí kiểm định</a></li>
+                <li><a data="insurancecost" href="<?php echo $this->url('insurancecost') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Phí bảo hiểm</a></li>
+              </ul>
+            </li>
 
             <li><a data="sparevehicle" href="<?php echo $this->url('sparevehicle') ?>"><i class="fa fa-fw fa-wrench text-aqua"></i>Thay thế phụ tùng</a></li>
 

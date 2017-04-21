@@ -92,7 +92,7 @@ Class costController Extends baseController {
 
 
 
-        $join = array('table'=>'customer, vehicle, road, cont_unit','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND road_from = shipment_from AND road_to = shipment_to AND shipment_date >= start_time AND shipment_date <= end_time AND cont_unit = cont_unit_id');
+        $join = array('table'=>'customer, vehicle, cont_unit','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND cont_unit = cont_unit_id');
 
 
 
@@ -276,11 +276,11 @@ Class costController Extends baseController {
         foreach ($shipments as $ship) {
 
            $qr = "SELECT * FROM vehicle_work WHERE vehicle = ".$ship->vehicle." AND start_work <= ".$ship->shipment_date." AND end_work >= ".$ship->shipment_date;
-            if (!$shipment_model->queryShipment($qr)) {
+            if ($shipment_model->queryShipment($qr)) {
                 unset($shipments[$k]);
             }
             else{
-                $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$ship->shipment_from.' AND road_to = '.$ship->shipment_to.' AND start_time <= '.$ship->shipment_date.' AND end_time >= '.$ship->shipment_date));
+                $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
 
             
 
@@ -453,7 +453,7 @@ Class costController Extends baseController {
 
         $shipment_model = $this->model->get('shipmentModel');
 
-        $join = array('table'=>'customer, vehicle, road, cont_unit','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND road_from = shipment_from AND road_to = shipment_to AND shipment_date >= start_time AND shipment_date <= end_time AND cont_unit = cont_unit_id');
+        $join = array('table'=>'customer, vehicle, cont_unit','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND cont_unit = cont_unit_id');
 
 
 
@@ -619,8 +619,8 @@ Class costController Extends baseController {
                 foreach ($shipments as $row) {
 
                     $qr = "SELECT * FROM vehicle_work WHERE vehicle = ".$row->vehicle." AND start_work <= ".$row->shipment_date." AND end_work >= ".$row->shipment_date;
-                    if ($shipment_model->queryShipment($qr)) {
-                        $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$row->shipment_from.' AND road_to = '.$row->shipment_to.' AND start_time <= '.$row->shipment_date.' AND end_time >= '.$row->shipment_date));
+                    if (!$shipment_model->queryShipment($qr)) {
+                        $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$row->route.')'));
 
             
 

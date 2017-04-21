@@ -177,17 +177,24 @@ elseif ($order_by == 'shipment_round')
    <tbody>
     <?php $tongdoanhthu = 0; $tongchiphi = 0; ?>
     <?php foreach ($shipments as $shipment) : ?>
-    
+    <?php
+    $ngay = isset($road['road_time'][$shipment->shipment_id])?$road['road_time'][$shipment->shipment_id]:null;
+    $bd = isset($warehouse['boiduong_cn'][$shipment->shipment_id])?$warehouse['boiduong_cn'][$shipment->shipment_id]:null;
+    $cd = isset($road['bridge_cost'][$shipment->shipment_id])?$road['bridge_cost'][$shipment->shipment_id]:null;
+    $ca = isset($road['police_cost'][$shipment->shipment_id])?$road['police_cost'][$shipment->shipment_id]:null;
+    $vv = isset($road['tire_cost'][$shipment->shipment_id])?$road['tire_cost'][$shipment->shipment_id]:null;
+    $oil = isset($road['road_oil'][$shipment->shipment_id])?$road['road_oil'][$shipment->shipment_id]:null;
+    ?>
         
         <tr onClick="HighLightTR(this,'#4d90fe','cc3333');"  id="<?php echo $shipment->shipment_id ?>" class="edit_tr">
             <td class="fix"><?php echo $i++; ?></td>
             <td class="fix" ><?php echo $shipment->tongchuyen; ?></td>
             <td nowrap class="fix" data="<?php echo $shipment->shipment_from; ?>" id="shipment_from_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_from==$place['place_id'][$shipment->shipment_from]?$place['place_name'][$shipment->shipment_from]:null ?></td>
             <td nowrap class="fix" data="<?php echo $shipment->shipment_to; ?>" id="shipment_to_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_to==$place['place_id'][$shipment->shipment_to]?$place['place_name'][$shipment->shipment_to]:null ?></td>
-            <td class="fix" ><?php echo $road['road_time'][$shipment->shipment_id]; ?></td>
+            <td class="fix" ><?php echo $ngay; ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($shipment->shipment_revenue); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($warehouse['boiduong_cn'][$shipment->shipment_id]+$road['bridge_cost'][$shipment->shipment_id]+$road['police_cost'][$shipment->shipment_id]+$road['tire_cost'][$shipment->shipment_id]+($road['road_oil'][$shipment->shipment_id]*round($shipment->oil_cost*1.1))); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($shipment->shipment_revenue - ($warehouse['boiduong_cn'][$shipment->shipment_id]+$road['bridge_cost'][$shipment->shipment_id]+$road['police_cost'][$shipment->shipment_id]+$road['tire_cost'][$shipment->shipment_id]+($road['road_oil'][$shipment->shipment_id]*round($shipment->oil_cost*1.1)))); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($bd+$cd+$ca+$vv+($oil*round($shipment->oil_cost*1.1))); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($shipment->shipment_revenue - ($bd+$cd+$ca+$vv+($oil*round($shipment->oil_cost*1.1)))); ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($shipment->giacaonhat); ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($shipment->giathapnhat); ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($shipment->giabinhquan); ?></td>
@@ -196,7 +203,7 @@ elseif ($order_by == 'shipment_round')
             
         </tr>
         
-    <?php $tongdoanhthu += $shipment->shipment_revenue*$shipment->tongchuyen; $tongchiphi += ($warehouse['boiduong_cn'][$shipment->shipment_id]+$road['bridge_cost'][$shipment->shipment_id]+$road['police_cost'][$shipment->shipment_id]+$road['tire_cost'][$shipment->shipment_id]+($road['road_oil'][$shipment->shipment_id]*round($shipment->oil_cost*1.1)))*$shipment->tongchuyen; ?>
+    <?php $tongdoanhthu += $shipment->shipment_revenue*$shipment->tongchuyen; $tongchiphi += ($bd+$cd+$ca+$vv+($oil*round($shipment->oil_cost*1.1)))*$shipment->tongchuyen; ?>
          
 
     <?php endforeach; ?>

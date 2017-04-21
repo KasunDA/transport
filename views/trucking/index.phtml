@@ -1,7 +1,3 @@
-<link href="<?php echo BASE_URL ?>/public/css/jquery.tagit.css" rel="stylesheet" type="text/css">
-<link href="<?php echo BASE_URL ?>/public/css/tagit.ui-zendesk.css" rel="stylesheet" type="text/css">
-<script src="<?php echo BASE_URL ?>/public/js/tag-it.js" type="text/javascript" charset="utf-8"></script>
-<script src="<?php echo BASE_URL ?>/public/js/jquery.maskedinput.js" type="text/javascript" charset="utf-8"></script>
 
 <?php
 $url_order = 'ASC';
@@ -106,16 +102,6 @@ elseif ($order_by == 'oil_excess')
             
             
         </div>
-        <?php if(!isset($disable_control)){ ?>
-        <div class="alignleft actions">
-            <select name="action" id="action">
-                <option value="-1" selected="selected">Chọn</option>
-                
-                <option value="delete">Xóa</option>
-            </select>
-            <input type="button" name="" id="doaction" class="button action" value="Áp dụng" onclick="action();">
-        </div>
-        <?php } ?>
         <div class="alignleft actions">
         <select name="m" id="chonloc">
             <option  value="18446744073709">Hiển thị tất cả</option>
@@ -214,7 +200,7 @@ elseif ($order_by == 'oil_excess')
     <tr>
         <?php foreach ($loan_units as $loan) { ?>
         <th class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_loan','<?php echo $url_order ?>')"><?php echo $loan->loan_unit_name ?> <?php if ($order_by == 'shipment_loan'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','cost_list','<?php echo $url_order ?>')"><?php echo $loan->cost_list_name ?> <?php if ($order_by == 'cost_list'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <?php } ?>
         <?php foreach ($cont_units as $cont) { ?>
@@ -249,16 +235,16 @@ elseif ($order_by == 'oil_excess')
             <td class="fix" data="<?php echo $shipment->shipment_to; ?>" id="shipment_to_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$shipment->shipment_to) ?>" ><?php echo $shipment->shipment_to==$place['place_id'][$shipment->shipment_to]?$place['place_name'][$shipment->shipment_to]:null ?></a></td>
             
             <td class="fix" data="<?php echo $shipment->customer; ?>" id="customer_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('customer/index/'.$shipment->customer) ?>" ><?php echo $shipment->customer_name; ?></a></td>
-            <td class="fix" id="road_km_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($road['road_km'][$shipment->shipment_id]); ?></td>
+            <td class="fix" id="road_km_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney(isset($road['road_km'][$shipment->shipment_id])?$road['road_km'][$shipment->shipment_id]:null); ?></td>
             <td class="fix" id="shipment_oil_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_oil; ?></td>
-            <td class="fix" id="road_oil_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($road['road_oil'][$shipment->shipment_id]); ?></td>
+            <td class="fix" id="road_oil_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney(isset($road['road_oil'][$shipment->shipment_id])?$road['road_oil'][$shipment->shipment_id]:null); ?></td>
             <td class="fix" id="shipment_cost_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->advance+$shipment->cost_vat+$shipment->bridge_cost_add+$shipment->cost_add); ?></td>
             <?php foreach ($loan_units as $loan) { ?>
-            <td class="fix" id="shipment_loan_<?php echo $shipment->shipment_id; ?>"><?php echo isset($loan_shipment_data[$shipment->shipment_id][$loan->loan_unit_id])?$lib->formatMoney($loan_shipment_data[$shipment->shipment_id][$loan->loan_unit_id]):null; ?></td>
+            <td class="fix" id="shipment_loan_<?php echo $shipment->shipment_id; ?>"><?php echo isset($loan_shipment_data[$shipment->shipment_id][$loan->cost_list_id])?$lib->formatMoney($loan_shipment_data[$shipment->shipment_id][$loan->cost_list_id]):null; ?></td>
             <?php } ?>
-            <td class="fix" ><?php echo $lib->formatMoney($road['bridge_cost'][$shipment->shipment_id]); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($road['police_cost'][$shipment->shipment_id]); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($warehouse['boiduong_cn'][$shipment->shipment_id]); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney(isset($road['bridge_cost'][$shipment->shipment_id])?$road['bridge_cost'][$shipment->shipment_id]:null); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney(isset($road['police_cost'][$shipment->shipment_id])?$road['police_cost'][$shipment->shipment_id]:null); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney(isset($warehouse['boiduong_cn'][$shipment->shipment_id])?$warehouse['boiduong_cn'][$shipment->shipment_id]:null); ?></td>
             <td  class="fix" id="customer_type_<?php echo $shipment->shipment_id; ?>"><?php echo $customer_types[$shipment->shipment_id]; ?></td>
             <?php foreach ($cont_units as $cont) { ?>
             <td class="fix" id="bill_receive_ton_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->bill_receive_unit==$cont->cont_unit_id?$shipment->bill_receive_ton:null; ?></td>

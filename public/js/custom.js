@@ -407,3 +407,17 @@ function actionPhoto(){
     }
   
 }
+
+window.addEventListener("keydown",function (e) {
+    if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) { 
+        e.preventDefault();
+        $('#search-input').focus();
+
+        window.addEventListener("keydown",function (e) {
+            if (e.keyCode === 13) { 
+                e.preventDefault();
+                $('#search-submit').click();
+            }
+        });
+    }
+});

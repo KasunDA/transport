@@ -104,7 +104,7 @@
         $nhan = null; $giao = null;
     ?>
     <tr class="edit_tr">
-        <td class="fix"><?php echo $customer_subs[$sub]; ?></td>
+        <td class="fix"><?php echo isset($customer_subs[$sub])?$customer_subs[$sub]:null; ?></td>
         <td class="fix"><?php echo isset($datas[$customer->customer_id][$sub]['total'])?$datas[$customer->customer_id][$sub]['total']:null; ?></td>
         <?php foreach ($cont_units as $cont) { 
             $nhan += isset($datas[$customer->customer_id][$sub][$cont->cont_unit_id]['receive'])?$datas[$customer->customer_id][$sub][$cont->cont_unit_id]['receive']:null;

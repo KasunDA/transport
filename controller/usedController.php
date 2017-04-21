@@ -111,7 +111,7 @@ Class usedController Extends baseController {
                     }
                     $shipments = $shipment_model->getAllShipment($data_ship);
                     foreach ($shipments as $ship) {
-                        $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$ship->shipment_from.' AND road_to = '.$ship->shipment_to.' AND start_time <= '.$ship->shipment_date.' AND end_time >= '.$ship->shipment_date));
+                        $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
                         foreach ($roads as $road) {
                             $data_vehicle[$spare->spare_part_id]['km'] = isset($data_vehicle[$spare->spare_part_id]['km'])?$data_vehicle[$spare->spare_part_id]['km']+$road->road_km:$road->road_km;
                         }
@@ -126,7 +126,7 @@ Class usedController Extends baseController {
                     }
                     $shipments = $shipment_model->getAllShipment($data_ship);
                     foreach ($shipments as $ship) {
-                        $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$ship->shipment_from.' AND road_to = '.$ship->shipment_to.' AND start_time <= '.$ship->shipment_date.' AND end_time >= '.$ship->shipment_date));
+                        $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
                         foreach ($roads as $road) {
                             $data_vehicle[$spare->spare_part_id]['km'] = isset($data_vehicle[$spare->spare_part_id]['km'])?$data_vehicle[$spare->spare_part_id]['km']+$road->road_km:$road->road_km;
                         }

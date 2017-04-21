@@ -130,6 +130,16 @@
         else if ($shipment->oil_add_dc2==5 && $shipment->oil_add2>0) {
             $dc2 = "Dọc đường";
         }
+
+        $way = isset($road['way_name'][$shipment->shipment_id])?$road['way_name'][$shipment->shipment_id]:null;
+        $kms = isset($road['road_km'][$shipment->shipment_id])?$road['road_km'][$shipment->shipment_id]:null;
+        $oil = isset($road['road_oil'][$shipment->shipment_id])?$road['road_oil'][$shipment->shipment_id]:null;
+        $bd = isset($warehouse['boiduong_cn'][$shipment->shipment_id])?$warehouse['boiduong_cn'][$shipment->shipment_id]:null;
+        $cd = isset($road['bridge_cost'][$shipment->shipment_id])?$road['bridge_cost'][$shipment->shipment_id]:null;
+        $ca = isset($road['police_cost'][$shipment->shipment_id])?$road['police_cost'][$shipment->shipment_id]:null;
+        $vv = isset($road['tire_cost'][$shipment->shipment_id])?$road['tire_cost'][$shipment->shipment_id]:null;
+        $oil_cost = isset($road['oil_cost'][$shipment->shipment_id])?$road['oil_cost'][$shipment->shipment_id]:null;
+
     ?>
         <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" data="<?php echo $shipment->vehicle_id.$shipment->shipment_round ?>" id="<?php echo $shipment->shipment_id ?>" class="edit_tr">
             
@@ -139,23 +149,23 @@
             <td class="fix" id="shipment_date_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment->shipment_date); ?></td>
             <td class="fix" data="<?php echo $shipment->shipment_from; ?>" id="shipment_from_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_from==$place['place_id'][$shipment->shipment_from]?$place['place_name'][$shipment->shipment_from]:null ?></td>
             <td class="fix" data="<?php echo $shipment->shipment_to; ?>" id="shipment_to_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_to==$place['place_id'][$shipment->shipment_to]?$place['place_name'][$shipment->shipment_to]:null ?></td>
-            <td class="fix" ><?php echo $road['way_name'][$shipment->shipment_id]; ?></td>
+            <td class="fix" ><?php echo $way; ?></td>
             <td class="fix" data="<?php echo $shipment->customer; ?>" id="customer_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->customer_name; ?></td>
             <td class="fix" id="shipment_charge_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_charge); ?></td>
             <td class="fix" id="shipment_ton_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_ton; ?></td>
-            <td class="fix" ><?php echo $road['road_km'][$shipment->shipment_id]; ?></td>
-            <td class="fix" ><?php echo $road['road_oil'][$shipment->shipment_id]; ?></td>
+            <td class="fix" ><?php echo $kms; ?></td>
+            <td class="fix" ><?php echo $oil; ?></td>
             <td class="fix" ><?php echo $shipment->oil_add.' '.$dc; ?></td>
             <td class="fix" ><?php echo $shipment->oil_add2.' '.$dc2; ?></td>
             <td class="fix" ><?php echo $shipment->oil_excess; ?></td>
             <td class="fix" ><?php echo $shipment->oil_residual; ?></td>
-            <td class="fix <?php echo ($road['road_oil'][$shipment->shipment_id] + $shipment->oil_excess + $shipment->oil_residual - $shipment->oil_add - $shipment->oil_add2)>0 ? 'approve':(($road['road_oil'][$shipment->shipment_id] + $shipment->oil_excess + $shipment->oil_residual - $shipment->oil_add - $shipment->oil_add2)<0?  'error' :  null) ?>" ><?php echo $road['road_oil'][$shipment->shipment_id] + $shipment->oil_excess + $shipment->oil_residual - $shipment->oil_add - $shipment->oil_add2; ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($warehouse['boiduong_cn'][$shipment->shipment_id]); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($road['bridge_cost'][$shipment->shipment_id]+$shipment->bridge_cost_add); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($road['police_cost'][$shipment->shipment_id]); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($road['tire_cost'][$shipment->shipment_id]); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($road['oil_cost'][$shipment->shipment_id]); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($warehouse['boiduong_cn'][$shipment->shipment_id]+$road['bridge_cost'][$shipment->shipment_id]+$road['police_cost'][$shipment->shipment_id]+$road['tire_cost'][$shipment->shipment_id]); ?></td>
+            <td class="fix <?php echo ($oil + $shipment->oil_excess + $shipment->oil_residual - $shipment->oil_add - $shipment->oil_add2)>0 ? 'approve':(($oil + $shipment->oil_excess + $shipment->oil_residual - $shipment->oil_add - $shipment->oil_add2)<0?  'error' :  null) ?>" ><?php echo $oil + $shipment->oil_excess + $shipment->oil_residual - $shipment->oil_add - $shipment->oil_add2; ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($bd); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($cd+$shipment->bridge_cost_add); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($ca); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($vv); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($oil_cost); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($bd+$cd+$ca+$vv); ?></td>
             
             <td class="fix" ><?php echo $lib->formatMoney($shipment->shipment_excess); ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($shipment->shipment_bonus); ?></td>
@@ -189,19 +199,19 @@
                 $doanhthu += $shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess;
                 $chiphi += $shipment->shipment_cost;
                 $loinhuan += $shipment->shipment_profit+$shipment->shipment_charge_excess;
-                $km += $road['road_km'][$shipment->shipment_id];
-                $dinhmucdau += $road['road_oil'][$shipment->shipment_id];
-                $boiduong += $warehouse['boiduong_cn'][$shipment->shipment_id];
-                $cauduong += $road['bridge_cost'][$shipment->shipment_id]+$shipment->bridge_cost_add;
-                $congan += $road['police_cost'][$shipment->shipment_id];
-                $vavo += $road['tire_cost'][$shipment->shipment_id];
-                $chiphidau += $road['oil_cost'][$shipment->shipment_id];
-                $chiphicodinh += $warehouse['boiduong_cn'][$shipment->shipment_id] + $road['bridge_cost'][$shipment->shipment_id] + $road['police_cost'][$shipment->shipment_id] +$road['tire_cost'][$shipment->shipment_id];
+                $km += $kms;
+                $dinhmucdau += $oil;
+                $boiduong += $bd;
+                $cauduong += $cd+$shipment->bridge_cost_add;
+                $congan += $ca;
+                $vavo += $vv;
+                $chiphidau += $oil_cost;
+                $chiphicodinh += $bd+$cd+$ca+$vv;
                 $tienung += $shipment->oil_add;
                 $tienung2 += $shipment->oil_add2;
                 $dauphatsinh+= $shipment->oil_excess;
                 $dauthua+= $shipment->oil_residual;
-                $dauconlai += ($road['road_oil'][$shipment->shipment_id] + $shipment->oil_excess + $shipment->oil_residual - $shipment->oil_add - $shipment->oil_add2);
+                $dauconlai += ($oil + $shipment->oil_excess + $shipment->oil_residual - $shipment->oil_add - $shipment->oil_add2);
                 $phatsinh += ($shipment->approve==1)?$shipment->cost_add:0;
                 $vongtruoc += $shipment->shipment_excess;
                 $thuong += $shipment->shipment_bonus;
@@ -214,19 +224,19 @@
                 $vdoanhthu[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vdoanhthu[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vdoanhthu[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess):(0+$shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess);
                 $vchiphi[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vchiphi[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vchiphi[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $shipment->shipment_cost):(0+$shipment->shipment_cost);
                 $vloinhuan[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vloinhuan[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vloinhuan[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $shipment->shipment_profit+$shipment->shipment_charge_excess):(0+$shipment->shipment_profit+$shipment->shipment_charge_excess);
-                $vkm[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vkm[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vkm[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $road['road_km'][$shipment->shipment_id]):(0+$road['road_km'][$shipment->shipment_id]);
-                $vdinhmucdau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vdinhmucdau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vdinhmucdau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $road['road_oil'][$shipment->shipment_id]):(0+$road['road_oil'][$shipment->shipment_id]);
-                $vboiduong[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vboiduong[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vboiduong[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $warehouse['boiduong_cn'][$shipment->shipment_id]):(0+$warehouse['boiduong_cn'][$shipment->shipment_id]);
-                $vcauduong[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vcauduong[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vcauduong[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $road['bridge_cost'][$shipment->shipment_id]+$shipment->bridge_cost_add):(0+$road['bridge_cost'][$shipment->shipment_id]+$shipment->bridge_cost_add);
-                $vcongan[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vcongan[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vcongan[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $road['police_cost'][$shipment->shipment_id]):(0+$road['police_cost'][$shipment->shipment_id]);
-                $vvavo[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vvavo[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vvavo[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $road['tire_cost'][$shipment->shipment_id]):(0+$road['tire_cost'][$shipment->shipment_id]);
-                $vchiphidau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vchiphidau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vchiphidau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $road['oil_cost'][$shipment->shipment_id]):(0+$road['oil_cost'][$shipment->shipment_id]);
-                $vchiphicodinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vchiphicodinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vchiphicodinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] +( $warehouse['boiduong_cn'][$shipment->shipment_id] + $road['bridge_cost'][$shipment->shipment_id] + $road['police_cost'][$shipment->shipment_id] +$road['tire_cost'][$shipment->shipment_id])):(0+$warehouse['boiduong_cn'][$shipment->shipment_id] + $road['bridge_cost'][$shipment->shipment_id] + $road['police_cost'][$shipment->shipment_id] +$road['tire_cost'][$shipment->shipment_id]);
+                $vkm[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vkm[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vkm[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $kms):(0+$kms);
+                $vdinhmucdau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vdinhmucdau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vdinhmucdau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $oil):(0+$oil);
+                $vboiduong[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vboiduong[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vboiduong[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $bd):(0+$bd);
+                $vcauduong[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vcauduong[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vcauduong[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $cd+$shipment->bridge_cost_add):(0+$cd+$shipment->bridge_cost_add);
+                $vcongan[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vcongan[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vcongan[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $ca):(0+$ca);
+                $vvavo[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vvavo[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vvavo[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $vv):(0+$vv);
+                $vchiphidau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vchiphidau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vchiphidau[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $oil_cost):(0+$oil_cost);
+                $vchiphicodinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vchiphicodinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vchiphicodinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] +( $bd + $cd + $ca +$vv)):(0+$bd + $cd + $ca +$vv);
                 $vtienung[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vtienung[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vtienung[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $shipment->oil_add):(0+$shipment->oil_add);
                 $vtienung2[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vtienung2[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vtienung2[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $shipment->oil_add2):(0+$shipment->oil_add2);
                 $vdauphatsinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vdauphatsinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vdauphatsinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $shipment->oil_excess):(0+$shipment->oil_excess);
                 $vdauthua[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vdauthua[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vdauthua[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $shipment->oil_residual):(0+$shipment->oil_residual);
-                $vdauconlai[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vdauconlai[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])? ($vdauconlai[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] +( ($road['road_oil'][$shipment->shipment_id] + $shipment->oil_excess + $shipment->oil_residual - $shipment->oil_add - $shipment->oil_add2))):(0+($road['road_oil'][$shipment->shipment_id] + $shipment->oil_excess + $shipment->oil_residual - $shipment->oil_add - $shipment->oil_add2));
+                $vdauconlai[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vdauconlai[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])? ($vdauconlai[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] +( ($oil + $shipment->oil_excess + $shipment->oil_residual - $shipment->oil_add - $shipment->oil_add2))):(0+($oil + $shipment->oil_excess + $shipment->oil_residual - $shipment->oil_add - $shipment->oil_add2));
                 $vphatsinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vphatsinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])? ( ($shipment->approve==1)?($shipment->cost_add+$vphatsinh[$shipment->vehicle_id][$shipment->shipment_round.$month.$year]):0):(($shipment->approve==1)?$shipment->cost_add:0);
                 $vvongtruoc[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vvongtruoc[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vvongtruoc[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $shipment->shipment_excess):(0+$shipment->shipment_excess);
                 $vphihd[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] = isset($vphihd[$shipment->vehicle_id][$shipment->shipment_round.$month.$year])?($vphihd[$shipment->vehicle_id][$shipment->shipment_round.$month.$year] + $shipment->cost_vat):(0+$shipment->cost_vat);

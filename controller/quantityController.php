@@ -110,7 +110,7 @@ Class quantityController Extends baseController {
 
         //$join = array('table'=>'customer, vehicle, road','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND road_from = shipment_from AND road_to = shipment_to AND shipment_date >= start_time AND shipment_date <= end_time');
 
-        $query = 'SELECT *, count(*) AS tongchuyen, max(shipment_charge) AS giacaonhat, min(shipment_charge) AS giathapnhat, round(avg(shipment_charge)) AS giabinhquan FROM shipment, customer, vehicle, road WHERE customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND road_from = shipment_from AND road_to = shipment_to AND shipment_date >= start_time AND shipment_date <= end_time';
+        $query = 'SELECT *, count(*) AS tongchuyen, max(shipment_charge) AS giacaonhat, min(shipment_charge) AS giathapnhat, round(avg(shipment_charge)) AS giabinhquan FROM shipment, customer, vehicle WHERE customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle';
 
 
 
@@ -206,7 +206,7 @@ Class quantityController Extends baseController {
 
 
 
-        $query = 'SELECT *, count(*) AS tongchuyen, max(shipment_charge) AS giacaonhat, min(shipment_charge) AS giathapnhat, round(avg(shipment_charge)) AS giabinhquan FROM shipment, customer, vehicle, road WHERE customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND road_from = shipment_from AND road_to = shipment_to AND shipment_date >= start_time AND shipment_date <= end_time AND shipment_revenue > 0';
+        $query = 'SELECT *, count(*) AS tongchuyen, max(shipment_charge) AS giacaonhat, min(shipment_charge) AS giathapnhat, round(avg(shipment_charge)) AS giabinhquan FROM shipment, customer, vehicle WHERE customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND shipment_revenue > 0';
 
 
 
@@ -334,7 +334,7 @@ Class quantityController Extends baseController {
 
             
 
-           $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$ship->shipment_from.' AND road_to = '.$ship->shipment_to.' AND start_time <= '.$ship->shipment_date.' AND end_time >= '.$ship->shipment_date));
+           $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
 
             
 

@@ -233,7 +233,7 @@ elseif ($order_by == 'cont_unit')
         
     }
 
-    if ($road['way'][$shipment->shipment_id] == 0) {
+    if (isset($road['way'][$shipment->shipment_id]) && $road['way'][$shipment->shipment_id] == 0) {
 
         $kho['warehouse_weight'][$shipment->shipment_from] = 0;
         $kho['warehouse_clean'][$shipment->shipment_from] = 0;
@@ -251,12 +251,13 @@ elseif ($order_by == 'cont_unit')
             $kho['warehouse_gate'][$shipment->shipment_from] = 0;
         }
         
-    
+    $ca = isset($road['police_cost'][$shipment->shipment_id])?$road['police_cost'][$shipment->shipment_id]:null;
+    $cd = isset($road['bridge_cost'][$shipment->shipment_id])?$road['bridge_cost'][$shipment->shipment_id]:null;
+    $vv = isset($road['tire_cost'][$shipment->shipment_id])?$road['tire_cost'][$shipment->shipment_id]:null;
 
-    $tong =  $kho['boiduong_cn'][$shipment->shipment_id]+(($road['oil_add'][$shipment->shipment_id]+$road['oil_add2'][$shipment->shipment_id])*round($shipment->oil_cost*1.1))+ $road['police_cost'][$shipment->shipment_id]+ round($road['bridge_cost'][$shipment->shipment_id]*1.1)+ $road['tire_cost'][$shipment->shipment_id]+ (($shipment->approve==1)?$shipment->cost_add:0)+ ($kho['warehouse_weight'][$shipment->shipment_from]+$kho['warehouse_weight'][$shipment->shipment_to])+ ($kho['warehouse_clean'][$shipment->shipment_from]+$kho['warehouse_clean'][$shipment->shipment_to])+ (/*$kho['warehouse_gate'][$shipment->shipment_from]+*/$kho['warehouse_gate'][$shipment->shipment_to])+ ($shipment->commission*$shipment->commission_number) + /*$shipment->shipment_loan+ $shipment->shipment_excess*/+ $shipment->shipment_bonus+ $shipment->cost_vat-$shipment->cost_excess+$shipment->bridge_cost_add  ?>
 
-    <?php if(($tong+$shipment->shipment_loan)!=0){ ?>
-        
+    $tong =  $kho['boiduong_cn'][$shipment->shipment_id]+(($road['oil_add'][$shipment->shipment_id]+$road['oil_add2'][$shipment->shipment_id])*round($shipment->oil_cost*1.1))+ $ca+ $cd+ $vv+ (($shipment->approve==1)?$shipment->cost_add:0)+ ($kho['warehouse_weight'][$shipment->shipment_from]+$kho['warehouse_weight'][$shipment->shipment_to])+ ($kho['warehouse_clean'][$shipment->shipment_from]+$kho['warehouse_clean'][$shipment->shipment_to])+ (/*$kho['warehouse_gate'][$shipment->shipment_from]+*/$kho['warehouse_gate'][$shipment->shipment_to])+ ($shipment->commission*$shipment->commission_number) + /*$shipment->shipment_loan+ $shipment->shipment_excess*/+ $shipment->shipment_bonus+ $shipment->cost_vat-$shipment->cost_excess+$shipment->bridge_cost_add  ?>
+
         <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" data="<?php echo $shipment->vehicle_id.$shipment->shipment_round ?>" id="<?php echo $shipment->shipment_id ?>" class="edit_tr">
             
             
@@ -271,9 +272,9 @@ elseif ($order_by == 'cont_unit')
             <td class="fix" ><?php echo $lib->formatMoney($kho['boiduong_cn'][$shipment->shipment_id]); ?></td>
             <td class="fix" ><?php echo $lib->formatMoney(($road['oil_add'][$shipment->shipment_id]+$road['oil_add2'][$shipment->shipment_id])*round($shipment->oil_cost*1.1)); ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($road['oil_add'][$shipment->shipment_id]+$road['oil_add2'][$shipment->shipment_id]); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($road['police_cost'][$shipment->shipment_id]); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney(round($road['bridge_cost'][$shipment->shipment_id]*1.1)+$shipment->bridge_cost_add); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($road['tire_cost'][$shipment->shipment_id]); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($ca); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($cd+$shipment->bridge_cost_add); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($vv); ?></td>
             <td class="fix masterTooltip" title="<?php echo ($shipment->approve==1)?$shipment->cost_add_comment:null; ?> " ><?php echo $lib->formatMoney(($shipment->approve==1)?$shipment->cost_add:0); ?></td>
             <td class="fix masterTooltip" title="<?php echo $shipment->cost_vat_comment; ?>" ><?php echo $lib->formatMoney($shipment->cost_vat); ?></td>
             <td nowrap class="fix"  id="warehouse_weight_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($kho['warehouse_weight'][$shipment->shipment_from]+$kho['warehouse_weight'][$shipment->shipment_to]) ?></td>
@@ -295,9 +296,9 @@ elseif ($order_by == 'cont_unit')
         $tongbd += $kho['boiduong_cn'][$shipment->shipment_id];
         $tongdau += ($road['oil_add'][$shipment->shipment_id]+$road['oil_add2'][$shipment->shipment_id])*round($shipment->oil_cost*1.1);
         $tonglit += ($road['oil_add'][$shipment->shipment_id]+$road['oil_add2'][$shipment->shipment_id]);
-        $tongca += $road['police_cost'][$shipment->shipment_id];
-        $tongcauduong += round($road['bridge_cost'][$shipment->shipment_id]*1.1)+$shipment->bridge_cost_add;
-        $tongvavo += $road['tire_cost'][$shipment->shipment_id];
+        $tongca += $ca;
+        $tongcauduong += $cd+$shipment->bridge_cost_add;
+        $tongvavo += $vv;
         $tongphatsinh += (($shipment->approve==1)?$shipment->cost_add:0);
         $tongcan += ($kho['warehouse_weight'][$shipment->shipment_from]+$kho['warehouse_weight'][$shipment->shipment_to]);
         $tongquet += ($kho['warehouse_clean'][$shipment->shipment_from]+$kho['warehouse_clean'][$shipment->shipment_to]);
@@ -309,7 +310,7 @@ elseif ($order_by == 'cont_unit')
         $tonghoahong += ($shipment->commission*$shipment->commission_number);
         $tongthua += $shipment->cost_excess;
 
-        }
+        
         ?>
 
          

@@ -91,7 +91,7 @@ elseif ($order_by == 'spare_part_date_manufacture')
             <td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $spare_part->spare_part_id ?>"></td>
             <td class="fix"><?php echo $i++; ?></td>
             <td class="fix"  id="spare_part_code_<?php echo $spare_part->spare_part_id; ?>"><a target="_blank" href="<?php echo $this->url('sparepart/index/'.$spare_part->spare_part_id) ?>" ><?php echo $spare_part->spare_part_code ?></a></td>
-            <td class="fix"  id="spare_part_name_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_name ?></td>
+            <td class="fix"  id="spare_part_name_<?php echo $spare_part->spare_part_id; ?>"><?php echo $spare_part->spare_part_name.($spare_part->spare_part_seri!=""?' - ['.$spare_part->spare_part_seri.']':null) ?></td>
             <td class="fix" ><?php echo (isset($data_vehicle[$spare_part->spare_part_id]['import']) && $data_vehicle[$spare_part->spare_part_id]['import']>0)?$lib->hien_thi_ngay_thang($data_vehicle[$spare_part->spare_part_id]['import']):null ?></td>
             <td class="fix" ><?php echo isset($data_vehicle[$spare_part->spare_part_id]['km'])?$data_vehicle[$spare_part->spare_part_id]['km']:null ?></td>
             <td class="fix" ><?php echo (isset($data_vehicle[$spare_part->spare_part_id]['export']) && $data_vehicle[$spare_part->spare_part_id]['export']>0)?$lib->hien_thi_ngay_thang($data_vehicle[$spare_part->spare_part_id]['export']):null ?></td>

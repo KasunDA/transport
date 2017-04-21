@@ -292,7 +292,11 @@ elseif ($order_by == 'bank_name')
 
    <tbody>
 
-    <?php foreach ($receipts as $receipt_voucher) : ?>
+    <?php 
+    $tongthanhtien = 0;
+    foreach ($receipts as $receipt_voucher) : 
+      $tongthanhtien += $receipt_voucher->receipt_voucher_money;
+    ?>
 
     
 
@@ -339,7 +343,15 @@ elseif ($order_by == 'bank_name')
 
 
     <?php endforeach; ?>
-
+        <tr  style="font-weight: bold; color: rgb(23, 119, 226);" >
+            
+            <th colspan="4" style="border-right: 1px solid rgb(236, 235, 235);border-top: 1px solid #80C8E5;padding: 7px; text-align: right;" >
+                Tổng cộng
+            </th>
+            <td class="fix" ><?php echo $lib->formatMoney($tongthanhtien) ?></td>
+            <td class="fix" ></td>
+            <td class="fix" ></td>
+        </tr>
         
 
    </tbody>
@@ -365,275 +377,288 @@ $this->helper('slidePaginator');
         <div class="col-md-12">
 
           <!-- general form elements -->
+          <div class="tabs">
+              <ul class="tab-links">
+                <li class="active"  ><a href="#tab1">Thu hồi công nợ</a></li>
+                <li ><a href="#tab2">Hành chính</a></li>
+              </ul>
+              <div class="tab-content">
+                <div class="tab active" id="tab1" >
 
-          <div class="box box-primary">
+                  <div class="box box-primary">
 
-            <!-- /.box-header -->
+                    <!-- /.box-header -->
 
-            <!-- form start -->
-            <form id="add_receipt_voucher" role="form" method="post" action="" enctype="multipart/form-data">
+                    <!-- form start -->
+                    <form id="add_receipt_voucher" role="form" method="post" action="" enctype="multipart/form-data">
 
-              <div class="row">
+                      <div class="row">
 
-                <div class="col-md-3 col-xs-6">
+                        <div class="col-md-3 col-xs-6">
 
-                  <div class="box-body">
+                          <div class="box-body">
 
-                    <div class="form-group">
+                            <div class="form-group">
 
-                      <label for="customer">
-                        <input type="radio" name="customer_type" value="1" checked> Khách hàng/Đối tác/Cá nhân <a target="_blank" title="Thêm khách hàng" href="<?php echo $this->url('customer') ?>"><i class="fa fa-plus"></i></a> <br>
-                        <input type="radio" name="customer_type" value="2"> Nhân viên <a target="_blank" title="Thêm nhân viên" href="<?php echo $this->url('staff') ?>"><i class="fa fa-plus"></i></a> <br>
-                        <input type="radio" name="customer_type" value="3"> Tài xế <a target="_blank" title="Thêm tài xế" href="<?php echo $this->url('steersman') ?>"><i class="fa fa-plus"></i></a>
-                      </label>
+                              <label for="customer">
+                                <input type="radio" name="customer_type" value="1" checked> Khách hàng/Đối tác/Cá nhân <a target="_blank" title="Thêm khách hàng" href="<?php echo $this->url('customer') ?>"><i class="fa fa-plus"></i></a> <br>
+                                <input type="radio" name="customer_type" value="2"> Nhân viên <a target="_blank" title="Thêm nhân viên" href="<?php echo $this->url('staff') ?>"><i class="fa fa-plus"></i></a> <br>
+                                <input type="radio" name="customer_type" value="3"> Tài xế <a target="_blank" title="Thêm tài xế" href="<?php echo $this->url('steersman') ?>"><i class="fa fa-plus"></i></a>
+                              </label>
 
-                      <input type="text" autocomplete="off" id="customer"  name="customer" tabindex="1"  placeholder="Nhập tên hoặc * để chọn" required="required" >
+                              <input type="text" autocomplete="off" id="customer"  name="customer" tabindex="1"  placeholder="Nhập tên hoặc * để chọn" required="required" >
 
-                        <ul id="customer_list_id"></ul>
+                                <ul id="customer_list_id"></ul>
+
+                            </div>
+
+
+
+                          </div>
+
+                          <!-- /.box-body -->
+
+                          
+
+                        </div>
+
+                        <div class="col-md-3 col-xs-6">
+
+                          <div class="box-body">
+
+                            <div class="form-group">
+
+                              <label for="receipt_voucher_date">Ngày</label>
+
+                              <input class="ngay" type="text" id="receipt_voucher_date"  name="receipt_voucher_date" tabindex="2" required="required" >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                              <label for="receipt_voucher_money">Số tiền</label>
+
+                              <input type="text" class="numbers" id="receipt_voucher_money"  name="receipt_voucher_money" tabindex="4" required="required" disabled >
+
+                            </div>
+                            
+                            
+
+                          </div>
+
+                          <!-- /.box-body -->
+
+                          
+
+                        </div>
+
+                        <div class="col-md-3 col-xs-6">
+
+                          <div class="box-body">
+
+                            <div class="form-group">
+
+                              <label for="receipt_voucher_number">Số chứng từ</label>
+
+                              <input type="text" id="receipt_voucher_number"  name="receipt_voucher_number" tabindex="3" required="required" >
+
+                            </div>
+
+                            <div class="form-group">
+
+                              <label for="receipt_voucher_comment">Nội dung</label>
+
+                              <input type="text" id="receipt_voucher_comment"  name="receipt_voucher_comment" tabindex="5" required="required">
+
+                            </div>
+                            
+
+                          </div>
+
+                          <!-- /.box-body -->
+
+                          
+
+                        </div>
+                        <div class="col-md-3 col-xs-6">
+
+                          <div class="box-body">
+
+                            
+                            <div class="form-group">
+
+                              <label for="bank_in">Tài khoản nhận</label>
+
+                              <select id="bank_in" name="bank_in" tabindex="7" required="required" >
+                                <?php foreach ($banks as $bank) { ?>
+                                  <option value="<?php echo $bank->bank_id ?>"><?php echo $bank->bank_name ?></option>
+                                <?php } ?>
+                                
+                              </select>
+
+                            </div>
+                            <div class="form-group">
+
+                              <label for="receipt_voucher_attach">Kèm theo</label>
+
+                              <input type="text" id="receipt_voucher_attach"  name="receipt_voucher_attach" tabindex="6">
+
+                            </div>
+
+                          </div>
+
+                          <!-- /.box-body -->
+
+                          
+
+                        </div>
+
+
+
+
+                      </div>
+
+                      <div class="row">
+
+                        <div class="col-md-12">
+
+                            <div class="box-body">
+
+                                <fieldset class="groupbox">
+
+                                        <table id="dataTable" border="1" style="width: 100%; border: 1px solid rgb(221, 217, 217); margin-bottom: 10px" >
+
+                                            <tbody>
+
+                                                <tr>
+
+                                                    <td><input type="checkbox" name="chk2" data="" title="0"></td>
+
+                                                    <td>
+
+                                                        <table style="width:100%">
+
+                                                            <tr>
+
+                                                                <td>Công nợ <br>
+
+                                                                    <input type="text" class="comment" name="comment[]" placeholder="Nhập số hóa đơn,DO hoặc nội dung" autocomplete="off" >
+                                                                    <ul class="name_list_id"></ul>
+                                                                </td>
+
+                                                                <td>Ngày <br>
+
+                                                                    <input type="text" class="debit_date ngay" name="debit_date[]" style="width:80px" disabled >
+
+                                                                </td>
+
+                                                                <td>Số tiền phải thu <br>
+
+                                                                    <input type="text" class="money numbers" name="money[]" style="width:120px" disabled >
+
+                                                                </td>
+
+                                                                <td>Còn lại<br>
+
+                                                                    <input type="text" class="money_conlai numbers" name="money_conlai[]" style="width:120px" disabled >
+
+                                                                </td>
+
+                                                                <td>Số tiền <br>
+
+                                                                    <input type="text" class="debit_pay_money numbers" name="debit_pay_money[]" style="width:120px" >
+
+                                                                </td>
+
+                                                            </tr>
+
+                                                        </table>
+
+                                                    </td>
+
+                                                </tr>
+
+                                                
+
+                                            </tbody>
+
+                                        </table>
+
+                                        <input type="button" value="Thêm" onclick="addRow('dataTable')">
+
+                                        <input type="button" value="Xóa" onclick="deleteRow('dataTable')">
+
+
+
+                                    </fieldset>
+
+                            </div>
+
+                        </div>
+
+                      </div>
+
+                      <div class="row">
+
+                        <div class="col-md-12">
+
+                            <table class="pull-right">
+
+                                <tr>
+
+                                    <td>Cộng</td>
+
+                                    <td><input type="text" class="text-right numbers" id="receipt_voucher_sum"  name="receipt_voucher_sum" disabled ></td>
+
+                                </tr>
+
+
+                            </table>
+
+                            
+
+                        </div>
 
                     </div>
 
+                      <?php if(!isset($disable_control)){ ?>
 
+                      <div class="row">
+
+                        <div class="col-md-12">
+
+                            <div class="box-footer">
+
+                            <input type="hidden" readonly id="yes" name="yes" required="required" >
+
+                            <button type="submit" class="btn btn-primary" tabindex="6">Hoàn thành</button>
+
+                            <button type="reset" class="btn" tabindex="7">Nhập lại</button>
+
+                          </div>
+
+                          <div class="box-footer">
+
+                            <div id="error" class="error"><?php echo isset($error) ? $error : null; ?></div>
+
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                      <?php } ?>
+
+                    </form>
 
                   </div>
 
-                  <!-- /.box-body -->
-
-                  
-
                 </div>
-
-                <div class="col-md-3 col-xs-6">
-
-                  <div class="box-body">
-
-                    <div class="form-group">
-
-                      <label for="receipt_voucher_date">Ngày</label>
-
-                      <input class="ngay" type="text" id="receipt_voucher_date"  name="receipt_voucher_date" tabindex="2" required="required" >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                      <label for="receipt_voucher_money">Số tiền</label>
-
-                      <input type="text" class="numbers" id="receipt_voucher_money"  name="receipt_voucher_money" tabindex="4" required="required" disabled >
-
-                    </div>
-                    
-                    
-
-                  </div>
-
-                  <!-- /.box-body -->
-
-                  
-
+                <div class="tab" id="tab2" >
                 </div>
-
-                <div class="col-md-3 col-xs-6">
-
-                  <div class="box-body">
-
-                    <div class="form-group">
-
-                      <label for="receipt_voucher_number">Số chứng từ</label>
-
-                      <input type="text" id="receipt_voucher_number"  name="receipt_voucher_number" tabindex="3" required="required" >
-
-                    </div>
-
-                    <div class="form-group">
-
-                      <label for="receipt_voucher_comment">Nội dung</label>
-
-                      <input type="text" id="receipt_voucher_comment"  name="receipt_voucher_comment" tabindex="5" required="required">
-
-                    </div>
-                    
-
-                  </div>
-
-                  <!-- /.box-body -->
-
-                  
-
-                </div>
-                <div class="col-md-3 col-xs-6">
-
-                  <div class="box-body">
-
-                    
-                    <div class="form-group">
-
-                      <label for="bank_in">Tài khoản nhận</label>
-
-                      <select id="bank_in" name="bank_in" tabindex="7" required="required" >
-                        <?php foreach ($banks as $bank) { ?>
-                          <option value="<?php echo $bank->bank_id ?>"><?php echo $bank->bank_name ?></option>
-                        <?php } ?>
-                        
-                      </select>
-
-                    </div>
-                    <div class="form-group">
-
-                      <label for="receipt_voucher_attach">Kèm theo</label>
-
-                      <input type="text" id="receipt_voucher_attach"  name="receipt_voucher_attach" tabindex="6">
-
-                    </div>
-
-                  </div>
-
-                  <!-- /.box-body -->
-
-                  
-
-                </div>
-
-
-
-
               </div>
-
-              <div class="row">
-
-                <div class="col-md-12">
-
-                    <div class="box-body">
-
-                        <fieldset class="groupbox">
-
-                                <table id="dataTable" border="1" style="width: 100%; border: 1px solid rgb(221, 217, 217); margin-bottom: 10px" >
-
-                                    <tbody>
-
-                                        <tr>
-
-                                            <td><input type="checkbox" name="chk2" data="" title="0"></td>
-
-                                            <td>
-
-                                                <table style="width:100%">
-
-                                                    <tr>
-
-                                                        <td>Công nợ <br>
-
-                                                            <input type="text" class="comment" name="comment[]" placeholder="Nhập số hóa đơn,DO hoặc nội dung" autocomplete="off" >
-                                                            <ul class="name_list_id"></ul>
-                                                        </td>
-
-                                                        <td>Ngày <br>
-
-                                                            <input type="text" class="debit_date ngay" name="debit_date[]" style="width:80px" disabled >
-
-                                                        </td>
-
-                                                        <td>Số tiền phải thu <br>
-
-                                                            <input type="text" class="money numbers" name="money[]" style="width:120px" disabled >
-
-                                                        </td>
-
-                                                        <td>Còn lại<br>
-
-                                                            <input type="text" class="money_conlai numbers" name="money_conlai[]" style="width:120px" disabled >
-
-                                                        </td>
-
-                                                        <td>Số tiền <br>
-
-                                                            <input type="text" class="debit_pay_money numbers" name="debit_pay_money[]" style="width:120px" >
-
-                                                        </td>
-
-                                                    </tr>
-
-                                                </table>
-
-                                            </td>
-
-                                        </tr>
-
-                                        
-
-                                    </tbody>
-
-                                </table>
-
-                                <input type="button" value="Thêm" onclick="addRow('dataTable')">
-
-                                <input type="button" value="Xóa" onclick="deleteRow('dataTable')">
-
-
-
-                            </fieldset>
-
-                    </div>
-
-                </div>
-
-              </div>
-
-              <div class="row">
-
-                <div class="col-md-12">
-
-                    <table class="pull-right">
-
-                        <tr>
-
-                            <td>Cộng</td>
-
-                            <td><input type="text" class="text-right numbers" id="receipt_voucher_sum"  name="receipt_voucher_sum" disabled ></td>
-
-                        </tr>
-
-
-                    </table>
-
-                    
-
-                </div>
-
             </div>
-
-              <?php if(!isset($disable_control)){ ?>
-
-              <div class="row">
-
-                <div class="col-md-12">
-
-                    <div class="box-footer">
-
-                    <input type="hidden" readonly id="yes" name="yes" required="required" >
-
-                    <button type="submit" class="btn btn-primary" tabindex="6">Hoàn thành</button>
-
-                    <button type="reset" class="btn" tabindex="7">Nhập lại</button>
-
-                  </div>
-
-                  <div class="box-footer">
-
-                    <div id="error" class="error"><?php echo isset($error) ? $error : null; ?></div>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-              <?php } ?>
-
-            </form>
-
-          </div>
 
           <!-- /.box -->
 

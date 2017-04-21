@@ -63,7 +63,7 @@ Class oilreportController Extends baseController {
 
 
         $data = array(
-            'where' => 'vehicle_id IN (SELECT vehicle FROM vehicle_work WHERE end_work > '.strtotime($batdau).')',
+            'where' => 'vehicle_id NOT IN (SELECT vehicle FROM vehicle_work WHERE start_work >= '.strtotime($batdau).' AND end_work < '.strtotime($ngayketthuc).')',
         );
 
         if ($vehicle != 0) {
@@ -126,7 +126,7 @@ Class oilreportController Extends baseController {
 
         foreach ($shipments as $shipment) {
             $qr = "SELECT * FROM vehicle_work WHERE vehicle = ".$shipment->vehicle." AND start_work <= ".$shipment->shipment_date." AND end_work >= ".$shipment->shipment_date;
-            if (!$shipment_model->queryShipment($qr)) {
+            if ($shipment_model->queryShipment($qr)) {
                 unset($shipments[$k]);
             }
             else{
@@ -328,7 +328,7 @@ Class oilreportController Extends baseController {
             $ngayketthuc = strtotime(date('d-m-Y', strtotime(date('d-m-Y',$ketthuc). ' + 1 days')));
 
             $data = array(
-                'where' => 'vehicle_id IN (SELECT vehicle FROM vehicle_work WHERE end_work > '.$batdau.')',
+                'where' => 'vehicle_id NOT IN (SELECT vehicle FROM vehicle_work WHERE start_work >= '.$batdau.' AND end_work < '.$ngayketthuc.')',
             );
 
         if ($vehicle != 0) {
@@ -405,7 +405,7 @@ Class oilreportController Extends baseController {
 
         foreach ($shipments as $shipment) {
             $qr = "SELECT * FROM vehicle_work WHERE vehicle = ".$shipment->vehicle." AND start_work <= ".$shipment->shipment_date." AND end_work >= ".$shipment->shipment_date;
-            if (!$shipment_model->queryShipment($qr)) {
+            if ($shipment_model->queryShipment($qr)) {
                 unset($shipments[$k]);
             }
             else{

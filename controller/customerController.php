@@ -116,10 +116,13 @@ Class customerController Extends baseController {
         $sts = explode(',', $customers->customer_sub);
         foreach ($sts as $key) {
             $subs = $customer_sub_model->getCustomer($key);
-            if ($customer_sub == "")
-                $customer_sub .= $subs->customer_sub_name;
-            else
-                $customer_sub .= ','.$subs->customer_sub_name;
+            if($subs){
+                if ($customer_sub == "")
+                    $customer_sub .= $subs->customer_sub_name;
+                else
+                    $customer_sub .= ','.$subs->customer_sub_name;
+            }
+            
         }
         $this->view->data['customer_sub'] = $customer_sub;
         

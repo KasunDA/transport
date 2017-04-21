@@ -889,18 +889,19 @@ Class exvatController Extends baseController {
 
             $contributor = "";
 
+            if(is_array($_POST['shipment'])){
 
+                foreach ($_POST['shipment'] as $key) {
 
-            foreach ($_POST['shipment'] as $key) {
+                    if ($contributor == "")
 
-                if ($contributor == "")
+                        $contributor .= $key;
 
-                    $contributor .= $key;
+                    else
 
-                else
+                        $contributor .= ','.$key;
 
-                    $contributor .= ','.$key;
-
+                }
             }
 
             $data['shipment'] = $contributor;

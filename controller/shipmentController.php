@@ -139,6 +139,9 @@ Class shipmentController Extends baseController {
         $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
 
 
+        $driver_model = $this->model->get('driverModel');
+
+
 
         $contunit_model = $this->model->get('contunitModel');
 
@@ -556,7 +559,7 @@ Class shipmentController Extends baseController {
 
                     vehicle_number LIKE "%'.$keyword.'%"
 
-
+                    OR bill_number LIKE "%'.$keyword.'%"
 
                     OR customer_name LIKE "%'.$keyword.'%"
 
@@ -643,7 +646,7 @@ Class shipmentController Extends baseController {
         $export_stocks = array();
 
 
-
+        $driver_data = array();
 
 
         $v = array();
@@ -653,6 +656,44 @@ Class shipmentController Extends baseController {
 
 
         foreach ($datas as $ship) {
+
+            $d_data = array(
+
+
+
+                'where'=> ' start_work <= '.$ship->shipment_date.' AND end_work > '.$ship->shipment_date.' AND vehicle = '.$ship->vehicle,
+
+
+
+            );
+
+
+
+            $d_join = array('table'=>'steersman','where'=>'steersman = steersman_id');
+
+
+
+            $drivers = $driver_model->getAllDriver($d_data,$d_join);
+
+
+
+            
+
+
+
+            foreach ($drivers as $driver) {
+
+
+
+                $driver_data[$ship->shipment_id]['driver_name'] = $driver->steersman_name;
+
+
+
+                $driver_data[$ship->shipment_id]['driver_phone'] = $driver->steersman_phone;
+
+
+
+            }
 
 
 
@@ -678,7 +719,7 @@ Class shipmentController Extends baseController {
 
 
 
-           $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$ship->shipment_from.' AND road_to = '.$ship->shipment_to.' AND start_time <= '.$ship->shipment_date.' AND end_time >= '.$ship->shipment_date));
+           $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
 
 
 
@@ -1011,7 +1052,7 @@ Class shipmentController Extends baseController {
         $this->view->data['export_stocks'] = $export_stocks;
 
 
-
+        $this->view->data['driver_data'] = $driver_data;
 
 
 
@@ -2091,6 +2132,8 @@ Class shipmentController Extends baseController {
 
 
             $shipment_cost_model = $this->model->get('shipmentcostModel');
+
+            $cost_list_model = $this->model->get('costlistModel');
 
 
 
@@ -3180,7 +3223,7 @@ Class shipmentController Extends baseController {
 
                     foreach ($shipment_cost_list as $v) {
 
-
+                        $cost_type = $cost_list_model->getCost($v['cost_list']);
 
                         $data_cost = array(
 
@@ -3268,21 +3311,24 @@ Class shipmentController Extends baseController {
 
                                     $debit->createDebit($data_debit);
 
+                                    if ($cost_type->cost_list_type != 8) {
+
+                                        $data_vat = array(
+
+                                            'in_out'=>1,
+
+                                            'vat_number'=>$data_cost['cost_document'],
+
+                                            'vat_date'=>$data_cost['cost_document_date'],
+
+                                            'shipment_cost'=>$id_shipment_cost,
+
+                                        );
+
+                                        $vat->createVAT($data_vat);
+                                    }
 
 
-                                    $data_vat = array(
-
-                                        'in_out'=>1,
-
-                                        'vat_number'=>$data_cost['cost_document'],
-
-                                        'vat_date'=>$data_cost['cost_document_date'],
-
-                                        'shipment_cost'=>$id_shipment_cost,
-
-                                    );
-
-                                    $vat->createVAT($data_vat);
 
                                 }
 
@@ -3308,15 +3354,42 @@ Class shipmentController Extends baseController {
 
                                     $debit->createDebit($data_debit);
 
+                                    
+
                                 }
 
+                                if ($cost_type->cost_list_type == 8) {
+                                    $data_debit = array(
+
+                                        'debit_date'=>$data['shipment_date'],
+
+                                        'customer'=>$data['customer'],
+
+                                        'money'=>$data_cost['cost'],
+
+                                        'money_vat'=>0,
+
+                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].')',
+
+                                        'check_debit'=>1,
+
+                                        'shipment_cost'=>$id_shipment_cost,
+
+                                        'check_loan'=>1,
+
+                                    );
+
+                                    $debit->createDebit($data_debit);
+                                }
+
+
+                                $vat_sum = round($data_cost['cost']/1.1);
+                                $vat_price = $data_cost['cost']-round($data_cost['cost']/1.1);
+
+                                $vat->updateVAT(array('vat_sum'=>$vat_sum,'vat_price'=>$vat_price),array('shipment_cost' => $id_shipment_cost));
+
+
                             }
-
-                            
-                            $vat_sum = round($data_cost['cost']/1.1);
-                            $vat_price = $data_cost['cost']-round($data_cost['cost']/1.1);
-
-                            $vat->updateVAT(array('vat_sum'=>$vat_sum,'vat_price'=>$vat_price),array('shipment_cost' => $id_shipment_cost));
 
 
                         }
@@ -3330,7 +3403,7 @@ Class shipmentController Extends baseController {
                             $shipment_cost_model->updateShipment($data_cost,array('shipment_cost_id'=>$v['shipment_cost_id']));
 
 
-
+                            $check_cost_type = $cost_list_model->getCost($check->cost_list);
                             
 
                             if ($data_cost['check_vat'] == 1) {
@@ -3355,7 +3428,7 @@ Class shipmentController Extends baseController {
 
                                 );
 
-                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id']));
+                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id'],'check_loan'=>0));
 
                             }
 
@@ -3381,7 +3454,7 @@ Class shipmentController Extends baseController {
 
                                 );
 
-                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id']));
+                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id'],'check_loan'=>0));
 
                             }
 
@@ -3413,19 +3486,21 @@ Class shipmentController Extends baseController {
 
                             else if ($check->check_vat != 1 && $data_cost['check_vat'] == 1) {
 
-                                 $data_vat = array(
+                                if ($cost_type->cost_list_type != 8) {
+                                     $data_vat = array(
 
-                                    'in_out'=>1,
+                                        'in_out'=>1,
 
-                                    'vat_number'=>$data_cost['cost_document'],
+                                        'vat_number'=>$data_cost['cost_document'],
 
-                                    'vat_date'=>$data_cost['cost_document_date'],
+                                        'vat_date'=>$data_cost['cost_document_date'],
 
-                                    'shipment_cost'=>$v['shipment_cost_id'],
+                                        'shipment_cost'=>$v['shipment_cost_id'],
 
-                                );
+                                    );
 
-                                $vat->createVAT($data_vat);
+                                    $vat->createVAT($data_vat);
+                                }
 
                             }
 
@@ -3433,6 +3508,57 @@ Class shipmentController Extends baseController {
                             $vat_price = $data_cost['cost']-round($data_cost['cost']/1.1);
 
                             $vat->updateVAT(array('vat_sum'=>$vat_sum,'vat_price'=>$vat_price),array('shipment_cost' => $v['shipment_cost_id']));
+
+
+                            if ($check_cost_type->cost_list_type == 8 && $cost_type->cost_list_type == 8) {
+                                $data_debit = array(
+
+                                    'debit_date'=>$data['shipment_date'],
+
+                                    'customer'=>$data['customer'],
+
+                                    'money'=>$data_cost['cost'],
+
+                                    'money_vat'=>0,
+
+                                    'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].')',
+
+                                    'check_debit'=>1,
+
+                                    'shipment_cost'=>$v['shipment_cost_id'],
+
+                                    'check_loan'=>1,
+
+                                );
+
+                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id'],'check_loan'=>1));
+                            }
+                            else if ($check_cost_type->cost_list_type == 8 && $cost_type->cost_list_type != 8) {
+                                $debit->queryDebit('DELETE FROM debit WHERE check_loan = 1 AND shipment_cost = '.$v['shipment_cost_id']);
+                            }
+                            else if ($check_cost_type->cost_list_type != 8 && $cost_type->cost_list_type == 8) {
+                                $data_debit = array(
+
+                                    'debit_date'=>$data['shipment_date'],
+
+                                    'customer'=>$data['customer'],
+
+                                    'money'=>$data_cost['cost'],
+
+                                    'money_vat'=>0,
+
+                                    'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].')',
+
+                                    'check_debit'=>1,
+
+                                    'shipment_cost'=>$v['shipment_cost_id'],
+
+                                    'check_loan'=>1,
+
+                                );
+
+                                $debit->createDebit($data_debit);
+                            }
 
                         }
 
@@ -3882,7 +4008,7 @@ Class shipmentController Extends baseController {
 
                     foreach ($shipment_cost_list as $v) {
 
-
+                        $cost_type = $cost_list_model->getCost($v['cost_list']);
 
                         $data_cost = array(
 
@@ -3972,21 +4098,22 @@ Class shipmentController Extends baseController {
 
                                     $debit->createDebit($data_debit);
 
+                                    if ($cost_type->cost_list_type != 8) {
+                                        
+                                        $data_vat = array(
 
+                                            'in_out'=>1,
 
-                                    $data_vat = array(
+                                            'vat_number'=>$data_cost['cost_document'],
 
-                                        'in_out'=>1,
+                                            'vat_date'=>$data_cost['cost_document_date'],
 
-                                        'vat_number'=>$data_cost['cost_document'],
+                                            'shipment_cost'=>$id_shipment_cost,
 
-                                        'vat_date'=>$data_cost['cost_document_date'],
+                                        );
 
-                                        'shipment_cost'=>$id_shipment_cost,
-
-                                    );
-
-                                    $vat->createVAT($data_vat);
+                                        $vat->createVAT($data_vat);
+                                    }
 
                                 }
 
@@ -4014,129 +4141,38 @@ Class shipmentController Extends baseController {
 
                                 }
 
+                                if ($cost_type->cost_list_type == 8) {
+                                    $data_debit = array(
 
+                                        'debit_date'=>$data['shipment_date'],
+
+                                        'customer'=>$data['customer'],
+
+                                        'money'=>$data_cost['cost'],
+
+                                        'money_vat'=>0,
+
+                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].')',
+
+                                        'check_debit'=>1,
+
+                                        'shipment_cost'=>$id_shipment_cost,
+
+                                        'check_loan'=>1,
+
+                                    );
+
+                                    $debit->createDebit($data_debit);
+                                }
+
+                                $vat_sum = round($data_cost['cost']/1.1);
+                                $vat_price = $data_cost['cost']-round($data_cost['cost']/1.1);
+
+                                $vat->updateVAT(array('vat_sum'=>$vat_sum,'vat_price'=>$vat_price),array('shipment_cost' => $id_shipment_cost));
 
                             }
-
-                            $vat_sum = round($data_cost['cost']/1.1);
-                            $vat_price = $data_cost['cost']-round($data_cost['cost']/1.1);
-
-                            $vat->updateVAT(array('vat_sum'=>$vat_sum,'vat_price'=>$vat_price),array('shipment_cost' => $id_shipment_cost));
-
-                        }
-
-
-
-                        else if ($v['shipment_cost_id'] > 0) {
-
-                            $check = $shipment_cost_model->getShipment($v['shipment_cost_id']);
-
-                            $shipment_cost_model->updateShipment($data_cost,array('shipment_cost_id'=>$v['shipment_cost_id']));
-
-
 
                             
-
-                            if ($data_cost['check_vat'] == 1) {
-
-                                $data_debit = array(
-
-                                    'debit_date'=>$data['shipment_date'],
-
-                                    'customer'=>$data_cost['receiver'],
-
-                                    'money'=>round($data_cost['cost']/1.1),
-
-                                    'money_vat_price'=>$data_cost['cost']-round($data_cost['cost']/1.1),
-
-                                    'money_vat'=>$data_cost['check_vat'],
-
-                                    'comment'=>$data_cost['comment'],
-
-                                    'check_debit'=>2,
-
-                                    'shipment_cost'=>$v['shipment_cost_id'],
-
-                                );
-
-                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id']));
-
-                            }
-
-                            else{
-
-                                $data_debit = array(
-
-                                    'debit_date'=>$data['shipment_date'],
-
-                                    'customer'=>$data_cost['receiver'],
-
-                                    'money'=>$data_cost['cost'],
-
-                                    'money_vat_price'=>0,
-
-                                    'money_vat'=>$data_cost['check_vat'],
-
-                                    'comment'=>$data_cost['comment'],
-
-                                    'check_debit'=>2,
-
-                                    'shipment_cost'=>$v['shipment_cost_id'],
-
-                                );
-
-                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id']));
-
-                            }
-
-
-
-                            if ($check->check_vat == 1 && $data_cost['check_vat'] == 1) {
-
-                                 $data_vat = array(
-
-                                    'in_out'=>1,
-
-                                    'vat_number'=>$data_cost['cost_document'],
-
-                                    'vat_date'=>$data_cost['cost_document_date'],
-
-                                    'shipment_cost'=>$v['shipment_cost_id'],
-
-                                );
-
-                                $vat->updateVAT($data_vat,array('shipment_cost'=>$v['shipment_cost_id']));
-
-                            }
-
-                            else if ($check->check_vat == 1 && $data_cost['check_vat'] != 1) {
-
-                                $vat->queryVAT('DELETE FROM vat WHERE shipment_cost = '.$v['shipment_cost_id']);
-
-                            }
-
-                            else if ($check->check_vat != 1 && $data_cost['check_vat'] == 1) {
-
-                                 $data_vat = array(
-
-                                    'in_out'=>1,
-
-                                    'vat_number'=>$data_cost['cost_document'],
-
-                                    'vat_date'=>$data_cost['cost_document_date'],
-
-                                    'shipment_cost'=>$v['shipment_cost_id'],
-
-                                );
-
-                                $vat->createVAT($data_vat);
-
-                            }
-
-                            $vat_sum = round($data_cost['cost']/1.1);
-                            $vat_price = $data_cost['cost']-round($data_cost['cost']/1.1);
-
-                            $vat->updateVAT(array('vat_sum'=>$vat_sum,'vat_price'=>$vat_price),array('shipment_cost' => $v['shipment_cost_id']));
 
                         }
 
@@ -4311,6 +4347,7 @@ Class shipmentController Extends baseController {
             $shipment_cost_model = $this->model->get('shipmentcostModel');
 
 
+            $cost_list_model = $this->model->get('costlistModel');
 
             /**************/
 
@@ -4802,11 +4839,7 @@ Class shipmentController Extends baseController {
 
                     foreach ($shipment_cost_list as $v) {
 
-
-
-                    
-
-
+                        $cost_type = $cost_list_model->getCost($v['cost_list']);
 
                         $data_cost = array(
 
@@ -4852,6 +4885,8 @@ Class shipmentController Extends baseController {
 
                             $chiphi += trim(str_replace(',','',$v['cost']));
 
+                            $loinhuan -= trim(str_replace(',','',$v['cost']));
+
                         }
 
 
@@ -4892,21 +4927,24 @@ Class shipmentController Extends baseController {
 
                                     $debit->createDebit($data_debit);
 
+                                    if ($cost_type->cost_list_type != 8) {
+
+                                        $data_vat = array(
+
+                                            'in_out'=>1,
+
+                                            'vat_number'=>$data_cost['cost_document'],
+
+                                            'vat_date'=>$data_cost['cost_document_date'],
+
+                                            'shipment_cost'=>$id_shipment_cost,
+
+                                        );
+
+                                        $vat->createVAT($data_vat);
+                                    }
 
 
-                                    $data_vat = array(
-
-                                        'in_out'=>1,
-
-                                        'vat_number'=>$data_cost['cost_document'],
-
-                                        'vat_date'=>$data_cost['cost_document_date'],
-
-                                        'shipment_cost'=>$id_shipment_cost,
-
-                                    );
-
-                                    $vat->createVAT($data_vat);
 
                                 }
 
@@ -4926,17 +4964,47 @@ Class shipmentController Extends baseController {
 
                                         'check_debit'=>2,
 
-                                        'shipment_cost'=>$shipment_cost_model->getLastShipment()->shipment_cost_id,
+                                        'shipment_cost'=>$id_shipment_cost,
 
                                     );
 
                                     $debit->createDebit($data_debit);
 
+                                    
+
                                 }
 
-                            }
+                                if ($cost_type->cost_list_type == 8) {
+                                    $data_debit = array(
 
-                            
+                                        'debit_date'=>$data['shipment_date'],
+
+                                        'customer'=>$data['customer'],
+
+                                        'money'=>$data_cost['cost'],
+
+                                        'money_vat'=>0,
+
+                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].')',
+
+                                        'check_debit'=>1,
+
+                                        'shipment_cost'=>$id_shipment_cost,
+
+                                        'check_loan'=>1,
+
+                                    );
+
+                                    $debit->createDebit($data_debit);
+                                }
+
+
+                                $vat_sum = round($data_cost['cost']/1.1);
+                                $vat_price = $data_cost['cost']-round($data_cost['cost']/1.1);
+
+                                $vat->updateVAT(array('vat_sum'=>$vat_sum,'vat_price'=>$vat_price),array('shipment_cost' => $id_shipment_cost));
+
+                            }
 
 
 
@@ -4951,7 +5019,7 @@ Class shipmentController Extends baseController {
                             $shipment_cost_model->updateShipment($data_cost,array('shipment_cost_id'=>$v['shipment_cost_id']));
 
 
-
+                            $check_cost_type = $cost_list_model->getCost($check->cost_list);
                             
 
                             if ($data_cost['check_vat'] == 1) {
@@ -4976,7 +5044,7 @@ Class shipmentController Extends baseController {
 
                                 );
 
-                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id']));
+                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id'],'check_loan'=>0));
 
                             }
 
@@ -5002,7 +5070,7 @@ Class shipmentController Extends baseController {
 
                                 );
 
-                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id']));
+                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id'],'check_loan'=>0));
 
                             }
 
@@ -5034,20 +5102,78 @@ Class shipmentController Extends baseController {
 
                             else if ($check->check_vat != 1 && $data_cost['check_vat'] == 1) {
 
-                                 $data_vat = array(
+                                if ($cost_type->cost_list_type != 8) {
+                                     $data_vat = array(
 
-                                    'in_out'=>1,
+                                        'in_out'=>1,
 
-                                    'vat_number'=>$data_cost['cost_document'],
+                                        'vat_number'=>$data_cost['cost_document'],
 
-                                    'vat_date'=>$data_cost['cost_document_date'],
+                                        'vat_date'=>$data_cost['cost_document_date'],
+
+                                        'shipment_cost'=>$v['shipment_cost_id'],
+
+                                    );
+
+                                    $vat->createVAT($data_vat);
+                                }
+
+                            }
+
+                            $vat_sum = round($data_cost['cost']/1.1);
+                            $vat_price = $data_cost['cost']-round($data_cost['cost']/1.1);
+
+                            $vat->updateVAT(array('vat_sum'=>$vat_sum,'vat_price'=>$vat_price),array('shipment_cost' => $v['shipment_cost_id']));
+
+
+                            if ($check_cost_type->cost_list_type == 8 && $cost_type->cost_list_type == 8) {
+                                $data_debit = array(
+
+                                    'debit_date'=>$data['shipment_date'],
+
+                                    'customer'=>$data['customer'],
+
+                                    'money'=>$data_cost['cost'],
+
+                                    'money_vat'=>0,
+
+                                    'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].')',
+
+                                    'check_debit'=>1,
 
                                     'shipment_cost'=>$v['shipment_cost_id'],
 
+                                    'check_loan'=>1,
+
                                 );
 
-                                $vat->createVAT($data_vat);
+                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id'],'check_loan'=>1));
+                            }
+                            else if ($check_cost_type->cost_list_type == 8 && $cost_type->cost_list_type != 8) {
+                                $debit->queryDebit('DELETE FROM debit WHERE check_loan = 1 AND shipment_cost = '.$v['shipment_cost_id']);
+                            }
+                            else if ($check_cost_type->cost_list_type != 8 && $cost_type->cost_list_type == 8) {
+                                $data_debit = array(
 
+                                    'debit_date'=>$data['shipment_date'],
+
+                                    'customer'=>$data['customer'],
+
+                                    'money'=>$data_cost['cost'],
+
+                                    'money_vat'=>0,
+
+                                    'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].')',
+
+                                    'check_debit'=>1,
+
+                                    'shipment_cost'=>$v['shipment_cost_id'],
+
+                                    'check_loan'=>1,
+
+                                );
+
+                                $debit->createDebit($data_debit);
                             }
 
                         }
@@ -5356,7 +5482,7 @@ Class shipmentController Extends baseController {
 
                     foreach ($shipment_cost_list as $v) {
 
-
+                        $cost_type = $cost_list_model->getCost($v['cost_list']);
 
                         $data_cost = array(
 
@@ -5401,6 +5527,7 @@ Class shipmentController Extends baseController {
                         if ($data_cost['receiver'] > 0) {
 
                             $chiphi += trim(str_replace(',','',$v['cost']));
+                            $loinhuan -= trim(str_replace(',','',$v['cost']));
 
                         }
 
@@ -5444,21 +5571,22 @@ Class shipmentController Extends baseController {
 
                                     $debit->createDebit($data_debit);
 
+                                    if ($cost_type->cost_list_type != 8) {
+                                        
+                                        $data_vat = array(
 
+                                            'in_out'=>1,
 
-                                    $data_vat = array(
+                                            'vat_number'=>$data_cost['cost_document'],
 
-                                        'in_out'=>1,
+                                            'vat_date'=>$data_cost['cost_document_date'],
 
-                                        'vat_number'=>$data_cost['cost_document'],
+                                            'shipment_cost'=>$id_shipment_cost,
 
-                                        'vat_date'=>$data_cost['cost_document_date'],
+                                        );
 
-                                        'shipment_cost'=>$id_shipment_cost,
-
-                                    );
-
-                                    $vat->createVAT($data_vat);
+                                        $vat->createVAT($data_vat);
+                                    }
 
                                 }
 
@@ -5486,119 +5614,39 @@ Class shipmentController Extends baseController {
 
                                 }
 
-                            }
+                                if ($cost_type->cost_list_type == 8) {
+                                    $data_debit = array(
 
+                                        'debit_date'=>$data['shipment_date'],
 
+                                        'customer'=>$data['customer'],
 
-                        }
+                                        'money'=>$data_cost['cost'],
 
+                                        'money_vat'=>0,
 
+                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].')',
 
-                        else if ($v['shipment_cost_id'] > 0) {
+                                        'check_debit'=>1,
 
-                            $check = $shipment_cost_model->getShipment($v['shipment_cost_id']);
+                                        'shipment_cost'=>$id_shipment_cost,
 
-                            $shipment_cost_model->updateShipment($data_cost,array('shipment_cost_id'=>$v['shipment_cost_id']));
+                                        'check_loan'=>1,
 
+                                    );
 
+                                    $debit->createDebit($data_debit);
+                                }
 
-                            
+                                $vat_sum = round($data_cost['cost']/1.1);
+                                $vat_price = $data_cost['cost']-round($data_cost['cost']/1.1);
 
-                            if ($data_cost['check_vat'] == 1) {
+                                $vat->updateVAT(array('vat_sum'=>$vat_sum,'vat_price'=>$vat_price),array('shipment_cost' => $id_shipment_cost));
 
-                                $data_debit = array(
-
-                                    'debit_date'=>$data['shipment_date'],
-
-                                    'customer'=>$data_cost['receiver'],
-
-                                    'money'=>round($data_cost['cost']/1.1),
-
-                                    'money_vat_price'=>$data_cost['cost']-round($data_cost['cost']/1.1),
-
-                                    'money_vat'=>$data_cost['check_vat'],
-
-                                    'comment'=>$data_cost['comment'],
-
-                                    'check_debit'=>2,
-
-                                    'shipment_cost'=>$v['shipment_cost_id'],
-
-                                );
-
-                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id']));
-
-                            }
-
-                            else{
-
-                                $data_debit = array(
-
-                                    'debit_date'=>$data['shipment_date'],
-
-                                    'customer'=>$data_cost['receiver'],
-
-                                    'money'=>$data_cost['cost'],
-
-                                    'money_vat_price'=>0,
-
-                                    'money_vat'=>$data_cost['check_vat'],
-
-                                    'comment'=>$data_cost['comment'],
-
-                                    'check_debit'=>2,
-
-                                    'shipment_cost'=>$v['shipment_cost_id'],
-
-                                );
-
-                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id']));
 
                             }
 
 
-
-                            if ($check->check_vat == 1 && $data_cost['check_vat'] == 1) {
-
-                                 $data_vat = array(
-
-                                    'in_out'=>1,
-
-                                    'vat_number'=>$data_cost['cost_document'],
-
-                                    'vat_date'=>$data_cost['cost_document_date'],
-
-                                    'shipment_cost'=>$v['shipment_cost_id'],
-
-                                );
-
-                                $vat->updateVAT($data_vat,array('shipment_cost'=>$v['shipment_cost_id']));
-
-                            }
-
-                            else if ($check->check_vat == 1 && $data_cost['check_vat'] != 1) {
-
-                                $vat->queryVAT('DELETE FROM vat WHERE shipment_cost = '.$v['shipment_cost_id']);
-
-                            }
-
-                            else if ($check->check_vat != 1 && $data_cost['check_vat'] == 1) {
-
-                                 $data_vat = array(
-
-                                    'in_out'=>1,
-
-                                    'vat_number'=>$data_cost['cost_document'],
-
-                                    'vat_date'=>$data_cost['cost_document_date'],
-
-                                    'shipment_cost'=>$v['shipment_cost_id'],
-
-                                );
-
-                                $vat->createVAT($data_vat);
-
-                            }
 
                         }
 
@@ -5609,6 +5657,8 @@ Class shipmentController Extends baseController {
 
 
                     $data['shipment_cost'] = $chiphi;
+
+                    $data['shipment_profit'] = $loinhuan;
 
 
 
@@ -5802,7 +5852,7 @@ Class shipmentController Extends baseController {
 
 
 
-                $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$ship->shipment_from.' AND road_to = '.$ship->shipment_to));
+                $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
 
 
 
@@ -5850,7 +5900,7 @@ Class shipmentController Extends baseController {
 
 
 
-                $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$ship->shipment_from.' AND road_to = '.$ship->shipment_to));
+                $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
 
 
 
@@ -6094,7 +6144,7 @@ Class shipmentController Extends baseController {
 
 
 
-            echo $road->way;
+            echo $road->way?$road->way:0;
 
 
 
@@ -8647,7 +8697,7 @@ Class shipmentController Extends baseController {
             $shipment = $this->model->get('shipmentModel');
             $debit = $this->model->get('debitModel');
 
-
+            $ship = $shipment->getShipment($_POST['data']);
 
             $data = array(
 
@@ -8677,6 +8727,10 @@ Class shipmentController Extends baseController {
 
                 'bill_out' => strtotime(trim($_POST['bill_delivery_date']).' '.trim($_POST['bill_out'])),
 
+                'shipment_revenue' => round($ship->shipment_charge*trim($_POST['bill_delivery_ton']))+$ship->shipment_charge_excess,
+
+                'shipment_profit' => (round($ship->shipment_charge*trim($_POST['bill_delivery_ton']))+$ship->shipment_charge_excess)-$ship->shipment_cost,
+
             );
 
 
@@ -8685,7 +8739,7 @@ Class shipmentController Extends baseController {
 
             $d = $debit->getDebitByWhere(array('shipment'=>$_POST['data']));
 
-            $debit->updateDebit(array('comment'=>$d->comment.' - '.$data['bill_number']),array('shipment'=>$_POST['data']));
+            $debit->updateDebit(array('money'=>$data['shipment_revenue'],'comment'=>$d->comment.' - '.$data['bill_number']),array('shipment'=>$_POST['data']));
 
 
 
@@ -9513,7 +9567,7 @@ Class shipmentController Extends baseController {
 
 
 
-            $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$shipment->shipment_from.' AND road_to = '.$shipment->shipment_to.' AND start_time <= '.$shipment->shipment_date.' AND end_time >= '.$shipment->shipment_date),$r_join);
+            $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$shipment->route.')'),$r_join);
 
 
 
@@ -11269,7 +11323,7 @@ Class shipmentController Extends baseController {
 
 
 
-            $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$shipment->shipment_from.' AND road_to = '.$shipment->shipment_to.' AND start_time <= '.$shipment->shipment_date.' AND end_time >= '.$shipment->shipment_date));
+            $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$shipment->route.')'));
 
 
 
@@ -12499,7 +12553,7 @@ Class shipmentController Extends baseController {
 
 
 
-                    $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$shipment->shipment_from.' AND road_to = '.$shipment->shipment_to.' AND start_time <= '.$shipment->shipment_date.' AND end_time >= '.$shipment->shipment_date),$r_join);
+                    $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$shipment->route.')'),$r_join);
 
 
 

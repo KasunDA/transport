@@ -53,6 +53,10 @@ Class receivableController Extends baseController {
 
         $this->view->data['trangthai'] = $trangthai;
 
+        $this->view->data['page'] = $page;
+        $this->view->data['order_by'] = $order_by;
+        $this->view->data['order'] = $order;
+
 
         $debit_model = $this->model->get('debitModel');
         $debit_pay_model = $this->model->get('debitpayModel');

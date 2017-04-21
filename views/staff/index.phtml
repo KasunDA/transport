@@ -81,8 +81,8 @@ elseif ($order_by == 'department_name')
 <table class="table_data" id="tblExport">
 <thead>
     <tr>
-    	<th rowspan="2" class="fix"><input type="checkbox" onclick="checkall('checkbox', this)" name="checkall"/></th>
-        <th rowspan="2" class="fix">
+    	<th class="fix"><input type="checkbox" onclick="checkall('checkbox', this)" name="checkall"/></th>
+        <th class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','staff_id','<?php echo $url_order ?>')">STT <?php if ($order_by == 'staff_id'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">

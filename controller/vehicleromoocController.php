@@ -153,13 +153,49 @@ Class vehicleromoocController Extends baseController {
 
         $this->view->data['title'] = 'Quản lý xe';
 
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $vehicle = isset($_POST['vehicle']) ? $_POST['vehicle'] : null;
+
+            $romooc = isset($_POST['romooc']) ? $_POST['romooc'] : null;
+
+        }
+
+        else{
+
+            $vehicle = 0;
+
+            $romooc = 0;
+
+        }
+
+        $this->view->data['xe'] = $vehicle;
+        $this->view->data['mooc'] = $romooc;
+
+
         $vehicle_model = $this->model->get('vehicleModel');
         $vehicles = $vehicle_model->getAllVehicle(array('order_by'=>'vehicle_number','order'=>'ASC'));
+        $this->view->data['vehicle_lists'] = $vehicles;
+
+        $data = array('order_by'=>'vehicle_number','order'=>'ASC');
+        if ($vehicle > 0) {
+            $data = array('where'=>'vehicle_id = '.$vehicle);
+        }
+        $vehicles = $vehicle_model->getAllVehicle($data);
         $this->view->data['vehicles'] = $vehicles;
 
         $romooc_model = $this->model->get('romoocModel');
         $romoocs = $romooc_model->getAllVehicle(array('order_by'=>'romooc_number','order'=>'ASC'));
+        $this->view->data['romooc_lists'] = $romoocs;
+
+        $data = array('order_by'=>'romooc_number','order'=>'ASC');
+        if ($romooc > 0) {
+            $data = array('where'=>'romooc_id = '.$romooc);
+        }
+        $romoocs = $romooc_model->getAllVehicle($data);
         $this->view->data['romoocs'] = $romoocs;
+
+        
 
         $vehicleromooc_model = $this->model->get('vehicleromoocModel');
         $join = array('table'=>'vehicle, romooc','where'=>'vehicle = vehicle_id AND romooc = romooc_id');

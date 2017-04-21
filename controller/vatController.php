@@ -108,6 +108,9 @@ Class vatController Extends baseController {
         $import_stock_model = $this->model->get('importstockModel');
         $import_stock_cost_model = $this->model->get('importstoccostkModel');
         $toll_cost_model = $this->model->get('tollcostModel');
+        $road_cost_model = $this->model->get('roadcostModel');
+        $checking_cost_model = $this->model->get('checkingcostModel');
+        $insurance_cost_model = $this->model->get('insurancecostModel');
 
         $data_customer = array();
         foreach ($vats as $vat) {
@@ -157,6 +160,42 @@ Class vatController Extends baseController {
                     $data_customer[$vat->vat_id]['link'] = BASE_URL.'/toll/index/'.$cost->toll;
                     $data_customer[$vat->vat_id]['name'] = $cost->toll_name;
                     $data_customer[$vat->vat_id]['mst'] = $cost->toll_mst;
+                }
+            }
+            else if ($vat->road_cost > 0) {
+                $join = array('table'=>'customer','where'=>'customer = customer_id');
+                $data = array(
+                    'where'=>'road_cost_id = '.$vat->road_cost,
+                );
+                $costs = $road_cost_model->getAllCost($data,$join);
+                foreach ($costs as $cost) {
+                    $data_customer[$vat->vat_id]['link'] = BASE_URL.'/customer/editcus/'.$cost->customer;
+                    $data_customer[$vat->vat_id]['name'] = $cost->customer_name;
+                    $data_customer[$vat->vat_id]['mst'] = $cost->customer_mst;
+                }
+            }
+            else if ($vat->checking_cost > 0) {
+                $join = array('table'=>'customer','where'=>'customer = customer_id');
+                $data = array(
+                    'where'=>'checking_cost_id = '.$vat->checking_cost,
+                );
+                $costs = $checking_cost_model->getAllCost($data,$join);
+                foreach ($costs as $cost) {
+                    $data_customer[$vat->vat_id]['link'] = BASE_URL.'/customer/editcus/'.$cost->customer;
+                    $data_customer[$vat->vat_id]['name'] = $cost->customer_name;
+                    $data_customer[$vat->vat_id]['mst'] = $cost->customer_mst;
+                }
+            }
+            else if ($vat->insurance_cost > 0) {
+                $join = array('table'=>'customer','where'=>'customer = customer_id');
+                $data = array(
+                    'where'=>'insurance_cost_id = '.$vat->insurance_cost,
+                );
+                $costs = $insurance_cost_model->getAllCost($data,$join);
+                foreach ($costs as $cost) {
+                    $data_customer[$vat->vat_id]['link'] = BASE_URL.'/customer/editcus/'.$cost->customer;
+                    $data_customer[$vat->vat_id]['name'] = $cost->customer_name;
+                    $data_customer[$vat->vat_id]['mst'] = $cost->customer_mst;
                 }
             }
         }

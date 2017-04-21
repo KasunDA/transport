@@ -44,6 +44,8 @@ Class repairController Extends baseController {
         $vong = (int)date('m',strtotime($batdau));
 
         $trangthai = date('Y',strtotime($batdau));
+
+        $id = $this->registry->router->param_id;
         
         $vehicle_model = $this->model->get('vehicleModel');
         $vehicles = $vehicle_model->getAllVehicle(array('order_by'=>'vehicle_number','order'=>'ASC'));
@@ -78,7 +80,10 @@ Class repairController Extends baseController {
             'where' => 'repair_date >= '.strtotime($batdau).' AND repair_date < '.strtotime($ngayketthuc),
         );
 
-        
+        if (isset($id) && $id > 0) {
+            $data['where'] = 'repair_id = '.$id;
+        }
+
         $tongsodong = count($repair_model->getAllRepair($data,$join));
         $tongsotrang = ceil($tongsodong / $sonews);
         
@@ -106,11 +111,13 @@ Class repairController Extends baseController {
             'where' => 'repair_date >= '.strtotime($batdau).' AND repair_date < '.strtotime($ngayketthuc),
             );
 
-       
+       if (isset($id) && $id > 0) {
+            $data['where'] = 'repair_id = '.$id;
+        }
         
         if ($keyword != '') {
             $search = ' AND ( repair_code LIKE "%'.$keyword.'%" 
-                        OR username LIKE "%'.$keyword.'%" )';
+                        OR staff_name LIKE "%'.$keyword.'%" )';
             $data['where'] .= $search;
         }
         

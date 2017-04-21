@@ -192,7 +192,7 @@ Class tollcostController Extends baseController {
         $bridge_cost_model = $this->model->get('bridgecostModel');
 
         $shipments = $shipment_model->getShipment($id);
-        $roads = $road_model->queryRoad('SELECT * FROM road WHERE road_from = '.$shipments->shipment_from.' AND road_to = '.$shipments->shipment_to.' AND start_time <= '.$shipments->shipment_date.' AND end_time >= '.$shipments->shipment_date);
+        $roads = $road_model->queryRoad('SELECT * FROM road WHERE road_id IN ('.$shipments->route.')');
         $data = array(
             'where'=>'shipment = '.$id,
         );

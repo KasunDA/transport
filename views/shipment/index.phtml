@@ -94,6 +94,10 @@ elseif ($order_by == 'oil_excess')
 
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
 
+elseif ($order_by == 'bill_number')
+
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+
 
 
     $i = $sonews*$page-($sonews-1);
@@ -296,15 +300,25 @@ elseif ($order_by == 'oil_excess')
 
         <th  class="fix">
 
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_round','<?php echo $url_order ?>')">Vòng chạy <?php if ($order_by == 'shipment_round'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_round','<?php echo $url_order ?>')">Vòng <?php if ($order_by == 'shipment_round'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
 
         </th>
 
-        
+        <th  class="fix">
+
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','bill_number','<?php echo $url_order ?>')">Số DO <?php if ($order_by == 'bill_number'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
 
         <th  class="fix">
 
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_date','<?php echo $url_order ?>')">Ngày <?php if ($order_by == 'shipment_date'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+
+        <th  class="fix">
+
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','vehicle','<?php echo $url_order ?>')">Tài xế <?php if ($order_by == 'vehicle'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
 
         </th>
 
@@ -413,7 +427,14 @@ elseif ($order_by == 'oil_excess')
     <?php foreach ($shipments as $shipment) : ?>
 
     
-
+    <?php
+        $dau_cost = isset($road['oil_cost'][$shipment->shipment_id])?$road['oil_cost'][$shipment->shipment_id]:0;
+        $dau = isset($road['road_oil'][$shipment->shipment_id])?$road['road_oil'][$shipment->shipment_id]:0;
+        $boiduong = isset($warehouse['boiduong_cn'][$shipment->shipment_id])?$warehouse['boiduong_cn'][$shipment->shipment_id]:0;
+        $cau = isset($road['bridge_cost'][$shipment->shipment_id])?$road['bridge_cost'][$shipment->shipment_id]:0;
+        $ca = isset($road['police_cost'][$shipment->shipment_id])?$road['police_cost'][$shipment->shipment_id]:0;
+        $vo = isset($road['tire_cost'][$shipment->shipment_id])?$road['tire_cost'][$shipment->shipment_id]:0;
+    ?>
     
 
         <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" data="<?php echo $shipment->vehicle_id.$shipment->shipment_round ?>" id="<?php echo $shipment->shipment_id ?>" class="edit_tr" alt="<?php echo $shipment->shipment_complete ?>" tabindex="<?php echo $shipment->approve_oil ?>" title="<?php echo $shipment->shipment_sub ?>" >
@@ -432,9 +453,11 @@ elseif ($order_by == 'oil_excess')
 
             <td class="fix" id="shipment_round_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_round; ?></td>
 
-
+            <td class="fix" id="bill_number_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->bill_number; ?></td>
 
             <td class="fix" id="shipment_date_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment->shipment_date); ?></td>
+
+            <td class="fix" ><?php echo isset($driver_data[$shipment->shipment_id]['driver_name'])?$driver_data[$shipment->shipment_id]['driver_name']:null; ?></td>
 
             <td class="fix" data="<?php echo $shipment->vehicle; ?>" id="vehicle_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('vehicle/index/'.$shipment->vehicle) ?>" ><?php echo $shipment->vehicle_number; ?></a></td>
 
@@ -478,13 +501,13 @@ elseif ($order_by == 'oil_excess')
 
 
 
-            <td class="fix" style="display:none" ><?php echo $lib->formatMoney($road['road_oil'][$shipment->shipment_id]); ?></td>
+            <td class="fix" style="display:none" ><?php echo $lib->formatMoney($dau); ?></td>
 
-            <td class="fix" style="display:none" ><?php echo $lib->formatMoney($road['oil_cost'][$shipment->shipment_id]); ?></td>
+            <td class="fix" style="display:none" ><?php echo $lib->formatMoney($dau_cost); ?></td>
 
             
 
-            <td class="fix" style="display:none" ><?php echo $lib->formatMoney($warehouse['boiduong_cn'][$shipment->shipment_id]+$road['bridge_cost'][$shipment->shipment_id]+$road['police_cost'][$shipment->shipment_id]+$road['tire_cost'][$shipment->shipment_id]+$shipment->bridge_cost_add); ?></td>
+            <td class="fix" style="display:none" ><?php echo $lib->formatMoney($boiduong+$cau+$ca+$vo+$shipment->bridge_cost_add); ?></td>
 
 
 
@@ -590,7 +613,9 @@ elseif ($order_by == 'oil_excess')
 
                     <button title="Phiếu giao nhận vận chuyển" class="btn btn-sm btn-flat btn-primary editButton" data="<?php echo $shipment->shipment_id; ?>" data-receive-date="<?php echo $shipment->bill_receive_date>0?date('d-m-Y',$shipment->bill_receive_date):date('d-m-Y',$shipment->shipment_date); ?>" data-receive-ton="<?php echo $shipment->bill_receive_ton>0?$shipment->bill_receive_ton:$shipment->shipment_ton_net; ?>" data-receive-unit="<?php echo $shipment->bill_receive_unit>0?$shipment->bill_receive_unit:$shipment->cont_unit_net; ?>" data-bill="<?php echo $shipment->bill_number; ?>" data-delivery-date="<?php echo $shipment->bill_delivery_date>0?date('d-m-Y',$shipment->bill_delivery_date):null; ?>" data-delivery-ton="<?php echo $shipment->bill_delivery_ton; ?>" data-delivery-unit="<?php echo $shipment->bill_delivery_unit; ?>" data-date-in="<?php echo $shipment->bill_in>0?date('H:i:s',$shipment->bill_in):null; ?>" data-date-out="<?php echo $shipment->bill_out>0?date('H:i:s',$shipment->bill_out):null; ?>" ><i class="fa fa-file-text-o"></i> D.O</button>
 
+                    <?php if($shipment->approve_oil != 1){ ?>
                     <button class="btn btn-sm btn-flat btn-success editButton2" data="<?php echo $shipment->shipment_id; ?>" data-oil="<?php echo $shipment->shipment_oil ?>" data-export="<?php echo $export_stocks[$shipment->shipment_id] ?>" ><i class="fa fa-flask"></i> Dầu</button>
+                    <?php } ?>
 
                     <button class="hoantat btn btn-sm btn-flat btn-default" data="<?php echo $shipment->shipment_id ?>" ><i class="fa fa-check"></i> Hoàn tất</button>
 
@@ -652,12 +677,7 @@ elseif ($order_by == 'oil_excess')
 
         $nam = $year;
 
-        $dau_cost = isset($road['oil_cost'][$shipment->shipment_id])?$road['oil_cost'][$shipment->shipment_id]:0;
-        $dau = isset($road['road_oil'][$shipment->shipment_id])?$road['road_oil'][$shipment->shipment_id]:0;
-        $boiduong = isset($warehouse['boiduong_cn'][$shipment->shipment_id])?$warehouse['boiduong_cn'][$shipment->shipment_id]:0;
-        $cau = isset($road['bridge_cost'][$shipment->shipment_id])?$road['bridge_cost'][$shipment->shipment_id]:0;
-        $ca = isset($road['police_cost'][$shipment->shipment_id])?$road['police_cost'][$shipment->shipment_id]:0;
-        $vo = isset($road['tire_cost'][$shipment->shipment_id])?$road['tire_cost'][$shipment->shipment_id]:0;
+        
 
         $v[$shipment->vehicle.$shipment->shipment_round.$month.$year] = isset($v[$shipment->vehicle.$shipment->shipment_round.$month.$year])?($v[$shipment->vehicle.$shipment->shipment_round.$month.$year] + 1) : (0+1) ;
 
@@ -705,7 +725,7 @@ elseif ($order_by == 'oil_excess')
 
                 <tr  style="font-weight: bold; color: rgb(23, 119, 226);background-color: rgb(222, 239, 236);" >
 
-                    <td class="fix" colspan="11" ></td>
+                    <td class="fix" colspan="13" ></td>
 
                     <th style="background: rgb(23, 119, 226); color: white; border-right: 1px solid rgb(236, 235, 235);border-top: 1px solid #80C8E5;padding: 7px;" colspan="2">
 
@@ -7965,6 +7985,8 @@ function addRow(tableID){
 
     $('.cost_document:last').val("");
 
+    $('.cost_document_date:last').val("");
+
     $('.check_vat:last').attr('checked',false);
 
     
@@ -8303,6 +8325,8 @@ function addRow2(tableID){
 
     $('.cost_document_sub:last').val("");
 
+    $('.cost_document_date_sub:last').val("");
+
     $('.check_vat_sub:last').attr('checked',false);
 
     
@@ -8635,4 +8659,16 @@ var pickerOpay2 = {
 
     $(".ngay").datepicker(pickerOpay2);
 
+
+
 </script>
+
+<style type="text/css">
+.table_data td{
+    font-size: 11px;
+}
+.btn-sm {
+    padding: 5px;
+    font-size: 10px;
+}
+</style>

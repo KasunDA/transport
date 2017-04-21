@@ -133,7 +133,7 @@
 
                     if ($nodauky > 0 || $codauky > 0 || $nophatsinh > 0 || $cophatsinh > 0) {
                 ?>
-                    <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $customer_id ?>" class="edit_tr">
+                    <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $customer->customer_id ?>" class="edit_tr">
                         <td class="fix"><?php echo $i++; ?></td>
                         <td class="fix"  id="customer_code_<?php echo $customer->customer_id; ?>"><a target="_blank" href="<?php echo $this->url('customer/index/'.$customer->customer_id) ?>" ><?php echo $customer->customer_code ?></a></td>
                         <td class="fix"  id="customer_name_<?php echo $customer->customer_id; ?>"><?php echo $customer->customer_name ?></td>
@@ -229,7 +229,7 @@
 
                     if ($nodauky > 0 || $codauky > 0 || $nophatsinh > 0 || $cophatsinh > 0) {
                 ?>
-                    <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $staff_id ?>" class="edit_tr">
+                    <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $staff->staff_id ?>" class="edit_tr">
                         <td class="fix"><?php echo $i++; ?></td>
                         <td class="fix"  id="staff_code_<?php echo $staff->staff_id; ?>"><a target="_blank" href="<?php echo $this->url('staff/index/'.$staff->staff_id) ?>" ><?php echo $staff->staff_code ?></a></td>
                         <td class="fix"  id="staff_name_<?php echo $staff->staff_id; ?>"><?php echo $staff->staff_name ?></td>
@@ -325,7 +325,7 @@
 
                     if ($nodauky > 0 || $codauky > 0 || $nophatsinh > 0 || $cophatsinh > 0) {
                 ?>
-                    <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $steersman_id ?>" class="edit_tr">
+                    <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $steersman->steersman_id ?>" class="edit_tr">
                         <td class="fix"><?php echo $i++; ?></td>
                         <td class="fix"  id="steersman_code_<?php echo $steersman->steersman_id; ?>"><a target="_blank" href="<?php echo $this->url('steersman/index/'.$steersman->steersman_id) ?>" ><?php echo $steersman->steersman_code ?></a></td>
                         <td class="fix"  id="steersman_name_<?php echo $steersman->steersman_id; ?>"><?php echo $steersman->steersman_name ?></td>
@@ -421,7 +421,7 @@
 
                     if ($nodauky > 0 || $codauky > 0 || $nophatsinh > 0 || $cophatsinh > 0) {
                 ?>
-                    <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $toll_id ?>" class="edit_tr">
+                    <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $toll->toll_id ?>" class="edit_tr">
                         <td class="fix"><?php echo $i++; ?></td>
                         <td class="fix"  id="toll_name_<?php echo $toll->toll_id; ?>"><a target="_blank" href="<?php echo $this->url('toll/index/'.$toll->toll_id) ?>" ><?php echo $toll->toll_name ?></a></td>
                         <td class="fix"  id="toll_mst_<?php echo $toll->toll_id; ?>"><?php echo $toll->toll_mst ?></td>

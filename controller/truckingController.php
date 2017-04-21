@@ -63,10 +63,10 @@ Class truckingController Extends baseController {
         $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
 
         $contunit_model = $this->model->get('contunitModel');
-        $loanunit_model = $this->model->get('loanunitModel');
+        $cost_list_model = $this->model->get('costlistModel');
 
         $this->view->data['cont_units'] = $contunit_model->getAllUnit();
-        $this->view->data['loan_units'] = $loanunit_model->getAllUnit();
+        $this->view->data['loan_units'] = $cost_list_model->getAllCost(array('where'=>'cost_list_type = 8'));
 
 
         $place_model = $this->model->get('placeModel');
@@ -285,7 +285,7 @@ Class truckingController Extends baseController {
 
         $export_stock_model = $this->model->get('exportstockModel');
 
-        $loan_shiment_model = $this->model->get('loanshipmentModel');
+        $shipment_cost_model = $this->model->get('shipmentcostModel');
 
         $customer_types = array();
 
@@ -300,9 +300,10 @@ Class truckingController Extends baseController {
 
         foreach ($datas as $ship) {
 
-            $loans = $loan_shiment_model->getAllUnit(array('where'=>'shipment = '.$ship->shipment_id));
+            $loans = $shipment_cost_model->getAllShipment(array('where'=>'shipment = '.$ship->shipment_id),array('table'=>'cost_list','where'=>'cost_list = cost_list_id AND cost_list_type = 8'));
             foreach ($loans as $loan) {
-                $loan_shipment_data[$ship->shipment_id][$loan->loan_unit] = isset($loan_shipment_data[$ship->shipment_id][$loan->loan_unit])?$loan_shipment_data[$ship->shipment_id][$loan->loan_unit]+$loan->loan_cost:$loan->loan_cost;
+                $loan_shipment_data[$ship->shipment_id][$loan->cost_list] = isset($loan_shipment_data[$ship->shipment_id][$loan->cost_list])?$loan_shipment_data[$ship->shipment_id][$loan->cost_list]+$loan->cost:$loan->cost;
+                
             }
 
             $d_data = array(
@@ -328,7 +329,7 @@ Class truckingController Extends baseController {
             }
 
 
-           $roads = $road_model->getAllRoad(array('where'=>'road_from = '.$ship->shipment_from.' AND road_to = '.$ship->shipment_to.' AND start_time <= '.$ship->shipment_date.' AND end_time >= '.$ship->shipment_date));
+           $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
 
             
 
@@ -375,6 +376,11 @@ Class truckingController Extends baseController {
 
 
 
+            }
+
+            $cas = $shipment_cost_model->getAllShipment(array('where'=>'shipment = '.$ship->shipment_id),array('table'=>'cost_list','where'=>'cost_list = cost_list_id AND cost_list_type = 10'));
+            foreach ($cas as $ca) {
+                $road_data['police_cost'][$ship->shipment_id] = isset($road_data['police_cost'][$ship->shipment_id])?$road_data['police_cost'][$ship->shipment_id]+$ca->cost:$ca->cost;
             }
 
 
