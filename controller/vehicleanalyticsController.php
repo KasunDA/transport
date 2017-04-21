@@ -75,7 +75,7 @@ Class vehicleanalyticsController Extends baseController {
             );
 
         if ($xe > 0) {
-            $data['where'] .= ' AND vehicle_id = '.$id;
+            $data['where'] .= ' AND vehicle_id = '.$xe;
         }
         
         if ($keyword != '') {
@@ -93,7 +93,7 @@ Class vehicleanalyticsController Extends baseController {
             );
 
         if ($mooc > 0) {
-            $data['where'] .= ' AND romooc_id = '.$id;
+            $data['where'] .= ' AND romooc_id = '.$mooc;
         }
         
         if ($keyword != '') {
