@@ -37,7 +37,7 @@ elseif ($order_by == 'romooc')
         <input type="search" id="search-input" name="s" value="<?php echo isset($keyword)?$keyword:null; ?>" placeholder="Tìm kiếm">
         <input type="button" name="" id="search-submit" class="button-search" value="Tìm kiếm" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">
         <?php if(!isset($disable_control)){ ?>
-        <div class="add-box"><a class="add_button" id="btnExport" ><i class="fa fa-download"></i> Xuất</a></div>
+        <div class="add-box"><a class="add_button" id="export_excel" href="<?= $this->url('repair/export/'.strtotime($batdau).'/'.strtotime($ketthuc).'/'.$xe.'/'.$mooc)?>" ><i class="fa fa-download"></i> Xuất</a></div>
         <div class="add-box"><a class="add_button" onClick="add_click();"><i class="fa fa-plus"></i> Thêm mới</a></div>
         <?php } ?>
     </div>
@@ -75,6 +75,34 @@ elseif ($order_by == 'romooc')
 
       </div>
     <div class="tablenav top">
+      <div style="clear:both"></div>
+        
+        <div class="add-box">
+            <input type="button" name="chon" id="chon" value="Chọn" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">  
+        </div>
+        
+        <div class="add-box" style="margin-right: 5px">
+            <select name="sl_nv" id="sl_nv">
+                <option selected="selected" value="0">Mooc</option>
+                <?php foreach ($romoocs as $sm) { ?>
+                <option value="<?php echo $sm->romooc_id ?>"><?php echo $sm->romooc_number ?></option>
+                <?php } ?>
+            </select>
+
+            
+            
+        </div>
+        <div class="add-box" style="margin-right: 5px">
+            <select name="sl_vehicle" id="sl_vehicle">
+                <option selected="selected" value="0">Xe</option>
+                <?php foreach ($vehicles as $sm) { ?>
+                <option value="<?php echo $sm->vehicle_id ?>"><?php echo $sm->vehicle_number ?></option>
+                <?php } ?>
+            </select>
+
+            
+            
+        </div>
         <?php if(!isset($disable_control)){ ?>
         <div class="alignleft actions">
             <select name="action" id="action">
@@ -836,6 +864,12 @@ $('#sl_round option[value='+v+']').attr('selected','selected');
 
 var tt = "<?php echo $trangthai ?>";
 $('#sl_staff option[value='+tt+']').attr('selected','selected');
+
+var x = "<?php echo $xe ?>";
+$('#sl_vehicle option[value='+x+']').attr('selected','selected');
+
+var m = "<?php echo $mooc ?>";
+$('#sl_nv option[value='+m+']').attr('selected','selected');
 
 </script>
 <script type="text/javascript">

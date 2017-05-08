@@ -149,7 +149,594 @@ Class payableController Extends baseController {
         $this->view->show('payable/index');
     }
 
-   
+   public function customer() {
+        $this->view->setLayout('admin');
+        if (!isset($_SESSION['userid_logined'])) {
+            return $this->view->redirect('user/login');
+        }
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+            $this->view->data['disable_control'] = 1;
+        }
+        $this->view->data['lib'] = $this->lib;
+        $this->view->data['title'] = 'Phải trả khách hàng';
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $order_by = isset($_POST['order_by']) ? $_POST['order_by'] : null;
+            $order = isset($_POST['order']) ? $_POST['order'] : null;
+            $page = isset($_POST['page']) ? $_POST['page'] : null;
+            $keyword = isset($_POST['keyword']) ? $_POST['keyword'] : null;
+            $limit = isset($_POST['limit']) ? $_POST['limit'] : 18446744073709;
+            $batdau = isset($_POST['batdau']) ? $_POST['batdau'] : null;
+
+            $xe = isset($_POST['xe']) ? $_POST['xe'] : null;
+
+            $kh = isset($_POST['nv']) ? $_POST['nv'] : null;
+
+            $ketthuc = isset($_POST['ketthuc']) ? $_POST['ketthuc'] : null;
+            $vong = isset($_POST['vong']) ? $_POST['vong'] : null;
+
+            $trangthai = isset($_POST['staff']) ? $_POST['staff'] : null;
+        }
+        else{
+            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'debit_date';
+            $order = $this->registry->router->order_by ? $this->registry->router->order_by : 'ASC';
+            $page = $this->registry->router->page ? (int) $this->registry->router->page : 1;
+            $keyword = "";
+            $limit = 50;
+            $batdau = '01-'.date('m-Y');
+
+            $ketthuc = date('t-m-Y');
+
+            $xe = 0;
+
+            $kh = 0;
+
+            $vong = (int)date('m',strtotime($batdau));
+
+            $trangthai = date('Y',strtotime($batdau));
+        }
+
+        $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
+
+        $vong = (int)date('m',strtotime($batdau));
+
+        $trangthai = date('Y',strtotime($batdau));
+        
+        $id = $this->registry->router->param_id;
+
+
+
+        $customer_model = $this->model->get('customerModel');
+
+        $customers = $customer_model->getAllCustomer();
+
+        $this->view->data['customers'] = $customers;
+
+
+        $debit_model = $this->model->get('debitModel');
+
+        $join = array('table'=>'customer','where'=>'debit.customer=customer_id');
+
+        $sonews = $limit;
+        $x = ($page-1) * $sonews;
+        $pagination_stages = 2;
+
+        $data = array(
+            'where' => 'check_debit = 2 AND check_loan = 2 AND customer > 0 AND debit_date >= '.strtotime($batdau).' AND debit_date < '.strtotime($ngayketthuc),
+        );
+
+        if (isset($id) && $id > 0) {
+            $data['where'] .= ' AND debit_id = '.$id;
+        }
+
+        if($kh > 0){
+            $data['where'] = $data['where'].' AND debit.customer = '.$kh;
+        }
+
+        $tongsodong = count($debit_model->getAllDebit($data,$join));
+        $tongsotrang = ceil($tongsodong / $sonews);
+        
+
+        $this->view->data['page'] = $page;
+        $this->view->data['order_by'] = $order_by;
+        $this->view->data['order'] = $order;
+        $this->view->data['keyword'] = $keyword;
+        $this->view->data['pagination_stages'] = $pagination_stages;
+        $this->view->data['tongsotrang'] = $tongsotrang;
+        $this->view->data['sonews'] = $sonews;
+        $this->view->data['limit'] = $limit;
+        $this->view->data['batdau'] = $batdau;
+
+        $this->view->data['ketthuc'] = $ketthuc;
+
+        $this->view->data['vong'] = $vong;
+
+        $this->view->data['trangthai'] = $trangthai;
+
+        $this->view->data['kh'] = $kh;
+
+        $data = array(
+            'order_by'=>$order_by,
+            'order'=>$order,
+            'limit'=>$x.','.$sonews,
+            'where' => 'check_debit = 2 AND check_loan = 2 AND customer > 0 AND debit_date >= '.strtotime($batdau).' AND debit_date < '.strtotime($ngayketthuc),
+            );
+
+        if (isset($id) && $id > 0) {
+            $data['where'] .= ' AND debit_id = '.$id;
+        }
+        if($kh > 0){
+            $data['where'] = $data['where'].' AND debit.customer = '.$kh;
+        }
+        
+        if ($keyword != '') {
+            $search = ' AND ( customer_name LIKE "%'.$keyword.'%"  
+                        OR debit.comment LIKE "%'.$keyword.'%" 
+                        )';
+            $data['where'] .= $search;
+        }
+        
+        $debits = $debit_model->getAllDebit($data,$join);
+        $this->view->data['debits'] = $debits;
+
+        $debit_pay_model = $this->model->get('debitpayModel');
+
+        $debit_data = array();
+        foreach ($debits as $debit) {
+            $debit_pays = $debit_pay_model->getAllDebit(array('where'=>'debit = '.$debit->debit_id));
+            foreach ($debit_pays as $de) {
+                $debit_data[$debit->debit_id] = isset($debit_data[$debit->debit_id])?$debit_data[$debit->debit_id]+$de->debit_pay_money:$de->debit_pay_money;
+            }
+            
+        }
+
+
+        $this->view->data['debit_data'] = $debit_data;
+
+        
+        $this->view->show('payable/customer');
+    }
+    public function staff() {
+        $this->view->setLayout('admin');
+        if (!isset($_SESSION['userid_logined'])) {
+            return $this->view->redirect('user/login');
+        }
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+            $this->view->data['disable_control'] = 1;
+        }
+        $this->view->data['lib'] = $this->lib;
+        $this->view->data['title'] = 'Phải trả nhân viên';
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $order_by = isset($_POST['order_by']) ? $_POST['order_by'] : null;
+            $order = isset($_POST['order']) ? $_POST['order'] : null;
+            $page = isset($_POST['page']) ? $_POST['page'] : null;
+            $keyword = isset($_POST['keyword']) ? $_POST['keyword'] : null;
+            $limit = isset($_POST['limit']) ? $_POST['limit'] : 18446744073709;
+            $batdau = isset($_POST['batdau']) ? $_POST['batdau'] : null;
+
+            $xe = isset($_POST['xe']) ? $_POST['xe'] : null;
+
+            $kh = isset($_POST['nv']) ? $_POST['nv'] : null;
+
+            $ketthuc = isset($_POST['ketthuc']) ? $_POST['ketthuc'] : null;
+            $vong = isset($_POST['vong']) ? $_POST['vong'] : null;
+
+            $trangthai = isset($_POST['staff']) ? $_POST['staff'] : null;
+        }
+        else{
+            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'debit_date';
+            $order = $this->registry->router->order_by ? $this->registry->router->order_by : 'ASC';
+            $page = $this->registry->router->page ? (int) $this->registry->router->page : 1;
+            $keyword = "";
+            $limit = 50;
+            $batdau = '01-'.date('m-Y');
+
+            $ketthuc = date('t-m-Y');
+
+            $xe = 0;
+
+            $kh = 0;
+
+            $vong = (int)date('m',strtotime($batdau));
+
+            $trangthai = date('Y',strtotime($batdau));
+        }
+
+        $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
+
+        $vong = (int)date('m',strtotime($batdau));
+
+        $trangthai = date('Y',strtotime($batdau));
+        
+        $id = $this->registry->router->param_id;
+
+
+
+        $staff_model = $this->model->get('staffModel');
+
+        $staffs = $staff_model->getAllStaff();
+
+        $this->view->data['staffs'] = $staffs;
+
+
+        $debit_model = $this->model->get('debitModel');
+
+        $join = array('table'=>'staff','where'=>'debit.staff=staff_id');
+
+        $sonews = $limit;
+        $x = ($page-1) * $sonews;
+        $pagination_stages = 2;
+
+        $data = array(
+            'where' => 'check_debit = 2 AND check_loan = 2 AND staff > 0 AND debit_date >= '.strtotime($batdau).' AND debit_date < '.strtotime($ngayketthuc),
+        );
+
+        if (isset($id) && $id > 0) {
+            $data['where'] .= ' AND debit_id = '.$id;
+        }
+
+        if($kh > 0){
+            $data['where'] = $data['where'].' AND debit.staff = '.$kh;
+        }
+
+        $tongsodong = count($debit_model->getAllDebit($data,$join));
+        $tongsotrang = ceil($tongsodong / $sonews);
+        
+
+        $this->view->data['page'] = $page;
+        $this->view->data['order_by'] = $order_by;
+        $this->view->data['order'] = $order;
+        $this->view->data['keyword'] = $keyword;
+        $this->view->data['pagination_stages'] = $pagination_stages;
+        $this->view->data['tongsotrang'] = $tongsotrang;
+        $this->view->data['sonews'] = $sonews;
+        $this->view->data['limit'] = $limit;
+        $this->view->data['batdau'] = $batdau;
+
+        $this->view->data['ketthuc'] = $ketthuc;
+
+        $this->view->data['vong'] = $vong;
+
+        $this->view->data['trangthai'] = $trangthai;
+
+        $this->view->data['kh'] = $kh;
+
+        $data = array(
+            'order_by'=>$order_by,
+            'order'=>$order,
+            'limit'=>$x.','.$sonews,
+            'where' => 'check_debit = 2 AND check_loan = 2 AND staff > 0 AND debit_date >= '.strtotime($batdau).' AND debit_date < '.strtotime($ngayketthuc),
+            );
+
+        if (isset($id) && $id > 0) {
+            $data['where'] .= ' AND debit_id = '.$id;
+        }
+        if($kh > 0){
+            $data['where'] = $data['where'].' AND debit.staff = '.$kh;
+        }
+        
+        if ($keyword != '') {
+            $search = ' AND ( staff_name LIKE "%'.$keyword.'%"  
+                        OR debit.comment LIKE "%'.$keyword.'%" 
+                        )';
+            $data['where'] .= $search;
+        }
+        
+        $debits = $debit_model->getAllDebit($data,$join);
+        $this->view->data['debits'] = $debits;
+
+        $debit_pay_model = $this->model->get('debitpayModel');
+
+        $debit_data = array();
+        foreach ($debits as $debit) {
+            $debit_pays = $debit_pay_model->getAllDebit(array('where'=>'debit = '.$debit->debit_id));
+            foreach ($debit_pays as $de) {
+                $debit_data[$debit->debit_id] = isset($debit_data[$debit->debit_id])?$debit_data[$debit->debit_id]+$de->debit_pay_money:$de->debit_pay_money;
+            }
+            
+        }
+
+
+        $this->view->data['debit_data'] = $debit_data;
+
+        
+        $this->view->show('payable/staff');
+    }
+    public function steersman() {
+        $this->view->setLayout('admin');
+        if (!isset($_SESSION['userid_logined'])) {
+            return $this->view->redirect('user/login');
+        }
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+            $this->view->data['disable_control'] = 1;
+        }
+        $this->view->data['lib'] = $this->lib;
+        $this->view->data['title'] = 'Phải trả tài xế';
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $order_by = isset($_POST['order_by']) ? $_POST['order_by'] : null;
+            $order = isset($_POST['order']) ? $_POST['order'] : null;
+            $page = isset($_POST['page']) ? $_POST['page'] : null;
+            $keyword = isset($_POST['keyword']) ? $_POST['keyword'] : null;
+            $limit = isset($_POST['limit']) ? $_POST['limit'] : 18446744073709;
+            $batdau = isset($_POST['batdau']) ? $_POST['batdau'] : null;
+
+            $xe = isset($_POST['xe']) ? $_POST['xe'] : null;
+
+            $kh = isset($_POST['nv']) ? $_POST['nv'] : null;
+
+            $ketthuc = isset($_POST['ketthuc']) ? $_POST['ketthuc'] : null;
+            $vong = isset($_POST['vong']) ? $_POST['vong'] : null;
+
+            $trangthai = isset($_POST['staff']) ? $_POST['staff'] : null;
+        }
+        else{
+            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'debit_date';
+            $order = $this->registry->router->order_by ? $this->registry->router->order_by : 'ASC';
+            $page = $this->registry->router->page ? (int) $this->registry->router->page : 1;
+            $keyword = "";
+            $limit = 50;
+            $batdau = '01-'.date('m-Y');
+
+            $ketthuc = date('t-m-Y');
+
+            $xe = 0;
+
+            $kh = 0;
+
+            $vong = (int)date('m',strtotime($batdau));
+
+            $trangthai = date('Y',strtotime($batdau));
+        }
+
+        $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
+
+        $vong = (int)date('m',strtotime($batdau));
+
+        $trangthai = date('Y',strtotime($batdau));
+        
+        $id = $this->registry->router->param_id;
+
+
+
+        $steersman_model = $this->model->get('steersmanModel');
+
+        $steersmans = $steersman_model->getAllSteersman();
+
+        $this->view->data['steersmans'] = $steersmans;
+
+
+        $debit_model = $this->model->get('debitModel');
+
+        $join = array('table'=>'steersman','where'=>'debit.steersman=steersman_id');
+
+        $sonews = $limit;
+        $x = ($page-1) * $sonews;
+        $pagination_stages = 2;
+
+        $data = array(
+            'where' => 'check_debit = 2 AND check_loan = 2 AND steersman > 0 AND debit_date >= '.strtotime($batdau).' AND debit_date < '.strtotime($ngayketthuc),
+        );
+
+        if (isset($id) && $id > 0) {
+            $data['where'] .= ' AND debit_id = '.$id;
+        }
+
+        if($kh > 0){
+            $data['where'] = $data['where'].' AND debit.steersman = '.$kh;
+        }
+
+        $tongsodong = count($debit_model->getAllDebit($data,$join));
+        $tongsotrang = ceil($tongsodong / $sonews);
+        
+
+        $this->view->data['page'] = $page;
+        $this->view->data['order_by'] = $order_by;
+        $this->view->data['order'] = $order;
+        $this->view->data['keyword'] = $keyword;
+        $this->view->data['pagination_stages'] = $pagination_stages;
+        $this->view->data['tongsotrang'] = $tongsotrang;
+        $this->view->data['sonews'] = $sonews;
+        $this->view->data['limit'] = $limit;
+        $this->view->data['batdau'] = $batdau;
+
+        $this->view->data['ketthuc'] = $ketthuc;
+
+        $this->view->data['vong'] = $vong;
+
+        $this->view->data['trangthai'] = $trangthai;
+
+        $this->view->data['kh'] = $kh;
+
+        $data = array(
+            'order_by'=>$order_by,
+            'order'=>$order,
+            'limit'=>$x.','.$sonews,
+            'where' => 'check_debit = 2 AND check_loan = 2 AND steersman > 0 AND debit_date >= '.strtotime($batdau).' AND debit_date < '.strtotime($ngayketthuc),
+            );
+
+        if (isset($id) && $id > 0) {
+            $data['where'] .= ' AND debit_id = '.$id;
+        }
+        if($kh > 0){
+            $data['where'] = $data['where'].' AND debit.steersman = '.$kh;
+        }
+        
+        if ($keyword != '') {
+            $search = ' AND ( steersman_name LIKE "%'.$keyword.'%"  
+                        OR debit.comment LIKE "%'.$keyword.'%" 
+                        )';
+            $data['where'] .= $search;
+        }
+        
+        $debits = $debit_model->getAllDebit($data,$join);
+        $this->view->data['debits'] = $debits;
+
+        $debit_pay_model = $this->model->get('debitpayModel');
+
+        $debit_data = array();
+        foreach ($debits as $debit) {
+            $debit_pays = $debit_pay_model->getAllDebit(array('where'=>'debit = '.$debit->debit_id));
+            foreach ($debit_pays as $de) {
+                $debit_data[$debit->debit_id] = isset($debit_data[$debit->debit_id])?$debit_data[$debit->debit_id]+$de->debit_pay_money:$de->debit_pay_money;
+            }
+            
+        }
+
+
+        $this->view->data['debit_data'] = $debit_data;
+
+        
+        $this->view->show('payable/steersman');
+    }
+    public function toll() {
+        $this->view->setLayout('admin');
+        if (!isset($_SESSION['userid_logined'])) {
+            return $this->view->redirect('user/login');
+        }
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+            $this->view->data['disable_control'] = 1;
+        }
+        $this->view->data['lib'] = $this->lib;
+        $this->view->data['title'] = 'Phải trả phí cầu đường';
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $order_by = isset($_POST['order_by']) ? $_POST['order_by'] : null;
+            $order = isset($_POST['order']) ? $_POST['order'] : null;
+            $page = isset($_POST['page']) ? $_POST['page'] : null;
+            $keyword = isset($_POST['keyword']) ? $_POST['keyword'] : null;
+            $limit = isset($_POST['limit']) ? $_POST['limit'] : 18446744073709;
+            $batdau = isset($_POST['batdau']) ? $_POST['batdau'] : null;
+
+            $xe = isset($_POST['xe']) ? $_POST['xe'] : null;
+
+            $kh = isset($_POST['nv']) ? $_POST['nv'] : null;
+
+            $ketthuc = isset($_POST['ketthuc']) ? $_POST['ketthuc'] : null;
+            $vong = isset($_POST['vong']) ? $_POST['vong'] : null;
+
+            $trangthai = isset($_POST['staff']) ? $_POST['staff'] : null;
+        }
+        else{
+            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'debit_date';
+            $order = $this->registry->router->order_by ? $this->registry->router->order_by : 'ASC';
+            $page = $this->registry->router->page ? (int) $this->registry->router->page : 1;
+            $keyword = "";
+            $limit = 50;
+            $batdau = '01-'.date('m-Y');
+
+            $ketthuc = date('t-m-Y');
+
+            $xe = 0;
+
+            $kh = 0;
+
+            $vong = (int)date('m',strtotime($batdau));
+
+            $trangthai = date('Y',strtotime($batdau));
+        }
+
+        $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
+
+        $vong = (int)date('m',strtotime($batdau));
+
+        $trangthai = date('Y',strtotime($batdau));
+        
+        $id = $this->registry->router->param_id;
+
+
+
+        $toll_model = $this->model->get('tollModel');
+
+        $tolls = $toll_model->getAllToll();
+
+        $this->view->data['tolls'] = $tolls;
+
+
+        $debit_model = $this->model->get('debitModel');
+
+        $join = array('table'=>'toll','where'=>'debit.toll=toll_id');
+
+        $sonews = $limit;
+        $x = ($page-1) * $sonews;
+        $pagination_stages = 2;
+
+        $data = array(
+            'where' => 'check_debit = 2 AND check_loan = 2 AND toll > 0 AND debit_date >= '.strtotime($batdau).' AND debit_date < '.strtotime($ngayketthuc),
+        );
+
+        if (isset($id) && $id > 0) {
+            $data['where'] .= ' AND debit_id = '.$id;
+        }
+
+        if($kh > 0){
+            $data['where'] = $data['where'].' AND debit.toll = '.$kh;
+        }
+
+        $tongsodong = count($debit_model->getAllDebit($data,$join));
+        $tongsotrang = ceil($tongsodong / $sonews);
+        
+
+        $this->view->data['page'] = $page;
+        $this->view->data['order_by'] = $order_by;
+        $this->view->data['order'] = $order;
+        $this->view->data['keyword'] = $keyword;
+        $this->view->data['pagination_stages'] = $pagination_stages;
+        $this->view->data['tongsotrang'] = $tongsotrang;
+        $this->view->data['sonews'] = $sonews;
+        $this->view->data['limit'] = $limit;
+        $this->view->data['batdau'] = $batdau;
+
+        $this->view->data['ketthuc'] = $ketthuc;
+
+        $this->view->data['vong'] = $vong;
+
+        $this->view->data['trangthai'] = $trangthai;
+
+        $this->view->data['kh'] = $kh;
+
+        $data = array(
+            'order_by'=>$order_by,
+            'order'=>$order,
+            'limit'=>$x.','.$sonews,
+            'where' => 'check_debit = 2 AND check_loan = 2 AND toll > 0 AND debit_date >= '.strtotime($batdau).' AND debit_date < '.strtotime($ngayketthuc),
+            );
+
+        if (isset($id) && $id > 0) {
+            $data['where'] .= ' AND debit_id = '.$id;
+        }
+        if($kh > 0){
+            $data['where'] = $data['where'].' AND debit.toll = '.$kh;
+        }
+        
+        if ($keyword != '') {
+            $search = ' AND ( toll_name LIKE "%'.$keyword.'%"  
+                        OR debit.comment LIKE "%'.$keyword.'%" 
+                        )';
+            $data['where'] .= $search;
+        }
+        
+        $debits = $debit_model->getAllDebit($data,$join);
+        $this->view->data['debits'] = $debits;
+
+        $debit_pay_model = $this->model->get('debitpayModel');
+
+        $debit_data = array();
+        foreach ($debits as $debit) {
+            $debit_pays = $debit_pay_model->getAllDebit(array('where'=>'debit = '.$debit->debit_id));
+            foreach ($debit_pays as $de) {
+                $debit_data[$debit->debit_id] = isset($debit_data[$debit->debit_id])?$debit_data[$debit->debit_id]+$de->debit_pay_money:$de->debit_pay_money;
+            }
+            
+        }
+
+
+        $this->view->data['debit_data'] = $debit_data;
+
+        
+        $this->view->show('payable/toll');
+    }
 
 
 }

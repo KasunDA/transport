@@ -134,16 +134,16 @@ elseif ($order_by == 'status')
         <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','road_id','<?php echo $url_order ?>')">STT <?php if ($order_by == 'road_id'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
-        <th nowrap class="fix">
+        <th class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','road_from','<?php echo $url_order ?>')">Kho đi <?php if ($order_by == 'road_from'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
-        <th nowrap class="fix">
+        <th class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','road_to','<?php echo $url_order ?>')">Kho đến <?php if ($order_by == 'road_to'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
-        <th nowrap class="fix">
+        <th class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','route_from','<?php echo $url_order ?>')">Điểm đi <?php if ($order_by == 'route_from'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
-        <th nowrap class="fix">
+        <th class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','route_to','<?php echo $url_order ?>')">Điểm đến <?php if ($order_by == 'route_to'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         
@@ -155,6 +155,9 @@ elseif ($order_by == 'status')
         </th>
         <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','road_oil','<?php echo $url_order ?>')">Định mức dầu <?php if ($order_by == 'road_oil'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+        </th>
+        <th  class="fix">
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','road_oil_ton','<?php echo $url_order ?>')">Định mức dầu (tấn) <?php if ($order_by == 'road_oil_ton'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','bridge_cost','<?php echo $url_order ?>')">Cầu đường <?php if ($order_by == 'bridge_cost'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
@@ -195,9 +198,9 @@ elseif ($order_by == 'status')
     <?php foreach ($road_warehouses as $r) : ?>
     <tr style="font-weight: bold; color: rgb(23, 119, 226);background-color: rgb(222, 239, 236);">
       <td colspan="2" class="fix"><?php echo $i++; ?></td>
-      <td nowrap class="fix" data="<?php echo $r->road_from; ?>" ><a target="_blank" href="<?php echo $this->url('place/view/'.$r->road_from) ?>" ><?php echo $r->road_from==$place['place_id'][$r->road_from]?$place['place_name'][$r->road_from]:null ?></a></td>
-      <td nowrap class="fix" data="<?php echo $r->road_to; ?>" ><a target="_blank" href="<?php echo $this->url('place/view/'.$r->road_to) ?>" ><?php echo $r->road_to==$place['place_id'][$r->road_to]?$place['place_name'][$r->road_to]:null ?></a></td>
-      <td colspan="14" class="fix"></td>
+      <td class="fix" data="<?php echo $r->road_from; ?>" ><a target="_blank" href="<?php echo $this->url('place/view/'.$r->road_from) ?>" ><?php echo $r->road_from==$place['place_id'][$r->road_from]?$place['place_name'][$r->road_from]:null ?></a></td>
+      <td class="fix" data="<?php echo $r->road_to; ?>" ><a target="_blank" href="<?php echo $this->url('place/view/'.$r->road_to) ?>" ><?php echo $r->road_to==$place['place_id'][$r->road_to]?$place['place_name'][$r->road_to]:null ?></a></td>
+      <td colspan="15" class="fix"></td>
       <?php if(!isset($disable_control)){ ?>
       <td><div class="add-box"><a data-from-name="<?php echo $r->road_from==$place['place_id'][$r->road_from]?$place['place_name'][$r->road_from]:null ?>" data-from="<?php echo $r->road_from; ?>" data-to="<?php echo $r->road_to; ?>" data-to-name="<?php echo $r->road_to==$place['place_id'][$r->road_to]?$place['place_name'][$r->road_to]:null ?>" title="Thêm mới" class="add_button add_new" ><i class="fa fa-plus"></i></a></div></td>
       <?php } ?>
@@ -214,13 +217,14 @@ elseif ($order_by == 'status')
             <td class="fix"></td>
             <td class="fix"></td>
 
-            <td nowrap class="fix" data="<?php echo $road->route_from; ?>" id="route_from_<?php echo $road->road_id; ?>"><a target="_blank" href="<?php echo $this->url('route/view/'.$road->route_from) ?>" ><?php echo $road->route_from==$route['route_id'][$road->route_from]?$route['route_name'][$road->route_from]:null ?></a></td>
-            <td nowrap class="fix" data="<?php echo $road->route_to; ?>" id="route_to_<?php echo $road->road_id; ?>"><a target="_blank" href="<?php echo $this->url('route/view/'.$road->route_to) ?>" ><?php echo $road->route_to==$route['route_id'][$road->route_to]?$route['route_name'][$road->route_to]:null ?></a></td>
+            <td class="fix" data="<?php echo $road->route_from; ?>" id="route_from_<?php echo $road->road_id; ?>"><a target="_blank" href="<?php echo $this->url('route/view/'.$road->route_from) ?>" ><?php echo $road->route_from==$route['route_id'][$road->route_from]?$route['route_name'][$road->route_from]:null ?></a></td>
+            <td class="fix" data="<?php echo $road->route_to; ?>" id="route_to_<?php echo $road->road_id; ?>"><a target="_blank" href="<?php echo $this->url('route/view/'.$road->route_to) ?>" ><?php echo $road->route_to==$route['route_id'][$road->route_to]?$route['route_name'][$road->route_to]:null ?></a></td>
             
             <td class="fix" data="<?php echo $road->oil_id; ?>" id="way_<?php echo $road->road_id; ?>"><?php echo $road->way; ?></td>
             <td class="fix" id="road_km_<?php echo $road->road_id; ?>"><?php echo $road->road_km; ?></td>
             <td class="fix" id="road_oil_<?php echo $road->road_id; ?>"><?php echo $road->road_oil; ?></td>
-            <td class="fix" id="bridge_cost_<?php echo $road->road_id; ?>"><?php echo $lib->formatMoney(round($road->bridge_cost*1.1)); ?></td>
+            <td class="fix" id="road_oil_ton_<?php echo $road->road_id; ?>"><?php echo $road->road_oil_ton; ?></td>
+            <td class="fix" id="bridge_cost_<?php echo $road->road_id; ?>"><?php echo $lib->formatMoney($road->bridge_cost); ?></td>
             <td class="fix" id="road_add_<?php echo $road->road_id; ?>"><?php echo $lib->formatMoney($road->road_add); ?></td>
             <td class="fix" id="police_cost_<?php echo $road->road_id; ?>"><?php echo $lib->formatMoney($road->police_cost); ?></td>
             <td class="fix" id="tire_cost_<?php echo $road->road_id; ?>"><?php echo $lib->formatMoney($road->tire_cost); ?></td>
@@ -277,6 +281,10 @@ $this->helper('slidePaginator');
                     <div class="form-group">
                       <label for="road_add">Tiền đi đường</label>
                       <input type="text" class="number" id="road_add" name="road_add" tabindex="4" >
+                    </div>
+                    <div class="form-group">
+                      <label for="road_oil_ton">Định mức dầu / tấn</label>
+                      <input type="text" class="number" id="road_oil_ton" name="road_oil_ton" tabindex="17" >
                     </div>
                     
                   </div>
@@ -768,6 +776,7 @@ $('html').click(function(e) {
         var end_time = $(this).find("#end_time_"+$(this).attr('id')).text();
         var status = $(this).find("#status_"+$(this).attr('id')).attr('data');
         var road_add = $(this).find("#road_add_"+$(this).attr('id')).text();
+        var road_oil_ton = $(this).find("#road_oil_ton_"+$(this).attr('id')).text();
         //alert(road_from);
         $('#yes').val($(this).attr('id'));
         
@@ -783,6 +792,7 @@ $('html').click(function(e) {
         $('#tire_cost').val(tire_cost);
         $('#charge_add').val(charge_add);
         $('#road_add').val(road_add);
+        $('#road_oil_ton').val(road_oil_ton);
         $('#start_time').val(start_time.replace(/\//g,"-"));
         $('#end_time').val(end_time.replace(/\//g,"-"));
         
@@ -839,6 +849,7 @@ $('.add_new').click(function(){
         $('#tire_cost').val(0);
         $('#charge_add').val(0);
         $('#road_add').val(0);
+        $('#road_oil_ton').val(0);
 
         $('#start_time').val("");
         $('#end_time').val("");
@@ -900,6 +911,7 @@ function add_click(){
         $('#tire_cost').val(0);
         $('#charge_add').val(0);
         $('#road_add').val(0);
+        $('#road_oil_ton').val(0);
 
         $('#start_time').val("");
         $('#end_time').val("");
@@ -997,6 +1009,7 @@ $(document).ready(function(){
                     var status = $('input[name=status]:checked').val();
                     var start_time = $('#start_time').attr('value');
                     var end_time = $('#end_time').attr('value');
+                    var road_oil_ton = $('#road_oil_ton').attr('value');
 
                     var toll_booth = [];
 
@@ -1090,6 +1103,7 @@ $(document).ready(function(){
                             way: way,
                             charge_add: charge_add,
                             road_add: road_add,
+                            road_oil_ton: road_oil_ton,
                             start_time: start_time,
                             end_time: end_time,
                             status: status,

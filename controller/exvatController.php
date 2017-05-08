@@ -78,7 +78,7 @@ Class exvatController Extends baseController {
 
 
 
-            $kh = isset($_POST['trangthai']) ? $_POST['trangthai'] : null;
+            $kh = isset($_POST['nv']) ? $_POST['nv'] : null;
 
 
 
@@ -162,39 +162,6 @@ Class exvatController Extends baseController {
 
         $trangthai = date('Y',strtotime($batdau));
 
-
-
-        $place_model = $this->model->get('placeModel');
-
-
-
-        $place_data = array();
-
-
-
-        $places = $place_model->getAllPlace();
-
-
-
-
-
-        foreach ($places as $place) {
-
-
-
-                $place_data['place_id'][$place->place_id] = $place->place_id;
-
-
-
-                $place_data['place_name'][$place->place_id] = $place->place_name;
-
-
-
-        }
-
-
-
-        $this->view->data['place'] = $place_data;
 
 
 
@@ -623,51 +590,21 @@ Class exvatController Extends baseController {
 
 
 
-            $shipment_model = $this->model->get('shipmentModel');
-
-            $place_model = $this->model->get('placeModel');
+            $shipment_model = $this->model->get('shipmentlistModel');
 
             $vat_model = $this->model->get('vatModel');
 
 
 
-            $place_data = array();
-
-
-
-            $places = $place_model->getAllPlace();
-
-
-
-
-
-            foreach ($places as $place) {
-
-
-
-                    $place_data['place_id'][$place->place_id] = $place->place_id;
-
-
-
-                    $place_data['place_name'][$place->place_id] = $place->place_name;
-
-
-
-            }
-
-
-
-            $join = array('table'=>'vehicle,cont_unit','where'=>'vehicle = vehicle_id AND cont_unit=cont_unit_id');
-
             $data = array(
 
                 'where'=>'customer = '.trim($_POST['customer']),
 
-                'order_by'=>'shipment_date ASC',
+                'order_by'=>'shipment_list_date ASC',
 
                 );
 
-            $shipments = $shipment_model->getAllShipment($data,$join);
+            $shipments = $shipment_model->getAllShipment($data);
 
 
 
@@ -677,13 +614,13 @@ Class exvatController Extends baseController {
 
             foreach ($shipments as $shipment) {
 
-                $vat = $vat_model->queryVAT('SELECT shipment FROM vat WHERE shipment LIKE "%'.$shipment->shipment_id.'%" OR shipment LIKE "%'.$shipment->shipment_id.',%" OR shipment LIKE "%,'.$shipment->shipment_id.',%" OR shipment LIKE "%,'.$shipment->shipment_id.'%"');
+                $vat = $vat_model->queryVAT('SELECT shipment_list FROM vat WHERE shipment_list LIKE "'.$shipment->shipment_list_id.'" OR shipment_list LIKE "'.$shipment->shipment_list_id.',%" OR shipment_list LIKE "%,'.$shipment->shipment_list_id.',%" OR shipment_list LIKE "%,'.$shipment->shipment_list_id.'"');
 
 
 
                 if (!$vat) {
 
-                    $str .= '<option title="'.(($shipment->shipment_ton*$shipment->shipment_charge)+$shipment->shipment_charge_excess).'" value="'.$shipment->shipment_id.'">'.$this->lib->hien_thi_ngay_thang($shipment->shipment_date).': '.$shipment->vehicle_number.'|'.$place_data['place_name'][$shipment->shipment_from].'-'.$place_data['place_name'][$shipment->shipment_to].' ['.$shipment->shipment_ton.'/'.$shipment->cont_unit_name.'/'.$this->lib->formatMoney($shipment->shipment_charge).($shipment->shipment_charge_excess>0?"+".$this->lib->formatMoney($shipment->shipment_charge_excess):null).']'.'</option>';
+                    $str .= '<option title="'.$shipment->shipment_list_price.'" value="'.$shipment->shipment_list_id.'">'.$this->lib->hien_thi_ngay_thang($shipment->shipment_list_date).': '.$shipment->shipment_list_number.' - '.$this->lib->formatMoney($shipment->shipment_list_price).'</option>';
 
                 }
 
@@ -725,55 +662,21 @@ Class exvatController Extends baseController {
 
 
 
-            $shipment_model = $this->model->get('shipmentModel');
-
-            $place_model = $this->model->get('placeModel');
+            $shipment_model = $this->model->get('shipmentlistModel');
 
             $vat_model = $this->model->get('vatModel');
 
-
-
-            $place_data = array();
-
-
-
-            $places = $place_model->getAllPlace();
-
-
-
-
-
-            foreach ($places as $place) {
-
-
-
-                    $place_data['place_id'][$place->place_id] = $place->place_id;
-
-
-
-                    $place_data['place_name'][$place->place_id] = $place->place_name;
-
-
-
-            }
-
-
-
-            $shipment_add = explode(',', trim($_POST['shipment']));
-
-
-
-            $join = array('table'=>'vehicle,cont_unit','where'=>'vehicle = vehicle_id AND cont_unit=cont_unit_id');
+            $shipment_add = explode(',', trim($_POST['shipment_list']));
 
             $data = array(
 
                 'where'=>'customer = '.trim($_POST['customer']),
 
-                'order_by'=>'shipment_date ASC',
+                'order_by'=>'shipment_list_date ASC',
 
                 );
 
-            $shipments = $shipment_model->getAllShipment($data,$join);
+            $shipments = $shipment_model->getAllShipment($data);
 
 
 
@@ -787,13 +690,11 @@ Class exvatController Extends baseController {
 
                 foreach ($shipment_add as $key) {
 
-                    if ($shipment->shipment_id == $key) {
+                    if ($shipment->shipment_list_id == $key) {
 
                         $check = "selected";
 
-
-
-                        $str .= '<option '.$check.' title="'.(($shipment->shipment_ton*$shipment->shipment_charge)+$shipment->shipment_charge_excess).'" value="'.$shipment->shipment_id.'">'.$this->lib->hien_thi_ngay_thang($shipment->shipment_date).': '.$shipment->vehicle_number.'|'.$place_data['place_name'][$shipment->shipment_from].'-'.$place_data['place_name'][$shipment->shipment_to].' ['.$shipment->shipment_ton.'/'.$shipment->cont_unit_name.'/'.$this->lib->formatMoney($shipment->shipment_charge).($shipment->shipment_charge_excess>0?"+".$this->lib->formatMoney($shipment->shipment_charge_excess):null).']'.'</option>';
+                        $str .= '<option '.$check.' title="'.$shipment->shipment_list_price.'" value="'.$shipment->shipment_list_id.'">'.$this->lib->hien_thi_ngay_thang($shipment->shipment_list_date).': '.$shipment->shipment_list_number.' - '.$this->lib->formatMoney($shipment->shipment_list_price).'</option>';
 
                         break;
 
@@ -805,13 +706,13 @@ Class exvatController Extends baseController {
 
 
 
-                $vat = $vat_model->queryVAT('SELECT shipment FROM vat WHERE shipment LIKE "%'.$shipment->shipment_id.'%" OR shipment LIKE "%'.$shipment->shipment_id.',%" OR shipment LIKE "%,'.$shipment->shipment_id.',%" OR shipment LIKE "%,'.$shipment->shipment_id.'%"');
+                $vat = $vat_model->queryVAT('SELECT shipment_list FROM vat WHERE shipment_list LIKE "'.$shipment->shipment_list_id.'" OR shipment_list LIKE "'.$shipment->shipment_list_id.',%" OR shipment_list LIKE "%,'.$shipment->shipment_list_id.',%" OR shipment_list LIKE "%,'.$shipment->shipment_list_id.'"');
 
 
 
                 if (!$vat) {
 
-                    $str .= '<option title="'.(($shipment->shipment_ton*$shipment->shipment_charge)+$shipment->shipment_charge_excess).'" value="'.$shipment->shipment_id.'">'.$this->lib->hien_thi_ngay_thang($shipment->shipment_date).': '.$shipment->vehicle_number.'|'.$place_data['place_name'][$shipment->shipment_from].'-'.$place_data['place_name'][$shipment->shipment_to].' ['.$shipment->shipment_ton.'/'.$shipment->cont_unit_name.'/'.$this->lib->formatMoney($shipment->shipment_charge).($shipment->shipment_charge_excess>0?"+".$this->lib->formatMoney($shipment->shipment_charge_excess):null).']'.'</option>';
+                    $str .= '<option title="'.$shipment->shipment_list_price.'" value="'.$shipment->shipment_list_id.'">'.$this->lib->hien_thi_ngay_thang($shipment->shipment_list_date).': '.$shipment->shipment_list_number.' - '.$this->lib->formatMoney($shipment->shipment_list_price).'</option>';
 
                 }
 
@@ -889,9 +790,9 @@ Class exvatController Extends baseController {
 
             $contributor = "";
 
-            if(is_array($_POST['shipment'])){
+            if(is_array($_POST['shipment_list'])){
 
-                foreach ($_POST['shipment'] as $key) {
+                foreach ($_POST['shipment_list'] as $key) {
 
                     if ($contributor == "")
 
@@ -904,7 +805,7 @@ Class exvatController Extends baseController {
                 }
             }
 
-            $data['shipment'] = $contributor;
+            $data['shipment_list'] = $contributor;
 
 
 
@@ -1011,6 +912,7 @@ Class exvatController Extends baseController {
 
             $vat_sum = 0;
             $vat_price = 0;
+            $vat_comment = "";
 
 
             foreach ($vat_out_list as $v) {
@@ -1066,13 +968,40 @@ Class exvatController Extends baseController {
 
                 $vat_sum += $data_vat['vat_out_number']*$data_vat['vat_out_price'];
                 $vat_price += round(($data_vat['vat_out_number']*$data_vat['vat_out_price'])*0.1);
-                    
+                $vat_comment .= $data_vat['vat_out_comment'].'.';  
 
             }
 
             $vat_model->updateVAT(array('vat_sum'=>$vat_sum,'vat_price'=>$vat_price),array('vat_id' => $id_vat));
 
-            $arr = explode(',', $data['shipment']);
+            if (!$debit->getDebitByWhere(array('vat'=>$id_vat))) {
+                $data_debit = array(
+                    'debit_date' => $data['vat_date'],
+                    'customer' => $data['customer'],
+                    'money' => $vat_sum,
+                    'money_vat' => 1,
+                    'money_vat_price' => $vat_price,
+                    'comment' => $vat_comment.' (HD số: '.$data['vat_number'].')',
+                    'check_debit' => 1,
+                    'vat' => $id_vat,
+                );
+                $debit->createDebit($data_debit);
+            }
+            else{
+                $data_debit = array(
+                    'debit_date' => $data['vat_date'],
+                    'customer' => $data['customer'],
+                    'money' => $vat_sum,
+                    'money_vat' => 1,
+                    'money_vat_price' => $vat_price,
+                    'comment' => $vat_comment.' (HD số: '.$data['vat_number'].')',
+                    'check_debit' => 1,
+                    'vat' => $id_vat,
+                );
+                $debit->updateDebit($data_debit,array('vat'=>$id_vat));
+            }
+
+            /*$arr = explode(',', $data['shipment']);
 
 
 
@@ -1088,7 +1017,7 @@ Class exvatController Extends baseController {
 
                 $debit->updateDebit($data_debit,array('shipment'=>$key));
 
-            }
+            }*/
 
 
 
@@ -1132,7 +1061,7 @@ Class exvatController Extends baseController {
 
 
 
-                    $vat = $vat_model->getVAT($data);
+                    /*$vat = $vat_model->getVAT($data);
 
 
 
@@ -1152,9 +1081,9 @@ Class exvatController Extends baseController {
 
                         $debit->updateDebit($data_debit,array('shipment'=>$key));
 
-                    }
+                    }*/
 
-
+                    $debit->queryDebit('DELETE FROM debit WHERE vat = '.$data);
 
                     $vat_out_model->queryVAT('DELETE FROM vat_out WHERE vat = '.$data);
 
@@ -1198,7 +1127,7 @@ Class exvatController Extends baseController {
 
 
 
-                $vat = $vat_model->getVAT($_POST['data']);
+                /*$vat = $vat_model->getVAT($_POST['data']);
 
 
 
@@ -1218,9 +1147,9 @@ Class exvatController Extends baseController {
 
                     $debit->updateDebit($data_debit,array('shipment'=>$key));
 
-                }
+                }*/
 
-
+                $debit->queryDebit('DELETE FROM debit WHERE vat = '.$_POST['data']);
 
                 $vat_out_model->queryVAT('DELETE FROM vat_out WHERE vat = '.$_POST['data']);
 
@@ -1330,7 +1259,7 @@ Class exvatController Extends baseController {
 
                 $str .= '<td>Đơn giá <br> <input type="text" class="vat_out_price numbers" name="vat_out_number[]" style="width:120px" ></td>';
 
-                $str .= '<td>Thành tiền <br> <input type="text" class="vat_out_total numbers" name="vat_out_total[]" style="width:120px" ></td>';
+                $str .= '<td>Thành tiền <br> <input type="text" class="vat_out_total numbers" name="vat_out_total[]" style="width:120px" disabled ></td>';
 
 
 
@@ -1374,7 +1303,7 @@ Class exvatController Extends baseController {
 
                     $str .= '<td>Đơn giá <br> <input type="text" class="vat_out_price numbers" name="vat_out_number[]" style="width:120px" value="'.$this->lib->formatMoney($v->vat_out_price).'" ></td>';
 
-                    $str .= '<td>Thành tiền <br> <input type="text" class="vat_out_total numbers" name="vat_out_total[]" style="width:120px" value="'.$this->lib->formatMoney($v->vat_out_number*$v->vat_out_price).'" ></td>';
+                    $str .= '<td>Thành tiền <br> <input type="text" class="vat_out_total numbers" name="vat_out_total[]" style="width:120px" disabled value="'.$this->lib->formatMoney($v->vat_out_number*$v->vat_out_price).'" ></td>';
 
 
 

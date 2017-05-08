@@ -148,7 +148,7 @@ Class paymentvoucherController Extends baseController {
         }
 
 
-
+        $id = $this->registry->router->param_id;
 
 
         $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
@@ -312,7 +312,9 @@ Class paymentvoucherController Extends baseController {
 
         }
 
-
+        if (isset($id) && $id > 0) {
+            $data['where'] = 'payment_voucher_id = '.$id;
+        }
 
         if($kh > 0){
 
@@ -445,6 +447,9 @@ Class paymentvoucherController Extends baseController {
         }
 
 
+        if (isset($id) && $id > 0) {
+            $data['where'] = 'payment_voucher_id = '.$id;
+        }
 
         if($kh > 0){
 
@@ -1163,7 +1168,7 @@ Class paymentvoucherController Extends baseController {
 
             $payment_model = $this->model->get('paymentvoucherModel');
 
-
+            $bank_balance_model = $this->model->get('bankbalanceModel');
             $debit_pay_model = $this->model->get('debitpayModel');
 
             /**************/
@@ -1232,6 +1237,26 @@ Class paymentvoucherController Extends baseController {
                     /*Log*/
 
                     /**/
+                    if (!$bank_balance_model->getBankByWhere(array('payment_voucher'=>$id_payment))) {
+                        $data_bank = array(
+                            'bank_balance_date' => $data['payment_voucher_date'],
+                            'bank' => $data['bank_out'],
+                            'bank_balance_money' => (0-$data['payment_voucher_money']),
+                            'payment_voucher' => $id_payment,
+                        );
+
+                        $bank_balance_model->createBank($data_bank);
+                    }
+                    else{
+                        $data_bank = array(
+                            'bank_balance_date' => $data['payment_voucher_date'],
+                            'bank' => $data['bank_out'],
+                            'bank_balance_money' => (0-$data['payment_voucher_money']),
+                            'payment_voucher' => $id_payment,
+                        );
+
+                        $bank_balance_model->updateBank($data_bank,array('payment_voucher'=>$id_payment));
+                    }
 
                     
 
@@ -1282,6 +1307,14 @@ Class paymentvoucherController Extends baseController {
                     /*Log*/
 
                     /**/
+                    $data_bank = array(
+                        'bank_balance_date' => $data['payment_voucher_date'],
+                        'bank' => $data['bank_out'],
+                        'bank_balance_money' => (0-$data['payment_voucher_money']),
+                        'payment_voucher' => $id_payment,
+                    );
+
+                    $bank_balance_model->createBank($data_bank);
 
 
 
@@ -1375,6 +1408,187 @@ Class paymentvoucherController Extends baseController {
 
     }
 
+    public function add2(){
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+        if (isset($_POST['yes'])) {
+
+            $payment_model = $this->model->get('paymentvoucherModel');
+
+            $bank_balance_model = $this->model->get('bankbalanceModel');
+
+            /**************/
+
+            /**************/
+
+
+
+            $data = array(
+
+                        'payment_voucher_number' => trim($_POST['payment_voucher_number']),
+
+                        'payment_voucher_date' => strtotime($_POST['payment_voucher_date']),
+
+                        'payment_voucher_comment' => trim($_POST['payment_voucher_comment']),
+
+                        'payment_voucher_money' => trim(str_replace(',','',$_POST['payment_voucher_money'])),
+
+                        'payment_voucher_attach' => trim($_POST['payment_voucher_attach']),
+
+                        'bank_out' => trim($_POST['bank_out']),
+
+                        'payment_voucher_type' => 2,
+
+                        );
+
+
+
+
+            if ($_POST['yes'] != "") {
+
+                if ($payment_model->checkPayment($_POST['yes'].' AND payment_voucher_number = "'.trim($_POST['payment_voucher_number']).'"')) {
+
+                    echo "Thông tin này đã tồn tại";
+
+                    return false;
+
+                }
+
+                else{
+
+                    $payment_model->updatePayment($data,array('payment_voucher_id' => $_POST['yes']));
+
+                    $id_payment = $_POST['yes'];
+
+                    /*Log*/
+
+                    /**/
+                    if (!$bank_balance_model->getBankByWhere(array('payment_voucher'=>$id_payment))) {
+                        $data_bank = array(
+                            'bank_balance_date' => $data['payment_voucher_date'],
+                            'bank' => $data['bank_out'],
+                            'bank_balance_money' => (0-$data['payment_voucher_money']),
+                            'payment_voucher' => $id_payment,
+                        );
+
+                        $bank_balance_model->createBank($data_bank);
+                    }
+                    else{
+                        $data_bank = array(
+                            'bank_balance_date' => $data['payment_voucher_date'],
+                            'bank' => $data['bank_out'],
+                            'bank_balance_money' => (0-$data['payment_voucher_money']),
+                            'payment_voucher' => $id_payment,
+                        );
+
+                        $bank_balance_model->updateBank($data_bank,array('payment_voucher'=>$id_payment));
+                    }
+
+                    
+
+                    echo "Cập nhật thành công";
+
+
+
+                    date_default_timezone_set("Asia/Ho_Chi_Minh"); 
+
+                        $filename = "action_logs.txt";
+
+                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."edit"."|".$_POST['yes']."|payment_voucher|".implode("-",$data)."\n"."\r\n";
+
+                        
+
+                        $fh = fopen($filename, "a") or die("Could not open log file.");
+
+                        fwrite($fh, $text) or die("Could not write file!");
+
+                        fclose($fh);
+
+                    }
+
+                
+
+                
+
+            }
+
+            else{
+
+
+
+                if ($payment_model->getPaymentByWhere(array('payment_voucher_number'=>$data['payment_voucher_number']))) {
+
+                    echo "Thông tin này đã tồn tại";
+
+                    return false;
+
+                }
+
+                else{
+
+                    $payment_model->createPayment($data);
+
+                    $id_payment = $payment_model->getLastPayment()->payment_voucher_id;
+
+                    /*Log*/
+
+                    /**/
+                    $data_bank = array(
+                        'bank_balance_date' => $data['payment_voucher_date'],
+                        'bank' => $data['bank_out'],
+                        'bank_balance_money' => (0-$data['payment_voucher_money']),
+                        'payment_voucher' => $id_payment,
+                    );
+
+                    $bank_balance_model->createBank($data_bank);
+
+
+
+                    echo "Thêm thành công";
+
+
+
+                    date_default_timezone_set("Asia/Ho_Chi_Minh"); 
+
+                        $filename = "action_logs.txt";
+
+                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."add"."|".$payment_model->getLastPayment()->payment_voucher_id."|payment_voucher|".implode("-",$data)."\n"."\r\n";
+
+                        
+
+                        $fh = fopen($filename, "a") or die("Could not open log file.");
+
+                        fwrite($fh, $text) or die("Could not write file!");
+
+                        fclose($fh);
+
+                    }
+
+                
+
+                
+
+            }
+
+
+
+                    
+
+        }
+
+    }
+
     public function delete(){
 
         if (!isset($_SESSION['userid_logined'])) {
@@ -1395,6 +1609,8 @@ Class paymentvoucherController Extends baseController {
 
             $debit_pay_model = $this->model->get('debitpayModel');
 
+            $bank_balance_model = $this->model->get('bankbalanceModel');
+
 
 
             if (isset($_POST['xoa'])) {
@@ -1406,6 +1622,8 @@ Class paymentvoucherController Extends baseController {
 
 
                     $debit_pay_model->queryDebit('DELETE FROM debit_pay WHERE payment_voucher = '.$data);
+
+                    $bank_balance_model->queryBank('DELETE FROM bank_balance WHERE payment_voucher = '.$data);
 
 
 
@@ -1448,6 +1666,8 @@ Class paymentvoucherController Extends baseController {
 
 
                 $debit_pay_model->queryDebit('DELETE FROM debit_pay WHERE payment_voucher = '.$_POST['data']);
+
+                $bank_balance_model->queryBank('DELETE FROM bank_balance WHERE payment_voucher = '.$_POST['data']);
 
                 /*Log*/
 

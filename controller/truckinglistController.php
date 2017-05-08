@@ -40,7 +40,9 @@ Class truckinglistController Extends baseController {
 
             $xe = isset($_POST['xe']) ? $_POST['xe'] : null;
 
-            $kh = isset($_POST['trangthai']) ? $_POST['trangthai'] : null;
+            $kh = isset($_POST['nv']) ? $_POST['nv'] : null;
+            $vong = isset($_POST['vong']) ? $_POST['vong'] : null;
+            $trangthai = isset($_POST['trangthai']) ? $_POST['trangthai'] : null;
         }
 
         else{
@@ -62,9 +64,14 @@ Class truckinglistController Extends baseController {
             $batdau = '01-'.date('m-Y');
 
             $ketthuc = date('t-m-Y'); //cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')).'-'.date('m-Y');
+            $vong = (int)date('m',strtotime($batdau));
+            $trangthai = date('Y',strtotime($batdau));
 
         }
         $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
+
+        $vong = (int)date('m',strtotime($batdau));
+        $trangthai = date('Y',strtotime($batdau));
 
         $contunit_model = $this->model->get('contunitModel');
         $cost_list_model = $this->model->get('costlistModel');
@@ -188,6 +195,8 @@ Class truckinglistController Extends baseController {
 
         $this->view->data['xe'] = $xe;
         $this->view->data['kh'] = $kh;
+        $this->view->data['vong'] = $vong;
+        $this->view->data['trangthai'] = $trangthai;
 
 
 
@@ -337,7 +346,1037 @@ Class truckinglistController Extends baseController {
 
     }
 
+    function export(){
 
+        $this->view->disableLayout();
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+
+        $batdau = $this->registry->router->param_id;
+
+        $ketthuc = $this->registry->router->page;
+
+        $xe = $this->registry->router->order_by;
+
+        $kh = $this->registry->router->order;
+
+        $ngayketthuc = strtotime(date('d-m-Y', strtotime(date('d-m-Y',$ketthuc). ' + 1 days')));
+
+        $info_model = $this->model->get('infoModel');
+        $infos = $info_model->getLastInfo();
+
+        $contunit_model = $this->model->get('contunitModel');
+        $cost_list_model = $this->model->get('costlistModel');
+
+        $cont_units = $contunit_model->getAllUnit();
+        $loan_units = $cost_list_model->getAllCost(array('where'=>'cost_list_type = 8'));
+
+        $shipment_model = $this->model->get('shipmentModel');
+
+        $join = array('table'=>'customer, vehicle, cont_unit','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND cont_unit = cont_unit_id');
+
+
+
+        $data = array(
+
+            'where' => "shipment_ton > 0",
+
+            );
+
+        if($batdau != "" && $ketthuc != "" ){
+
+            $data['where'] = $data['where'].' AND shipment_date >= '.$batdau.' AND shipment_date < '.$ngayketthuc;
+
+        }
+
+        if($xe > 0){
+
+            $data['where'] = $data['where'].' AND vehicle = '.$xe;
+
+        }
+
+        if($kh > 0){
+
+            $data['where'] = $data['where'].' AND customer = '.$kh;
+
+        }
+
+        
+
+
+
+        /*if ($_SESSION['role_logined'] == 3) {
+
+            $data['where'] = $data['where'].' AND shipment_create_user = '.$_SESSION['userid_logined'];
+
+            
+
+        }*/
+
+
+
+        
+
+
+
+
+
+        $data['order_by'] = 'shipment_date';
+
+        $data['order'] = 'ASC';
+
+
+
+        
+
+        
+
+        $place_model = $this->model->get('placeModel');
+
+        $place_data = array();
+
+
+        $customer_sub_model = $this->model->get('customersubModel');
+        $customer_types = array();
+
+
+        $shipment_cost_model = $this->model->get('shipmentcostModel');
+        $loan_shipment_data = array();
+
+
+        
+
+
+
+        $number_sheet = $shipment_model->queryShipment('SELECT customer,customer_name FROM shipment,customer WHERE customer=customer_id AND shipment_date >= '.$batdau.' AND shipment_date < '.$ngayketthuc.' GROUP BY customer ');
+
+
+
+        
+
+
+
+            require("lib/Classes/PHPExcel/IOFactory.php");
+
+            require("lib/Classes/PHPExcel.php");
+
+
+
+            $objPHPExcel = new PHPExcel();
+
+        $index_worksheet = 0; //(worksheet mặc định là 0, nếu tạo nhiều worksheet $index_worksheet += 1)
+
+        if ($kh == 0) {
+            foreach ($number_sheet as $cus) {
+                
+                $data = array(
+
+                'where' => 'shipment_ton > 0 AND customer = '.$cus->customer.' AND shipment_date >= '.$batdau.' AND shipment_date < '.$ngayketthuc,
+
+                );
+                if($xe > 0){
+
+                    $data['where'] = $data['where'].' AND vehicle = '.$xe;
+
+                }
+
+                $shipments = $shipment_model->getAllShipment($data,$join);
+
+                $objPHPExcel->createSheet();
+
+                $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A1', mb_strtoupper($infos->info_company, "UTF-8"))
+
+                ->setCellValue('A2', 'ĐỘI VẬN TẢI')
+
+                ->setCellValue('H1', 'CỘNG HÒA XÃ CHỦ NGHĨA VIỆT NAM')
+
+                ->setCellValue('H2', 'Độc lập - Tự do - Hạnh phúc')
+
+                ->setCellValue('A4', 'BẢNG KÊ SẢN LƯỢNG VẬN CHUYỂN')
+
+                ->setCellValue('A6', 'STT')
+
+               ->setCellValue('B6', 'Ngày')
+
+               ->setCellValue('C6', 'Khách hàng')
+
+               ->setCellValue('D6', 'Mặt hàng')
+
+               ->setCellValue('E6', 'Tuyến đường')
+
+               ->setCellValue('F6', 'Số xe')
+
+               ->setCellValue('G6', 'Sản lượng')
+
+               ->setCellValue('J6', 'Đơn giá')
+
+               ->setCellValue('K6', 'Thành tiền')
+
+               ->setCellValue('L6', 'Phí phát sinh');
+
+               
+            $dvt = "G";
+            foreach ($cont_units as $cont) {
+                $objPHPExcel->setActiveSheetIndex($index_worksheet)
+                ->setCellValue($dvt.'7', $cont->cont_unit_name);
+
+                $dvt++;
+            }
+            
+            $phatsinh = "L";
+
+            foreach ($loan_units as $loan) {
+                $objPHPExcel->setActiveSheetIndex($index_worksheet)
+                ->setCellValue($phatsinh.'7', $loan->cost_list_name);
+
+                $phatsinh++;
+            }
+
+
+
+
+            if ($shipments) {
+
+
+
+                $hang = 8;
+
+                $i=1;
+
+
+
+                $kho_data = array();
+
+                $k=0;
+                foreach ($shipments as $row) {
+
+                    $qr = "SELECT * FROM vehicle_work WHERE vehicle = ".$row->vehicle." AND start_work <= ".$row->shipment_date." AND end_work >= ".$row->shipment_date;
+                    if (!$shipment_model->queryShipment($qr)) {
+                    
+                        $loans = $shipment_cost_model->getAllShipment(array('where'=>'shipment = '.$row->shipment_id),array('table'=>'cost_list','where'=>'cost_list = cost_list_id AND cost_list_type = 8'));
+                        foreach ($loans as $loan) {
+                            $loan_shipment_data[$row->shipment_id][$loan->cost_list] = isset($loan_shipment_data[$row->shipment_id][$loan->cost_list])?$loan_shipment_data[$row->shipment_id][$loan->cost_list]+$loan->cost:$loan->cost;
+                            
+                        }
+
+                        $places = $place_model->getAllPlace(array('where'=>'place_id = '.$row->shipment_from.' OR place_id = '.$row->shipment_to));
+
+                        foreach ($places as $place) {
+
+                                $place_data['place_id'][$place->place_id] = $place->place_id;
+
+                                $place_data['place_name'][$place->place_id] = $place->place_name;  
+
+                        }
+
+                        $customer_sub = "";
+                        $sts = explode(',', $row->customer_type);
+                        foreach ($sts as $key) {
+                            $subs = $customer_sub_model->getCustomer($key);
+                            if ($subs) {
+                                if ($customer_sub == "")
+                                    $customer_sub .= $subs->customer_sub_name;
+                                else
+                                    $customer_sub .= ','.$subs->customer_sub_name;
+                            }
+                            
+                        }
+                        $customer_types[$row->shipment_id] = $customer_sub;
+
+
+
+
+
+                        //$objPHPExcel->setActiveSheetIndex(0)->getStyle('B'.$hang)->getNumberFormat()->setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_TEXT );
+
+                         $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                            ->setCellValue('A' . $hang, $i++)
+
+                            ->setCellValueExplicit('B' . $hang, $this->lib->hien_thi_ngay_thang($row->shipment_date))
+
+                            ->setCellValue('C' . $hang, $row->customer_name)
+
+                            ->setCellValue('D' . $hang, $customer_types[$row->shipment_id])
+
+                            ->setCellValue('E' . $hang, $place_data['place_name'][$row->shipment_from].'-'.$place_data['place_name'][$row->shipment_to])
+
+                            ->setCellValue('F' . $hang, $row->vehicle_number)
+
+                            ->setCellValue('J' . $hang, $row->shipment_charge)
+
+                            ->setCellValue('K' . $hang, '=((G'.$hang.'+H'.$hang.'+I'.$hang.')*J'.$hang.')');
+
+
+                        $dvt = "G";
+                        foreach ($cont_units as $cont) {
+                            $ton = $row->cont_unit==$cont->cont_unit_id?$row->shipment_ton:null;
+
+                            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+                            ->setCellValue($dvt.$hang, $ton);
+
+                            $dvt++;
+                        }
+                        $phatsinh = "L";
+
+                        foreach ($loan_units as $loan) {
+                            $chiho = isset($loan_shipment_data[$row->shipment_id][$loan->cost_list_id])?$loan_shipment_data[$row->shipment_id][$loan->cost_list_id]:null;
+
+                            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+                            ->setCellValue($phatsinh.$hang, $chiho);
+
+                            $phatsinh++;
+                        }
+
+
+                         $hang++;
+
+
+
+                        $tencongty = $row->customer_company;
+
+
+
+                      }
+
+                }
+
+            }
+
+
+
+            $check_customer = 0;
+
+
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A'.$hang, 'TỔNG')
+
+
+               ->setCellValue('K'.$hang, '=SUM(K8:K'.($hang-1).')');
+
+            $phatsinh = "L";
+
+            foreach ($loan_units as $loan) {
+                $objPHPExcel->setActiveSheetIndex($index_worksheet)
+               ->setCellValue($phatsinh.$hang, '=SUM('.$phatsinh.'8:'.$phatsinh.($hang-1).')');
+
+                $phatsinh++;
+            }
+
+            
+
+            $hang++;
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A'.$hang, 'Thuế GTGT 10%')
+
+
+               ->setCellValue('K'.$hang, '=K'.($hang-1).'*10%');
+
+            $hang++;
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A'.$hang, 'Tổng cộng')
+
+
+               ->setCellValue('K'.$hang, '=SUM(K'.($hang-1).':K'.($hang-2).')')
+
+               ->setCellValue('L'.$hang, '=SUM(L'.($hang-2).':'.$phatsinh.($hang-2).')');
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:'.$phatsinh.$hang)->applyFromArray(
+
+                array(
+
+                    
+
+                    'borders' => array(
+
+                        'allborders' => array(
+
+                          'style' => PHPExcel_Style_Border::BORDER_THIN
+
+                        )
+
+                    )
+
+                )
+
+            );
+
+
+            $highestColumn = $objPHPExcel->getActiveSheet()->getHighestDataColumn();
+
+            $cell2 = $objPHPExcel->getActiveSheet()->getCellByColumnAndRow(10, $hang)->getCalculatedValue();
+            $cell1 = $objPHPExcel->getActiveSheet()->getCellByColumnAndRow(11, $hang)->getCalculatedValue();
+            $cell = (int)($cell2+$cell1);
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A'.($hang+1), 'Bằng chữ: '.$this->lib->convert_number_to_words(round($cell)).' đồng');
+
+             
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.$hang.':F'.$hang);
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang-1).':F'.($hang-1));
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang-2).':F'.($hang-2));
+            $objPHPExcel->getActiveSheet()->mergeCells('L'.$hang.':'.$phatsinh.$hang);
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang+1).':'.$phatsinh.($hang+1));
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('L'.$hang.':'.$phatsinh.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('L'.$hang.':'.$phatsinh.$hang)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang-2).':A'.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang-2).':A'.$hang)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+
+
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A'.($hang+3), 'NGƯỜI LẬP BIỂU')
+
+                ->setCellValue('E'.($hang+3), mb_strtoupper($infos->info_company, "UTF-8"))
+
+               ->setCellValue('I'.($hang+3), mb_strtoupper($tencongty, "UTF-8"));
+
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang+3).':D'.($hang+3));
+
+            $objPHPExcel->getActiveSheet()->mergeCells('E'.($hang+3).':H'.($hang+3));
+
+            $objPHPExcel->getActiveSheet()->mergeCells('I'.($hang+3).':M'.($hang+3));
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang+3).':M'.($hang+3))->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang+3).':M'.($hang+3))->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang-2).':'.$phatsinh.($hang+3))->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'bold'  => true,
+
+                        'color' => array('rgb' => '000000')
+
+                    )
+
+                )
+
+            );
+
+
+
+
+
+            $highestRow = $objPHPExcel->getActiveSheet()->getHighestRow();
+
+
+
+            $highestRow ++;
+
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A1:E1');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('H1:M1');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A2:E2');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('H2:M2');
+
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A4:M4');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A6:A7');
+            $objPHPExcel->getActiveSheet()->mergeCells('B6:B7');
+            $objPHPExcel->getActiveSheet()->mergeCells('C6:C7');
+            $objPHPExcel->getActiveSheet()->mergeCells('D6:D7');
+            $objPHPExcel->getActiveSheet()->mergeCells('E6:E7');
+            $objPHPExcel->getActiveSheet()->mergeCells('F6:F7');
+            $objPHPExcel->getActiveSheet()->mergeCells('J6:J7');
+            $objPHPExcel->getActiveSheet()->mergeCells('K6:K7');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('G6:I6');
+            $objPHPExcel->getActiveSheet()->mergeCells('L6:'.$phatsinh.'6');
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:'.$phatsinh.'4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:'.$phatsinh.'4')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle("A4")->getFont()->setSize(16);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:'.$phatsinh.'4')->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'bold'  => true,
+
+                        'color' => array('rgb' => '000000')
+
+                    )
+
+                )
+
+            );
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A2:H2')->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'underline' => PHPExcel_Style_Font::UNDERLINE_SINGLE,
+
+                    )
+
+                )
+
+            );
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('I8:'.$phatsinh.$highestRow)->getNumberFormat()->setFormatCode("#,##0_);[Black](#,##0)");
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:'.$phatsinh.'7')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:'.$phatsinh.'7')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:'.$phatsinh.'7')->getFont()->setBold(true);
+
+            $objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(26);
+
+            $objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(14);
+
+            $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
+
+            //$objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth(25);
+
+
+
+            
+
+            $objPHPExcel->getActiveSheet()->setTitle($cus->customer_name);
+
+
+
+            $objPHPExcel->getActiveSheet()->freezePane('A8');
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet);
+
+            $index_worksheet++;
+            }
+        }
+        else{
+            
+
+                $shipments = $shipment_model->getAllShipment($data,$join);
+
+
+                $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A1', mb_strtoupper($infos->info_company, "UTF-8"))
+
+                ->setCellValue('A2', 'ĐỘI VẬN TẢI')
+
+                ->setCellValue('H1', 'CỘNG HÒA XÃ CHỦ NGHĨA VIỆT NAM')
+
+                ->setCellValue('H2', 'Độc lập - Tự do - Hạnh phúc')
+
+                ->setCellValue('A4', 'BẢNG KÊ SẢN LƯỢNG VẬN CHUYỂN')
+
+                ->setCellValue('A6', 'STT')
+
+               ->setCellValue('B6', 'Ngày')
+
+               ->setCellValue('C6', 'Khách hàng')
+
+               ->setCellValue('D6', 'Mặt hàng')
+
+               ->setCellValue('E6', 'Tuyến đường')
+
+               ->setCellValue('F6', 'Số xe')
+
+               ->setCellValue('G6', 'Sản lượng')
+
+               ->setCellValue('J6', 'Đơn giá')
+
+               ->setCellValue('K6', 'Thành tiền')
+
+               ->setCellValue('L6', 'Phí phát sinh');
+
+               
+            $dvt = "G";
+            foreach ($cont_units as $cont) {
+                $objPHPExcel->setActiveSheetIndex($index_worksheet)
+                ->setCellValue($dvt.'7', $cont->cont_unit_name);
+
+                $dvt++;
+            }
+            
+            $phatsinh = "L";
+
+            foreach ($loan_units as $loan) {
+                $objPHPExcel->setActiveSheetIndex($index_worksheet)
+                ->setCellValue($phatsinh.'7', $loan->cost_list_name);
+
+                $phatsinh++;
+            }
+
+
+
+
+            if ($shipments) {
+
+
+
+                $hang = 8;
+
+                $i=1;
+
+
+
+                $kho_data = array();
+
+                $k=0;
+                foreach ($shipments as $row) {
+
+                    $qr = "SELECT * FROM vehicle_work WHERE vehicle = ".$row->vehicle." AND start_work <= ".$row->shipment_date." AND end_work >= ".$row->shipment_date;
+                    if (!$shipment_model->queryShipment($qr)) {
+                    
+                        $loans = $shipment_cost_model->getAllShipment(array('where'=>'shipment = '.$row->shipment_id),array('table'=>'cost_list','where'=>'cost_list = cost_list_id AND cost_list_type = 8'));
+                        foreach ($loans as $loan) {
+                            $loan_shipment_data[$row->shipment_id][$loan->cost_list] = isset($loan_shipment_data[$row->shipment_id][$loan->cost_list])?$loan_shipment_data[$row->shipment_id][$loan->cost_list]+$loan->cost:$loan->cost;
+                            
+                        }
+
+                        $places = $place_model->getAllPlace(array('where'=>'place_id = '.$row->shipment_from.' OR place_id = '.$row->shipment_to));
+
+                        foreach ($places as $place) {
+
+                                $place_data['place_id'][$place->place_id] = $place->place_id;
+
+                                $place_data['place_name'][$place->place_id] = $place->place_name;  
+
+                        }
+
+                        $customer_sub = "";
+                        $sts = explode(',', $row->customer_type);
+                        foreach ($sts as $key) {
+                            $subs = $customer_sub_model->getCustomer($key);
+                            if ($subs) {
+                                if ($customer_sub == "")
+                                    $customer_sub .= $subs->customer_sub_name;
+                                else
+                                    $customer_sub .= ','.$subs->customer_sub_name;
+                            }
+                            
+                        }
+                        $customer_types[$row->shipment_id] = $customer_sub;
+
+
+
+
+
+                        //$objPHPExcel->setActiveSheetIndex(0)->getStyle('B'.$hang)->getNumberFormat()->setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_TEXT );
+
+                         $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                            ->setCellValue('A' . $hang, $i++)
+
+                            ->setCellValueExplicit('B' . $hang, $this->lib->hien_thi_ngay_thang($row->shipment_date))
+
+                            ->setCellValue('C' . $hang, $row->customer_name)
+
+                            ->setCellValue('D' . $hang, $customer_types[$row->shipment_id])
+
+                            ->setCellValue('E' . $hang, $place_data['place_name'][$row->shipment_from].'-'.$place_data['place_name'][$row->shipment_to])
+
+                            ->setCellValue('F' . $hang, $row->vehicle_number)
+
+                            ->setCellValue('J' . $hang, $row->shipment_charge)
+
+                            ->setCellValue('K' . $hang, '=((G'.$hang.'+H'.$hang.'+I'.$hang.')*J'.$hang.')');
+
+
+                        $dvt = "G";
+                        foreach ($cont_units as $cont) {
+                            $ton = $row->cont_unit==$cont->cont_unit_id?$row->shipment_ton:null;
+
+                            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+                            ->setCellValue($dvt.$hang, $ton);
+
+                            $dvt++;
+                        }
+                        $phatsinh = "L";
+
+                        foreach ($loan_units as $loan) {
+                            $chiho = isset($loan_shipment_data[$row->shipment_id][$loan->cost_list_id])?$loan_shipment_data[$row->shipment_id][$loan->cost_list_id]:null;
+
+                            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+                            ->setCellValue($phatsinh.$hang, $chiho);
+
+                            $phatsinh++;
+                        }
+
+
+                         $hang++;
+
+
+
+                        $tencongty = $row->customer_company;
+
+
+
+                      }
+
+                }
+
+            }
+
+
+
+            $check_customer = 0;
+
+
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A'.$hang, 'TỔNG')
+
+
+               ->setCellValue('K'.$hang, '=SUM(K8:K'.($hang-1).')');
+
+            $phatsinh = "L";
+
+            foreach ($loan_units as $loan) {
+                $objPHPExcel->setActiveSheetIndex($index_worksheet)
+               ->setCellValue($phatsinh.$hang, '=SUM('.$phatsinh.'8:'.$phatsinh.($hang-1).')');
+
+                $phatsinh++;
+            }
+
+            
+
+            $hang++;
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A'.$hang, 'Thuế GTGT 10%')
+
+
+               ->setCellValue('K'.$hang, '=K'.($hang-1).'*10%');
+
+            $hang++;
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A'.$hang, 'Tổng cộng')
+
+
+               ->setCellValue('K'.$hang, '=SUM(K'.($hang-1).':K'.($hang-2).')')
+
+               ->setCellValue('L'.$hang, '=SUM(L'.($hang-2).':'.$phatsinh.($hang-2).')');
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:'.$phatsinh.$hang)->applyFromArray(
+
+                array(
+
+                    
+
+                    'borders' => array(
+
+                        'allborders' => array(
+
+                          'style' => PHPExcel_Style_Border::BORDER_THIN
+
+                        )
+
+                    )
+
+                )
+
+            );
+
+
+            $highestColumn = $objPHPExcel->getActiveSheet()->getHighestDataColumn();
+
+            $cell2 = $objPHPExcel->getActiveSheet()->getCellByColumnAndRow(10, $hang)->getCalculatedValue();
+            $cell1 = $objPHPExcel->getActiveSheet()->getCellByColumnAndRow(11, $hang)->getCalculatedValue();
+            $cell = (int)($cell2+$cell1);
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A'.($hang+1), 'Bằng chữ: '.$this->lib->convert_number_to_words(round($cell)).' đồng');
+
+            
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.$hang.':F'.$hang);
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang-1).':F'.($hang-1));
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang-2).':F'.($hang-2));
+            $objPHPExcel->getActiveSheet()->mergeCells('L'.$hang.':'.$phatsinh.$hang);
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang+1).':'.$phatsinh.($hang+1));
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('L'.$hang.':'.$phatsinh.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('L'.$hang.':'.$phatsinh.$hang)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang-2).':A'.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang-2).':A'.$hang)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+
+
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A'.($hang+3), 'NGƯỜI LẬP BIỂU')
+
+                ->setCellValue('E'.($hang+3), mb_strtoupper($infos->info_company, "UTF-8"))
+
+               ->setCellValue('I'.($hang+3), mb_strtoupper($tencongty, "UTF-8"));
+
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang+3).':D'.($hang+3));
+
+            $objPHPExcel->getActiveSheet()->mergeCells('E'.($hang+3).':H'.($hang+3));
+
+            $objPHPExcel->getActiveSheet()->mergeCells('I'.($hang+3).':M'.($hang+3));
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang+3).':M'.($hang+3))->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang+3).':M'.($hang+3))->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang-2).':'.$phatsinh.($hang+3))->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'bold'  => true,
+
+                        'color' => array('rgb' => '000000')
+
+                    )
+
+                )
+
+            );
+
+
+
+
+
+            $highestRow = $objPHPExcel->getActiveSheet()->getHighestRow();
+
+
+
+            $highestRow ++;
+
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A1:E1');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('H1:M1');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A2:E2');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('H2:M2');
+
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A4:M4');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A6:A7');
+            $objPHPExcel->getActiveSheet()->mergeCells('B6:B7');
+            $objPHPExcel->getActiveSheet()->mergeCells('C6:C7');
+            $objPHPExcel->getActiveSheet()->mergeCells('D6:D7');
+            $objPHPExcel->getActiveSheet()->mergeCells('E6:E7');
+            $objPHPExcel->getActiveSheet()->mergeCells('F6:F7');
+            $objPHPExcel->getActiveSheet()->mergeCells('J6:J7');
+            $objPHPExcel->getActiveSheet()->mergeCells('K6:K7');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('G6:I6');
+            $objPHPExcel->getActiveSheet()->mergeCells('L6:'.$phatsinh.'6');
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:'.$phatsinh.'4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:'.$phatsinh.'4')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle("A4")->getFont()->setSize(16);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:'.$phatsinh.'4')->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'bold'  => true,
+
+                        'color' => array('rgb' => '000000')
+
+                    )
+
+                )
+
+            );
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A2:H2')->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'underline' => PHPExcel_Style_Font::UNDERLINE_SINGLE,
+
+                    )
+
+                )
+
+            );
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('I8:'.$phatsinh.$highestRow)->getNumberFormat()->setFormatCode("#,##0_);[Black](#,##0)");
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:'.$phatsinh.'7')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:'.$phatsinh.'7')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:'.$phatsinh.'7')->getFont()->setBold(true);
+
+            $objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(26);
+
+            $objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(14);
+
+            $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
+
+            //$objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth(25);
+
+
+
+            
+
+            $objPHPExcel->getActiveSheet()->setTitle($row->customer_name);
+
+
+
+            $objPHPExcel->getActiveSheet()->freezePane('A8');
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet);
+        }
+
+
+
+            
+
+            
+
+
+
+
+
+
+
+            // Set properties
+
+            $objPHPExcel->getProperties()->setCreator("TCMT")
+
+                            ->setLastModifiedBy($_SESSION['user_logined'])
+
+                            ->setTitle("Sale Report")
+
+                            ->setSubject("Sale Report")
+
+                            ->setDescription("Sale Report.")
+
+                            ->setKeywords("Sale Report")
+
+                            ->setCategory("Sale Report");
+
+
+
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+
+
+
+            header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+            header("Content-Disposition: attachment; filename= BẢNG KÊ SẢN LƯỢNG VẬN CHUYỂN.xlsx");
+
+            header("Cache-Control: max-age=0");
+
+            ob_clean();
+
+            $objWriter->save("php://output");
+
+        
+
+    }
 
 
 }

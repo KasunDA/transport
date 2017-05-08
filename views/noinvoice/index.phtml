@@ -167,7 +167,7 @@ elseif ($order_by == 'shipment_round')
         <th rowspan="2"  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_revenue','<?php echo $url_order ?>')">Doanh thu <?php if ($order_by == 'shipment_revenue'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>  
-        <th  class="fix" colspan="9">
+        <th  class="fix" colspan="8">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_cost','<?php echo $url_order ?>')">Chi phí không HĐ <?php if ($order_by == 'shipment_cost'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>  
     </tr>
@@ -177,9 +177,6 @@ elseif ($order_by == 'shipment_round')
         </th>
         <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','police_cost','<?php echo $url_order ?>')">Công an <?php if ($order_by == 'police_cost'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','tire_cost','<?php echo $url_order ?>')">Vá vỏ rửa xe <?php if ($order_by == 'tire_cost'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','warehouse_weight','<?php echo $url_order ?>')">Cân xe <?php if ($order_by == 'warehouse_weight'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
@@ -193,18 +190,18 @@ elseif ($order_by == 'shipment_round')
         <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','commission','<?php echo $url_order ?>')">Hoa hồng <?php if ($order_by == 'commission'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_bonus','<?php echo $url_order ?>')">Thưởng vượt tải <?php if ($order_by == 'shipment_bonus'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
 
         <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','cost_add','<?php echo $url_order ?>')">Phát sinh <?php if ($order_by == 'cost_add'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','cost_add','<?php echo $url_order ?>')">Khác <?php if ($order_by == 'cost_add'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+        </th>
+        <th  class="fix">
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','cost_add','<?php echo $url_order ?>')">Cộng <?php if ($order_by == 'cost_add'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
     </tr>
     
    </thead>
    <tbody>
-    <?php $tongbd=0; $tongca=0; $tongvavo=0; $tongphatsinh=0; $tongcan=0; $tongquet=0; $tongve=0; $tongthuong=0; $tonghoahong=0;  ?>
+    <?php $tongbd=0; $tongca=0; $tongphatsinh=0; $tongcan=0; $tongquet=0; $tongve=0; $tonghoahong=0; $cong=0; $congcp=0; ?>
     <?php
         $kho =array();
     ?>
@@ -249,8 +246,22 @@ elseif ($order_by == 'shipment_round')
                 $kho['warehouse_gate'][$shipment->shipment_from] = 0;
             }
 
+            
+            $bd = $kho['boiduong_cn'][$shipment->shipment_id];
             $ca = isset($road['police_cost'][$shipment->shipment_id])?$road['police_cost'][$shipment->shipment_id]:null;
-            $vv = isset($road['tire_cost'][$shipment->shipment_id])?$road['tire_cost'][$shipment->shipment_id]:null;
+            $ps = isset($road['tire_cost'][$shipment->shipment_id])?$road['tire_cost'][$shipment->shipment_id]:null;
+            $hh = isset($cost_data[9][$shipment->shipment_id])?$cost_data[9][$shipment->shipment_id]:null;
+
+            if(isset($cost_data[11][$shipment->shipment_id]))
+                $bd += $cost_data[11][$shipment->shipment_id];
+            if (isset($road['road_add'][$shipment->shipment_id]))
+                $ps += $road['road_add'][$shipment->shipment_id];
+            if(isset($cost_data['kvat'][$shipment->shipment_id]))
+                $ps += $cost_data['kvat'][$shipment->shipment_id];
+            
+            $ps += $shipment->shipment_road_add;
+
+            $cong =  $bd+ ($kho['warehouse_weight'][$shipment->shipment_from]+$kho['warehouse_weight'][$shipment->shipment_to])+ ($kho['warehouse_clean'][$shipment->shipment_from]+$kho['warehouse_clean'][$shipment->shipment_to])+ ($kho['warehouse_gate'][$shipment->shipment_to])+ $ca+ $ps+ $hh;
     ?>
         
         <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" data="<?php echo $shipment->vehicle_id.$shipment->shipment_round ?>" id="<?php echo $shipment->shipment_id ?>" class="edit_tr">
@@ -262,42 +273,40 @@ elseif ($order_by == 'shipment_round')
             
             <td class="fix" id="shipment_date_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment->shipment_date); ?></td>
             
-            <td nowrap class="fix" data="<?php echo $shipment->shipment_from; ?>" id="shipment_from_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$shipment->shipment_from) ?>" ><?php echo $shipment->shipment_from==$place['place_id'][$shipment->shipment_from]?$place['place_name'][$shipment->shipment_from]:null ?></a></td>
-            <td nowrap class="fix" data="<?php echo $shipment->shipment_to; ?>" id="shipment_to_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$shipment->shipment_to) ?>" ><?php echo $shipment->shipment_to==$place['place_id'][$shipment->shipment_to]?$place['place_name'][$shipment->shipment_to]:null ?></a></td>
+            <td class="fix" data="<?php echo $shipment->shipment_from; ?>" id="shipment_from_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$shipment->shipment_from) ?>" ><?php echo $shipment->shipment_from==$place['place_id'][$shipment->shipment_from]?$place['place_name'][$shipment->shipment_from]:null ?></a></td>
+            <td class="fix" data="<?php echo $shipment->shipment_to; ?>" id="shipment_to_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$shipment->shipment_to) ?>" ><?php echo $shipment->shipment_to==$place['place_id'][$shipment->shipment_to]?$place['place_name'][$shipment->shipment_to]:null ?></a></td>
             <td class="fix" id="shipment_ton_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_ton; ?></td>
             <td class="fix" id="cont_unit_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->cont_unit_name; ?></td>
             <td class="fix" id="shipment_charge_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_charge); ?></td>
             <td class="fix" id="shipment_revenue_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_revenue+$shipment->revenue_other); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($kho['boiduong_cn'][$shipment->shipment_id]); ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($bd); ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($ca); ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($vv); ?></td>
-            <td nowrap class="fix"  id="warehouse_weight_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($kho['warehouse_weight'][$shipment->shipment_from]+$kho['warehouse_weight'][$shipment->shipment_to]) ?></td>
-            <td nowrap class="fix"  id="warehouse_clean_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($kho['warehouse_clean'][$shipment->shipment_from]+$kho['warehouse_clean'][$shipment->shipment_to]) ?></td>
-            <td nowrap class="fix"  id="warehouse_gate_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney(/*$kho['warehouse_gate'][$shipment->shipment_from]+*/$kho['warehouse_gate'][$shipment->shipment_to]) ?></td>
-            <td class="fix" ><?php echo $lib->formatMoney($shipment->commission*$shipment->commission_number); ?></td>
-            <td class="fix"  ><?php echo $lib->formatMoney($shipment->shipment_bonus); ?></td>
-            <td class="fix masterTooltip" title="<?php echo ($shipment->approve==1)?$shipment->cost_add_comment:null; ?> " ><?php echo $lib->formatMoney(($shipment->approve==1)?$shipment->cost_add:0); ?></td>
-
+            <td class="fix"  id="warehouse_weight_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($kho['warehouse_weight'][$shipment->shipment_from]+$kho['warehouse_weight'][$shipment->shipment_to]) ?></td>
+            <td class="fix"  id="warehouse_clean_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($kho['warehouse_clean'][$shipment->shipment_from]+$kho['warehouse_clean'][$shipment->shipment_to]) ?></td>
+            <td class="fix"  id="warehouse_gate_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($kho['warehouse_gate'][$shipment->shipment_to]) ?></td>
+            <td class="fix" ><?php echo $lib->formatMoney($hh); ?></td>
+            <td class="fix"  ><?php echo $lib->formatMoney($ps); ?></td>
+            <td class="fix"  ><?php echo $lib->formatMoney($cong); ?></td>
         </tr>
 
         <?php 
         $tong += $shipment->shipment_revenue+$shipment->revenue_other; 
 
-        $tongbd += $kho['boiduong_cn'][$shipment->shipment_id];
+        $tongbd += $bd;
         $tongca += $ca;
-        $tongvavo += $vv;
-        $tongphatsinh += (($shipment->approve==1)?$shipment->cost_add:0);
+        $tongphatsinh += $ps;
         $tongcan += ($kho['warehouse_weight'][$shipment->shipment_from]+$kho['warehouse_weight'][$shipment->shipment_to]);
         $tongquet += ($kho['warehouse_clean'][$shipment->shipment_from]+$kho['warehouse_clean'][$shipment->shipment_to]);
-        $tongve += (/*$kho['warehouse_gate'][$shipment->shipment_from]+*/$kho['warehouse_gate'][$shipment->shipment_to]);
-        $tongthuong += $shipment->shipment_bonus;
-        $tonghoahong += ($shipment->commission*$shipment->commission_number);
+        $tongve += ($kho['warehouse_gate'][$shipment->shipment_to]);
+        $tonghoahong += $hh;
 
         ?>
 
          
 
-    <?php endforeach; ?>
+    <?php endforeach; 
+        $congcp = $tongbd+$tongca+$tongcan+$tongquet+$tongve+$tonghoahong+$tongphatsinh;
+    ?>
     <tr  style="font-weight: bold; color: rgb(23, 119, 226);" >
         <td class="fix" colspan="9" ></td>
         <th colspan="2" style="border-right: 1px solid rgb(236, 235, 235);border-top: 1px solid #80C8E5;padding: 7px; text-align: right;" >
@@ -306,13 +315,12 @@ elseif ($order_by == 'shipment_round')
         <td class="fix " ><?php echo $lib->formatMoney($tong) ?></td>
         <td class="fix " ><?php echo $lib->formatMoney($tongbd) ?></td>
         <td class="fix " ><?php echo $lib->formatMoney($tongca) ?></td>
-        <td class="fix " ><?php echo $lib->formatMoney($tongvavo) ?></td>
         <td class="fix " ><?php echo $lib->formatMoney($tongcan) ?></td>
         <td class="fix " ><?php echo $lib->formatMoney($tongquet) ?></td>
         <td class="fix " ><?php echo $lib->formatMoney($tongve) ?></td>
         <td class="fix " ><?php echo $lib->formatMoney($tonghoahong) ?></td>
-        <td class="fix " ><?php echo $lib->formatMoney($tongthuong) ?></td>
         <td class="fix " ><?php echo $lib->formatMoney($tongphatsinh) ?></td>
+        <td class="fix " ><?php echo $lib->formatMoney($congcp) ?></td>
        
     </tr>
         

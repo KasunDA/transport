@@ -34,11 +34,14 @@ Class sparevehiclelistController Extends baseController {
 
             $limit = isset($_POST['limit']) ? $_POST['limit'] : 18446744073709;
 
+            $xe = isset($_POST['xe']) ? $_POST['xe'] : null;
+            $mooc = isset($_POST['nv']) ? $_POST['nv'] : null;
+
         }
 
         else{
 
-            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'start_time DESC, end_time';
+            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'spare_part ASC, start_time DESC, end_time';
 
             $order = $this->registry->router->order_by ? $this->registry->router->order_by : 'DESC';
 
@@ -47,6 +50,9 @@ Class sparevehiclelistController Extends baseController {
             $keyword = "";
 
             $limit = 50;
+
+            $xe = 0;
+            $mooc = 0;
 
         }
 
@@ -95,9 +101,19 @@ Class sparevehiclelistController Extends baseController {
 
         $pagination_stages = 2;
 
-        
+        $data = array(
+            'where'=>'1=1',
+        );
 
-        $tongsodong = count($sparevehicle_model->getAllStock(null,$join));
+        if($xe > 0){
+            $data['where'] = $data['where'].' AND vehicle = '.$xe;
+        }
+
+        if($mooc > 0){
+            $data['where'] = $data['where'].' AND romooc = '.$mooc;
+        }
+
+        $tongsodong = count($sparevehicle_model->getAllStock($data,$join));
 
         $tongsotrang = ceil($tongsodong / $sonews);
 
@@ -121,6 +137,9 @@ Class sparevehiclelistController Extends baseController {
 
         $this->view->data['sonews'] = $sonews;
 
+        $this->view->data['xe'] = $xe;
+        $this->view->data['mooc'] = $mooc;
+
 
 
         $data = array(
@@ -131,9 +150,17 @@ Class sparevehiclelistController Extends baseController {
 
             'limit'=>$x.','.$sonews,
 
+            'where'=>'1=1',
+
             );
 
-        
+        if($xe > 0){
+            $data['where'] = $data['where'].' AND vehicle = '.$xe;
+        }
+
+        if($mooc > 0){
+            $data['where'] = $data['where'].' AND romooc = '.$mooc;
+        }
 
         if ($keyword != '') {
 

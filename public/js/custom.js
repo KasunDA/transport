@@ -415,8 +415,10 @@ window.addEventListener("keydown",function (e) {
 
         window.addEventListener("keydown",function (e) {
             if (e.keyCode === 13) { 
+              if ($('#search-input').is(':focus')) {
                 e.preventDefault();
                 $('#search-submit').click();
+              }
             }
         });
     }

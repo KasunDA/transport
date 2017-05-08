@@ -159,7 +159,7 @@ elseif ($order_by == 'customer_name')
         <div class="add-box" style="margin-right: 5px">
 
 
-            <select style="width:120px" name="sl_status" id="sl_status">
+            <select style="width:120px" name="sl_nv" id="sl_nv">
 
                 <option value="0">Khách hàng</option>
 
@@ -301,7 +301,7 @@ elseif ($order_by == 'customer_name')
 
             <td class="fix" style="display:none" id="payment_<?php echo $vat->vat_id; ?>"><?php echo $vat->payment; ?></td>
 
-            <td class="fix" style="display:none" id="shipment_<?php echo $vat->vat_id; ?>"><?php echo $vat->shipment; ?></td>
+            <td class="fix" style="display:none" id="shipment_list_<?php echo $vat->vat_id; ?>"><?php echo $vat->shipment_list; ?></td>
 
             <?php if(!isset($disable_control)){ ?>
 
@@ -417,9 +417,9 @@ $this->helper('slidePaginator');
 
                     <div class="form-group">
 
-                      <label for="shipment">Chuyến hàng</label>
+                      <label for="shipment_list">Bảng kê</label>
 
-                      <select id="shipment" name="shipment" tabindex="5" required="required" multiple >
+                      <select id="shipment_list" name="shipment_list" tabindex="5" required="required" multiple >
 
                       </select>
 
@@ -439,7 +439,7 @@ $this->helper('slidePaginator');
 
                     <div class="form-group">
 
-                      <label for="vat_total">Tổng cộng</label>
+                      <label for="vat_total">Tổng cộng theo bảng kê</label>
 
                       <input type="text" class="numbers" id="vat_total"  name="vat_total" disabled >
 
@@ -513,7 +513,7 @@ $this->helper('slidePaginator');
 
                                                         <td>Thành tiền <br>
 
-                                                            <input type="text" class="vat_out_total numbers" name="vat_out_total[]" style="width:120px" >
+                                                            <input type="text" class="vat_out_total numbers" name="vat_out_total[]" style="width:120px" disabled >
 
                                                         </td>
 
@@ -669,7 +669,7 @@ $('html').click(function(e) {
 
             var vat_date = $(this).find("#vat_date_"+$(this).attr('id')).text();
 
-            var shipment = $(this).find("#shipment_"+$(this).attr('id')).text();
+            var shipment_list = $(this).find("#shipment_list_"+$(this).attr('id')).text();
 
 
 
@@ -697,21 +697,21 @@ $('html').click(function(e) {
 
                 type: 'POST',
 
-                data: {customer:customer,shipment:shipment},
+                data: {customer:customer,shipment_list:shipment_list},
 
                 success:function(data){
 
 
 
-                    $('#shipment').html(data);
+                    $('#shipment_list').html(data);
 
-                    $('#shipment').multiselect( 'refresh' );
+                    $('#shipment_list').multiselect( 'refresh' );
 
 
 
                     var num = 0;
 
-                    $("#shipment").multiselect("widget").find(":checkbox:checked").each(function(){
+                    $("#shipment_list").multiselect("widget").find(":checkbox:checked").each(function(){
 
                        num += parseFloat(this.title);
 
@@ -725,85 +725,83 @@ $('html').click(function(e) {
 
 
 
-                    $("#shipment").multiselect({
+                    $("#shipment_list").multiselect({
 
-                        click: function(event, ui){
+                      click: function(event, ui){
 
-                            var vat_total = parseFloat($('#vat_total').attr('data')) || 0;
+                          var vat_total = parseFloat($('#vat_total').attr('data')) || 0;
 
-                            var new_num = parseFloat(ui.text);
+                          var new_num = parseFloat(ui.text);
 
-                            if(ui.checked == 1){
+                          if(ui.checked == 1){
 
-                                $('#vat_total').attr('data',vat_total+new_num);
+                              $('#vat_total').attr('data',vat_total+new_num);
 
-                                $('#vat_total').val(vat_total+new_num);
+                              $('#vat_total').val(vat_total+new_num);
 
-                            }
+                          }
 
-                            else{
+                          else{
 
-                                $('#vat_total').attr('data',vat_total-new_num);
+                              $('#vat_total').attr('data',vat_total-new_num);
 
-                                $('#vat_total').val(vat_total-new_num);
+                              $('#vat_total').val(vat_total-new_num);
 
-                            }
+                          }
 
+                          $(".numbers").val(function(index, value) {
 
+                            return value
 
-                            $(".numbers").val(function(index, value) {
+                              .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 
-                              return value
+                            ;
 
-                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                          }); 
 
-                              ;
+                      },
 
-                            }); 
+                      checkAll: function(){
 
-                        },
+                          var vat_total = parseFloat($('#vat_total').attr('data')) || 0;
 
-                        checkAll: function(){
+                          var new_num = 0;
 
-                            var vat_total = parseFloat($('#vat_total').attr('data')) || 0;
+                          $("#shipment_list").multiselect("widget").find(":checkbox").each(function(){
 
-                            var new_num = 0;
+                             new_num += parseFloat(this.title);
 
-                            $("#shipment").multiselect("widget").find(":checkbox").each(function(){
-
-                               new_num += parseFloat(this.title);
-
-                            });
+                          });
 
 
 
-                            $('#vat_total').attr('data',vat_total+new_num);
+                          $('#vat_total').attr('data',vat_total+new_num);
 
-                            $('#vat_total').val(vat_total+new_num);
+                          $('#vat_total').val(vat_total+new_num);
 
 
 
-                            $(".numbers").val(function(index, value) {
+                          $(".numbers").val(function(index, value) {
 
-                              return value
+                            return value
 
-                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 
-                              ;
+                            ;
 
-                            }); 
+                          }); 
 
-                        },
+                      },
 
-                        uncheckAll: function(){
+                      uncheckAll: function(){
 
-                            $('#vat_total').attr('data',0);
+                          $('#vat_total').attr('data',0);
 
-                            $('#vat_total').val(0);
+                          $('#vat_total').val(0);
 
-                        }
+                      }
 
-                      });
+                    });
 
                 }
 
@@ -891,7 +889,7 @@ $('html').click(function(e) {
 
 
 
-                      if (total > parseFloat($('#vat_total').attr('data'))) {
+                      /*if (total > parseFloat($('#vat_total').attr('data'))) {
 
                         $(this).val(0);
 
@@ -921,7 +919,7 @@ $('html').click(function(e) {
 
                         $('#error').fadeOut(100000);
 
-                      }
+                      }*/
 
 
 
@@ -997,7 +995,7 @@ $('html').click(function(e) {
 
 
 
-                      if (total > parseFloat($('#vat_total').attr('data'))) {
+                      /*if (total > parseFloat($('#vat_total').attr('data'))) {
 
                         $(this).val(0);
 
@@ -1027,7 +1025,7 @@ $('html').click(function(e) {
 
                         $('#error').fadeOut(10000);
 
-                      }
+                      }*/
 
 
 
@@ -1193,9 +1191,9 @@ function add_click(){
 
         $('#vat_date').val("");
 
-        $('#vat_total').val("");
+        $('#vat_total').val(0);
 
-        $('#vat_total').attr('data',"");
+        $('#vat_total').attr('data',0);
 
         $('#vat_sum').val("");
 
@@ -1205,9 +1203,9 @@ function add_click(){
 
 
 
-        $('#shipment').html("");
+        $('#shipment_list').html("");
 
-        $('#shipment').multiselect( 'refresh' );
+        $('#shipment_list').multiselect( 'refresh' );
 
 
 
@@ -1289,7 +1287,7 @@ $(document).ready(function(){
 
                     var vat_date = $('#vat_date').attr('value');
 
-                    var shipment = $('#shipment').val();
+                    var shipment_list = $('#shipment_list').val();
 
 
 
@@ -1377,7 +1375,7 @@ $(document).ready(function(){
 
                             vat_date: vat_date,
 
-                            shipment: shipment,
+                            shipment_list: shipment_list,
 
                             vat_out: vat_out,
 
@@ -1559,7 +1557,7 @@ $(document).ready(function(){
 
 
 
-      if (total > parseFloat($('#vat_total').attr('data'))) {
+      /*if (total > parseFloat($('#vat_total').attr('data'))) {
 
         $(this).val(0);
 
@@ -1589,7 +1587,7 @@ $(document).ready(function(){
 
         $('#error').fadeOut(10000);
 
-      }
+      }*/
 
 
 
@@ -1665,7 +1663,7 @@ $(document).ready(function(){
 
 
 
-      if (total > parseFloat($('#vat_total').attr('data'))) {
+      /*if (total > parseFloat($('#vat_total').attr('data'))) {
 
         $(this).val(0);
 
@@ -1695,7 +1693,7 @@ $(document).ready(function(){
 
         $('#error').fadeOut(10000);
 
-      }
+      }*/
 
 
 
@@ -1837,11 +1835,11 @@ function set_item_customer(value,name,mst,address) {
 
 
 
-            $('#shipment').html(data);
+            $('#shipment_list').html(data);
 
-            $('#shipment').multiselect( 'refresh' );
+            $('#shipment_list').multiselect( 'refresh' );
 
-            $("#shipment").multiselect({
+            $("#shipment_list").multiselect({
 
                 click: function(event, ui){
 
@@ -1883,7 +1881,7 @@ function set_item_customer(value,name,mst,address) {
 
                     var new_num = 0;
 
-                    $("#shipment").multiselect("widget").find(":checkbox").each(function(){
+                    $("#shipment_list").multiselect("widget").find(":checkbox").each(function(){
 
                        new_num += parseFloat(this.title);
 
@@ -2041,7 +2039,7 @@ $( ".add-field" ).dialog({
 
 
 
-$("#shipment").multiselect({});
+$("#shipment_list").multiselect({});
 
 
 
@@ -2207,7 +2205,7 @@ $('#chonloc option[value='+ch+']').attr('selected','selected');
 
 var kh = "<?php echo $kh ?>";
 
-$('#sl_status option[value='+kh+']').attr('selected','selected');
+$('#sl_nv option[value='+kh+']').attr('selected','selected');
 
 
 
@@ -2377,7 +2375,7 @@ function addRow(tableID){
 
 
 
-      if (total > parseFloat($('#vat_total').attr('data'))) {
+      /*if (total > parseFloat($('#vat_total').attr('data'))) {
 
         $(this).val(0);
 
@@ -2407,7 +2405,7 @@ function addRow(tableID){
 
         $('#error').fadeOut(10000);
 
-      }
+      }*/
 
 
 
@@ -2483,7 +2481,7 @@ function addRow(tableID){
 
 
 
-      if (total > parseFloat($('#vat_total').attr('data'))) {
+      /*if (total > parseFloat($('#vat_total').attr('data'))) {
 
         $(this).val(0);
 
@@ -2513,7 +2511,7 @@ function addRow(tableID){
 
         $('#error').fadeOut(10000);
 
-      }
+      }*/
 
 
 

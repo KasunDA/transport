@@ -80,6 +80,13 @@
 
   <script type="text/javascript" src="<?php echo BASE_URL ?>/public/js/jquery.battatech.excelexport.js"></script>
 
+  <link rel="stylesheet" href="<?php BASE_URL ?>/public/js/chosen/chosen.css">
+  <script src="<?php echo BASE_URL ?>/public/js/chosen/chosen.jquery.js" type="text/javascript"></script>
+
+  <link rel="stylesheet" href="<?php BASE_URL ?>/public/css/component.css">
+  <script type="text/javascript" src="<?php BASE_URL ?>/public/js/jquery.stickyheader.js"></script>
+  <script type="text/javascript" src="<?php BASE_URL ?>/public/js/jquery.ba-throttle-debounce.min.js"></script>
+
 
 
   <style type="text/css">
@@ -876,6 +883,30 @@
 
       });*/
 
+    <?php if (isset($_SESSION['userid_logined']) && ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2) ) { ?>
+
+      $(document).ready(function(){
+          $('#doaction').attr('disabled',true);
+          $('#action').attr('disabled',true);
+          $('.btn-danger').each(function(){
+            if ($(this).attr("onclick")) {
+              $(this).hide();
+            }
+          });
+
+      });
+    <?php } ?>
+
+    $(document).ready(function () {
+      var h = $('.table_data').height();
+      if (h > 150) {
+        $("#sl_vehicle").chosen();
+        $("#sl_nv").chosen();
+        $("#sl_status").chosen();
+      }
+
+    });
+
       </script>
 
 </head>
@@ -1175,8 +1206,9 @@
               <ul class="treeview-menu">
 
                 <li><a data="receiptvoucher" href="<?php echo $this->url('receiptvoucher') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Thu</a></li>
-
                 <li><a data="paymentvoucher" href="<?php echo $this->url('paymentvoucher') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Chi</a></li>
+                <li><a data="internaltransfer" href="<?php echo $this->url('internaltransfer') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Chuyển tiền nội bộ</a></li>
+                <li><a data="bankbalance" href="<?php echo $this->url('bankbalance') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Số dư tài khoản</a></li>
 
               </ul>
 
@@ -1200,8 +1232,26 @@
 
               <ul class="treeview-menu">
 
-                <li><a data="receivable" href="<?php echo $this->url('receivable') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Phải thu</a></li>
-                <li><a data="payable" href="<?php echo $this->url('payable') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Phải trả</a></li>
+                <li>
+                  <a data="receivable" href="<?php echo $this->url('receivable') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Phải thu</a>
+                  <ul class="treeview-menu">
+                    <li><a data="receivable" href="<?php echo $this->url('receivable') ?>"><i class="fa fa-fw fa-angle-right text-aqua"></i>Tổng hợp</a></li>
+                    <li><a data="receivable/customer" href="<?php echo $this->url('receivable/customer') ?>"><i class="fa fa-fw fa-angle-right text-aqua"></i>Khách hàng</a></li>
+                    <li><a data="receivable/staff" href="<?php echo $this->url('receivable/staff') ?>"><i class="fa fa-fw fa-angle-right text-aqua"></i>Nhân viên</a></li>
+                    <li><a data="receivable/steersman" href="<?php echo $this->url('receivable/steersman') ?>"><i class="fa fa-fw fa-angle-right text-aqua"></i>Tài xế</a></li>
+                  </ul>
+                </li>
+                <li>
+                  <a data="payable" href="<?php echo $this->url('payable') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Phải trả</a>
+                  <ul class="treeview-menu">
+                    <li><a data="payable" href="<?php echo $this->url('payable') ?>"><i class="fa fa-fw fa-angle-right text-aqua"></i>Tổng hợp</a></li>
+                    <li><a data="payable/customer" href="<?php echo $this->url('payable/customer') ?>"><i class="fa fa-fw fa-angle-right text-aqua"></i>Khách hàng</a></li>
+                    <li><a data="payable/staff" href="<?php echo $this->url('payable/staff') ?>"><i class="fa fa-fw fa-angle-right text-aqua"></i>Nhân viên</a></li>
+                    <li><a data="payable/steersman" href="<?php echo $this->url('payable/steersman') ?>"><i class="fa fa-fw fa-angle-right text-aqua"></i>Tài xế</a></li>
+                    <li><a data="payable/toll" href="<?php echo $this->url('payable/toll') ?>"><i class="fa fa-fw fa-angle-right text-aqua"></i>Phí cầu đường</a></li>
+                  </ul>
+                </li>
+                <li><a data="loan" href="<?php echo $this->url('loan') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Chi hộ</a></li>
 
               </ul>
 
@@ -1378,6 +1428,8 @@
           <ul class="treeview-menu">
 
             <li><a data="marketing" href="<?php echo $this->url('marketing') ?>"><i class="fa fa-fw fa-cubes text-aqua"></i>Lô hàng</a></li>
+            <li><a data="shipmentlist" href="<?php echo $this->url('shipmentlist') ?>"><i class="fa fa-fw fa-file-text-o text-aqua"></i>Bảng kê</a></li>
+            <li><a data="sell" href="<?php echo $this->url('sell') ?>"><i class="fa fa-fw fa-hdd-o text-aqua"></i>Xuất bán hàng hóa</a></li>
 
           </ul>
 
@@ -1542,6 +1594,8 @@
             <li><a data="stock" href="<?php echo $this->url('stock') ?>"><i class="fa fa-fw fa-database text-aqua"></i>Tồn kho</a></li>
 
             <li><a data="used" href="<?php echo $this->url('used') ?>"><i class="fa fa-fw fa-clock-o text-aqua"></i>Tình trạng sử dụng</a></li>
+
+            <li><a data="spareparttracking" href="<?php echo $this->url('spareparttracking') ?>"><i class="fa fa-fw fa-tachometer text-aqua"></i>Bảng theo dõi</a></li>
 
           </ul>
 

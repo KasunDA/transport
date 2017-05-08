@@ -25,6 +25,29 @@
     </div>
     <div class="tablenav top">
         <div class="add-box">
+            <select id="sl_round" name="sl_round" style="width:90px">
+             <?php 
+                for ($k=1; $k < 13; $k++) { 
+                    echo '<option value="'.$k.'">Tháng '.$k.'</option>';
+                }
+             ?>
+            </select>
+            <select id="sl_staff" name="sl_staff" style="width:100px">
+             <?php 
+                $nam = date('Y');
+                for ($k=($nam-5); $k < ($nam+5); $k++) { 
+                    echo '<option value="'.$k.'">Năm '.$k.'</option>';
+                }
+             ?>
+            </select>
+
+            <input type="button" name="xem" id="xem" value="Xem" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">  
+            
+        </div>
+    </div>
+    <div class="tablenav top">
+        <div style="clear:both"></div>
+        <div class="add-box">
                   
             Từ  <input style="width:80px" type="search" name="batdau" id="batdau" placeholder="Chọn ngày" <?php if(isset($batdau)) echo "value='$batdau'"; ?> >  
             Đến  <input style="width:80px" type="search" name="ketthuc" id="ketthuc" placeholder="Chọn ngày" <?php if(isset($ketthuc)) echo "value='$ketthuc'"; ?> >  
@@ -37,13 +60,18 @@
             <input type="button" name="chon" id="chon" value="Chọn" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">  
         </div>
         <div class="add-box" style="margin-right: 5px">
-            <select name="sl_vehicle" id="sl_vehicle">
-                <option selected="selected" value="">Xe</option>
+            <select style="width:120px" name="sl_vehicle" id="sl_vehicle">
+                <option selected="selected" value="0">Xe</option>
                 <?php foreach ($vehicles as $sm) { ?>
                 <option value="<?php echo $sm->vehicle_id ?>"><?php echo $sm->vehicle_number ?></option>
                 <?php } ?>
             </select>
-
+            <select style="width:120px" name="sl_nv" id="sl_nv">
+                <option value="0">Khách hàng</option>
+                <?php foreach ($customer_lists as $sm) { ?>
+                <option value="<?php echo $sm->customer_id ?>"><?php echo $sm->customer_name ?></option>
+                <?php } ?>
+            </select>
             
             
         </div>
@@ -243,5 +271,38 @@
 
 var x = "<?php echo $xe ?>";
 $('#sl_vehicle option[value='+x+']').attr('selected','selected');
+
+var tt = "<?php echo $kh ?>";
+$('#sl_nv option[value='+tt+']').attr('selected','selected');
+
+var v = "<?php echo $vong ?>";
+$('#sl_round option[value='+v+']').attr('selected','selected');
+
+var tt = "<?php echo $trangthai ?>";
+$('#sl_staff option[value='+tt+']').attr('selected','selected');
+</script>
+<script type="text/javascript">
+    
+    $('#sl_round').change(function(){
+        var m = $(this).val();
+        var y = $('#sl_staff').val();
+        var firstDay = new Date(y, m-1, 1);
+        var lastDay = new Date(y, m, 0);
+
+        $('#batdau').datepicker("setDate", firstDay );
+        $('#ketthuc').datepicker("setDate", lastDay );
+
+    });
+
+    $('#sl_staff').change(function(){
+        var y = $(this).val();
+        var m = $('#sl_round').val();
+        var firstDay = new Date(y, m-1, 1);
+        var lastDay = new Date(y, m, 0);
+
+        $('#batdau').datepicker("setDate", firstDay );
+        $('#ketthuc').datepicker("setDate", lastDay );
+
+    });
 
 </script>

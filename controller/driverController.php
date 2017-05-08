@@ -222,6 +222,7 @@ Class driverController Extends baseController {
 
             $driver = $this->model->get('driverModel');
             $driver_temp = $this->model->get('drivertempModel');
+            $shipment = $this->model->get('shipmentModel');
 
             $data = array(
 
@@ -256,6 +257,15 @@ Class driverController Extends baseController {
 
 
                     $driver->updateDriver($data,array('driver_id' => trim($_POST['yes'])));
+
+                    $s_data = array(
+                        'where'=> 'vehicle = '.$data['vehicle'].' AND shipment_date >= '.$data['start_work'].' AND shipment_date <= '.$data['end_work'],
+                    );
+                    $shipments = $shipment->getAllShipment($s_data);
+
+                    foreach ($shipments as $ship) {
+                        $shipment->updateShipment(array('steersman'=>$data['steersman']),array('shipment_id'=>$ship->shipment_id));
+                    }
 
 
                     echo "Cập nhật thành công";
@@ -358,6 +368,15 @@ Class driverController Extends baseController {
                     else{
                         $driver->createDriver($data);
 
+                    }
+
+                    $s_data = array(
+                        'where'=> 'vehicle = '.$data['vehicle'].' AND shipment_date >= '.$data['start_work'].' AND shipment_date <= '.$data['end_work'],
+                    );
+                    $shipments = $shipment->getAllShipment($s_data);
+
+                    foreach ($shipments as $ship) {
+                        $shipment->updateShipment(array('steersman'=>$data['steersman']),array('shipment_id'=>$ship->shipment_id));
                     }
 
                     echo "Thêm thành công";

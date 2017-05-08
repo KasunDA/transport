@@ -98,7 +98,7 @@ elseif ($order_by == 'oil_excess')
         
         <div class="add-box" style="margin-right: 5px">
             <select name="sl_vehicle" id="sl_vehicle">
-                <option selected="selected" value="">Xe</option>
+                <option selected="selected" value="0">Xe</option>
                 <?php foreach ($vehicles as $sm) { ?>
                 <option value="<?php echo $sm->vehicle_id ?>"><?php echo $sm->vehicle_number ?></option>
                 <?php } ?>

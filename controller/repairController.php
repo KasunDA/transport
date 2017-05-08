@@ -23,6 +23,8 @@ Class repairController Extends baseController {
             $vong = isset($_POST['vong']) ? $_POST['vong'] : null;
 
             $trangthai = isset($_POST['staff']) ? $_POST['staff'] : null;
+            $xe = isset($_POST['xe']) ? $_POST['xe'] : null;
+            $mooc = isset($_POST['nv']) ? $_POST['nv'] : null;
         }
         else{
             $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'repair_date';
@@ -37,6 +39,8 @@ Class repairController Extends baseController {
             $vong = (int)date('m',strtotime($batdau));
 
             $trangthai = date('Y',strtotime($batdau));
+            $xe = 0;
+            $mooc = 0;
         }
 
         $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
@@ -84,6 +88,14 @@ Class repairController Extends baseController {
             $data['where'] = 'repair_id = '.$id;
         }
 
+        if($xe > 0){
+            $data['where'] = $data['where'].' AND vehicle = '.$xe;
+        }
+
+        if($mooc > 0){
+            $data['where'] = $data['where'].' AND romooc = '.$mooc;
+        }
+
         $tongsodong = count($repair_model->getAllRepair($data,$join));
         $tongsotrang = ceil($tongsodong / $sonews);
         
@@ -103,6 +115,8 @@ Class repairController Extends baseController {
         $this->view->data['vong'] = $vong;
 
         $this->view->data['trangthai'] = $trangthai;
+        $this->view->data['xe'] = $xe;
+        $this->view->data['mooc'] = $mooc;
 
         $data = array(
             'order_by'=>$order_by,
@@ -113,6 +127,14 @@ Class repairController Extends baseController {
 
        if (isset($id) && $id > 0) {
             $data['where'] = 'repair_id = '.$id;
+        }
+
+        if($xe > 0){
+            $data['where'] = $data['where'].' AND vehicle = '.$xe;
+        }
+
+        if($mooc > 0){
+            $data['where'] = $data['where'].' AND romooc = '.$mooc;
         }
         
         if ($keyword != '') {
@@ -477,6 +499,451 @@ Class repairController Extends baseController {
             echo $str;
 
         }
+
+    }
+
+    function export(){
+
+        $this->view->disableLayout();
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+
+        $batdau = $this->registry->router->param_id;
+
+        $ketthuc = $this->registry->router->page;
+
+        $xe = $this->registry->router->order_by;
+
+        $mooc = $this->registry->router->order;
+
+        $ngayketthuc = strtotime(date('d-m-Y', strtotime(date('d-m-Y',$ketthuc). ' + 1 days')));
+
+        $info_model = $this->model->get('infoModel');
+        $infos = $info_model->getLastInfo();
+
+        $vehicle_model = $this->model->get('vehicleModel');
+        $vehicles = $vehicle_model->getAllVehicle();
+
+        $vehicle_data = array();
+        foreach ($vehicles as $vehicle) {
+            $vehicle_data['id'][$vehicle->vehicle_id] = $vehicle->vehicle_id;
+            $vehicle_data['name'][$vehicle->vehicle_id] = $vehicle->vehicle_number;
+        }
+
+        $romooc_model = $this->model->get('romoocModel');
+        $romoocs = $romooc_model->getAllVehicle();
+
+        $romooc_data = array();
+        foreach ($romoocs as $romooc) {
+            $romooc_data['id'][$romooc->romooc_id] = $romooc->romooc_id;
+            $romooc_data['name'][$romooc->romooc_id] = $romooc->romooc_number;
+        }
+
+        $repair_list_model = $this->model->get('repairlistModel');
+
+
+        $shipment_model = $this->model->get('shipmentModel');
+
+        $join = array('table'=>'repair, staff','where'=>'staff = staff_id AND repair = repair_id');
+
+
+
+        $data = array(
+
+            'where' => "1=1",
+
+            );
+
+        if($batdau != "" && $ketthuc != "" ){
+
+            $data['where'] = $data['where'].' AND repair_date >= '.$batdau.' AND repair_date < '.$ngayketthuc;
+
+        }
+
+        if($xe > 0){
+
+            $data['where'] = $data['where'].' AND vehicle = '.$xe;
+
+        }
+
+        if($mooc > 0){
+
+            $data['where'] = $data['where'].' AND romooc = '.$mooc;
+
+        }
+
+        
+
+
+
+        /*if ($_SESSION['role_logined'] == 3) {
+
+            $data['where'] = $data['where'].' AND shipment_create_user = '.$_SESSION['userid_logined'];
+
+            
+
+        }*/
+
+
+
+        
+
+
+
+
+
+        $data['order_by'] = 'repair_date';
+
+        $data['order'] = 'ASC';
+
+
+
+        $repair_lists = $repair_list_model->getAllRepair($data,$join);
+
+        
+
+
+            require("lib/Classes/PHPExcel/IOFactory.php");
+
+            require("lib/Classes/PHPExcel.php");
+
+
+
+            $objPHPExcel = new PHPExcel();
+
+
+
+            
+
+
+
+            $index_worksheet = 0; //(worksheet mặc định là 0, nếu tạo nhiều worksheet $index_worksheet += 1)
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A1', mb_strtoupper($infos->info_company, "UTF-8"))
+
+                ->setCellValue('A2', 'PHÒNG VẬT TƯ KỸ THUẬT')
+
+                ->setCellValue('F1', 'CỘNG HÒA XÃ CHỦ NGHĨA VIỆT NAM')
+
+                ->setCellValue('F2', 'Độc lập - Tự do - Hạnh phúc')
+
+                ->setCellValue('A4', 'BẢNG KÊ CHI PHÍ SỬA CHỮA BẢO DƯỠNG')
+
+                ->setCellValue('A6', 'STT')
+
+               ->setCellValue('B6', 'Phiếu sửa chữa')
+
+               ->setCellValue('C6', 'Ngày')
+
+               ->setCellValue('D6', 'Xe')
+
+               ->setCellValue('E6', 'Ro-mooc')
+
+               ->setCellValue('F6', 'Nội dung')
+
+               ->setCellValue('G6', 'Chi phí')
+
+               ->setCellValue('H6', 'Nhân viên');
+
+               
+
+
+
+
+            if ($repair_lists) {
+
+
+
+                $hang = 7;
+
+                $i=1;
+
+
+
+                $k=0;
+                foreach ($repair_lists as $row) {
+
+                    
+
+
+                        //$objPHPExcel->setActiveSheetIndex(0)->getStyle('B'.$hang)->getNumberFormat()->setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_TEXT );
+
+                         $objPHPExcel->setActiveSheetIndex(0)
+
+                            ->setCellValue('A' . $hang, $i++)
+
+                            ->setCellValueExplicit('B' . $hang, $row->repair_code)
+
+                            ->setCellValue('C' . $hang, $this->lib->hien_thi_ngay_thang($row->repair_date))
+
+                            ->setCellValue('D' . $hang, isset($vehicle_data['id'][$row->vehicle])?$vehicle_data['name'][$row->vehicle]:null)
+
+                            ->setCellValue('E' . $hang, isset($romooc_data['id'][$row->romooc])?$romooc_data['name'][$row->romooc]:null)
+
+                            ->setCellValue('F' . $hang, $row->repair_list_comment)
+
+                            ->setCellValue('G' . $hang, $row->repair_list_price)
+
+                            ->setCellValue('H' . $hang, $row->staff_name);
+
+                         $hang++;
+
+
+
+                      
+
+                }
+
+            }
+
+
+
+
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A'.$hang, 'TỔNG')
+
+
+               ->setCellValue('G'.$hang, '=SUM(G7:G'.($hang-1).')');
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:H'.$hang)->applyFromArray(
+
+                array(
+
+                    
+
+                    'borders' => array(
+
+                        'allborders' => array(
+
+                          'style' => PHPExcel_Style_Border::BORDER_THIN
+
+                        )
+
+                    )
+
+                )
+
+            );
+
+
+
+
+
+            $cell = $objPHPExcel->getActiveSheet()->getCellByColumnAndRow(6, $hang)->getCalculatedValue();
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A'.($hang+1), 'Bằng chữ: '.$this->lib->convert_number_to_words(round($cell)).' đồng');
+
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.$hang.':F'.$hang);
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang+1).':H'.($hang+1));
+
+
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.$hang)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+
+
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A'.($hang+3), 'NGƯỜI LẬP BIỂU')
+
+                ->setCellValue('F'.($hang+3), mb_strtoupper($infos->info_company, "UTF-8"));
+
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang+3).':C'.($hang+3));
+
+            $objPHPExcel->getActiveSheet()->mergeCells('F'.($hang+3).':H'.($hang+3));
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang+3).':H'.($hang+3))->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang+3).':H'.($hang+3))->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':H'.($hang+3))->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'bold'  => true,
+
+                        'color' => array('rgb' => '000000')
+
+                    )
+
+                )
+
+            );
+
+
+
+
+
+            $highestRow = $objPHPExcel->getActiveSheet()->getHighestRow();
+
+
+
+            $highestRow ++;
+
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A1:C1');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('F1:H1');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A2:C2');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('F2:H2');
+
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A4:H4');
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:H4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:H4')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle("A4")->getFont()->setSize(16);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:H4')->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'bold'  => true,
+
+                        'color' => array('rgb' => '000000')
+
+                    )
+
+                )
+
+            );
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A2:H2')->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'underline' => PHPExcel_Style_Font::UNDERLINE_SINGLE,
+
+                    )
+
+                )
+
+            );
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('G7:G'.$highestRow)->getNumberFormat()->setFormatCode("#,##0_);[Black](#,##0)");
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:H6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:H6')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:H6')->getFont()->setBold(true);
+
+            $objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(26);
+
+            $objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(14);
+
+            $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
+
+            //$objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth(25);
+
+
+
+            // Set properties
+
+            $objPHPExcel->getProperties()->setCreator("TCMT")
+
+                            ->setLastModifiedBy($_SESSION['user_logined'])
+
+                            ->setTitle("Sale Report")
+
+                            ->setSubject("Sale Report")
+
+                            ->setDescription("Sale Report.")
+
+                            ->setKeywords("Sale Report")
+
+                            ->setCategory("Sale Report");
+
+            $objPHPExcel->getActiveSheet()->setTitle("Chi phi sua chua bao duong");
+
+
+
+            $objPHPExcel->getActiveSheet()->freezePane('A7');
+
+            $objPHPExcel->setActiveSheetIndex(0);
+
+
+
+
+
+
+
+            
+
+
+
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+
+
+
+            header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+            header("Content-Disposition: attachment; filename= BẢNG KÊ CHI PHÍ SỬA CHỮA BẢO DƯỠNG.xlsx");
+
+            header("Cache-Control: max-age=0");
+
+            ob_clean();
+
+            $objWriter->save("php://output");
+
+        
 
     }
 

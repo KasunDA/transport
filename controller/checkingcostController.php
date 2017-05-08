@@ -80,6 +80,8 @@ Class checkingcostController Extends baseController {
 
             $xe = isset($_POST['xe']) ? $_POST['xe'] : null;
 
+            $mooc = isset($_POST['nv']) ? $_POST['nv'] : null;
+
 
 
             $vong = isset($_POST['vong']) ? $_POST['vong'] : null;
@@ -132,6 +134,8 @@ Class checkingcostController Extends baseController {
 
             $xe = 0;
 
+            $mooc = 0;
+
 
 
             $vong = (int)date('m',strtotime($batdau));
@@ -176,6 +180,17 @@ Class checkingcostController Extends baseController {
 
         $this->view->data['vehicles'] = $vehicles;
 
+        $vehicle_data = array();
+        foreach ($vehicles as $vehicle) {
+
+                $vehicle_data['vehicle_id'][$vehicle->vehicle_id] = $vehicle->vehicle_id;
+
+                $vehicle_data['vehicle_number'][$vehicle->vehicle_id] = $vehicle->vehicle_number;
+
+        }
+
+        $this->view->data['vehicle_data'] = $vehicle_data;
+
 
         $romooc_model = $this->model->get('romoocModel');
 
@@ -186,6 +201,17 @@ Class checkingcostController Extends baseController {
 
 
         $this->view->data['romoocs'] = $romoocs;
+
+        $romooc_data = array();
+        foreach ($romoocs as $romooc) {
+
+                $romooc_data['romooc_id'][$romooc->romooc_id] = $romooc->romooc_id;
+
+                $romooc_data['romooc_number'][$romooc->romooc_id] = $romooc->romooc_number;
+
+        }
+
+        $this->view->data['romooc_data'] = $romooc_data;
 
 
 
@@ -233,7 +259,16 @@ Class checkingcostController Extends baseController {
 
 
 
-            $data['where'] = $data['where'].' AND vehicle IN ('.$xe.')';
+            $data['where'] = $data['where'].' AND (vehicle LIKE "'.$xe.'" OR vehicle LIKE "'.$xe.',%" OR vehicle LIKE "%,'.$xe.',%" OR vehicle LIKE "%,'.$xe.'")';
+
+
+
+        }
+        if($mooc > 0){
+
+
+
+            $data['where'] = $data['where'].' AND (romooc LIKE "'.$mooc.'" OR romooc LIKE "'.$mooc.',%" OR romooc LIKE "%,'.$mooc.',%" OR romooc LIKE "%,'.$mooc.'")';
 
 
 
@@ -311,7 +346,7 @@ Class checkingcostController Extends baseController {
 
 
         $this->view->data['xe'] = $xe;
-
+        $this->view->data['mooc'] = $mooc;
 
 
 
@@ -360,7 +395,16 @@ Class checkingcostController Extends baseController {
 
 
 
-            $data['where'] = $data['where'].' AND vehicle IN ('.$xe.')';
+            $data['where'] = $data['where'].' AND (vehicle LIKE "'.$xe.'" OR vehicle LIKE "'.$xe.',%" OR vehicle LIKE "%,'.$xe.',%" OR vehicle LIKE "%,'.$xe.'")';
+
+
+
+        }
+        if($mooc > 0){
+
+
+
+            $data['where'] = $data['where'].' AND (romooc LIKE "'.$mooc.'" OR romooc LIKE "'.$mooc.',%" OR romooc LIKE "%,'.$mooc.',%" OR romooc LIKE "%,'.$mooc.'")';
 
 
 
@@ -612,7 +656,7 @@ Class checkingcostController Extends baseController {
 
                 }
 
-                $str .= '<option '.$check.' value="'.$vehicle->vehicle_id.'">'.$vehicle->vehicle_number.'</option>';
+                $str .= '<option title="'.$vehicle->vehicle_number.'" '.$check.' value="'.$vehicle->vehicle_id.'">'.$vehicle->vehicle_number.'</option>';
 
             }
 
@@ -679,7 +723,7 @@ Class checkingcostController Extends baseController {
 
                 }
 
-                $str .= '<option '.$check.' value="'.$romooc->romooc_id.'">'.$romooc->romooc_number.'</option>';
+                $str .= '<option title="'.$romooc->romooc_number.'" '.$check.' value="'.$romooc->romooc_id.'">'.$romooc->romooc_number.'</option>';
 
             }
 
@@ -1044,7 +1088,7 @@ Class checkingcostController Extends baseController {
 
                     $vat_model->queryVAT('DELETE FROM vat WHERE checking_cost = '.$data);
 
-                    $debit_model->queryVAT('DELETE FROM debit WHERE checking_cost = '.$data);
+                    $debit_model->queryDebit('DELETE FROM debit WHERE checking_cost = '.$data);
 
 
                     $checking_cost_model->deleteCost($data);
@@ -1090,7 +1134,7 @@ Class checkingcostController Extends baseController {
 
                 $vat_model->queryVAT('DELETE FROM vat WHERE checking_cost = '.$_POST['data']);
 
-                $debit_model->queryVAT('DELETE FROM debit WHERE checking_cost = '.$_POST['data']);
+                $debit_model->queryDebit('DELETE FROM debit WHERE checking_cost = '.$_POST['data']);
 
                 /*Log*/
 

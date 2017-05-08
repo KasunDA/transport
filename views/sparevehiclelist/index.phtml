@@ -46,6 +46,34 @@ elseif ($order_by == 'export_stock')
         <?php } ?>
     </div>
     <div class="tablenav top">
+      <div style="clear:both"></div>
+        
+        <div class="add-box">
+            <input type="button" name="chon" id="chon" value="Chọn" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">  
+        </div>
+        
+        <div class="add-box" style="margin-right: 5px">
+            <select name="sl_nv" id="sl_nv">
+                <option selected="selected" value="0">Mooc</option>
+                <?php foreach ($romoocs as $sm) { ?>
+                <option value="<?php echo $sm->romooc_id ?>"><?php echo $sm->romooc_number ?></option>
+                <?php } ?>
+            </select>
+
+            
+            
+        </div>
+        <div class="add-box" style="margin-right: 5px">
+            <select name="sl_vehicle" id="sl_vehicle">
+                <option selected="selected" value="0">Xe</option>
+                <?php foreach ($vehicles as $sm) { ?>
+                <option value="<?php echo $sm->vehicle_id ?>"><?php echo $sm->vehicle_number ?></option>
+                <?php } ?>
+            </select>
+
+            
+            
+        </div>
         <?php if(!isset($disable_control)){ ?>
         <div class="alignleft actions">
             <select name="action" id="action">
@@ -552,8 +580,14 @@ function set_item_spare(value,name,code,seri,brand) {
         return false;
     });
 
-    var ch = "<?php echo $limit ?>";
+var ch = "<?php echo $limit ?>";
 $('#chonloc option[value='+ch+']').attr('selected','selected');
+
+var x = "<?php echo $xe ?>";
+$('#sl_vehicle option[value='+x+']').attr('selected','selected');
+
+var m = "<?php echo $mooc ?>";
+$('#sl_nv option[value='+m+']').attr('selected','selected');
 
 var pickerOpts = {
         closeText: "Đóng",

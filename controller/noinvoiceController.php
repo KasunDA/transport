@@ -256,6 +256,8 @@ Class noinvoiceController Extends baseController {
 
                     vehicle_number LIKE "%'.$keyword.'%"
 
+                    OR bill_number LIKE "%'.$keyword.'%"
+
                     OR customer_name LIKE "%'.$keyword.'%"
 
                     OR shipment_from in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
@@ -278,13 +280,13 @@ Class noinvoiceController Extends baseController {
 
         $road_model = $this->model->get('roadModel');
 
-        
+        $shipment_cost_model = $this->model->get('shipmentcostModel');
 
         $warehouse_data = array();
 
         $road_data = array();
 
-        
+        $cost_data = array();
 
         $shipments = $shipment_model->getAllShipment($data,$join);
 
@@ -310,6 +312,20 @@ Class noinvoiceController Extends baseController {
                 unset($shipments[$k]);
             }
             else{
+
+                $cost_join = array('table'=>'cost_list','where'=>'cost_list = cost_list_id AND check_vat = 0');
+                $shipment_costs = $shipment_cost_model->getAllShipment(array('where'=>'shipment='.$ship->shipment_id),$cost_join);
+
+                foreach ($shipment_costs as $cost) {
+                    if($cost->cost_list_type == 9)
+                        $cost_data[$cost->cost_list_type][$ship->shipment_id] = isset($cost_data[$cost->cost_list_type][$ship->shipment_id])?$cost_data[$cost->cost_list_type][$ship->shipment_id]+$cost->cost:$cost->cost;
+                    else if($cost->cost_list_type == 11)
+                        $cost_data[$cost->cost_list_type][$ship->shipment_id] = isset($cost_data[$cost->cost_list_type][$ship->shipment_id])?$cost_data[$cost->cost_list_type][$ship->shipment_id]+$cost->cost:$cost->cost;
+                    else
+                        $cost_data['kvat'][$ship->shipment_id] = isset($cost_data['kvat'][$ship->shipment_id])?$cost_data['kvat'][$ship->shipment_id]+$cost->cost:$cost->cost;
+                }
+
+
                 $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
 
             
@@ -326,13 +342,21 @@ Class noinvoiceController Extends baseController {
 
                 foreach ($roads as $road) {
 
-                    $road_data['bridge_cost'][$ship->shipment_id] = $road->bridge_cost;
+                    $road_data['bridge_cost'][$ship->shipment_id] = isset($road_data['bridge_cost'][$ship->shipment_id])?$road_data['bridge_cost'][$ship->shipment_id]+$road->bridge_cost:$road->bridge_cost;
 
-                    $road_data['police_cost'][$ship->shipment_id] = $road->police_cost;
+                    $road_data['police_cost'][$ship->shipment_id] = isset($road_data['police_cost'][$ship->shipment_id])?$road_data['police_cost'][$ship->shipment_id]+$road->police_cost:$road->police_cost;
 
-                    $road_data['tire_cost'][$ship->shipment_id] = $road->tire_cost;
+                    $road_data['tire_cost'][$ship->shipment_id] = isset($road_data['tire_cost'][$ship->shipment_id])?$road_data['tire_cost'][$ship->shipment_id]+$road->tire_cost:$road->tire_cost;
 
-                    $road_data['oil_cost'][$ship->shipment_id] = $road->road_oil;
+                    
+                    if($road->road_oil_ton > 0){
+                        $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+$road->road_oil_ton:$road->road_oil_ton;
+                    }
+                    else{
+                        $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+$road->road_oil:$road->road_oil;
+                    }
+
+                    $road_data['road_add'][$ship->shipment_id] = isset($road_data['road_add'][$ship->shipment_id])?$road_data['road_add'][$ship->shipment_id]+$road->road_add:$road->road_add;
 
                     $road_data['way'][$ship->shipment_id] = $road->way;
 
@@ -470,7 +494,7 @@ Class noinvoiceController Extends baseController {
 
         $this->view->data['customer_types'] = $customer_types;
 
-        
+        $this->view->data['cost_data'] = $cost_data;
 
         $this->view->show('noinvoice/index');
 
@@ -572,8 +596,8 @@ Class noinvoiceController Extends baseController {
 
         $warehouse_data = array();
 
-        
-
+        $shipment_cost_model = $this->model->get('shipmentcostModel');
+        $cost_data = array();
         
 
         
@@ -640,19 +664,17 @@ Class noinvoiceController Extends baseController {
 
                ->setCellValue('M6', 'Công an')
 
-               ->setCellValue('N6', 'Vá vỏ rửa xe')
+               ->setCellValue('N6', 'Cân xe')
 
-               ->setCellValue('O6', 'Cân xe')
+               ->setCellValue('O6', 'Quét cont')
 
-               ->setCellValue('P6', 'Quét cont')
+               ->setCellValue('P6', 'Vé cổng')
 
-               ->setCellValue('Q6', 'Vé cổng')
+               ->setCellValue('Q6', 'Hoa hồng')
 
-               ->setCellValue('R6', 'Hoa hồng')
+               ->setCellValue('R6', 'Khác')
 
-               ->setCellValue('S6', 'Thưởng vượt tải')
-
-               ->setCellValue('T6', 'Chi phí phát sinh');
+               ->setCellValue('S6', 'Cộng');
 
                
 
@@ -687,6 +709,19 @@ Class noinvoiceController Extends baseController {
                 foreach ($shipments as $row) {
                     $qr = "SELECT * FROM vehicle_work WHERE vehicle = ".$row->vehicle." AND start_work <= ".$row->shipment_date." AND end_work >= ".$row->shipment_date;
                     if (!$shipment_model->queryShipment($qr)) {
+
+                        $cost_join = array('table'=>'cost_list','where'=>'cost_list = cost_list_id AND check_vat = 0');
+                        $shipment_costs = $shipment_cost_model->getAllShipment(array('where'=>'shipment='.$row->shipment_id),$cost_join);
+
+                        foreach ($shipment_costs as $cost) {
+                            if($cost->cost_list_type == 9)
+                                $cost_data[$cost->cost_list_type][$row->shipment_id] = isset($cost_data[$cost->cost_list_type][$row->shipment_id])?$cost_data[$cost->cost_list_type][$row->shipment_id]+$cost->cost:$cost->cost;
+                            else if($cost->cost_list_type == 11)
+                                $cost_data[$cost->cost_list_type][$row->shipment_id] = isset($cost_data[$cost->cost_list_type][$row->shipment_id])?$cost_data[$cost->cost_list_type][$row->shipment_id]+$cost->cost:$cost->cost;
+                            else
+                                $cost_data['kvat'][$row->shipment_id] = isset($cost_data['kvat'][$row->shipment_id])?$cost_data['kvat'][$row->shipment_id]+$cost->cost:$cost->cost;
+                        }
+
                         $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$row->route.')'));
 
             
@@ -703,13 +738,21 @@ Class noinvoiceController Extends baseController {
 
                         foreach ($roads as $road) {
 
-                            $road_data['bridge_cost'][$row->shipment_id] = $road->bridge_cost;
+                            $road_data['bridge_cost'][$row->shipment_id] = isset($road_data['bridge_cost'][$row->shipment_id])?$road_data['bridge_cost'][$row->shipment_id]+$road->bridge_cost:$road->bridge_cost;
 
-                            $road_data['police_cost'][$row->shipment_id] = $road->police_cost;
+                            $road_data['police_cost'][$row->shipment_id] = isset($road_data['police_cost'][$row->shipment_id])?$road_data['police_cost'][$row->shipment_id]+$road->police_cost:$road->police_cost;
 
-                            $road_data['tire_cost'][$row->shipment_id] = $road->tire_cost;
+                            $road_data['tire_cost'][$row->shipment_id] = isset($road_data['tire_cost'][$row->shipment_id])?$road_data['tire_cost'][$row->shipment_id]+$road->tire_cost:$road->tire_cost;
 
-                            $road_data['oil_cost'][$row->shipment_id] = $road->road_oil;
+                            
+                            if($road->road_oil_ton > 0){
+                                $road_data['oil_cost'][$row->shipment_id] = isset($road_data['oil_cost'][$row->shipment_id])?$road_data['oil_cost'][$row->shipment_id]+$road->road_oil_ton:$road->road_oil_ton;
+                            }
+                            else{
+                                $road_data['oil_cost'][$row->shipment_id] = isset($road_data['oil_cost'][$row->shipment_id])?$road_data['oil_cost'][$row->shipment_id]+$road->road_oil:$road->road_oil;
+                            }
+
+                            $road_data['road_add'][$row->shipment_id] = isset($road_data['road_add'][$row->shipment_id])?$road_data['road_add'][$row->shipment_id]+$road->road_add:$road->road_add;
 
                             $road_data['way'][$row->shipment_id] = $road->way;
 
@@ -909,7 +952,19 @@ Class noinvoiceController Extends baseController {
                             }
 
 
+                            $bd = $kho['boiduong_cn'][$row->shipment_id];
+                            $ca = isset($road_data['police_cost'][$row->shipment_id])?$road_data['police_cost'][$row->shipment_id]:null;
+                            $ps = isset($road_data['tire_cost'][$row->shipment_id])?$road_data['tire_cost'][$row->shipment_id]:null;
+                            $hh = isset($cost_data[9][$row->shipment_id])?$cost_data[9][$row->shipment_id]:null;
 
+                            if(isset($cost_data[11][$row->shipment_id]))
+                                $bd += $cost_data[11][$row->shipment_id];
+                            if (isset($road_data['road_add'][$row->shipment_id]))
+                                $ps += $road_data['road_add'][$row->shipment_id];
+                            if(isset($cost_data['kvat'][$row->shipment_id]))
+                                $ps += $cost_data['kvat'][$row->shipment_id];
+                            
+                            $ps += $row->shipment_road_add;
 
 
                         //$objPHPExcel->setActiveSheetIndex(0)->getStyle('B'.$hang)->getNumberFormat()->setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_TEXT );
@@ -938,23 +993,21 @@ Class noinvoiceController Extends baseController {
 
                             ->setCellValue('K' . $hang, '=H'.$hang.'*J'.$hang)
 
-                            ->setCellValue('L' . $hang, $kho['boiduong_cn'][$row->shipment_id])
+                            ->setCellValue('L' . $hang, $bd)
 
-                            ->setCellValue('M' . $hang, $road_data['police_cost'][$row->shipment_id])
+                            ->setCellValue('M' . $hang, $ca)
 
-                            ->setCellValue('N' . $hang, $road_data['tire_cost'][$row->shipment_id])
+                            ->setCellValue('N' . $hang, $kho['warehouse_weight'][$row->shipment_from]+$kho['warehouse_weight'][$row->shipment_to])
 
-                            ->setCellValue('O' . $hang, $kho['warehouse_weight'][$row->shipment_from]+$kho['warehouse_weight'][$row->shipment_to])
+                            ->setCellValue('O' . $hang, $kho['warehouse_clean'][$row->shipment_from]+$kho['warehouse_clean'][$row->shipment_to])
 
-                            ->setCellValue('P' . $hang, $kho['warehouse_clean'][$row->shipment_from]+$kho['warehouse_clean'][$row->shipment_to])
+                            ->setCellValue('P' . $hang, $kho['warehouse_gate'][$row->shipment_to])
 
-                            ->setCellValue('Q' . $hang, $kho['warehouse_gate'][$row->shipment_to])
+                            ->setCellValue('Q' . $hang, $hh)
 
-                            ->setCellValue('R' . $hang, $row->commission*$row->commission_number)
+                            ->setCellValue('R' . $hang, $ps)
 
-                            ->setCellValue('S' . $hang, $row->shipment_bonus)
-
-                            ->setCellValue('T' . $hang, ($row->approve==1?$row->cost_add:0));
+                            ->setCellValue('S' . $hang, '=SUM(L'.$hang.':R'.$hang.')');
 
                          $hang++;
 
@@ -989,9 +1042,9 @@ Class noinvoiceController Extends baseController {
 
 
 
-            $objPHPExcel->getActiveSheet()->getStyle('A1:T4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('A1:S4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A1:T4')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('A1:S4')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
 
 
@@ -999,7 +1052,7 @@ Class noinvoiceController Extends baseController {
 
 
 
-            $objPHPExcel->getActiveSheet()->getStyle('A1:T4')->applyFromArray(
+            $objPHPExcel->getActiveSheet()->getStyle('A1:S4')->applyFromArray(
 
                 array(
 
@@ -1056,9 +1109,7 @@ Class noinvoiceController Extends baseController {
 
                ->setCellValue('R'.$hang, '=SUM(R4:R'.($hang-1).')')
 
-               ->setCellValue('S'.$hang, '=SUM(S4:S'.($hang-1).')')
-
-               ->setCellValue('T'.$hang, '=SUM(T4:T'.($hang-1).')');
+               ->setCellValue('S'.$hang, '=SUM(S4:S'.($hang-1).')');
 
 
             $objPHPExcel->getActiveSheet()->mergeCells('A'.$hang.':I'.$hang);
@@ -1066,9 +1117,9 @@ Class noinvoiceController Extends baseController {
 
             $objPHPExcel->getActiveSheet()->getStyle('A6:A'.$hang)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':T'.$hang)->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':S'.$hang)->getFont()->setBold(true);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A6:T'.$hang)->applyFromArray(
+            $objPHPExcel->getActiveSheet()->getStyle('A6:S'.$hang)->applyFromArray(
 
                 array(
 
@@ -1128,13 +1179,13 @@ Class noinvoiceController Extends baseController {
 
 
 
-            $objPHPExcel->getActiveSheet()->getStyle('J4:T'.$highestRow)->getNumberFormat()->setFormatCode("#,##0_);[Black](#,##0)");
+            $objPHPExcel->getActiveSheet()->getStyle('J4:S'.$highestRow)->getNumberFormat()->setFormatCode("#,##0_);[Black](#,##0)");
 
-            $objPHPExcel->getActiveSheet()->getStyle('A6:T6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('A6:S6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A6:T6')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('A6:S6')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A6:T6')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('A6:S6')->getFont()->setBold(true);
 
             $objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(26);
 

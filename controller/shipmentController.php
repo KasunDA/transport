@@ -134,13 +134,13 @@ Class shipmentController Extends baseController {
 
         }
 
-
+        $id = $this->registry->router->param_id;
 
         $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
 
+        $thangchon = (int)date('m',strtotime($batdau));
 
-        $driver_model = $this->model->get('driverModel');
-
+        $namchon = date('Y',strtotime($batdau));
 
 
         $contunit_model = $this->model->get('contunitModel');
@@ -301,7 +301,7 @@ Class shipmentController Extends baseController {
 
 
 
-        $join = array('table'=>'customer, vehicle, cont_unit','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND cont_unit=cont_unit_id');
+        $join = array('table'=>'customer, vehicle, cont_unit, steersman','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND cont_unit=cont_unit_id AND steersman = steersman_id');
 
 
 
@@ -340,7 +340,9 @@ Class shipmentController Extends baseController {
             );
 
 
-
+        if (isset($id) && $id > 0) {
+            $data['where'] = 'shipment_id = '.$id;
+        }
 
 
         if($xe != 0){
@@ -450,7 +452,9 @@ Class shipmentController Extends baseController {
         $this->view->data['ketthuc'] = $ketthuc;
 
 
+        $this->view->data['thangchon'] = $thangchon;
 
+        $this->view->data['namchon'] = $namchon;
 
 
 
@@ -494,7 +498,9 @@ Class shipmentController Extends baseController {
             );
 
 
-
+        if (isset($id) && $id > 0) {
+            $data['where'] = 'shipment_id = '.$id;
+        }
 
 
         if($xe != 0){
@@ -557,13 +563,15 @@ Class shipmentController Extends baseController {
 
 
 
-                    vehicle_number LIKE "%'.$keyword.'%"
+                    vehicle_number LIKE "%'.$keyword.'%" 
 
-                    OR bill_number LIKE "%'.$keyword.'%"
+                    OR bill_number LIKE "%'.$keyword.'%" 
 
-                    OR customer_name LIKE "%'.$keyword.'%"
+                    OR steersman_name LIKE "%'.$keyword.'%" 
 
+                    OR customer_name LIKE "%'.$keyword.'%" 
 
+                    OR customer_type IN (SELECT customer_sub_id FROM customer_sub WHERE customer_sub_name LIKE "%'.$keyword.'%" ) 
 
                     OR shipment_from in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
 
@@ -646,7 +654,7 @@ Class shipmentController Extends baseController {
         $export_stocks = array();
 
 
-        $driver_data = array();
+       
 
 
         $v = array();
@@ -657,43 +665,7 @@ Class shipmentController Extends baseController {
 
         foreach ($datas as $ship) {
 
-            $d_data = array(
-
-
-
-                'where'=> ' start_work <= '.$ship->shipment_date.' AND end_work > '.$ship->shipment_date.' AND vehicle = '.$ship->vehicle,
-
-
-
-            );
-
-
-
-            $d_join = array('table'=>'steersman','where'=>'steersman = steersman_id');
-
-
-
-            $drivers = $driver_model->getAllDriver($d_data,$d_join);
-
-
-
             
-
-
-
-            foreach ($drivers as $driver) {
-
-
-
-                $driver_data[$ship->shipment_id]['driver_name'] = $driver->steersman_name;
-
-
-
-                $driver_data[$ship->shipment_id]['driver_phone'] = $driver->steersman_phone;
-
-
-
-            }
 
 
 
@@ -771,31 +743,33 @@ Class shipmentController Extends baseController {
 
 
 
-                $road_data['bridge_cost'][$ship->shipment_id] = (round($road->bridge_cost*1.1))*$check_sub;
+                $road_data['bridge_cost'][$ship->shipment_id] = isset($road_data['bridge_cost'][$ship->shipment_id])?$road_data['bridge_cost'][$ship->shipment_id]+$road->bridge_cost*$check_sub:$road->bridge_cost*$check_sub;
 
 
 
-                $road_data['police_cost'][$ship->shipment_id] = ($road->police_cost)*$check_sub;
+                $road_data['police_cost'][$ship->shipment_id] = isset($road_data['police_cost'][$ship->shipment_id])?$road_data['police_cost'][$ship->shipment_id]+($road->police_cost)*$check_sub:($road->police_cost)*$check_sub;
 
 
 
-                $road_data['tire_cost'][$ship->shipment_id] = ($road->tire_cost)*$check_sub;
+                $road_data['tire_cost'][$ship->shipment_id] = isset($road_data['tire_cost'][$ship->shipment_id])?$road_data['tire_cost'][$ship->shipment_id]+($road->tire_cost)*$check_sub:($road->tire_cost)*$check_sub;
+
+                if($road->road_oil_ton > 0){
+                    $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+($road->road_oil_ton*round($ship->oil_cost*1.1))*$check_sub:($road->road_oil_ton*round($ship->oil_cost*1.1))*$check_sub;
+
+                    $road_data['road_oil'][$ship->shipment_id] = isset($road_data['road_oil'][$ship->shipment_id])?$road_data['road_oil'][$ship->shipment_id]+($road->road_oil_ton)*$check_sub:($road->road_oil_ton)*$check_sub;
+                }
+                else{
+                    $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+($road->road_oil*round($ship->oil_cost*1.1))*$check_sub:($road->road_oil*round($ship->oil_cost*1.1))*$check_sub;
+
+                    $road_data['road_oil'][$ship->shipment_id] = isset($road_data['road_oil'][$ship->shipment_id])?$road_data['road_oil'][$ship->shipment_id]+($road->road_oil)*$check_sub:($road->road_oil)*$check_sub;
+                }
+
+
+                $road_data['road_time'][$ship->shipment_id] = isset($road_data['road_time'][$ship->shipment_id])?$road_data['road_time'][$ship->shipment_id]+($road->road_time)*$check_sub:($road->road_time)*$check_sub;
 
 
 
-                $road_data['oil_cost'][$ship->shipment_id] = ($road->road_oil*round($ship->oil_cost*1.1))*$check_sub;
-
-
-
-                $road_data['road_oil'][$ship->shipment_id] = ($road->road_oil)*$check_sub;
-
-
-
-                $road_data['road_time'][$ship->shipment_id] = ($road->road_time)*$check_sub;
-
-
-
-                $road_data['road_km'][$ship->shipment_id] = $road->road_km;
+                $road_data['road_km'][$ship->shipment_id] = isset($road_data['road_km'][$ship->shipment_id])?$road_data['road_km'][$ship->shipment_id]+$road->road_km:$road->road_km;
 
 
 
@@ -1050,10 +1024,6 @@ Class shipmentController Extends baseController {
 
 
         $this->view->data['export_stocks'] = $export_stocks;
-
-
-        $this->view->data['driver_data'] = $driver_data;
-
 
 
 
@@ -2180,6 +2150,9 @@ Class shipmentController Extends baseController {
                         'romooc' => trim($_POST['romooc']),
 
 
+                        'steersman' => trim($_POST['steersman']),
+
+
 
                         'customer' => trim($_POST['customer']),
 
@@ -2318,11 +2291,81 @@ Class shipmentController Extends baseController {
 
 
                         'shipment_salary' => trim(str_replace(',','',$_POST['shipment_salary'])),
+                        'shipment_road_add' => trim(str_replace(',','',$_POST['shipment_road_add'])),
 
+                        
 
+                        'bill_number' => trim($_POST['bill_number']),
+
+                        'bill_receive_date' => strtotime(trim($_POST['bill_receive_date'])),
+
+                        'bill_delivery_date' => strtotime(trim($_POST['bill_delivery_date'])),
+
+                        'bill_receive_ton' => trim($_POST['bill_receive_ton']),
+
+                        'bill_receive_unit' => trim($_POST['bill_receive_unit']),
+
+                        'bill_delivery_ton' => trim($_POST['bill_delivery_ton']),
+
+                        'bill_delivery_unit' => trim($_POST['bill_delivery_unit']),
+
+                        'bill_in' => strtotime(trim($_POST['bill_delivery_date']).' '.trim($_POST['bill_in'])),
+
+                        'bill_out' => strtotime(trim($_POST['bill_delivery_date']).' '.trim($_POST['bill_out'])),
+
+                        'shipment_oil' => trim($_POST['shipment_oil']),
+
+                        'shipment_road_oil_add' => trim($_POST['shipment_road_oil_add']),
 
                         );
 
+            $data['shipment_ton'] = $data['bill_delivery_ton'];
+            $data['cont_unit'] = $data['bill_delivery_unit'];
+            $data['shipment_ton_net'] = $data['bill_receive_ton'];
+            $data['cont_unit_net'] = $data['bill_receive_unit'];
+            $data['oil_add'] = $data['shipment_oil'];
+
+            $export_stock_model = $this->model->get('exportstockModel');
+
+
+
+            $contributor = "";
+
+            if(trim($_POST['export_stock']) != ""){
+
+                $support = explode(',', trim($_POST['export_stock']));
+
+
+
+                if ($support) {
+
+                    foreach ($support as $key) {
+
+                        $name = $export_stock_model->getStockByWhere(array('export_stock_code'=>trim($key)));
+
+                        if ($name) {
+
+                            if ($contributor == "")
+
+                                $contributor .= $name->export_stock_id;
+
+                            else
+
+                                $contributor .= ','.$name->export_stock_id;
+
+                        }
+
+                        
+
+                    }
+
+                }
+
+
+
+            }
+
+            $data['export_stock'] = $contributor;
 
 
             $customer_sub_model = $this->model->get('customersubModel');
@@ -2354,6 +2397,22 @@ Class shipmentController Extends baseController {
                             else
 
                                 $contributor .= ','.$name->customer_sub_id;
+
+                            $check = $customer_model->queryCustomer('SELECT customer_sub FROM customer WHERE customer_id = '.$data['customer'].' AND (customer_sub LIKE "'.$name->customer_sub_id.'" OR customer_sub LIKE "'.$name->customer_sub_id.',%" OR customer_sub LIKE "%,'.$name->customer_sub_id.',%" OR customer_sub LIKE "%,'.$name->customer_sub_id.'")');
+                            if (!$check) {
+                                $cus = $customer_model->getCustomer($data['customer']);
+                                if ($cus->customer_sub == "") {
+
+                                    $customer_model->updateCustomer(array('customer_sub'=>$name->customer_sub_id),array('customer_id'=>$data['customer']));
+
+                                }
+
+                                else{
+
+                                    $customer_model->updateCustomer(array('customer_sub'=>($cus->customer_sub.','.$name->customer_sub_id)),array('customer_id'=>$data['customer']));
+
+                                }
+                            }
 
                         }
 
@@ -2461,7 +2520,7 @@ Class shipmentController Extends baseController {
 
 
 
-            if (trim($_POST['shipment_ton_net']) != "") {
+            /*if (trim($_POST['shipment_ton_net']) != "") {
 
 
 
@@ -2485,7 +2544,7 @@ Class shipmentController Extends baseController {
 
 
 
-            $data['cont_unit_net'] = trim($_POST['cont_unit']);
+            $data['cont_unit_net'] = trim($_POST['cont_unit']);*/
 
 
 
@@ -2595,6 +2654,8 @@ Class shipmentController Extends baseController {
 
                 $chiphi_tam += $boiduong;
 
+                $chiphididuong = 0;
+
 
 
                 if ($road_datas) {
@@ -2603,9 +2664,12 @@ Class shipmentController Extends baseController {
 
                     foreach ($road_datas as $road_data) {
 
-
-
-                        $chiphi += $road_data->police_cost+round($road_data->bridge_cost*1.1)+$road_data->tire_cost+($road_data->road_oil*$giadau)+$road_data->road_add;
+                        if ($road_data->road_oil_ton > 0) {
+                            $chiphi += $road_data->police_cost+$road_data->bridge_cost+$road_data->tire_cost+($road_data->road_oil_ton*$giadau)+$road_data->road_add;
+                        }
+                        else{
+                            $chiphi += $road_data->police_cost+$road_data->bridge_cost+$road_data->tire_cost+($road_data->road_oil*$giadau)+$road_data->road_add;
+                        }
 
 
 
@@ -2617,9 +2681,10 @@ Class shipmentController Extends baseController {
 
 
 
-                        $chiphi_tam += $road_data->police_cost+round($road_data->bridge_cost*1.1)+$road_data->tire_cost+$road_data->road_add;
+                        $chiphi_tam += $road_data->police_cost+$road_data->bridge_cost+$road_data->tire_cost+$road_data->road_add;
 
 
+                        $chiphididuong += $road_data->road_add;
 
                     }
 
@@ -3195,9 +3260,53 @@ Class shipmentController Extends baseController {
 
                     $id_shipment = $_POST['yes'];
 
+                    if ($data_shipments->shipment_road_add > 0 && $data['shipment_road_add'] > 0) {
+                        $data_debit = array(
 
+                            'debit_date'=>$data['shipment_date'],
 
-                    $data_debit = array(
+                            'steersman'=>$data['steersman'],
+
+                            'money'=>$data['shipment_road_add'],
+
+                            'money_vat'=>0,
+
+                            'comment'=>'Tiền đi đường '.$data['bill_number'],
+
+                            'check_debit'=>2,
+
+                            'shipment'=>$id_shipment,
+
+                        );
+
+                        $debit->updateDebit($data_debit,array('shipment'=>$id_shipment));
+                    }
+                    else if (($data_shipments->shipment_road_add == 0 || $data_shipments->shipment_road_add == "") && $data['shipment_road_add'] > 0) {
+                        $data_debit = array(
+
+                            'debit_date'=>$data['shipment_date'],
+
+                            'steersman'=>$data['steersman'],
+
+                            'money'=>$data['shipment_road_add'],
+
+                            'money_vat'=>0,
+
+                            'comment'=>'Tiền đi đường '.$data['bill_number'],
+
+                            'check_debit'=>2,
+
+                            'shipment'=>$id_shipment,
+
+                        );
+
+                        $debit->createDebit($data_debit);
+                    }
+                    else if ($data_shipments->shipment_road_add > 0 && ($data['shipment_road_add'] == 0 || $data['shipment_road_add'] == "")) {
+                        $debit->queryDebit("DELETE FROM debit WHERE shipment = ".$id_shipment);
+                    }
+
+                    /*$data_debit = array(
 
                         'debit_date'=>$data['shipment_date'],
 
@@ -3215,7 +3324,7 @@ Class shipmentController Extends baseController {
 
                     );
 
-                    $debit->updateDebit($data_debit,array('shipment'=>$id_shipment));
+                    $debit->updateDebit($data_debit,array('shipment'=>$id_shipment));*/
 
 
 
@@ -3265,7 +3374,7 @@ Class shipmentController Extends baseController {
 
 
 
-                        if ($data_cost['receiver'] > 0) {
+                        if ($data_cost['receiver'] > 0 && $cost_type->cost_list_type != 8) {
 
                             $chiphi += trim(str_replace(',','',$v['cost']));
 
@@ -3301,7 +3410,7 @@ Class shipmentController Extends baseController {
 
                                         'money_vat'=>$data_cost['check_vat'],
 
-                                        'comment'=>$data_cost['comment'],
+                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                         'check_debit'=>2,
 
@@ -3344,7 +3453,7 @@ Class shipmentController Extends baseController {
 
                                         'money_vat'=>$data_cost['check_vat'],
 
-                                        'comment'=>$data_cost['comment'],
+                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                         'check_debit'=>2,
 
@@ -3369,7 +3478,7 @@ Class shipmentController Extends baseController {
 
                                         'money_vat'=>0,
 
-                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].')',
+                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                         'check_debit'=>1,
 
@@ -3420,7 +3529,7 @@ Class shipmentController Extends baseController {
 
                                     'money_vat'=>$data_cost['check_vat'],
 
-                                    'comment'=>$data_cost['comment'],
+                                    'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                     'check_debit'=>2,
 
@@ -3428,7 +3537,7 @@ Class shipmentController Extends baseController {
 
                                 );
 
-                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id'],'check_loan'=>0));
+                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id'],'check_loan'=>2));
 
                             }
 
@@ -3446,7 +3555,7 @@ Class shipmentController Extends baseController {
 
                                     'money_vat'=>$data_cost['check_vat'],
 
-                                    'comment'=>$data_cost['comment'],
+                                    'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                     'check_debit'=>2,
 
@@ -3454,7 +3563,7 @@ Class shipmentController Extends baseController {
 
                                 );
 
-                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id'],'check_loan'=>0));
+                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id'],'check_loan'=>2));
 
                             }
 
@@ -3521,7 +3630,7 @@ Class shipmentController Extends baseController {
 
                                     'money_vat'=>0,
 
-                                    'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].')',
+                                    'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                     'check_debit'=>1,
 
@@ -3547,7 +3656,7 @@ Class shipmentController Extends baseController {
 
                                     'money_vat'=>0,
 
-                                    'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].')',
+                                    'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                     'check_debit'=>1,
 
@@ -3981,8 +4090,29 @@ Class shipmentController Extends baseController {
                     $id_shipment = $shipment->getLastShipment()->shipment_id;
 
 
+                    if ($data['shipment_road_add'] > 0) {
+                        $data_debit = array(
 
-                    $data_debit = array(
+                            'debit_date'=>$data['shipment_date'],
+
+                            'steersman'=>$data['steersman'],
+
+                            'money'=>$data['shipment_road_add'],
+
+                            'money_vat'=>0,
+
+                            'comment'=>'Tiền đi đường '.$data['bill_number'],
+
+                            'check_debit'=>2,
+
+                            'shipment'=>$id_shipment,
+
+                        );
+
+                        $debit->createDebit($data_debit);
+                    }
+
+                    /*$data_debit = array(
 
                         'debit_date'=>$data['shipment_date'],
 
@@ -4000,7 +4130,7 @@ Class shipmentController Extends baseController {
 
                     );
 
-                    $debit->createDebit($data_debit,array('shipment'=>$id_shipment));
+                    $debit->createDebit($data_debit,array('shipment'=>$id_shipment));*/
 
 
 
@@ -4050,7 +4180,7 @@ Class shipmentController Extends baseController {
 
 
 
-                        if ($data_cost['receiver'] > 0) {
+                        if ($data_cost['receiver'] > 0 && $cost_type->cost_list_type != 8) {
 
                             $chiphi += trim(str_replace(',','',$v['cost']));
 
@@ -4088,7 +4218,7 @@ Class shipmentController Extends baseController {
 
                                         'money_vat'=>$data_cost['check_vat'],
 
-                                        'comment'=>$data_cost['comment'],
+                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                         'check_debit'=>2,
 
@@ -4129,7 +4259,7 @@ Class shipmentController Extends baseController {
 
                                         'money_vat'=>$data_cost['check_vat'],
 
-                                        'comment'=>$data_cost['comment'],
+                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                         'check_debit'=>2,
 
@@ -4152,7 +4282,7 @@ Class shipmentController Extends baseController {
 
                                         'money_vat'=>0,
 
-                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].')',
+                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                         'check_debit'=>1,
 
@@ -4392,6 +4522,9 @@ Class shipmentController Extends baseController {
                         'romooc' => trim($_POST['romooc']),
 
 
+                        'steersman' => trim($_POST['steersman']),
+
+
 
                         'customer' => trim($_POST['customer']),
 
@@ -4474,10 +4607,79 @@ Class shipmentController Extends baseController {
 
 
                         'shipment_salary' => trim(str_replace(',','',$_POST['shipment_salary'])),
+                        'shipment_road_add' => trim(str_replace(',','',$_POST['shipment_road_add'])),
 
+                        'bill_number' => trim($_POST['bill_number']),
 
+                        'bill_receive_date' => strtotime(trim($_POST['bill_receive_date'])),
+
+                        'bill_delivery_date' => strtotime(trim($_POST['bill_delivery_date'])),
+
+                        'bill_receive_ton' => trim($_POST['bill_receive_ton']),
+
+                        'bill_receive_unit' => trim($_POST['bill_receive_unit']),
+
+                        'bill_delivery_ton' => trim($_POST['bill_delivery_ton']),
+
+                        'bill_delivery_unit' => trim($_POST['bill_delivery_unit']),
+
+                        'bill_in' => strtotime(trim($_POST['bill_delivery_date']).' '.trim($_POST['bill_in'])),
+
+                        'bill_out' => strtotime(trim($_POST['bill_delivery_date']).' '.trim($_POST['bill_out'])),
+
+                        'shipment_oil' => trim($_POST['shipment_oil']),
+
+                        'shipment_road_oil_add' => trim($_POST['shipment_road_oil_add']),
 
                         );
+
+            $data['shipment_ton'] = $data['bill_delivery_ton'];
+            $data['cont_unit'] = $data['bill_delivery_unit'];
+            $data['shipment_ton_net'] = $data['bill_receive_ton'];
+            $data['cont_unit_net'] = $data['bill_receive_unit'];
+            $data['oil_add'] = $data['shipment_oil'];
+
+            $export_stock_model = $this->model->get('exportstockModel');
+
+
+
+            $contributor = "";
+
+            if(trim($_POST['export_stock']) != ""){
+
+                $support = explode(',', trim($_POST['export_stock']));
+
+
+
+                if ($support) {
+
+                    foreach ($support as $key) {
+
+                        $name = $export_stock_model->getStockByWhere(array('export_stock_code'=>trim($key)));
+
+                        if ($name) {
+
+                            if ($contributor == "")
+
+                                $contributor .= $name->export_stock_id;
+
+                            else
+
+                                $contributor .= ','.$name->export_stock_id;
+
+                        }
+
+                        
+
+                    }
+
+                }
+
+
+
+            }
+
+            $data['export_stock'] = $contributor;
 
 
 
@@ -4561,7 +4763,7 @@ Class shipmentController Extends baseController {
 
 
 
-            if (trim($_POST['shipment_ton_net']) != "") {
+            /*if (trim($_POST['shipment_ton_net']) != "") {
 
 
 
@@ -4573,7 +4775,7 @@ Class shipmentController Extends baseController {
 
 
 
-                }
+                }*/
 
 
 
@@ -4812,8 +5014,53 @@ Class shipmentController Extends baseController {
                     $id_shipment = $_POST['yes'];
 
 
+                    if ($data_shipments->shipment_road_add > 0 && $data['shipment_road_add'] > 0) {
+                        $data_debit = array(
 
-                    $data_debit = array(
+                            'debit_date'=>$data['shipment_date'],
+
+                            'steersman'=>$data['steersman'],
+
+                            'money'=>$data['shipment_road_add'],
+
+                            'money_vat'=>0,
+
+                            'comment'=>'Tiền đi đường '.$data['bill_number'],
+
+                            'check_debit'=>2,
+
+                            'shipment'=>$id_shipment,
+
+                        );
+
+                        $debit->updateDebit($data_debit,array('shipment'=>$id_shipment));
+                    }
+                    else if (($data_shipments->shipment_road_add == 0 || $data_shipments->shipment_road_add == "") && $data['shipment_road_add'] > 0) {
+                        $data_debit = array(
+
+                            'debit_date'=>$data['shipment_date'],
+
+                            'steersman'=>$data['steersman'],
+
+                            'money'=>$data['shipment_road_add'],
+
+                            'money_vat'=>0,
+
+                            'comment'=>'Tiền đi đường '.$data['bill_number'],
+
+                            'check_debit'=>2,
+
+                            'shipment'=>$id_shipment,
+
+                        );
+
+                        $debit->createDebit($data_debit);
+                    }
+                    else if ($data_shipments->shipment_road_add > 0 && ($data['shipment_road_add'] == 0 || $data['shipment_road_add'] == "")) {
+                        $debit->queryDebit("DELETE FROM debit WHERE shipment = ".$id_shipment);
+                    }
+
+                    /*$data_debit = array(
 
                         'debit_date'=>$data['shipment_date'],
 
@@ -4831,7 +5078,7 @@ Class shipmentController Extends baseController {
 
                     );
 
-                    $debit->updateDebit($data_debit,array('shipment'=>$id_shipment));
+                    $debit->updateDebit($data_debit,array('shipment'=>$id_shipment));*/
 
 
 
@@ -4881,7 +5128,7 @@ Class shipmentController Extends baseController {
 
 
 
-                        if ($data_cost['receiver'] > 0) {
+                        if ($data_cost['receiver'] > 0 && $cost_type->cost_list_type != 8) {
 
                             $chiphi += trim(str_replace(',','',$v['cost']));
 
@@ -4917,7 +5164,7 @@ Class shipmentController Extends baseController {
 
                                         'money_vat'=>$data_cost['check_vat'],
 
-                                        'comment'=>$data_cost['comment'],
+                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                         'check_debit'=>2,
 
@@ -4960,7 +5207,7 @@ Class shipmentController Extends baseController {
 
                                         'money_vat'=>$data_cost['check_vat'],
 
-                                        'comment'=>$data_cost['comment'],
+                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                         'check_debit'=>2,
 
@@ -4985,7 +5232,7 @@ Class shipmentController Extends baseController {
 
                                         'money_vat'=>0,
 
-                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].')',
+                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                         'check_debit'=>1,
 
@@ -5036,7 +5283,7 @@ Class shipmentController Extends baseController {
 
                                     'money_vat'=>$data_cost['check_vat'],
 
-                                    'comment'=>$data_cost['comment'],
+                                    'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                     'check_debit'=>2,
 
@@ -5044,7 +5291,7 @@ Class shipmentController Extends baseController {
 
                                 );
 
-                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id'],'check_loan'=>0));
+                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id'],'check_loan'=>2));
 
                             }
 
@@ -5062,7 +5309,7 @@ Class shipmentController Extends baseController {
 
                                     'money_vat'=>$data_cost['check_vat'],
 
-                                    'comment'=>$data_cost['comment'],
+                                    'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                     'check_debit'=>2,
 
@@ -5070,7 +5317,7 @@ Class shipmentController Extends baseController {
 
                                 );
 
-                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id'],'check_loan'=>0));
+                                $debit->updateDebit($data_debit,array('shipment_cost'=>$v['shipment_cost_id'],'check_loan'=>2));
 
                             }
 
@@ -5137,7 +5384,7 @@ Class shipmentController Extends baseController {
 
                                     'money_vat'=>0,
 
-                                    'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].')',
+                                    'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                     'check_debit'=>1,
 
@@ -5163,7 +5410,7 @@ Class shipmentController Extends baseController {
 
                                     'money_vat'=>0,
 
-                                    'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].')',
+                                    'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                     'check_debit'=>1,
 
@@ -5455,8 +5702,29 @@ Class shipmentController Extends baseController {
                     $id_shipment = $shipment->getLastShipment()->shipment_id;
 
 
+                    if ($data['shipment_road_add'] > 0) {
+                        $data_debit = array(
 
-                    $data_debit = array(
+                            'debit_date'=>$data['shipment_date'],
+
+                            'steersman'=>$data['steersman'],
+
+                            'money'=>$data['shipment_road_add'],
+
+                            'money_vat'=>0,
+
+                            'comment'=>'Tiền đi đường '.$data['bill_number'],
+
+                            'check_debit'=>2,
+
+                            'shipment'=>$id_shipment,
+
+                        );
+
+                        $debit->createDebit($data_debit);
+                    }
+
+                    /*$data_debit = array(
 
                         'debit_date'=>$data['shipment_date'],
 
@@ -5474,7 +5742,7 @@ Class shipmentController Extends baseController {
 
                     );
 
-                    $debit->createDebit($data_debit,array('shipment'=>$id_shipment));
+                    $debit->createDebit($data_debit,array('shipment'=>$id_shipment));*/
 
 
 
@@ -5524,7 +5792,7 @@ Class shipmentController Extends baseController {
 
 
 
-                        if ($data_cost['receiver'] > 0) {
+                        if ($data_cost['receiver'] > 0 && $cost_type->cost_list_type != 8) {
 
                             $chiphi += trim(str_replace(',','',$v['cost']));
                             $loinhuan -= trim(str_replace(',','',$v['cost']));
@@ -5561,7 +5829,7 @@ Class shipmentController Extends baseController {
 
                                         'money_vat'=>$data_cost['check_vat'],
 
-                                        'comment'=>$data_cost['comment'],
+                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                         'check_debit'=>2,
 
@@ -5602,7 +5870,7 @@ Class shipmentController Extends baseController {
 
                                         'money_vat'=>$data_cost['check_vat'],
 
-                                        'comment'=>$data_cost['comment'],
+                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                         'check_debit'=>2,
 
@@ -5625,7 +5893,7 @@ Class shipmentController Extends baseController {
 
                                         'money_vat'=>0,
 
-                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].')',
+                                        'comment'=>$data_cost['comment'].' ('.$cost_type->cost_list_name.' '.$data_cost['cost_document'].') ['.$data['bill_number'].']',
 
                                         'check_debit'=>1,
 
@@ -5865,10 +6133,13 @@ Class shipmentController Extends baseController {
 
 
                     
+                    if ($road->road_oil_ton > 0) {
+                        $total_oil_cost += $road->road_oil_ton;
+                    }
+                    else{
+                        $total_oil_cost += $road->road_oil;
+                    }
 
-
-
-                    $total_oil_cost += $road->road_oil;
 
 
 
@@ -5912,11 +6183,13 @@ Class shipmentController Extends baseController {
 
 
 
-                    
+                    if ($road->road_oil_ton > 0) {
+                        $total_oil_cost_before += $road->road_oil_ton;
+                    }
+                    else{
+                        $total_oil_cost_before += $road->road_oil;
+                    }
 
-
-
-                    $total_oil_cost_before += $road->road_oil;
 
 
 
@@ -6914,6 +7187,8 @@ Class shipmentController Extends baseController {
 
             $vehicle_romooc_model = $this->model->get('vehicleromoocModel');
 
+            $driver_model = $this->model->get('driverModel');
+
             
 
             $ngay = isset($_POST['ngay'])?$_POST['ngay']:date('d-m-Y');
@@ -6986,6 +7261,28 @@ Class shipmentController Extends baseController {
 
                 }
 
+                $data_driver = array(
+
+                    'where'=>'vehicle='.$rs->vehicle_id.' AND (start_work <= '.strtotime($ngay).' AND (end_work >= '.strtotime($ngay).' OR (end_work IS NULL OR end_work=0) ) )',
+
+                    'order_by'=>'start_work DESC',
+
+                    'limit'=>1,
+
+                );
+
+                $join = array('table'=>'steersman','where'=>'steersman=steersman_id');
+
+                $drivers = $driver_model->getAllDriver($data_driver,$join);
+
+                $steersman_name = "";
+                $steersman_id = "";
+
+                foreach ($drivers as $driver) {
+                    $steersman_name = $driver->steersman_name;
+                    $steersman_id = $driver->steersman_id;
+                }
+
 
 
                 $data_romooc = array(
@@ -7008,7 +7305,7 @@ Class shipmentController Extends baseController {
 
                     foreach ($romoocs as $romooc) {
 
-                        echo '<li onclick="set_item_vehicle(\''.$rs->vehicle_id.'\',\''.$rs->vehicle_number.'\',\''.$romooc->romooc_id.'\',\''.$romooc->romooc_number.'\')">'.$vehicle_number.'</li>';
+                        echo '<li onclick="set_item_vehicle(\''.$rs->vehicle_id.'\',\''.$rs->vehicle_number.'\',\''.$romooc->romooc_id.'\',\''.$romooc->romooc_number.'\',\''.$steersman_name.'\',\''.$steersman_id.'\')">'.$vehicle_number.'</li>';
 
                     }
 
@@ -7016,7 +7313,7 @@ Class shipmentController Extends baseController {
 
                 else{
 
-                    echo '<li onclick="set_item_vehicle(\''.$rs->vehicle_id.'\',\''.$rs->vehicle_number.'\',\'\',\'\')">'.$vehicle_number.'</li>';
+                    echo '<li onclick="set_item_vehicle(\''.$rs->vehicle_id.'\',\''.$rs->vehicle_number.'\',\'\',\'\',\''.$steersman_name.'\',\''.$steersman_id.'\')">'.$vehicle_number.'</li>';
 
                 }
 
@@ -7190,6 +7487,8 @@ Class shipmentController Extends baseController {
 
             $vehicle_romooc_model = $this->model->get('vehicleromoocModel');
 
+            $driver_model = $this->model->get('driverModel');
+
             
 
             $ngay = isset($_POST['ngay'])?$_POST['ngay']:date('d-m-Y');
@@ -7262,6 +7561,28 @@ Class shipmentController Extends baseController {
 
                 }
 
+                $data_driver = array(
+
+                    'where'=>'vehicle='.$rs->vehicle_id.' AND (start_work <= '.strtotime($ngay).' AND (end_work >= '.strtotime($ngay).' OR (end_work IS NULL OR end_work=0) ) )',
+
+                    'order_by'=>'start_work DESC',
+
+                    'limit'=>1,
+
+                );
+
+                $join = array('table'=>'steersman','where'=>'steersman=steersman_id');
+
+                $drivers = $driver_model->getAllDriver($data_driver,$join);
+
+                $steersman_name = "";
+                $steersman_id = "";
+
+                foreach ($drivers as $driver) {
+                    $steersman_name = $driver->steersman_name;
+                    $steersman_id = $driver->steersman_id;
+                }
+
 
 
                 $data_romooc = array(
@@ -7284,7 +7605,7 @@ Class shipmentController Extends baseController {
 
                     foreach ($romoocs as $romooc) {
 
-                        echo '<li onclick="set_item_vehicle_sub(\''.$rs->vehicle_id.'\',\''.$rs->vehicle_number.'\',\''.$romooc->romooc_id.'\',\''.$romooc->romooc_number.'\')">'.$vehicle_number.'</li>';
+                        echo '<li onclick="set_item_vehicle_sub(\''.$rs->vehicle_id.'\',\''.$rs->vehicle_number.'\',\''.$romooc->romooc_id.'\',\''.$romooc->romooc_number.'\',\''.$steersman_name.'\',\''.$steersman_id.'\')">'.$vehicle_number.'</li>';
 
                     }
 
@@ -7292,7 +7613,7 @@ Class shipmentController Extends baseController {
 
                 else{
 
-                    echo '<li onclick="set_item_vehicle_sub(\''.$rs->vehicle_id.'\',\''.$rs->vehicle_number.'\',\'\',\'\')">'.$vehicle_number.'</li>';
+                    echo '<li onclick="set_item_vehicle_sub(\''.$rs->vehicle_id.'\',\''.$rs->vehicle_number.'\',\'\',\'\',\''.$steersman_name.'\',\''.$steersman_id.'\')">'.$vehicle_number.'</li>';
 
                 }
 
@@ -9618,39 +9939,38 @@ Class shipmentController Extends baseController {
                 $road_data['way_name'][$shipment->shipment_id] = $road->way;
 
 
-
-                $road_data['road_km'][$shipment->shipment_id] = $road->road_km;
-
-
-
-                $road_data['road_oil'][$shipment->shipment_id] = ($road->road_oil)*$check_sub;
+                $road_data['bridge_cost'][$shipment->shipment_id] = isset($road_data['bridge_cost'][$shipment->shipment_id])?$road_data['bridge_cost'][$shipment->shipment_id]+$road->bridge_cost*$check_sub:$road->bridge_cost*$check_sub;
 
 
 
-                $road_data['bridge_cost'][$shipment->shipment_id] = (round($road->bridge_cost*1.1))*$check_sub;
+                $road_data['police_cost'][$shipment->shipment_id] = isset($road_data['police_cost'][$shipment->shipment_id])?$road_data['police_cost'][$shipment->shipment_id]+($road->police_cost)*$check_sub:($road->police_cost)*$check_sub;
 
 
 
-                $road_data['police_cost'][$shipment->shipment_id] = ($road->police_cost)*$check_sub;
+                $road_data['tire_cost'][$shipment->shipment_id] = isset($road_data['tire_cost'][$shipment->shipment_id])?$road_data['tire_cost'][$shipment->shipment_id]+($road->tire_cost)*$check_sub:($road->tire_cost)*$check_sub;
+
+                if ($road->road_oil_ton > 0) {
+                    $road_data['oil_cost'][$shipment->shipment_id] = isset($road_data['oil_cost'][$shipment->shipment_id])?$road_data['oil_cost'][$shipment->shipment_id]+($road->road_oil_ton*round($shipment->oil_cost*1.1))*$check_sub:($road->road_oil_ton*round($shipment->oil_cost*1.1))*$check_sub;
+
+
+                    $road_data['road_oil'][$shipment->shipment_id] = isset($road_data['road_oil'][$shipment->shipment_id])?$road_data['road_oil'][$shipment->shipment_id]+($road->road_oil_ton)*$check_sub:($road->road_oil_ton)*$check_sub;
+                }
+                else{
+                    $road_data['oil_cost'][$shipment->shipment_id] = isset($road_data['oil_cost'][$shipment->shipment_id])?$road_data['oil_cost'][$shipment->shipment_id]+($road->road_oil*round($shipment->oil_cost*1.1))*$check_sub:($road->road_oil*round($shipment->oil_cost*1.1))*$check_sub;
+
+
+                    $road_data['road_oil'][$shipment->shipment_id] = isset($road_data['road_oil'][$shipment->shipment_id])?$road_data['road_oil'][$shipment->shipment_id]+($road->road_oil)*$check_sub:($road->road_oil)*$check_sub;
+                }
+
+                
 
 
 
-                $road_data['tire_cost'][$shipment->shipment_id] = ($road->tire_cost)*$check_sub;
+                $road_data['road_time'][$shipment->shipment_id] = isset($road_data['road_time'][$shipment->shipment_id])?$road_data['road_time'][$shipment->shipment_id]+($road->road_time)*$check_sub:($road->road_time)*$check_sub;
 
 
 
-                $road_data['oil_cost'][$shipment->shipment_id] = ($road->road_oil*round($shipment->oil_cost*1.1))*$check_sub;
-
-
-
-
-
-
-
-                $road_data['road_time'][$shipment->shipment_id] = ($road->road_time)*$check_sub;
-
-
-
+                $road_data['road_km'][$shipment->shipment_id] = isset($road_data['road_km'][$shipment->shipment_id])?$road_data['road_km'][$shipment->shipment_id]+$road->road_km:$road->road_km;
 
 
 
@@ -12589,31 +12909,31 @@ Class shipmentController Extends baseController {
 
 
 
-                        $road_data['road_km'][$shipment->shipment_id] = $road->road_km;
+                        $road_data['bridge_cost'][$shipment->shipment_id] = isset($road_data['bridge_cost'][$shipment->shipment_id])?$road_data['bridge_cost'][$shipment->shipment_id]+$road->bridge_cost*$check_sub:$road->bridge_cost*$check_sub;
 
 
 
-                        $road_data['road_oil'][$shipment->shipment_id] = $road->road_oil;
+                        $road_data['police_cost'][$shipment->shipment_id] = isset($road_data['police_cost'][$shipment->shipment_id])?$road_data['police_cost'][$shipment->shipment_id]+($road->police_cost)*$check_sub:($road->police_cost)*$check_sub;
 
 
 
-                        $road_data['bridge_cost'][$shipment->shipment_id] = round($road->bridge_cost*1.1);
+                        $road_data['tire_cost'][$shipment->shipment_id] = isset($road_data['tire_cost'][$shipment->shipment_id])?$road_data['tire_cost'][$shipment->shipment_id]+($road->tire_cost)*$check_sub:($road->tire_cost)*$check_sub;
 
 
 
-                        $road_data['police_cost'][$shipment->shipment_id] = $road->police_cost;
+                        $road_data['oil_cost'][$shipment->shipment_id] = isset($road_data['oil_cost'][$shipment->shipment_id])?$road_data['oil_cost'][$shipment->shipment_id]+($road->road_oil*round($shipment->oil_cost*1.1))*$check_sub:($road->road_oil*round($shipment->oil_cost*1.1))*$check_sub;
 
 
 
-                        $road_data['tire_cost'][$shipment->shipment_id] = $road->tire_cost;
+                        $road_data['road_oil'][$shipment->shipment_id] = isset($road_data['road_oil'][$shipment->shipment_id])?$road_data['road_oil'][$shipment->shipment_id]+($road->road_oil)*$check_sub:($road->road_oil)*$check_sub;
 
 
 
-                        $road_data['oil_cost'][$shipment->shipment_id] = $road->road_oil*round($shipment->oil_cost*1.1);
+                        $road_data['road_time'][$shipment->shipment_id] = isset($road_data['road_time'][$shipment->shipment_id])?$road_data['road_time'][$shipment->shipment_id]+($road->road_time)*$check_sub:($road->road_time)*$check_sub;
 
 
 
-                        $road_data['road_time'][$shipment->shipment_id] = $road->road_time;
+                        $road_data['road_km'][$shipment->shipment_id] = isset($road_data['road_km'][$shipment->shipment_id])?$road_data['road_km'][$shipment->shipment_id]+$road->road_km:$road->road_km;
 
 
 

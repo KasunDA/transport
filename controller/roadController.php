@@ -570,7 +570,7 @@ Class roadController Extends baseController {
 
                         'way' => trim($_POST['way']),
 
-                        'bridge_cost' => round(trim(str_replace(',','',$_POST['bridge_cost']))/1.1),
+                        'bridge_cost' => trim(str_replace(',','',$_POST['bridge_cost'])),
 
                         'police_cost' => trim(str_replace(',','',$_POST['police_cost'])),
 
@@ -579,6 +579,8 @@ Class roadController Extends baseController {
                         'charge_add' => trim(str_replace(',','',$_POST['charge_add'])),
 
                         'road_add' => trim(str_replace(',','',$_POST['road_add'])),
+
+                        'road_oil_ton' => trim(str_replace(',','',$_POST['road_oil_ton'])),
 
                         'start_time' => strtotime(trim($_POST['start_time'])),
 

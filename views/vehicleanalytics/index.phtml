@@ -38,14 +38,14 @@
 
         <div class="add-box" style="margin-right: 5px">
             <select style="width:100px" name="sl_vehicle" id="sl_vehicle">
-                <option selected="selected" value="">Xe</option>
+                <option selected="selected" value="0">Xe</option>
                 <?php foreach ($vehicle_lists as $sm) { ?>
                 <option value="<?php echo $sm->vehicle_id ?>"><?php echo $sm->vehicle_number ?></option>
                 <?php } ?>
             </select>
 
             <select style="width:100px" name="sl_status" id="sl_status">
-                <option selected="selected" value="">Mooc</option>
+                <option selected="selected" value="0">Mooc</option>
                 <?php foreach ($romooc_lists as $sm) { ?>
                 <option value="<?php echo $sm->romooc_id ?>"><?php echo $sm->romooc_number ?></option>
                 <?php } ?>

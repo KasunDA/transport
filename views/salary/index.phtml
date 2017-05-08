@@ -49,7 +49,7 @@
         <a class="add_button" id="export_excel" href="<?php echo BASE_URL.'/salary/exportdriver/'.$batdau.'/'.$ketthuc.'/'.$trangthai ?>"><i class="fa fa-download"></i> Xuất</a>
     </div>
     
-    <select style="width:100px" name="sl_trangthai" id="sl_trangthai">
+    <select style="width:200px" name="sl_vehicle" id="sl_vehicle">
         <option value="-1">Tài xế</option>
         <?php foreach ($steersmans_data as $driver) { ?>
         <option value="<?php echo $driver->steersman_id ?>"><?php echo $driver->steersman_name ?></option>
@@ -107,7 +107,7 @@
     <?php $tongluongchuyen = 0; $tongdaudinhmuc=0; $tongdauthuclanh=0; $tongsl=0; $tongthanhtien=0; $tonglanh=0;
     ?>
 
-    <?php foreach ($steersmans_data as $driver) : ?>
+    <?php foreach ($steersmans as $driver) : ?>
 
         <?php 
 
@@ -181,7 +181,7 @@ var ch2 = "<?php echo $ketthuc ?>";
 $('#ketthuc option[value='+ch2+']').attr('selected','selected');
 
 var ch3 = "<?php echo $trangthai ?>";
-$('#sl_trangthai option[value='+ch3+']').attr('selected','selected');
+$('#sl_vehicle option[value='+ch3+']').attr('selected','selected');
 
 $(".view").click(function(e){
     if(e.target != '[object HTMLButtonElement]' && e.target != '[object HTMLSpanElement]' && !$('.checkbox').is(':focus') && e.target.nodeName != "A"){

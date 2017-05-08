@@ -48,6 +48,8 @@ Class importstockController Extends baseController {
 
             $trangthai = isset($_POST['staff']) ? $_POST['staff'] : null;
 
+            $tab_active = isset($_POST['tha']) ? $_POST['tha'] : null;
+
         }
 
         else{
@@ -75,6 +77,8 @@ Class importstockController Extends baseController {
 
 
             $trangthai = date('Y',strtotime($batdau));
+
+            $tab_active = 1;
 
         }
 
@@ -168,8 +172,51 @@ Class importstockController Extends baseController {
 
         $tongsotrang = ceil($tongsodong / $sonews);
 
-        
+        $imports = array();
+        foreach ($houses as $house) {
+            
 
+            $data = array(
+
+                'order_by'=>$order_by,
+
+                'order'=>$order,
+
+                'limit'=>$x.','.$sonews,
+
+                'where' => 'house = '.$house->house_id.' AND import_stock_date >= '.strtotime($batdau).' AND import_stock_date < '.strtotime($ngayketthuc),
+
+                );
+
+
+
+           
+
+            
+
+            if ($keyword != '') {
+
+                $search = ' AND ( import_stock_code LIKE "%'.$keyword.'%" 
+
+                            OR username LIKE "%'.$keyword.'%" )';
+
+                $data['where'] .= $search;
+
+            }
+
+            
+
+             $imports[$house->house_id] = $import_model->getAllStock($data,$join);
+
+             if ($tab_active == 0) {
+                 $tab_active = $house->house_id;
+             }
+        }
+
+        
+        $this->view->data['imports'] = $imports;
+        
+        $this->view->data['tab_active'] = $tab_active;
 
 
         $this->view->data['page'] = $page;
@@ -204,37 +251,7 @@ Class importstockController Extends baseController {
 
 
 
-        $data = array(
-
-            'order_by'=>$order_by,
-
-            'order'=>$order,
-
-            'limit'=>$x.','.$sonews,
-
-            'where' => 'import_stock_date >= '.strtotime($batdau).' AND import_stock_date < '.strtotime($ngayketthuc),
-
-            );
-
-
-
-       
-
         
-
-        if ($keyword != '') {
-
-            $search = ' AND ( import_stock_code LIKE "%'.$keyword.'%" 
-
-                        OR username LIKE "%'.$keyword.'%" )';
-
-            $data['where'] .= $search;
-
-        }
-
-        
-
-        $this->view->data['imports'] = $import_model->getAllStock($data,$join);
 
 
 
@@ -2572,7 +2589,413 @@ Class importstockController Extends baseController {
     }
 
 
+    function export(){
 
+        $this->view->disableLayout();
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+
+        $batdau = $this->registry->router->param_id;
+
+        $ketthuc = $this->registry->router->page;
+
+        $ngayketthuc = strtotime(date('d-m-Y', strtotime(date('d-m-Y',$ketthuc). ' + 1 days')));
+
+        $info_model = $this->model->get('infoModel');
+        $infos = $info_model->getLastInfo();
+
+        $customer_model = $this->model->get('customerModel');
+        $customers = $customer_model->getAllCustomer(array('order_by'=>'customer_name','order'=>'ASC'));
+        $customer_data = array();
+        foreach ($customers as $customer) {
+            $customer_data['customer_id'][$customer->customer_id] = $customer->customer_id;
+            $customer_data['customer_name'][$customer->customer_id] = $customer->customer_name;
+        }
+
+        $house_model = $this->model->get('houseModel');
+
+        $houses = $house_model->getAllHouse();
+
+        $import_model = $this->model->get('importstockModel');
+        $spare_stock_model = $this->model->get('sparestockModel');
+
+        $join = array('table'=>'user, house','where'=>'import_stock_user=user_id AND house = house_id');
+
+
+
+        $data = array(
+
+            'where' => 'import_stock_date >= '.$batdau.' AND import_stock_date < '.$ngayketthuc,
+
+            );
+
+
+
+
+        $data['order_by'] = 'import_stock_date';
+
+        $data['order'] = 'ASC';
+
+
+
+
+            require("lib/Classes/PHPExcel/IOFactory.php");
+
+            require("lib/Classes/PHPExcel.php");
+
+
+
+            $objPHPExcel = new PHPExcel();
+
+        $index_worksheet = 0; //(worksheet mặc định là 0, nếu tạo nhiều worksheet $index_worksheet += 1)
+
+        
+            foreach ($houses as $house) {
+                
+                $data = array(
+
+                'where' => 'house = '.$house->house_id.' AND import_stock_date >= '.$batdau.' AND import_stock_date < '.$ngayketthuc,
+
+                );
+
+                $imports = $import_model->getAllStock($data,$join);
+
+                $objPHPExcel->createSheet();
+
+                $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A1', mb_strtoupper($infos->info_company, "UTF-8"))
+
+                ->setCellValue('A2', 'PHÒNG VẬT TƯ KỸ THUẬT')
+
+                ->setCellValue('E1', 'CỘNG HÒA XÃ CHỦ NGHĨA VIỆT NAM')
+
+                ->setCellValue('E2', 'Độc lập - Tự do - Hạnh phúc')
+
+                ->setCellValue('A4', 'BẢNG TỔNG HỢP PHIẾU NHẬP KHO')
+
+                ->setCellValue('A6', 'STT')
+
+               ->setCellValue('B6', 'NGÀY')
+
+               ->setCellValue('C6', 'PHIẾU NHẬP KHO')
+
+               ->setCellValue('D6', 'NỘI DUNG')
+
+               ->setCellValue('E6', 'NGƯỜI GIAO HÀNG')
+
+               ->setCellValue('F6', 'SỐ HÓA ĐƠN')
+
+               ->setCellValue('G6', 'ĐƠN VỊ BÁN');
+
+              
+
+
+            if ($imports) {
+
+
+
+                $hang = 7;
+
+                $i=1;
+
+
+
+                $k=0;
+                foreach ($imports as $row) {
+
+
+                        $spares = $spare_stock_model->getAllStock(array('where'=>'import_stock = '.$row->import_stock_id),array('table'=>'spare_part, spare_part_code','where'=>'spare_part = spare_part_id AND code_list = spare_part_code_id'));
+
+
+
+
+                        //$objPHPExcel->setActiveSheetIndex(0)->getStyle('B'.$hang)->getNumberFormat()->setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_TEXT );
+
+                         $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                            ->setCellValue('A' . $hang, $i++)
+
+                            ->setCellValueExplicit('B' . $hang, $this->lib->hien_thi_ngay_thang($row->import_stock_date))
+
+                            ->setCellValue('C' . $hang, $row->import_stock_code)
+
+                            ->setCellValue('D' . $hang, $row->import_stock_comment)
+
+                            ->setCellValue('E' . $hang, $row->deliver)
+
+                            ->setCellValue('F' . $hang, $row->invoice_number)
+
+                            ->setCellValue('G' . $hang, (isset($customer_data['customer_name'][$row->invoice_customer])?$customer_data['customer_name'][$row->invoice_customer]:null));
+
+                        $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':G'.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+                        $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':G'.$hang)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+                        $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':G'.$hang)->getFont()->setBold(true);
+
+                         $hang++;
+
+                         $j=1;
+
+                        foreach ($spares as $spare) {
+                            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                            ->setCellValue('A' . $hang, $j++)
+
+                            ->setCellValueExplicit('B' . $hang, $spare->code)
+
+                            ->setCellValue('C' . $hang, $spare->name)
+
+                            ->setCellValue('D' . $hang, $spare->spare_part_seri)
+
+                            ->setCellValue('E' . $hang, $spare->spare_stock_number)
+
+                            ->setCellValue('F' . $hang, $spare->spare_stock_price+($spare->spare_stock_price*($spare->spare_stock_vat_percent/100)))
+
+                            ->setCellValue('G' . $hang, "=E".$hang."*F".$hang);
+
+                            $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':G'.$hang)->getFont()->setItalic(true);
+
+                            $hang++;
+                        }
+
+
+
+
+                }
+
+            }
+
+
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('B'.$hang, 'TỔNG')
+
+
+               ->setCellValue('E'.$hang, '=SUM(E7:E'.($hang-1).')')
+
+               ->setCellValue('G'.$hang, '=SUM(G7:G'.($hang-1).')');
+
+            
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:G'.$hang)->applyFromArray(
+
+                array(
+
+                    
+
+                    'borders' => array(
+
+                        'allborders' => array(
+
+                          'style' => PHPExcel_Style_Border::BORDER_THIN
+
+                        )
+
+                    )
+
+                )
+
+            );
+
+
+            $highestColumn = $objPHPExcel->getActiveSheet()->getHighestDataColumn();
+
+            
+
+
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A'.($hang+3), 'NGƯỜI LẬP BIỂU')
+
+                ->setCellValue('E'.($hang+3), mb_strtoupper($infos->info_company, "UTF-8"));
+
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang+3).':C'.($hang+3));
+
+            $objPHPExcel->getActiveSheet()->mergeCells('E'.($hang+3).':G'.($hang+3));
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang+3).':G'.($hang+3))->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang+3).':G'.($hang+3))->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang).':G'.($hang+3))->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'bold'  => true,
+
+                        'color' => array('rgb' => '000000')
+
+                    )
+
+                )
+
+            );
+
+
+
+
+
+            $highestRow = $objPHPExcel->getActiveSheet()->getHighestRow();
+
+
+
+            $highestRow ++;
+
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A1:C1');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('E1:G1');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A2:C2');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('E2:G2');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A4:G4');
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:G4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:G4')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle("A4")->getFont()->setSize(16);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:G4')->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'bold'  => true,
+
+                        'color' => array('rgb' => '000000')
+
+                    )
+
+                )
+
+            );
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A2:C2')->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'underline' => PHPExcel_Style_Font::UNDERLINE_SINGLE,
+
+                    )
+
+                )
+
+            );
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('E7:G'.$highestRow)->getNumberFormat()->setFormatCode("#,##0_);[Black](#,##0)");
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:G6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:G6')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:G6')->getFont()->setBold(true);
+
+            $objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(26);
+
+            $objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(25);
+
+            $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
+
+            //$objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth(25);
+
+
+
+            
+
+            $objPHPExcel->getActiveSheet()->setTitle($house->house_name);
+
+
+
+            $objPHPExcel->getActiveSheet()->freezePane('A7');
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet);
+
+            $index_worksheet++;
+            }
+        
+        
+            
+
+
+
+
+
+
+
+            // Set properties
+
+            $objPHPExcel->getProperties()->setCreator("TCMT")
+
+                            ->setLastModifiedBy($_SESSION['user_logined'])
+
+                            ->setTitle("Sale Report")
+
+                            ->setSubject("Sale Report")
+
+                            ->setDescription("Sale Report.")
+
+                            ->setKeywords("Sale Report")
+
+                            ->setCategory("Sale Report");
+
+
+
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+
+
+
+            header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+            header("Content-Disposition: attachment; filename= BẢNG TỔNG HỢP PHIẾU NHẬP KHO.xlsx");
+
+            header("Cache-Control: max-age=0");
+
+            ob_clean();
+
+            $objWriter->save("php://output");
+
+        
+
+    }
 
 
 }

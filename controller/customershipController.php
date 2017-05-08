@@ -20,6 +20,9 @@ Class customershipController Extends baseController {
             $ketthuc = isset($_POST['ketthuc']) ? $_POST['ketthuc'] : null;
 
             $xe = isset($_POST['xe']) ? $_POST['xe'] : null;
+            $kh = isset($_POST['nv']) ? $_POST['nv'] : null;
+            $vong = isset($_POST['vong']) ? $_POST['vong'] : null;
+            $trangthai = isset($_POST['trangthai']) ? $_POST['trangthai'] : null;
         }
 
         else{
@@ -27,14 +30,20 @@ Class customershipController Extends baseController {
             $keyword = "";
 
             $xe = 0;
+            $kh = 0;
 
             $batdau = '01-'.date('m-Y');
 
             $ketthuc = date('t-m-Y'); //cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')).'-'.date('m-Y');
+            $vong = (int)date('m',strtotime($batdau));
+            $trangthai = date('Y',strtotime($batdau));
 
         }
 
         $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
+
+        $vong = (int)date('m',strtotime($batdau));
+        $trangthai = date('Y',strtotime($batdau));
 
         $vehicle_model = $this->model->get('vehicleModel');
 
@@ -42,17 +51,28 @@ Class customershipController Extends baseController {
 
         $this->view->data['vehicles'] = $vehicles;
 
+        $customer_model = $this->model->get('customerModel');
+
+        $customers = $customer_model->getAllCustomer();
+
+        $this->view->data['customer_lists'] = $customers;
+
         $contunit_model = $this->model->get('contunitModel');
 
         $this->view->data['cont_units'] = $contunit_model->getAllUnit();
 
-        $customer_model = $this->model->get('customerModel');
+       
 
         $customer_sub_model = $this->model->get('customersubModel');
 
         $data = array(
             'where' => 'customer_id IN (SELECT customer FROM shipment)',
         );
+        if($kh > 0){
+
+            $data['where'] = $data['where'].' AND customer_id = '.$kh;
+
+        }
 
         if ($keyword != '') {
             $search = '(
@@ -92,6 +112,9 @@ Class customershipController Extends baseController {
         $this->view->data['ketthuc'] = $ketthuc;
 
         $this->view->data['xe'] = $xe;
+        $this->view->data['kh'] = $kh;
+        $this->view->data['vong'] = $vong;
+        $this->view->data['trangthai'] = $trangthai;
 
         $this->view->data['keyword'] = $keyword;
 
@@ -112,6 +135,11 @@ Class customershipController Extends baseController {
         if($xe != 0){
 
             $data['where'] = $data['where'].' AND vehicle = '.$xe;
+
+        }
+        if($kh > 0){
+
+            $data['where'] = $data['where'].' AND customer = '.$kh;
 
         }
 

@@ -228,6 +228,8 @@ Class costController Extends baseController {
 
                     vehicle_number LIKE "%'.$keyword.'%"
 
+                    OR bill_number LIKE "%'.$keyword.'%"
+
                     OR customer_name LIKE "%'.$keyword.'%"
 
                     OR shipment_from in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
@@ -252,13 +254,13 @@ Class costController Extends baseController {
 
         $road_model = $this->model->get('roadModel');
 
-        
+        $shipment_cost_model = $this->model->get('shipmentcostModel');
 
         $place_model = $this->model->get('placeModel');
 
         $place_data = array();
 
-
+        $cost_data = array();
 
         $warehouse_data = array();
 
@@ -280,6 +282,14 @@ Class costController Extends baseController {
                 unset($shipments[$k]);
             }
             else{
+
+                $cost_join = array('table'=>'cost_list','where'=>'cost_list = cost_list_id');
+                $shipment_costs = $shipment_cost_model->getAllShipment(array('where'=>'shipment='.$ship->shipment_id),$cost_join);
+
+                foreach ($shipment_costs as $cost) {
+                    $cost_data[$cost->cost_list_type][$ship->shipment_id] = isset($cost_data[$cost->cost_list_type][$ship->shipment_id])?$cost_data[$cost->cost_list_type][$ship->shipment_id]+$cost->cost:$cost->cost;
+                }
+
                 $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
 
             
@@ -296,13 +306,21 @@ Class costController Extends baseController {
 
                     foreach ($roads as $road) {
 
-                        $road_data['bridge_cost'][$ship->shipment_id] = $road->bridge_cost;
+                        $road_data['bridge_cost'][$ship->shipment_id] = isset($road_data['bridge_cost'][$ship->shipment_id])?$road_data['bridge_cost'][$ship->shipment_id]+$road->bridge_cost:$road->bridge_cost;
 
-                        $road_data['police_cost'][$ship->shipment_id] = $road->police_cost;
+                        $road_data['police_cost'][$ship->shipment_id] = isset($road_data['police_cost'][$ship->shipment_id])?$road_data['police_cost'][$ship->shipment_id]+$road->police_cost:$road->police_cost;
 
-                        $road_data['tire_cost'][$ship->shipment_id] = $road->tire_cost;
+                        $road_data['tire_cost'][$ship->shipment_id] = isset($road_data['tire_cost'][$ship->shipment_id])?$road_data['tire_cost'][$ship->shipment_id]+$road->tire_cost:$road->tire_cost;
 
-                        $road_data['oil_cost'][$ship->shipment_id] = $road->road_oil;
+                        
+                        if($road->road_oil_ton > 0){
+                            $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+$road->road_oil_ton:$road->road_oil_ton;
+                        }
+                        else{
+                            $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+$road->road_oil:$road->road_oil;
+                        }
+
+                        $road_data['road_add'][$ship->shipment_id] = isset($road_data['road_add'][$ship->shipment_id])?$road_data['road_add'][$ship->shipment_id]+$road->road_add:$road->road_add;
 
                         $road_data['way'][$ship->shipment_id] = $road->way;
 
@@ -424,6 +442,8 @@ Class costController Extends baseController {
 
         $this->view->data['place'] = $place_data;
 
+        $this->view->data['cost_data'] = $cost_data;
+
         $this->view->show('cost/index');
 
     }
@@ -489,13 +509,13 @@ Class costController Extends baseController {
 
         $road_model = $this->model->get('roadModel');
 
-        
+        $shipment_cost_model = $this->model->get('shipmentcostModel');
 
         $place_model = $this->model->get('placeModel');
 
         $place_data = array();
 
-
+        $cost_data = array();
 
         $warehouse_data = array();
 
@@ -547,45 +567,37 @@ Class costController Extends baseController {
 
                ->setCellValue('D6', 'Khách hàng')
 
-               ->setCellValue('E6', 'Dầu')
+               ->setCellValue('E6', 'Sản lượng')
 
-               ->setCellValue('F6', 'Sản lượng')
+               ->setCellValue('F6', 'ĐVT')
 
-               ->setCellValue('G6', 'ĐVT')
+               ->setCellValue('G6', 'Điểm lấy hàng')
 
-               ->setCellValue('H6', 'Điểm lấy hàng')
+               ->setCellValue('H6', 'Điểm giao hàng')
 
-               ->setCellValue('I6', 'Điểm giao hàng')
+               ->setCellValue('I6', 'Dầu')
 
-               ->setCellValue('J6', 'Dầu dọc đường')
+               ->setCellValue('J6', 'Tiền dầu')
 
                ->setCellValue('K6', 'Cầu đường')
 
-               ->setCellValue('L6', 'Nâng hạ')
+               ->setCellValue('L6', 'Công an')
 
-               ->setCellValue('M6', 'Chi phí đã duyệt')
+               ->setCellValue('M6', 'Bồi dưỡng')
 
-               ->setCellValue('N6', 'Vé cổng')
+               ->setCellValue('N6', 'Cân xe')
 
-               ->setCellValue('O6', 'Bồi dưỡng')
+               ->setCellValue('O6', 'Quét cont')
 
-               ->setCellValue('P6', 'Công an')
+               ->setCellValue('P6', 'Vé cổng')
 
-               ->setCellValue('Q6', 'Vá vỏ')
+               ->setCellValue('Q6', 'Hoa hồng')
 
-               ->setCellValue('R6', 'Cân xe')
+               ->setCellValue('R6', 'Đi đường')
 
-               ->setCellValue('S6', 'Quét cont')
+               ->setCellValue('S6', 'Sửa chữa')
 
-               ->setCellValue('T6', 'Vượt tải')
-
-               ->setCellValue('U6', 'Chi hộ')
-
-               ->setCellValue('V6', 'Hoa hồng')
-
-               ->setCellValue('W6', 'Chi phí thừa')
-
-               ->setCellValue('X6', 'Cộng');
+               ->setCellValue('T6', 'Cộng');
 
                
 
@@ -620,6 +632,14 @@ Class costController Extends baseController {
 
                     $qr = "SELECT * FROM vehicle_work WHERE vehicle = ".$row->vehicle." AND start_work <= ".$row->shipment_date." AND end_work >= ".$row->shipment_date;
                     if (!$shipment_model->queryShipment($qr)) {
+
+                        $cost_join = array('table'=>'cost_list','where'=>'cost_list = cost_list_id');
+                        $shipment_costs = $shipment_cost_model->getAllShipment(array('where'=>'shipment='.$row->shipment_id),$cost_join);
+
+                        foreach ($shipment_costs as $cost) {
+                            $cost_data[$cost->cost_list_type][$row->shipment_id] = isset($cost_data[$cost->cost_list_type][$row->shipment_id])?$cost_data[$cost->cost_list_type][$row->shipment_id]+$cost->cost:$cost->cost;
+                        }
+
                         $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$row->route.')'));
 
             
@@ -636,13 +656,21 @@ Class costController Extends baseController {
 
                         foreach ($roads as $road) {
 
-                            $road_data['bridge_cost'][$row->shipment_id] = $road->bridge_cost;
+                            $road_data['bridge_cost'][$row->shipment_id] = isset($road_data['bridge_cost'][$row->shipment_id])?$road_data['bridge_cost'][$row->shipment_id]+$road->bridge_cost:$road->bridge_cost;
 
-                            $road_data['police_cost'][$row->shipment_id] = $road->police_cost;
+                            $road_data['police_cost'][$row->shipment_id] = isset($road_data['police_cost'][$row->shipment_id])?$road_data['police_cost'][$row->shipment_id]+$road->police_cost:$road->police_cost;
 
-                            $road_data['tire_cost'][$row->shipment_id] = $road->tire_cost;
+                            $road_data['tire_cost'][$row->shipment_id] = isset($road_data['tire_cost'][$row->shipment_id])?$road_data['tire_cost'][$row->shipment_id]+$road->tire_cost:$road->tire_cost;
 
-                            $road_data['oil_cost'][$row->shipment_id] = $road->road_oil;
+                            
+                            if($road->road_oil_ton > 0){
+                                $road_data['oil_cost'][$row->shipment_id] = isset($road_data['oil_cost'][$row->shipment_id])?$road_data['oil_cost'][$row->shipment_id]+$road->road_oil_ton:$road->road_oil_ton;
+                            }
+                            else{
+                                $road_data['oil_cost'][$row->shipment_id] = isset($road_data['oil_cost'][$row->shipment_id])?$road_data['oil_cost'][$row->shipment_id]+$road->road_oil:$road->road_oil;
+                            }
+
+                            $road_data['road_add'][$row->shipment_id] = isset($road_data['road_add'][$row->shipment_id])?$road_data['road_add'][$row->shipment_id]+$road->road_add:$road->road_add;
 
                             $road_data['way'][$row->shipment_id] = $road->way;
 
@@ -826,7 +854,29 @@ Class costController Extends baseController {
 
                             }
 
+                            $bd = $kho['boiduong_cn'][$row->shipment_id];
+                            $dau = $row->shipment_oil*$row->oil_cost;
+                            $ca = isset($road_data['police_cost'][$row->shipment_id])?$road_data['police_cost'][$row->shipment_id]:null;
+                            $cd = isset($road_data['bridge_cost'][$row->shipment_id])?$road_data['bridge_cost'][$row->shipment_id]:null;
+                            $vv = isset($road_data['tire_cost'][$row->shipment_id])?$road_data['tire_cost'][$row->shipment_id]:null;
+                            $dd = isset($road_add['road_add'][$row->shipment_id])?$road_data['road_add'][$row->shipment_id]:null;
+                            $hh = isset($cost_data[9][$row->shipment_id])?$cost_data[9][$row->shipment_id]:null;
 
+                            if(isset($cost_data[4][$row->shipment_id]))
+                                $vv += $cost_data[4][$row->shipment_id];
+                            if(isset($cost_data[5][$row->shipment_id]))
+                                $dau += $cost_data[5][$row->shipment_id];
+                            if(isset($cost_data[6][$row->shipment_id]))
+                                $cd += $cost_data[6][$row->shipment_id];
+                            if(isset($cost_data[9][$row->shipment_id]))
+                                $hh += $cost_data[9][$row->shipment_id];
+                            if(isset($cost_data[10][$row->shipment_id]))
+                                $ca += $cost_data[10][$row->shipment_id];
+                            if(isset($cost_data[11][$row->shipment_id]))
+                                $bd += $cost_data[11][$row->shipment_id];
+                            if(isset($cost_data[12][$row->shipment_id]))
+                                $dd += $cost_data[12][$row->shipment_id];
+                            $dd += $row->shipment_road_add;
 
 
 
@@ -842,45 +892,37 @@ Class costController Extends baseController {
 
                             ->setCellValue('D' . $hang, $row->customer_name)
 
-                            ->setCellValue('E' . $hang, $road_data['oil_add'][$row->shipment_id]+$road_data['oil_add2'][$row->shipment_id])
+                            ->setCellValue('E' . $hang, $row->shipment_ton)
 
-                            ->setCellValue('F' . $hang, $row->shipment_ton)
+                            ->setCellValue('F' . $hang, $row->cont_unit_name)
 
-                            ->setCellValue('G' . $hang, $row->cont_unit_name)
+                            ->setCellValue('G' . $hang, $place_data['place_name'][$row->shipment_from])
 
-                            ->setCellValue('H' . $hang, $place_data['place_name'][$row->shipment_from])
+                            ->setCellValue('H' . $hang, $place_data['place_name'][$row->shipment_to])
 
-                            ->setCellValue('I' . $hang, $place_data['place_name'][$row->shipment_to])
+                            ->setCellValue('I' . $hang, $row->shipment_oil)
 
-                            ->setCellValue('J' . $hang, ($road_data['oil_add'][$row->shipment_id]+$road_data['oil_add2'][$row->shipment_id])*round($row->oil_cost*1.1))
+                            ->setCellValue('J' . $hang, $dau)
 
-                            ->setCellValue('K' . $hang, (round($road_data['bridge_cost'][$row->shipment_id]*1.1)+$row->bridge_cost_add))
+                            ->setCellValue('K' . $hang, $cd)
 
-                            ->setCellValue('L' . $hang, $row->cost_vat)
+                            ->setCellValue('L' . $hang, $ca)
 
-                            ->setCellValue('M' . $hang, ($row->approve==1?$row->cost_add:0))
+                            ->setCellValue('M' . $hang, $bd)
 
-                            ->setCellValue('N' . $hang, $kho['warehouse_gate'][$row->shipment_to])
+                            ->setCellValue('N' . $hang, $kho['warehouse_weight'][$row->shipment_from]+$kho['warehouse_weight'][$row->shipment_to])
 
-                            ->setCellValue('O' . $hang, $kho['boiduong_cn'][$row->shipment_id])
+                            ->setCellValue('O' . $hang, $kho['warehouse_clean'][$row->shipment_from]+$kho['warehouse_clean'][$row->shipment_to])
 
-                            ->setCellValue('P' . $hang, $road_data['police_cost'][$row->shipment_id])
+                            ->setCellValue('P' . $hang, $kho['warehouse_gate'][$row->shipment_to])
 
-                            ->setCellValue('Q' . $hang, $road_data['tire_cost'][$row->shipment_id])
+                            ->setCellValue('Q' . $hang, $hh)
 
-                            ->setCellValue('R' . $hang, $kho['warehouse_weight'][$row->shipment_from]+$kho['warehouse_weight'][$row->shipment_to])
+                            ->setCellValue('R' . $hang, $dd)
 
-                            ->setCellValue('S' . $hang, $kho['warehouse_clean'][$row->shipment_from]+$kho['warehouse_clean'][$row->shipment_to])
+                            ->setCellValue('S' . $hang, $vv)
 
-                            ->setCellValue('T' . $hang, $row->shipment_bonus)
-
-                            ->setCellValue('U' . $hang, $row->shipment_loan)
-
-                            ->setCellValue('V' . $hang, $row->commission*$row->commission_number)
-
-                            ->setCellValue('W' . $hang, $row->cost_excess)
-
-                            ->setCellValue('X' . $hang, '=SUM(J'.$hang.':T'.$hang.')+V'.$hang.'-W'.$hang);
+                            ->setCellValue('T' . $hang, '=SUM(J'.$hang.':S'.$hang.')');
 
                          $hang++;
                     }
@@ -917,9 +959,9 @@ Class costController Extends baseController {
 
 
 
-            $objPHPExcel->getActiveSheet()->getStyle('A1:X4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('A1:T4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A1:X4')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('A1:T4')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
 
 
@@ -927,7 +969,7 @@ Class costController Extends baseController {
 
 
 
-            $objPHPExcel->getActiveSheet()->getStyle('A1:X4')->applyFromArray(
+            $objPHPExcel->getActiveSheet()->getStyle('A1:T4')->applyFromArray(
 
                 array(
 
@@ -967,6 +1009,7 @@ Class costController Extends baseController {
 
                 ->setCellValue('A'.$hang, 'TỔNG')
 
+                ->setCellValue('I'.$hang, '=SUM(I4:I'.($hang-1).')')
 
                ->setCellValue('J'.$hang, '=SUM(J4:J'.($hang-1).')')
 
@@ -988,25 +1031,17 @@ Class costController Extends baseController {
 
                ->setCellValue('S'.$hang, '=SUM(S4:S'.($hang-1).')')
 
-               ->setCellValue('T'.$hang, '=SUM(T4:T'.($hang-1).')')
-
-               ->setCellValue('U'.$hang, '=SUM(U4:U'.($hang-1).')')
-
-               ->setCellValue('V'.$hang, '=SUM(V4:V'.($hang-1).')')
-
-               ->setCellValue('W'.$hang, '=SUM(W4:W'.($hang-1).')')
-
-               ->setCellValue('X'.$hang, '=SUM(X4:X'.($hang-1).')');
+               ->setCellValue('T'.$hang, '=SUM(T4:T'.($hang-1).')');
 
 
-            $objPHPExcel->getActiveSheet()->mergeCells('A'.$hang.':I'.$hang);
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.$hang.':H'.$hang);
             $objPHPExcel->getActiveSheet()->getStyle('A6:A'.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
             $objPHPExcel->getActiveSheet()->getStyle('A6:A'.$hang)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':X'.$hang)->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':T'.$hang)->getFont()->setBold(true);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A6:X'.$hang)->applyFromArray(
+            $objPHPExcel->getActiveSheet()->getStyle('A6:T'.$hang)->applyFromArray(
 
                 array(
 
@@ -1066,13 +1101,13 @@ Class costController Extends baseController {
 
 
 
-            $objPHPExcel->getActiveSheet()->getStyle('J4:X'.$highestRow)->getNumberFormat()->setFormatCode("#,##0_);[Black](#,##0)");
+            $objPHPExcel->getActiveSheet()->getStyle('J4:T'.$highestRow)->getNumberFormat()->setFormatCode("#,##0_);[Black](#,##0)");
 
-            $objPHPExcel->getActiveSheet()->getStyle('A6:X6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('A6:T6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A6:X6')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('A6:T6')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A6:X6')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('A6:T6')->getFont()->setBold(true);
 
             $objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(26);
 

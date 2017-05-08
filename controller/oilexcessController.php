@@ -64,7 +64,7 @@ Class oilexcessController Extends baseController {
 
             $ketthuc = date('t-m-Y'); 
 
-            $xe = "";
+            $xe = 0;
 
             $vong = (int)date('m',strtotime($batdau));
 
@@ -116,7 +116,7 @@ Class oilexcessController Extends baseController {
 
         }
 
-        if($xe != ""){
+        if($xe > 0){
 
             $data['where'] = $data['where'].' AND vehicle = '.$xe;
 
@@ -192,7 +192,7 @@ Class oilexcessController Extends baseController {
 
         }
 
-        if($xe != ""){
+        if($xe > 0){
 
             $data['where'] = $data['where'].' AND vehicle = '.$xe;
 

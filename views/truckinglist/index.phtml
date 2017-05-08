@@ -75,10 +75,33 @@ elseif ($order_by == 'oil_excess')
         <input type="search" id="search-input" name="s" value="<?php echo isset($keyword)?$keyword:null; ?>" placeholder="Tìm kiếm">
         <input type="button" name="" id="search-submit" class="button-search" value="Tìm kiếm" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">
         <?php if(!isset($disable_control)){ ?>
-        <div class="add-box"><a class="add_button" id="btnExport" ><i class="fa fa-download"></i> Xuất</a></div>
+        <div class="add-box"><a class="add_button" id="export_excel" href="<?= $this->url('truckinglist/export/'.strtotime($batdau).'/'.strtotime($ketthuc).'/'.$xe.'/'.$kh)?>" ><i class="fa fa-download"></i> Xuất</a></div>
         <?php } ?>
     </div>
     <div class="tablenav top">
+        <div class="add-box">
+            <select id="sl_round" name="sl_round" style="width:90px">
+             <?php 
+                for ($k=1; $k < 13; $k++) { 
+                    echo '<option value="'.$k.'">Tháng '.$k.'</option>';
+                }
+             ?>
+            </select>
+            <select id="sl_staff" name="sl_staff" style="width:100px">
+             <?php 
+                $nam = date('Y');
+                for ($k=($nam-5); $k < ($nam+5); $k++) { 
+                    echo '<option value="'.$k.'">Năm '.$k.'</option>';
+                }
+             ?>
+            </select>
+
+            <input type="button" name="xem" id="xem" value="Xem" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">  
+            
+        </div>
+    </div>
+    <div class="tablenav top">
+        <div style="clear:both"></div>
         <div class="add-box">
                   
             Từ  <input style="width:80px" type="search" name="batdau" id="batdau" placeholder="Chọn ngày" <?php if(isset($batdau)) echo "value='$batdau'"; ?> >  
@@ -93,12 +116,12 @@ elseif ($order_by == 'oil_excess')
         </div>
         <div class="add-box" style="margin-right: 5px">
             <select style="width:120px" name="sl_vehicle" id="sl_vehicle">
-                <option selected="selected" value="">Xe</option>
+                <option selected="selected" value="0">Xe</option>
                 <?php foreach ($vehicles as $sm) { ?>
                 <option value="<?php echo $sm->vehicle_id ?>"><?php echo $sm->vehicle_number ?></option>
                 <?php } ?>
             </select>
-            <select style="width:120px" name="sl_status" id="sl_status">
+            <select style="width:120px" name="sl_nv" id="sl_nv">
                 <option value="0">Khách hàng</option>
                 <?php foreach ($customers as $sm) { ?>
                 <option value="<?php echo $sm->customer_id ?>"><?php echo $sm->customer_name ?></option>
@@ -145,8 +168,8 @@ elseif ($order_by == 'oil_excess')
         <th rowspan="2"  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','vehicle','<?php echo $url_order ?>')">Số xe <?php if ($order_by == 'vehicle'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
-        <th rowspan="2" class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_ton','<?php echo $url_order ?>')">Số lượng <?php if ($order_by == 'shipment_ton'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+        <th colspan="<?php echo count($cont_units) ?>" class="fix">
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_ton','<?php echo $url_order ?>')">Sản lượng <?php if ($order_by == 'shipment_ton'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th rowspan="2"  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_charge','<?php echo $url_order ?>')">Đơn giá <?php if ($order_by == 'shipment_charge'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
@@ -162,6 +185,11 @@ elseif ($order_by == 'oil_excess')
        
     </tr>
     <tr>
+        <?php foreach ($cont_units as $cont) { ?>
+        <th class="fix">
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','cont_unit','<?php echo $url_order ?>')"><?php echo $cont->cont_unit_name ?> <?php if ($order_by == 'cont_unit'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+        </th>
+        <?php } ?>
         <?php foreach ($loan_units as $loan) { ?>
         <th class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','cost_list','<?php echo $url_order ?>')"><?php echo $loan->cost_list_name ?> <?php if ($order_by == 'cost_list'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
@@ -171,7 +199,7 @@ elseif ($order_by == 'oil_excess')
     
    </thead>
    <tbody>
-    <?php $doanhthu = 0; $chiphi = 0; $phatsinh = array(); ?>
+    <?php $doanhthu = 0; $chiphi = 0; $phatsinh = array(); $sanluong = array(); ?>
     <?php foreach ($shipments as $shipment) :
     $doanhthu += $shipment->shipment_revenue;
     ?>
@@ -185,7 +213,12 @@ elseif ($order_by == 'oil_excess')
             <td  class="fix" id="customer_type_<?php echo $shipment->shipment_id; ?>"><?php echo $customer_types[$shipment->shipment_id]; ?></td>
             <td class="fix" data="<?php echo $shipment->shipment_from; ?>" id="shipment_from_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$shipment->shipment_from) ?>" ><?php echo $shipment->shipment_from==$place['place_id'][$shipment->shipment_from]?$place['place_name'][$shipment->shipment_from]:null ?></a> - <a target="_blank" href="<?php echo $this->url('place/view/'.$shipment->shipment_to) ?>" ><?php echo $shipment->shipment_to==$place['place_id'][$shipment->shipment_to]?$place['place_name'][$shipment->shipment_to]:null ?></a></td>
             <td class="fix" data="<?php echo $shipment->vehicle; ?>" id="vehicle_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('vehicle/index/'.$shipment->vehicle) ?>" ><?php echo $shipment->vehicle_number; ?></a></td>
-            <td class="fix" id="shipment_ton_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_ton; ?></td>
+            <?php foreach ($cont_units as $cont) { 
+                $ton = $shipment->cont_unit==$cont->cont_unit_id?$shipment->shipment_ton:null;
+                $sanluong[$cont->cont_unit_id] = isset($sanluong[$cont->cont_unit_id])?$sanluong[$cont->cont_unit_id]+$ton:$ton;
+            ?>
+            <td class="fix" id="shipment_ton_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($ton); ?></td>
+            <?php } ?>
             
             <td class="fix" id="shipment_charge_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_charge); ?></td>
             <td class="fix" id="shipment_revenue_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_revenue); ?></td>
@@ -207,7 +240,9 @@ elseif ($order_by == 'oil_excess')
             <th style="border-right: 1px solid rgb(236, 235, 235);border-top: 1px solid #80C8E5;padding: 7px; text-align: right;" colspan="3">
                 Cộng
             </th>
-            <td class="fix " ></td>
+            <?php foreach ($cont_units as $cont) { ?>
+            <td class="fix " ><?php echo $lib->formatMoney(isset($sanluong[$cont->cont_unit_id])?$sanluong[$cont->cont_unit_id]:null) ?></td>
+            <?php } ?>
             <td class="fix " ></td>
             <td class="fix " ><?php echo $lib->formatMoney($doanhthu) ?></td>
             <?php foreach ($loan_units as $loan) { ?>
@@ -220,7 +255,9 @@ elseif ($order_by == 'oil_excess')
             <th style="border-right: 1px solid rgb(236, 235, 235);border-top: 1px solid #80C8E5;padding: 7px; text-align: right;" colspan="3">
                 Thuế GTGT 10%
             </th>
+            <?php foreach ($cont_units as $cont) { ?>
             <td class="fix " ></td>
+            <?php } ?>
             <td class="fix " ></td>
             <td class="fix " ><?php echo $lib->formatMoney(round($doanhthu*0.1)) ?></td>
             <td class="fix " colspan="<?php echo count($loan_units) ?>" ></td>
@@ -231,7 +268,9 @@ elseif ($order_by == 'oil_excess')
             <th style="border-right: 1px solid rgb(236, 235, 235);border-top: 1px solid #80C8E5;padding: 7px; text-align: right;" colspan="3">
                 Tổng cộng
             </th>
+            <?php foreach ($cont_units as $cont) { ?>
             <td class="fix " ></td>
+            <?php } ?>
             <td class="fix " ></td>
             <td class="fix " ><?php echo $lib->formatMoney($doanhthu+round($doanhthu*0.1)) ?></td>
             <td style="text-align:center" class="fix " colspan="<?php echo count($loan_units) ?>" ><?php echo $lib->formatMoney($chiphi) ?></td>
@@ -386,6 +425,36 @@ $('#sl_vehicle option[value='+x+']').attr('selected','selected');
 var ch = "<?php echo $limit ?>";
 $('#chonloc option[value='+ch+']').attr('selected','selected');
 var tt = "<?php echo $kh ?>";
-$('#sl_status option[value='+tt+']').attr('selected','selected');
+$('#sl_nv option[value='+tt+']').attr('selected','selected');
+
+var v = "<?php echo $vong ?>";
+$('#sl_round option[value='+v+']').attr('selected','selected');
+
+var tt = "<?php echo $trangthai ?>";
+$('#sl_staff option[value='+tt+']').attr('selected','selected');
+</script>
+<script type="text/javascript">
+    
+    $('#sl_round').change(function(){
+        var m = $(this).val();
+        var y = $('#sl_staff').val();
+        var firstDay = new Date(y, m-1, 1);
+        var lastDay = new Date(y, m, 0);
+
+        $('#batdau').datepicker("setDate", firstDay );
+        $('#ketthuc').datepicker("setDate", lastDay );
+
+    });
+
+    $('#sl_staff').change(function(){
+        var y = $(this).val();
+        var m = $('#sl_round').val();
+        var firstDay = new Date(y, m-1, 1);
+        var lastDay = new Date(y, m, 0);
+
+        $('#batdau').datepicker("setDate", firstDay );
+        $('#ketthuc').datepicker("setDate", lastDay );
+
+    });
 
 </script>

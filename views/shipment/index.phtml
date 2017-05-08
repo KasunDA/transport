@@ -152,6 +152,51 @@ elseif ($order_by == 'bill_number')
 
         <div class="add-box">
 
+            <select id="sl_customer" name="sl_customer" style="width:90px">
+
+             <?php 
+
+                for ($k=1; $k < 13; $k++) { 
+
+                    echo '<option value="'.$k.'">Tháng '.$k.'</option>';
+
+                }
+
+             ?>
+
+            </select>
+
+            <select id="sl_staff" name="sl_staff" style="width:100px">
+
+             <?php 
+
+                $nam = date('Y');
+
+                for ($k=($nam-5); $k < ($nam+5); $k++) { 
+
+                    echo '<option value="'.$k.'">Năm '.$k.'</option>';
+
+                }
+
+             ?>
+
+            </select>
+
+
+
+            <input type="button" name="xem" id="xem" value="Xem" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">  
+
+            
+
+        </div>
+
+    </div>
+
+    <div class="tablenav top">
+        <div style="clear:both"></div>
+
+        <div class="add-box">
+
                   
 
             Từ  <input style="width:80px" type="search" name="batdau" id="batdau" placeholder="Chọn ngày" <?php if(isset($batdau)) echo "value='$batdau'"; ?> >  
@@ -218,7 +263,7 @@ elseif ($order_by == 'bill_number')
 
             <select name="sl_vehicle" id="sl_vehicle">
 
-                <option selected="selected" value="">Xe</option>
+                <option selected="selected" value="0">Xe</option>
 
                 <?php foreach ($vehicles as $sm) { ?>
 
@@ -356,6 +401,24 @@ elseif ($order_by == 'bill_number')
 
         <th  class="fix">
 
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_oil','<?php echo $url_order ?>')">Định mức dầu <?php if ($order_by == 'shipment_oil'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+
+        <th  class="fix">
+
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_oil','<?php echo $url_order ?>')">Dầu thực lãnh <?php if ($order_by == 'shipment_oil'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+
+        <th  class="fix">
+
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_salary','<?php echo $url_order ?>')">Lương chuyến <?php if ($order_by == 'shipment_salary'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+
+        <th  class="fix">
+
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','customer','<?php echo $url_order ?>')">Khách hàng <?php if ($order_by == 'customer'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
 
         </th>
@@ -457,7 +520,7 @@ elseif ($order_by == 'bill_number')
 
             <td class="fix" id="shipment_date_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment->shipment_date); ?></td>
 
-            <td class="fix" ><?php echo isset($driver_data[$shipment->shipment_id]['driver_name'])?$driver_data[$shipment->shipment_id]['driver_name']:null; ?></td>
+            <td class="fix" id="steersman_<?php echo $shipment->shipment_id; ?>" data="<?php echo $shipment->steersman; ?>" ><?php echo $shipment->steersman_name; ?></td>
 
             <td class="fix" data="<?php echo $shipment->vehicle; ?>" id="vehicle_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('vehicle/index/'.$shipment->vehicle) ?>" ><?php echo $shipment->vehicle_number; ?></a></td>
 
@@ -471,11 +534,14 @@ elseif ($order_by == 'bill_number')
 
 
 
-            <td class="fix" ><?php echo $lib->formatMoney(isset($road['road_km'][$shipment->shipment_id])?$road['road_km'][$shipment->shipment_id]:null); ?></td>
+            <td class="fix" ><?php echo isset($road['road_km'][$shipment->shipment_id])?$road['road_km'][$shipment->shipment_id]:null; ?></td>
+            <td class="fix" ><?php echo (isset($road['road_oil'][$shipment->shipment_id])?$road['road_oil'][$shipment->shipment_id]:null)+$shipment->shipment_road_oil_add; ?></td>
 
-            
+            <td class="fix" id="shipment_oil_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_oil; ?></td>
 
-            <td class="fix" data="<?php echo $shipment->customer; ?>" id="customer_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('customer/index/'.$shipment->customer) ?>" ><?php echo $shipment->customer_name; ?></a></td>
+            <td class="fix"  id="shipment_salary_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_salary); ?></td>
+
+            <td class="fix" data="<?php echo $shipment->customer; ?>" id="customer_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('customer/editcus/'.$shipment->customer) ?>" ><?php echo $shipment->customer_name; ?></a></td>
 
             <td  class="fix" id="customer_type_<?php echo $shipment->shipment_id; ?>"><?php echo $customer_types[$shipment->shipment_id]; ?></td>
 
@@ -593,13 +659,24 @@ elseif ($order_by == 'bill_number')
 
 
 
-            <td class="fix" style="display:none"  id="shipment_salary_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_salary); ?></td>
+            
+
+            <td class="fix" style="display:none"  id="shipment_road_add_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_road_add); ?></td>
 
             <td class="fix" style="display:none"  id="route_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->route; ?></td>
 
+            <td class="fix" style="display:none"  id="bill_receive_date_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment->bill_receive_date); ?></td>
+            <td class="fix" style="display:none"  id="bill_delivery_date_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment->bill_delivery_date); ?></td>
+            <td class="fix" style="display:none"  id="bill_receive_ton_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->bill_receive_ton; ?></td>
+            <td class="fix" style="display:none"  id="bill_delivery_ton_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->bill_delivery_ton; ?></td>
+            <td class="fix" style="display:none"  id="bill_receive_unit_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->bill_receive_unit; ?></td>
+            <td class="fix" style="display:none"  id="bill_delivery_unit_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->bill_delivery_unit; ?></td>
+            <td class="fix" style="display:none"  id="bill_in_<?php echo $shipment->shipment_id; ?>"><?php echo date('H:i:s',$shipment->bill_in); ?></td>
+            <td class="fix" style="display:none"  id="bill_out_<?php echo $shipment->shipment_id; ?>"><?php echo date('H:i:s',$shipment->bill_out); ?></td>
+            
+            <td class="fix" style="display:none"  id="export_stock_<?php echo $shipment->shipment_id; ?>"><?php echo $export_stocks[$shipment->shipment_id]; ?></td>
 
-
-
+            <td class="fix" style="display:none"  id="shipment_road_oil_add_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_road_oil_add; ?></td>
 
             <?php if(!isset($disable_control)){ ?>
 
@@ -611,11 +688,11 @@ elseif ($order_by == 'bill_number')
 
 
 
-                    <button title="Phiếu giao nhận vận chuyển" class="btn btn-sm btn-flat btn-primary editButton" data="<?php echo $shipment->shipment_id; ?>" data-receive-date="<?php echo $shipment->bill_receive_date>0?date('d-m-Y',$shipment->bill_receive_date):date('d-m-Y',$shipment->shipment_date); ?>" data-receive-ton="<?php echo $shipment->bill_receive_ton>0?$shipment->bill_receive_ton:$shipment->shipment_ton_net; ?>" data-receive-unit="<?php echo $shipment->bill_receive_unit>0?$shipment->bill_receive_unit:$shipment->cont_unit_net; ?>" data-bill="<?php echo $shipment->bill_number; ?>" data-delivery-date="<?php echo $shipment->bill_delivery_date>0?date('d-m-Y',$shipment->bill_delivery_date):null; ?>" data-delivery-ton="<?php echo $shipment->bill_delivery_ton; ?>" data-delivery-unit="<?php echo $shipment->bill_delivery_unit; ?>" data-date-in="<?php echo $shipment->bill_in>0?date('H:i:s',$shipment->bill_in):null; ?>" data-date-out="<?php echo $shipment->bill_out>0?date('H:i:s',$shipment->bill_out):null; ?>" ><i class="fa fa-file-text-o"></i> D.O</button>
+                    <!-- <button title="Phiếu giao nhận vận chuyển" class="btn btn-sm btn-flat btn-primary editButton" data="<?php echo $shipment->shipment_id; ?>" data-receive-date="<?php echo $shipment->bill_receive_date>0?date('d-m-Y',$shipment->bill_receive_date):date('d-m-Y',$shipment->shipment_date); ?>" data-receive-ton="<?php echo $shipment->bill_receive_ton>0?$shipment->bill_receive_ton:$shipment->shipment_ton_net; ?>" data-receive-unit="<?php echo $shipment->bill_receive_unit>0?$shipment->bill_receive_unit:$shipment->cont_unit_net; ?>" data-bill="<?php echo $shipment->bill_number; ?>" data-delivery-date="<?php echo $shipment->bill_delivery_date>0?date('d-m-Y',$shipment->bill_delivery_date):null; ?>" data-delivery-ton="<?php echo $shipment->bill_delivery_ton; ?>" data-delivery-unit="<?php echo $shipment->bill_delivery_unit; ?>" data-date-in="<?php echo $shipment->bill_in>0?date('H:i:s',$shipment->bill_in):null; ?>" data-date-out="<?php echo $shipment->bill_out>0?date('H:i:s',$shipment->bill_out):null; ?>" ><i class="fa fa-file-text-o"></i> D.O</button>
 
                     <?php if($shipment->approve_oil != 1){ ?>
                     <button class="btn btn-sm btn-flat btn-success editButton2" data="<?php echo $shipment->shipment_id; ?>" data-oil="<?php echo $shipment->shipment_oil ?>" data-export="<?php echo $export_stocks[$shipment->shipment_id] ?>" ><i class="fa fa-flask"></i> Dầu</button>
-                    <?php } ?>
+                    <?php } ?> -->
 
                     <button class="hoantat btn btn-sm btn-flat btn-default" data="<?php echo $shipment->shipment_id ?>" ><i class="fa fa-check"></i> Hoàn tất</button>
 
@@ -623,6 +700,24 @@ elseif ($order_by == 'bill_number')
 
                     <?php } ?>
 
+
+                    <?php if($_SESSION['role_logined'] == 1 || $_SESSION['role_logined'] == 2 ){ ?>
+
+                    <?php if($shipment->shipment_complete == 1 || $shipment->not_del == 1){ ?>
+
+                        <button value="0" class="unlock btn btn-sm btn-flat btn-default" data="<?php echo $shipment->shipment_id ?>" ><i class="fa fa-unlock"></i> Mở</button>
+
+                    <?php } } ?>
+
+
+
+                    <?php if($_SESSION['role_logined'] == 1 || $_SESSION['role_logined'] == 2 ){ ?>
+
+                    <?php if($shipment->approve_oil == 1){ ?>
+
+                        <button value="0" class="unlock_oil btn btn-sm btn-flat btn-default" data="<?php echo $shipment->shipment_id ?>" ><i class="fa fa-unlock"></i> Mở dầu</button>
+
+                    <?php } } ?>
 
 
                     <?php if($shipment->shipment_complete != 1){ ?>
@@ -639,23 +734,7 @@ elseif ($order_by == 'bill_number')
 
 
 
-                <?php if($_SESSION['role_logined'] == 1 || $_SESSION['role_logined'] == 2 ){ ?>
-
-                <?php if($shipment->shipment_complete == 1 || $shipment->not_del == 1){ ?>
-
-                    <button value="0" class="unlock btn btn-sm btn-flat btn-default" data="<?php echo $shipment->shipment_id ?>" ><i class="fa fa-unlock"></i> Mở</button>
-
-                <?php } } ?>
-
-
-
-                <?php if($_SESSION['role_logined'] == 1 || $_SESSION['role_logined'] == 2 ){ ?>
-
-                <?php if($shipment->approve_oil == 1){ ?>
-
-                    <button value="0" class="unlock_oil btn btn-sm btn-flat btn-default" data="<?php echo $shipment->shipment_id ?>" ><i class="fa fa-unlock"></i> Mở dầu</button>
-
-                <?php } } ?>
+                
 
 
 
@@ -725,7 +804,7 @@ elseif ($order_by == 'bill_number')
 
                 <tr  style="font-weight: bold; color: rgb(23, 119, 226);background-color: rgb(222, 239, 236);" >
 
-                    <td class="fix" colspan="13" ></td>
+                    <td class="fix" colspan="16" ></td>
 
                     <th style="background: rgb(23, 119, 226); color: white; border-right: 1px solid rgb(236, 235, 235);border-top: 1px solid #80C8E5;padding: 7px;" colspan="2">
 
@@ -1039,9 +1118,17 @@ $this->helper('slidePaginator');
 
                                 <div class="form-group">
 
+                                  <label for="bill_number">Số DO</label>
+
+                                  <input type="text" autofocus id="bill_number" name="bill_number" tabindex="1" required="required" >
+
+                                </div>
+
+                                <div class="form-group">
+
                                   <label for="shipment_round">Vòng chạy</label>
 
-                                  <input type="text" style="width:50px" class="number" id="shipment_round" name="shipment_round" tabindex="1" required="required" >
+                                  <input type="text" style="width:50px" class="number" id="shipment_round" name="shipment_round" tabindex="2" required="required" >
 
                                 </div>
 
@@ -1049,7 +1136,7 @@ $this->helper('slidePaginator');
 
                                   <label for="shipment_date">Ngày</label>
 
-                                  <input style="width:100px" type="text" id="shipment_date" name="shipment_date" tabindex="2" required="required" >
+                                  <input style="width:100px" type="text" id="shipment_date" name="shipment_date" tabindex="3" required="required" >
 
                                 </div>
 
@@ -1057,7 +1144,7 @@ $this->helper('slidePaginator');
 
                                   <label for="vehicle">Xe <a target="_blank" title="Thêm xe" href="<?php echo $this->url('vehicle') ?>"><i class="fa fa-plus"></i></a></label>
 
-                                  <input style="width:150px" autofocus type="text"  autocomplete="off"   id="vehicle" name="vehicle" tabindex="3" required="required" placeholder="Nhập tên hoặc * để chọn" >
+                                  <input style="width:150px" type="text"  autocomplete="off"   id="vehicle" name="vehicle" tabindex="4" required="required" placeholder="Nhập tên hoặc * để chọn" >
 
                                             <ul id="vehicle_list_id"></ul>
 
@@ -1067,7 +1154,7 @@ $this->helper('slidePaginator');
 
                                   <label for="romooc">Mooc <a target="_blank" title="Thêm mooc" href="<?php echo $this->url('romooc') ?>"><i class="fa fa-plus"></i></a></label>
 
-                                  <input style="width:150px" type="text"  id="romooc" name="romooc" tabindex="3" disabled >
+                                  <input style="width:150px" type="text"  id="romooc" name="romooc" disabled >
 
                                   <a title="Thông tin thay thế lắp ráp mooc" target="_blank" href="<?php echo $this->url('vehicleromooc/vehicle') ?>"><i class="fa fa-th-list"></i></a>
 
@@ -1075,15 +1162,13 @@ $this->helper('slidePaginator');
 
                                 <div class="form-group">
 
-                                  <label for="sub_driver">Tài xế phụ <input type="checkbox"  id="sub_driver" name="sub_driver" value="0" tabindex="4" ></label>
+                                  <label for="steersman">Tài xế <a target="_blank" title="Thêm tài xế" href="<?php echo $this->url('steersman') ?>"><i class="fa fa-plus"></i></a></label>
 
-                                    <input type="text" disabled id="sub_driver_name" name="sub_driver_name" >
+                                  <input style="width:150px" type="text"  id="steersman" name="steersman" disabled >
 
-                                    <ul id="staff_list_id"></ul>
+                                  <a title="Bàn giao xe" target="_blank" href="<?php echo $this->url('driver') ?>"><i class="fa fa-th-list"></i></a>
 
                                 </div>
-
-                                
 
                                 
 
@@ -1151,7 +1236,13 @@ $this->helper('slidePaginator');
 
                                 </div>
 
-                                
+                                <div class="form-group">
+
+                                  <label for="shipment_salary">Lương chuyến</label>
+
+                                  <input type="text" class="number" id="shipment_salary" name="shipment_salary" tabindex="10" required="required" >
+
+                                </div>
 
                                 
 
@@ -1169,33 +1260,21 @@ $this->helper('slidePaginator');
 
                               <div class="box-body">
 
-                                
-
                                 <div class="form-group">
 
-                                    <label for="shipment_ton">Sản lượng</label>
+                                  <label for="bill_receive_date">Ngày nhận</label>
 
-                                      <input style="width:50px" type="text" class="numbers" id="shipment_ton" name="shipment_ton" tabindex="10" >
-
-                                        <select style="width:80px" id="cont_unit" name="cont_unit" tabindex="10" >
-
-                                        <?php foreach ($cont_units as $cont) { ?>
-
-                                            <option value="<?php echo $cont->cont_unit_id ?>"><?php echo $cont->cont_unit_name ?></option>
-
-                                        <?php } ?>
-
-                                      </select>
+                                  <input class="ngay" style="width:100px" type="text" id="bill_receive_date" name="bill_receive_date" tabindex="11" required="required" >
 
                                 </div>
 
-                                <div id="sp_thuc_chuyen" class="form-group">
+                                <div class="form-group">
 
-                                    <label for="sp_thuc_chuyen">Thực chuyển</label>
+                                    <label for="bill_receive_ton">Sản lượng nhận</label>
 
-                                    <input style="width:50px" type="text" class="numbers" id="shipment_ton_net" name="shipment_ton_net" tabindex="10" >
+                                    <input style="width:50px" type="text" class="numbers" id="bill_receive_ton" name="bill_receive_ton" tabindex="12" >
 
-                                    <select style="width:80px" id="cont_unit_net" name="cont_unit_net" tabindex="10" >
+                                    <select style="width:80px" id="bill_receive_unit" name="bill_receive_unit" tabindex="13" >
 
                                     <?php foreach ($cont_units as $cont) { ?>
 
@@ -1209,30 +1288,38 @@ $this->helper('slidePaginator');
 
                                 <div class="form-group">
 
-                                  <label for="shipment_charge">Cước</label>
+                                  <label for="bill_in">Giờ vào</label>
 
-                                  <input type="text" class="number" id="shipment_charge" name="shipment_charge" tabindex="11" >
-
-                                </div>
-
-                                <div class="form-group">
-
-                                  <label for="shipment_charge_excess">Cước phát sinh</label>
-
-                                  <input type="text" class="number" id="shipment_charge_excess" name="shipment_charge_excess" tabindex="12" >
-
-                                </div>
-
-                                <div class="form-group">
-
-                                  <label for="shipment_charge_excess_comment">Nội dung</label>
-
-                                  <textarea type="text"  id="shipment_charge_excess_comment" name="shipment_charge_excess_comment" tabindex="13" placeholder="Nội dung cước phát sinh" ></textarea>
+                                  <input type="text" class="time" id="bill_in" name="bill_in" value="" tabindex="17" />
 
                                 </div>
 
                                 
 
+                                <div class="form-group">
+
+                                  <label for="shipment_charge">Cước</label>
+
+                                  <input type="text" class="number" id="shipment_charge" name="shipment_charge" tabindex="19" >
+
+                                </div>
+
+                                
+                                <div class="form-group">
+
+                                  <label for="oil_cost">Giá dầu</label>
+
+                                  <input type="text" class="number" id="oil_cost" name="oil_cost" tabindex="22" required="required" >
+
+                                </div>
+                                
+                                <div class="form-group">
+
+                                  <label for="shipment_road_add">Tiền đi đường</label>
+
+                                  <input type="text" class="number" id="shipment_road_add" name="shipment_road_add" tabindex="23"  >
+
+                                </div>
                                 
 
                               </div>
@@ -1251,53 +1338,57 @@ $this->helper('slidePaginator');
 
                                 <div class="form-group">
 
-                                  <label for="oil_add">Ứng dầu lần 1</label>
+                                  <label for="bill_delivery_date">Ngày giao</label>
 
-                                  <select name="oil_add_dc" id="oil_add_dc" style="width:120px">
-
-                                        <option value="1"> Bãi </option>
-
-                                        <option value="5"> Dọc đường </option>
-
-                                    </select>
-
-                                    
-
-                                    <input style="width:50px" type="text" class="numbers" id="oil_add" name="oil_add" tabindex="14" >
+                                  <input class="ngay" style="width:100px" type="text" id="bill_delivery_date" name="bill_delivery_date" tabindex="14" required="required" >
 
                                 </div>
 
                                 <div class="form-group">
 
-                                  <label for="oil_add2">Ứng dầu lần 2</label>
+                                    <label for="bill_delivery_ton">Sản lượng giao</label>
 
-                                  <select name="oil_add_dc2" id="oil_add_dc2" style="width:120px">
+                                      <input style="width:50px" type="text" class="numbers" id="bill_delivery_ton" name="bill_delivery_ton" tabindex="15" >
 
-                                        <option value="1"> Bãi </option>
+                                        <select style="width:80px" id="bill_delivery_unit" name="bill_delivery_unit" tabindex="16" >
 
-                                        <option value="5"> Dọc đường </option>
+                                        <?php foreach ($cont_units as $cont) { ?>
 
-                                    </select>
+                                            <option value="<?php echo $cont->cont_unit_id ?>"><?php echo $cont->cont_unit_name ?></option>
 
-                                    
+                                        <?php } ?>
 
-                                    <input style="width:50px" type="text" class="numbers" id="oil_add2" name="oil_add2" tabindex="15" >
+                                      </select>
+
+                                </div>
+                                <div class="form-group">
+
+                                  <label for="bill_out">Giờ ra</label>
+
+                                  <input type="text" class="time" id="bill_out" name="bill_out" value="" tabindex="18" />
 
                                 </div>
 
+                                
                                 <div class="form-group">
 
-                                  <label for="oil_cost">Giá dầu</label>
+                                  <label for="export_stock">Phiếu xuất dầu <a target="_blank" title="Thêm phiếu xuất kho" href="<?php echo $this->url('exportstock') ?>"><i class="fa fa-plus"></i></a></label>
 
-                                  <input type="text" class="number" id="oil_cost" name="oil_cost" tabindex="16" required="required" >
+                                  <input type="text" id="export_stock" name="export_stock" tabindex="20"  >
 
                                 </div>
-
                                 <div class="form-group">
 
-                                  <label for="shipment_salary">Lương chuyến</label>
+                                  <label for="shipment_oil">Dầu lãnh</label>
 
-                                  <input type="text" class="number" id="shipment_salary" name="shipment_salary" tabindex="17" required="required" >
+                                  <input type="text" id="shipment_oil" name="shipment_oil" tabindex="21" required="required" max="0" >
+
+                                </div>
+                                <div class="form-group">
+
+                                  <label for="shipment_road_oil_add">Cộng dầu</label>
+
+                                  <input type="text" id="shipment_road_oil_add" name="shipment_road_oil_add" tabindex="24">
 
                                 </div>
 
@@ -1330,6 +1421,32 @@ $this->helper('slidePaginator');
                                                 </legend>
 
 
+                                                <input style="width:50px" type="hidden" class="numbers" id="shipment_ton_net" name="shipment_ton_net" tabindex="10" >
+
+                                                <input type="hidden" style="width:80px" id="cont_unit_net" name="cont_unit_net" tabindex="10" >
+
+                                                <input style="width:50px" type="hidden" class="numbers" id="shipment_ton" name="shipment_ton" tabindex="10" >
+
+                                                <input type="hidden" style="width:80px" id="cont_unit" name="cont_unit" tabindex="10" >
+
+                                                <input style="width:50px" type="hidden" id="oil_add_dc" name="oil_add_dc" value="1" >
+
+                                                <input style="width:50px" type="hidden" class="numbers" id="oil_add" name="oil_add" tabindex="14" >
+
+                                                <input style="width:50px" type="hidden" id="oil_add_dc2" name="oil_add_dc2" value="1" >
+
+                                                <input style="width:50px" type="hidden" class="numbers" id="oil_add2" name="oil_add2" tabindex="15" >
+
+                                                <input type="hidden" class="number" id="shipment_charge_excess" name="shipment_charge_excess" tabindex="12" >
+
+
+                                                <input type="hidden"  id="shipment_charge_excess_comment" name="shipment_charge_excess_comment" tabindex="13" placeholder="Nội dung cước phát sinh" >
+
+                                                <input type="hidden"  id="sub_driver" name="sub_driver" value="0" tabindex="4" ></label>
+
+                                                <input type="hidden" disabled id="sub_driver_name" name="sub_driver_name" >
+
+                                                <!-- <ul id="staff_list_id"></ul> -->
 
                                                 <input disabled style="width:70px" type="hidden" class="number" id="shipment_loan" name="shipment_loan" tabindex="16" data="" >
 
@@ -1485,9 +1602,9 @@ $this->helper('slidePaginator');
 
                                 <input type="hidden" readonly id="check_temp" name="check_temp" required="required" >
 
-                                <button type="submit" class="btn btn-primary" tabindex="18">Hoàn thành</button>
+                                <button type="submit" class="btn btn-primary" tabindex="25">Hoàn thành</button>
 
-                                <button type="reset" class="btn" tabindex="19">Nhập lại</button>
+                                <button type="reset" class="btn" tabindex="26">Nhập lại</button>
 
                               </div>
 
@@ -1529,9 +1646,17 @@ $this->helper('slidePaginator');
 
                                         <div class="form-group">
 
+                                          <label for="bill_number_sub">Số DO</label>
+
+                                          <input type="text" id="bill_number_sub" name="bill_number_sub" tabindex="1" required="required" >
+
+                                        </div>
+
+                                        <div class="form-group">
+
                                           <label for="shipment_round_sub">Vòng chạy</label>
 
-                                          <input type="text" style="width:50px" class="number" id="shipment_round_sub" name="shipment_round_sub" tabindex="1" required="required" >
+                                          <input type="text" style="width:50px" class="number" id="shipment_round_sub" name="shipment_round_sub" tabindex="2" required="required" >
 
                                         </div>
 
@@ -1539,7 +1664,7 @@ $this->helper('slidePaginator');
 
                                           <label for="shipment_date_sub">Ngày</label>
 
-                                          <input style="width:100px" type="text" id="shipment_date_sub" name="shipment_date_sub" tabindex="2" required="required" >
+                                          <input style="width:100px" type="text" id="shipment_date_sub" name="shipment_date_sub" tabindex="3" required="required" >
 
                                         </div>
 
@@ -1547,7 +1672,7 @@ $this->helper('slidePaginator');
 
                                           <label for="vehicle_sub">Xe <a target="_blank" title="Thêm xe" href="<?php echo $this->url('vehicle') ?>"><i class="fa fa-plus"></i></a></label>
 
-                                          <input style="width:150px" type="text"  autocomplete="off"   id="vehicle_sub" name="vehicle_sub" tabindex="3" required="required" placeholder="Nhập tên hoặc * để chọn" >
+                                          <input style="width:150px" type="text"  autocomplete="off"   id="vehicle_sub" name="vehicle_sub" tabindex="4" required="required" placeholder="Nhập tên hoặc * để chọn" >
 
                                                     <ul id="vehicle_sub_list_id"></ul>
 
@@ -1557,74 +1682,23 @@ $this->helper('slidePaginator');
 
                                           <label for="romooc_sub">Mooc <a target="_blank" title="Thêm mooc" href="<?php echo $this->url('romooc') ?>"><i class="fa fa-plus"></i></a></label>
 
-                                          <input style="width:150px" type="text"  id="romooc_sub" name="romooc_sub" tabindex="3" disabled >
+                                          <input style="width:150px" type="text"  id="romooc_sub" name="romooc_sub" disabled >
 
                                           <a title="Thông tin thay thế lắp ráp mooc" target="_blank" href="<?php echo $this->url('vehicleromooc/vehicle') ?>"><i class="fa fa-th-list"></i></a>
 
                                         </div>
 
-                                        
-
-                                        
-
-                                        
-
-                                      </div>
-
-                                      <!-- /.box-body -->
-
-                                      
-
-                                    </div>
-
-                                    <div class="col-md-3 col-xs-6">
-
-                                      <div class="box-body">
-
-                                        
-
                                         <div class="form-group">
 
-                                          <label for="shipment_from_sub">Kho đi <a target="_blank" title="Thêm kho" href="<?php echo $this->url('place') ?>"><i class="fa fa-plus"></i></a></label>
+                                          <label for="steersman_sub">Tài xế <a target="_blank" title="Thêm tài xế" href="<?php echo $this->url('steersman') ?>"><i class="fa fa-plus"></i></a></label>
 
-                                          <input type="text"  autocomplete="off"  id="shipment_from_sub" name="shipment_from_sub" tabindex="7" required="required" placeholder="Nhập tên hoặc * để chọn" >
+                                          <input style="width:150px" type="text"  id="steersman_sub" name="steersman_sub" disabled >
 
-                                            <ul id="shipment_from_sub_list_id"></ul>
-
-                                        </div>
-
-                                        <div class="form-group">
-
-                                          <label for="shipment_to_sub">Kho đến <a target="_blank" title="Thêm kho" href="<?php echo $this->url('place') ?>"><i class="fa fa-plus"></i></a></label>
-
-                                          <input type="text"  autocomplete="off"  id="shipment_to_sub" name="shipment_to_sub" tabindex="8" required="required" placeholder="Nhập tên hoặc * để chọn" >
-
-                                                    <ul id="shipment_to_sub_list_id"></ul>
+                                          <a title="Bàn giao xe" target="_blank" href="<?php echo $this->url('driver') ?>"><i class="fa fa-th-list"></i></a>
 
                                         </div>
-
-                                        <div class="form-group">
-
-                                          <label for="route_sub">Tuyến đường <a target="_blank" title="Chọn tuyến đường" href="<?php echo $this->url('road') ?>">  <i class="fa fa-road"></i></a></label>
-
-                                          <select id="route_sub" name="route_sub" required="required" multiple="multiple" tabindex="9">
-
-                                            
-
-                                          </select>
-
-                                        </div>
-
-                                        <div class="form-group">
-
-                                          <label for="sub_driver_sub">Tài xế phụ <input type="checkbox"  id="sub_driver_sub" name="sub_driver_sub" value="0" tabindex="4" ></label>
-
-                                            <input type="text" disabled id="sub_driver_name_sub" name="sub_driver_name_sub" >
-
-                                            <ul id="code_list_id"></ul>
-
-                                        </div>
-
+                                        
+                                        
                                         
 
                                         
@@ -1663,35 +1737,31 @@ $this->helper('slidePaginator');
 
                                         <div class="form-group">
 
-                                            <label for="shipment_ton_sub">Sản lượng</label>
+                                          <label for="shipment_from_sub">Kho đi <a target="_blank" title="Thêm kho" href="<?php echo $this->url('place') ?>"><i class="fa fa-plus"></i></a></label>
 
-                                              <input style="width:50px" type="text" class="numbers" id="shipment_ton_sub" name="shipment_ton_sub" tabindex="10" >
+                                          <input type="text"  autocomplete="off"  id="shipment_from_sub" name="shipment_from_sub" tabindex="7" required="required" placeholder="Nhập tên hoặc * để chọn" >
 
-                                                <select style="width:80px" id="cont_unit_sub" name="cont_unit_sub" tabindex="10" >
-
-                                                <?php foreach ($cont_units as $cont) { ?>
-
-                                                    <option value="<?php echo $cont->cont_unit_id ?>"><?php echo $cont->cont_unit_name ?></option>
-
-                                                <?php } ?>
-
-                                              </select>
+                                            <ul id="shipment_from_sub_list_id"></ul>
 
                                         </div>
 
-                                        <div id="sp_thuc_chuyen_sub" class="form-group">
+                                        <div class="form-group">
 
-                                            <label for="sp_thuc_chuyen_sub">Thực chuyển</label>
+                                          <label for="shipment_to_sub">Kho đến <a target="_blank" title="Thêm kho" href="<?php echo $this->url('place') ?>"><i class="fa fa-plus"></i></a></label>
 
-                                            <input style="width:50px" type="text" class="numbers" id="shipment_ton_net_sub" name="shipment_ton_net_sub" tabindex="10" >
+                                          <input type="text"  autocomplete="off"  id="shipment_to_sub" name="shipment_to_sub" tabindex="8" required="required" placeholder="Nhập tên hoặc * để chọn" >
 
-                                            <select style="width:80px" id="cont_unit_net_sub" name="cont_unit_net_sub" tabindex="10" >
+                                                    <ul id="shipment_to_sub_list_id"></ul>
 
-                                            <?php foreach ($cont_units as $cont) { ?>
+                                        </div>
 
-                                                <option value="<?php echo $cont->cont_unit_id ?>"><?php echo $cont->cont_unit_name ?></option>
+                                        <div class="form-group">
 
-                                            <?php } ?>
+                                          <label for="route_sub">Tuyến đường <a target="_blank" title="Chọn tuyến đường" href="<?php echo $this->url('road') ?>">  <i class="fa fa-road"></i></a></label>
+
+                                          <select id="route_sub" name="route_sub" required="required" multiple="multiple" tabindex="9">
+
+                                            
 
                                           </select>
 
@@ -1699,9 +1769,9 @@ $this->helper('slidePaginator');
 
                                         <div class="form-group">
 
-                                          <label for="shipment_charge_sub">Cước</label>
+                                          <label for="shipment_salary_sub">Lương chuyến</label>
 
-                                          <input type="text" class="number" id="shipment_charge_sub" name="shipment_charge_sub" tabindex="11" >
+                                          <input type="text" class="number" id="shipment_salary_sub" name="shipment_salary_sub" tabindex="10" required="required" >
 
                                         </div>
 
@@ -1723,55 +1793,132 @@ $this->helper('slidePaginator');
 
                                         <div class="form-group">
 
-                                          <label for="oil_add_sub">Ứng dầu lần 1</label>
+                                          <label for="bill_receive_date_sub">Ngày nhận</label>
 
-                                          <select name="oil_add_dc_sub" id="oil_add_dc_sub" style="width:120px">
-
-                                                <option value="1"> Bãi </option>
-
-                                                <option value="5"> Dọc đường </option>
-
-                                            </select>
-
-                                            
-
-                                            <input style="width:50px" type="text" class="numbers" id="oil_add_sub" name="oil_add_sub" tabindex="14" >
+                                          <input class="ngay" style="width:100px" type="text" id="bill_receive_date_sub" name="bill_receive_date_sub" tabindex="11" required="required" >
 
                                         </div>
 
                                         <div class="form-group">
 
-                                          <label for="oil_add2_sub">Ứng dầu lần 2</label>
+                                            <label for="bill_receive_ton_sub">Sản lượng nhận</label>
 
-                                          <select name="oil_add_dc2_sub" id="oil_add_dc2_sub" style="width:120px">
+                                            <input style="width:50px" type="text" class="numbers" id="bill_receive_ton_sub" name="bill_receive_ton_sub" tabindex="12" >
 
-                                                <option value="1"> Bãi </option>
+                                            <select style="width:80px" id="bill_receive_unit_sub" name="bill_receive_unit_sub" tabindex="13" >
 
-                                                <option value="5"> Dọc đường </option>
+                                            <?php foreach ($cont_units as $cont) { ?>
 
-                                            </select>
+                                                <option value="<?php echo $cont->cont_unit_id ?>"><?php echo $cont->cont_unit_name ?></option>
 
-                                            
+                                            <?php } ?>
 
-                                            <input style="width:50px" type="text" class="numbers" id="oil_add2_sub" name="oil_add2_sub" tabindex="15" >
+                                          </select>
 
                                         </div>
 
+                                        <div class="form-group">
+
+                                          <label for="bill_in_sub">Giờ vào</label>
+
+                                          <input type="text" class="time" id="bill_in_sub" name="bill_in_sub" value="" tabindex="17" />
+
+                                        </div>
+
+                                        <div class="form-group">
+
+                                          <label for="shipment_charge_sub">Cước</label>
+
+                                          <input type="text" class="number" id="shipment_charge_sub" name="shipment_charge_sub" tabindex="19" >
+
+                                        </div>
                                         <div class="form-group">
 
                                           <label for="oil_cost_sub">Giá dầu</label>
 
-                                          <input type="text" class="number" id="oil_cost_sub" name="oil_cost_sub" tabindex="16" required="required" >
+                                          <input type="text" class="number" id="oil_cost_sub" name="oil_cost_sub" tabindex="22" required="required" >
+
+                                        </div>
+                                        <div class="form-group">
+
+                                          <label for="shipment_road_add_sub">Tiền đi đường</label>
+
+                                          <input type="text" class="number" id="shipment_road_add_sub" name="shipment_road_add_sub" tabindex="23"  >
+
+                                        </div>
+
+                                      </div>
+
+                                      <!-- /.box-body -->
+
+                                      
+
+                                    </div>
+
+                                    <div class="col-md-3 col-xs-6">
+
+                                      <div class="box-body">
+
+                                        
+
+                                        <div class="form-group">
+
+                                          <label for="bill_delivery_date_sub">Ngày giao</label>
+
+                                          <input class="ngay" style="width:100px" type="text" id="bill_delivery_date_sub" name="bill_delivery_date_sub" tabindex="14" required="required" >
 
                                         </div>
 
                                         <div class="form-group">
 
-                                          <label for="shipment_salary_sub">Lương chuyến</label>
+                                            <label for="bill_delivery_ton_sub">Sản lượng giao</label>
 
-                                          <input type="text" class="number" id="shipment_salary_sub" name="shipment_salary_sub" tabindex="17" required="required" >
+                                              <input style="width:50px" type="text" class="numbers" id="bill_delivery_ton_sub" name="bill_delivery_ton_sub" tabindex="15" >
+
+                                                <select style="width:80px" id="bill_delivery_unit_sub" name="bill_delivery_unit_sub" tabindex="16" >
+
+                                                <?php foreach ($cont_units as $cont) { ?>
+
+                                                    <option value="<?php echo $cont->cont_unit_id ?>"><?php echo $cont->cont_unit_name ?></option>
+
+                                                <?php } ?>
+
+                                              </select>
 
                                         </div>
+                                        <div class="form-group">
+
+                                          <label for="bill_out_sub">Giờ ra</label>
+
+                                          <input type="text" class="time" id="bill_out_sub" name="bill_out_sub" value="" tabindex="18" />
+
+                                        </div>
+
+                                        
+                                        <div class="form-group">
+
+                                          <label for="export_stock_sub">Phiếu xuất dầu <a target="_blank" title="Thêm phiếu xuất kho" href="<?php echo $this->url('exportstock') ?>"><i class="fa fa-plus"></i></a></label>
+
+                                          <input type="text" id="export_stock_sub" name="export_stock_sub" tabindex="20"  >
+
+                                        </div>
+                                        <div class="form-group">
+
+                                          <label for="shipment_oil_sub">Dầu lãnh</label>
+
+                                          <input type="text" id="shipment_oil_sub" name="shipment_oil_sub" tabindex="21" required="required" max="0" >
+
+                                        </div>
+                                        <div class="form-group">
+
+                                          <label for="shipment_road_oil_add_sub">Cộng dầu</label>
+
+                                          <input type="text" id="shipment_road_oil_add_sub" name="shipment_road_oil_add_sub" tabindex="24">
+
+                                        </div>
+                                        
+
+                                        
 
                                         
 
@@ -1801,7 +1948,28 @@ $this->helper('slidePaginator');
 
                                                         </legend>
 
+                                                        <input style="width:50px" type="hidden" class="numbers" id="shipment_ton_net_sub" name="shipment_ton_net_sub" tabindex="10" >
 
+                                                        <input type="hidden" style="width:80px" id="cont_unit_net_sub" name="cont_unit_net_sub" tabindex="10" >
+
+                                                        <input style="width:50px" type="hidden" class="numbers" id="shipment_ton_sub" name="shipment_ton_sub" tabindex="10" >
+
+                                                        <input type="hidden" style="width:80px" id="cont_unit_sub" name="cont_unit_sub" tabindex="10" >
+
+                                                        <input style="width:50px" type="hidden" id="oil_add_dc_sub" name="oil_add_dc_sub" value="1" >
+
+                                                        <input style="width:50px" type="hidden" class="numbers" id="oil_add_sub" name="oil_add_sub" tabindex="14" >
+
+                                                        <input style="width:50px" type="hidden" id="oil_add_dc2_sub" name="oil_add_dc2_sub" value="1" >
+
+                                                        <input style="width:50px" type="hidden" class="numbers" id="oil_add2_sub" name="oil_add2_sub" tabindex="15" >
+
+
+                                                        <input type="hidden"  id="sub_driver_sub" name="sub_driver_sub" value="0" tabindex="4" ></label>
+
+                                                        <input type="hidden" disabled id="sub_driver_name_sub" name="sub_driver_name_sub" >
+
+                                                        <!-- <ul id="staff_list_id"></ul> -->
 
                                                         <input disabled style="width:70px" type="hidden" class="number" id="shipment_loan_sub" name="shipment_loan_sub" tabindex="16" data="" >
 
@@ -1935,9 +2103,9 @@ $this->helper('slidePaginator');
 
                                         <input type="hidden" readonly id="check_temp_sub" name="check_temp_sub" required="required" >
 
-                                        <button type="submit" class="btn btn-primary" tabindex="7">Hoàn thành</button>
+                                        <button type="submit" class="btn btn-primary" tabindex="25">Hoàn thành</button>
 
-                                        <button type="reset" class="btn" tabindex="8">Nhập lại</button>
+                                        <button type="reset" class="btn" tabindex="26">Nhập lại</button>
 
                                       </div>
 
@@ -2293,6 +2461,8 @@ $('html').click(function(e) {
 
                 var romooc = $(this).find("#romooc_"+$(this).attr('id')).text();
 
+                var steersman = $(this).find("#steersman_"+$(this).attr('id')).text();
+
                 var shipment_charge = $(this).find("#shipment_charge_"+$(this).attr('id')).text();
 
                 var shipment_ton = $(this).find("#shipment_ton_"+$(this).attr('id')).text();
@@ -2374,11 +2544,109 @@ $('html').click(function(e) {
 
 
                 var shipment_salary = $(this).find("#shipment_salary_"+$(this).attr('id')).text();
+                var shipment_road_add = $(this).find("#shipment_road_add_"+$(this).attr('id')).text();
+                var shipment_road_oil_add = $(this).find("#shipment_road_oil_add_"+$(this).attr('id')).text();
 
                 var route = $(this).find("#route_"+$(this).attr('id')).text();
 
+                var bill_receive_date = $(this).find("#bill_receive_date_"+$(this).attr('id')).text();
+                var bill_delivery_date = $(this).find("#bill_delivery_date_"+$(this).attr('id')).text();
+                var bill_receive_ton = $(this).find("#bill_receive_ton_"+$(this).attr('id')).text();
+                var bill_delivery_ton = $(this).find("#bill_delivery_ton_"+$(this).attr('id')).text();
+                var bill_receive_unit = $(this).find("#bill_receive_unit_"+$(this).attr('id')).text();
+                var bill_delivery_unit = $(this).find("#bill_delivery_unit_"+$(this).attr('id')).text();
+                var bill_in = $(this).find("#bill_in_"+$(this).attr('id')).text();
+                var bill_out = $(this).find("#bill_out_"+$(this).attr('id')).text();
+                var export_stock = $(this).find("#export_stock_"+$(this).attr('id')).text();
+                var shipment_oil = $(this).find("#shipment_oil_"+$(this).attr('id')).text();
+                var bill_number = $(this).find("#bill_number_"+$(this).attr('id')).text();
 
 
+                $('#bill_receive_date_sub').val(bill_receive_date.replace(/\//g,"-"));
+                $('#bill_delivery_date_sub').val(bill_delivery_date.replace(/\//g,"-"));
+                $('#bill_receive_ton_sub').val(bill_receive_ton);
+                $('#bill_delivery_ton_sub').val(bill_delivery_ton);
+                $('#bill_receive_unit_sub option[value='+bill_receive_unit+']').attr("selected","selected");
+                $('#bill_delivery_unit_sub option[value='+bill_delivery_unit+']').attr("selected","selected");
+                $('#bill_in_sub').val(bill_in);
+                $('#bill_out_sub').val(bill_out);
+                $('#export_stock_sub').val(export_stock);
+                $('#shipment_oil_sub').val(shipment_oil);
+                $('#bill_number_sub').val(bill_number);
+
+                $("#export_stock_sub").tagit({
+
+                  tagSource: function(search, showChoices) {
+
+                    $.ajax({
+
+                      url: "<?php echo BASE_URL ?>/shipment/getExport",
+
+                      data: {search: search.term},
+
+                      success: function(choices) {
+
+                        showChoices(choices);
+
+                      }
+
+                    });
+
+                  },
+
+                  allowSpaces: true,
+
+                  afterTagAdded: function(event, ui) {
+
+                        var export_number = ui.tagLabel;
+
+                        $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number},
+
+                           function(data){
+
+                            var max = parseFloat($('#shipment_oil_sub').attr('max'));
+
+                            var new_max = parseFloat(data)+max;
+
+                            var val = parseFloat($('#shipment_oil_sub').val());
+
+                            $('#shipment_oil_sub').attr('max',new_max);
+
+                            if (val > new_max || val == 0) {
+
+                                $('#shipment_oil_sub').val(new_max);
+
+                            }
+
+                        }); 
+
+                    },
+
+                    afterTagRemoved: function(event, ui) {
+
+                        var export_number = ui.tagLabel;
+
+                        $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number},
+
+                           function(data){
+
+                            var max = parseFloat($('#shipment_oil_sub').attr('max'));
+
+                            var new_max = max-parseFloat(data);
+
+                            $('#shipment_oil_sub').attr('max',new_max);
+
+                            if (parseFloat($('#shipment_oil_sub').val()) > new_max) {
+
+                                $('#shipment_oil_sub').val(new_max);
+
+                            }
+
+                        }); 
+
+                    },  
+
+                });
 
 
                 $('.loan_shipment').attr("href","<?php echo $this->url('shipment/loan/') ?>"+$(this).attr('id'));
@@ -2400,6 +2668,8 @@ $('html').click(function(e) {
                 $('#vehicle_sub').val(vehicle);
 
                 $('#romooc_sub').val(romooc);
+
+                $('#steersman_sub').val(steersman);
 
                 $('#shipment_charge_sub').val(shipment_charge);
 
@@ -2494,6 +2764,7 @@ $('html').click(function(e) {
                 $("#customer_sub").attr("code",'true');
 
                 
+                $('#steersman_sub').attr('data',$(this).find("#steersman_"+$(this).attr('id')).attr('data'));
 
                 /*$('#oil_add').prop('disabled',false);
 
@@ -2516,6 +2787,8 @@ $('html').click(function(e) {
 
 
                 $('#shipment_salary_sub').val(shipment_salary);
+                $('#shipment_road_add_sub').val(shipment_road_add);
+                $('#shipment_road_oil_add_sub').val(shipment_road_oil_add);
 
 
 
@@ -2861,6 +3134,8 @@ $('html').click(function(e) {
 
                 var romooc = $(this).find("#romooc_"+$(this).attr('id')).text();
 
+                var steersman = $(this).find("#steersman_"+$(this).attr('id')).text();
+
                 var shipment_charge = $(this).find("#shipment_charge_"+$(this).attr('id')).text();
 
                 var shipment_ton = $(this).find("#shipment_ton_"+$(this).attr('id')).text();
@@ -2948,8 +3223,109 @@ $('html').click(function(e) {
 
 
                 var shipment_salary = $(this).find("#shipment_salary_"+$(this).attr('id')).text();
+                var shipment_road_add = $(this).find("#shipment_road_add_"+$(this).attr('id')).text();
+                var shipment_road_oil_add = $(this).find("#shipment_road_oil_add_"+$(this).attr('id')).text();
 
                 var route = $(this).find("#route_"+$(this).attr('id')).text();
+
+                var bill_receive_date = $(this).find("#bill_receive_date_"+$(this).attr('id')).text();
+                var bill_delivery_date = $(this).find("#bill_delivery_date_"+$(this).attr('id')).text();
+                var bill_receive_ton = $(this).find("#bill_receive_ton_"+$(this).attr('id')).text();
+                var bill_delivery_ton = $(this).find("#bill_delivery_ton_"+$(this).attr('id')).text();
+                var bill_receive_unit = $(this).find("#bill_receive_unit_"+$(this).attr('id')).text();
+                var bill_delivery_unit = $(this).find("#bill_delivery_unit_"+$(this).attr('id')).text();
+                var bill_in = $(this).find("#bill_in_"+$(this).attr('id')).text();
+                var bill_out = $(this).find("#bill_out_"+$(this).attr('id')).text();
+                var export_stock = $(this).find("#export_stock_"+$(this).attr('id')).text();
+                var shipment_oil = $(this).find("#shipment_oil_"+$(this).attr('id')).text();
+                var bill_number = $(this).find("#bill_number_"+$(this).attr('id')).text();
+
+
+                $('#bill_receive_date').val(bill_receive_date.replace(/\//g,"-"));
+                $('#bill_delivery_date').val(bill_delivery_date.replace(/\//g,"-"));
+                $('#bill_receive_ton').val(bill_receive_ton);
+                $('#bill_delivery_ton').val(bill_delivery_ton);
+                $('#bill_receive_unit option[value='+bill_receive_unit+']').attr("selected","selected");
+                $('#bill_delivery_unit option[value='+bill_delivery_unit+']').attr("selected","selected");
+                $('#bill_in').val(bill_in);
+                $('#bill_out').val(bill_out);
+                $('#export_stock').val(export_stock);
+                $('#shipment_oil').val(shipment_oil);
+                $('#bill_number').val(bill_number);
+
+                $("#export_stock").tagit({
+
+                  tagSource: function(search, showChoices) {
+
+                    $.ajax({
+
+                      url: "<?php echo BASE_URL ?>/shipment/getExport",
+
+                      data: {search: search.term},
+
+                      success: function(choices) {
+
+                        showChoices(choices);
+
+                      }
+
+                    });
+
+                  },
+
+                  allowSpaces: true,
+
+                  afterTagAdded: function(event, ui) {
+
+                        var export_number = ui.tagLabel;
+
+                        $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number},
+
+                           function(data){
+
+                            var max = parseFloat($('#shipment_oil').attr('max'));
+
+                            var new_max = parseFloat(data)+max;
+
+                            var val = parseFloat($('#shipment_oil').val());
+
+                            $('#shipment_oil').attr('max',new_max);
+
+                            if (val > new_max || val == 0) {
+
+                                $('#shipment_oil').val(new_max);
+
+                            }
+
+                        }); 
+
+                    },
+
+                    afterTagRemoved: function(event, ui) {
+
+                        var export_number = ui.tagLabel;
+
+                        $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number},
+
+                           function(data){
+
+                            var max = parseFloat($('#shipment_oil').attr('max'));
+
+                            var new_max = max-parseFloat(data);
+
+                            $('#shipment_oil').attr('max',new_max);
+
+                            if (parseFloat($('#shipment_oil').val()) > new_max) {
+
+                                $('#shipment_oil').val(new_max);
+
+                            }
+
+                        }); 
+
+                    },  
+
+                });
 
 
 
@@ -2976,6 +3352,8 @@ $('html').click(function(e) {
                 $('#vehicle').val(vehicle);
 
                 $('#romooc').val(romooc);
+
+                $('#steersman').val(steersman);
 
                 $('#shipment_charge').val(shipment_charge);
 
@@ -3109,7 +3487,7 @@ $('html').click(function(e) {
 
                 $("#customer").attr("code",'true');
 
-                
+                $('#steersman').attr('data',$(this).find("#steersman_"+$(this).attr('id')).attr('data'));
 
                 /*$('#oil_add').prop('disabled',false);
 
@@ -3132,6 +3510,8 @@ $('html').click(function(e) {
 
 
                 $('#shipment_salary').val(shipment_salary);
+                $('#shipment_road_add').val(shipment_road_add);
+                $('#shipment_road_oil_add').val(shipment_road_oil_add);
 
 
 
@@ -3303,6 +3683,11 @@ $('html').click(function(e) {
 
             $('#oil_add2_sub').attr('disabled',true);
 
+            $('#export_stock').attr('disabled',true);
+            $('#shipment_oil').attr('disabled',true);
+            $('#export_stock_sub').attr('disabled',true);
+            $('#shipment_oil_sub').attr('disabled',true);
+
         }
 
 
@@ -3426,6 +3811,8 @@ function add_click(){
 
 
         $('#shipment_salary').val(0);
+        $('#shipment_road_add').val(0);
+        $('#shipment_road_oil_add').val(0);
 
 
 
@@ -3511,7 +3898,8 @@ function add_click(){
 
         $("#romooc").attr("code",'false');
 
-
+        $('#steersman').val("");
+        $('#steersman').attr("data","");
 
         $('#shipment_charge').prop('disabled',false);
 
@@ -3561,6 +3949,11 @@ function add_click(){
 
         $('#oil_add2_sub').attr('disabled',false);
 
+        $('#export_stock').attr('disabled',false);
+        $('#shipment_oil').attr('disabled',false);
+        $('#export_stock_sub').attr('disabled',false);
+        $('#shipment_oil_sub').attr('disabled',false);
+
 
 
         $('#sp_thuc_chuyen').hide();
@@ -3568,6 +3961,27 @@ function add_click(){
         $('#shipment_ton_net').hide();
 
         $('#shipment_ton_net').val("");
+
+
+        $('#bill_receive_date').val("<?php echo date('d-m-Y') ?>");
+        $('#bill_delivery_date').val("<?php echo date('d-m-Y') ?>");
+        $('#bill_receive_ton').val(0);
+        $('#bill_delivery_ton').val(0);
+        $('#bill_in').val("");
+        $('#bill_out').val("");
+        $('#export_stock').val("");
+        $('#shipment_oil').val(0);
+        $('#bill_number').val("");
+
+        $('#bill_receive_date_sub').val("<?php echo date('d-m-Y') ?>");
+        $('#bill_delivery_date_sub').val("<?php echo date('d-m-Y') ?>");
+        $('#bill_receive_ton_sub').val(0);
+        $('#bill_delivery_ton_sub').val(0);
+        $('#bill_in_sub').val("");
+        $('#bill_out_sub').val("");
+        $('#export_stock_sub').val("");
+        $('#shipment_oil_sub').val(0);
+        $('#bill_number_sub').val("");
 
 
 
@@ -3637,7 +4051,8 @@ function add_click(){
 
         $("#romooc_sub").attr("code",'false');
 
-
+        $('#steersman_sub').val("");
+        $('#steersman_sub').attr("data","");
 
         $('#shipment_charge_sub').prop('disabled',false);
 
@@ -3672,7 +4087,8 @@ function add_click(){
 
 
         $('#shipment_salary_sub').val(0);
-
+        $('#shipment_road_add_sub').val(0);
+        $('#shipment_road_oil_add_sub').val(0);
 
 
 
@@ -3796,6 +4212,154 @@ function add_click(){
         });
 
 
+
+        $("#export_stock").tagit({
+
+  tagSource: function(search, showChoices) {
+
+    $.ajax({
+
+      url: "<?php echo BASE_URL ?>/shipment/getExport",
+
+      data: {search: search.term},
+
+      success: function(choices) {
+
+        showChoices(choices);
+
+      }
+
+    });
+
+  },
+
+  allowSpaces: true,
+
+  afterTagAdded: function(event, ui) {
+
+        var export_number = ui.tagLabel;
+
+        $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number},
+
+           function(data){
+
+            var max = parseFloat($('#shipment_oil').attr('max'));
+
+            var new_max = parseFloat(data)+max;
+
+            var val = parseFloat($('#shipment_oil').val());
+
+            $('#shipment_oil').attr('max',new_max);
+
+            if (val > new_max || val == 0) {
+
+                $('#shipment_oil').val(new_max);
+
+            }
+
+        }); 
+
+    },
+
+    afterTagRemoved: function(event, ui) {
+
+        var export_number = ui.tagLabel;
+
+        $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number},
+
+           function(data){
+
+            var max = parseFloat($('#shipment_oil').attr('max'));
+
+            var new_max = max-parseFloat(data);
+
+            $('#shipment_oil').attr('max',new_max);
+
+            if (parseFloat($('#shipment_oil').val()) > new_max) {
+
+                $('#shipment_oil').val(new_max);
+
+            }
+
+        }); 
+
+    },  
+
+});
+
+$("#export_stock_sub").tagit({
+
+  tagSource: function(search, showChoices) {
+
+    $.ajax({
+
+      url: "<?php echo BASE_URL ?>/shipment/getExport",
+
+      data: {search: search.term},
+
+      success: function(choices) {
+
+        showChoices(choices);
+
+      }
+
+    });
+
+  },
+
+  allowSpaces: true,
+
+  afterTagAdded: function(event, ui) {
+
+        var export_number = ui.tagLabel;
+
+        $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number},
+
+           function(data){
+
+            var max = parseFloat($('#shipment_oil_sub').attr('max'));
+
+            var new_max = parseFloat(data)+max;
+
+            var val = parseFloat($('#shipment_oil_sub').val());
+
+            $('#shipment_oil_sub').attr('max',new_max);
+
+            if (val > new_max || val == 0) {
+
+                $('#shipment_oil_sub').val(new_max);
+
+            }
+
+        }); 
+
+    },
+
+    afterTagRemoved: function(event, ui) {
+
+        var export_number = ui.tagLabel;
+
+        $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number},
+
+           function(data){
+
+            var max = parseFloat($('#shipment_oil_sub').attr('max'));
+
+            var new_max = max-parseFloat(data);
+
+            $('#shipment_oil_sub').attr('max',new_max);
+
+            if (parseFloat($('#shipment_oil_sub').val()) > new_max) {
+
+                $('#shipment_oil_sub').val(new_max);
+
+            }
+
+        }); 
+
+    },  
+
+});
 
 
 
@@ -3922,6 +4486,8 @@ $(document).ready(function(){
                     var vehicle = $('#vehicle').attr('data');
 
                     var romooc = $('#romooc').attr('data');
+
+                    var steersman = $('#steersman').attr('data');
 
                     var customer = $('#customer').attr('data');
 
@@ -4056,8 +4622,22 @@ $(document).ready(function(){
 
 
                     var shipment_salary = $('#shipment_salary').attr('value');
+                    var shipment_road_add = $('#shipment_road_add').attr('value');
+                    var shipment_road_oil_add = $('#shipment_road_oil_add').attr('value');
 
                     var route = $('#route').val();
+
+                    var bill_receive_date = $('#bill_receive_date').attr('value');
+                    var bill_delivery_date = $('#bill_delivery_date').attr('value');
+                    var bill_receive_ton = $('#bill_receive_ton').attr('value');
+                    var bill_delivery_ton = $('#bill_delivery_ton').attr('value');
+                    var bill_receive_unit = $('#bill_receive_unit').attr('value');
+                    var bill_delivery_unit = $('#bill_delivery_unit').attr('value');
+                    var bill_in = $('#bill_in').attr('value');
+                    var bill_out = $('#bill_out').attr('value');
+                    var export_stock = $('#export_stock').val();
+                    var shipment_oil = $('#shipment_oil').attr('value');
+                    var bill_number = $('#bill_number').attr('value');
 
 
 
@@ -4199,6 +4779,8 @@ $(document).ready(function(){
 
                             romooc: romooc,
 
+                            steersman: steersman,
+
                             shipment_charge: shipment_charge,
 
                             shipment_ton: shipment_ton,
@@ -4278,10 +4860,24 @@ $(document).ready(function(){
 
 
                             shipment_salary: shipment_salary,
+                            shipment_road_add: shipment_road_add,
+                            shipment_road_oil_add: shipment_road_oil_add,
 
                             route: route,
 
                             shipment_cost: shipment_cost,
+
+                            bill_receive_date: bill_receive_date,
+                            bill_delivery_date: bill_delivery_date,
+                            bill_receive_ton: bill_receive_ton,
+                            bill_delivery_ton: bill_delivery_ton,
+                            bill_receive_unit: bill_receive_unit,
+                            bill_delivery_unit: bill_delivery_unit,
+                            bill_in: bill_in,
+                            bill_out: bill_out,
+                            export_stock: export_stock,
+                            shipment_oil: shipment_oil,
+                            bill_number: bill_number,
 
 
 
@@ -4489,6 +5085,8 @@ $(document).ready(function(){
 
                     var romooc = $('#romooc_sub').attr('data');
 
+                    var steersman = $('#steersman_sub').attr('data');
+
                     var customer = $('#customer_sub').attr('data');
 
                     var customer_type = $('#customer_type_sub').val();
@@ -4582,8 +5180,22 @@ $(document).ready(function(){
 
 
                     var shipment_salary = $('#shipment_salary_sub').attr('value');
+                    var shipment_road_add = $('#shipment_road_add_sub').attr('value');
+                    var shipment_road_oil_add = $('#shipment_road_oil_add_sub').attr('value');
 
                     var route = $('#route_sub').val();
+
+                    var bill_receive_date = $('#bill_receive_date_sub').attr('value');
+                    var bill_delivery_date = $('#bill_delivery_date_sub').attr('value');
+                    var bill_receive_ton = $('#bill_receive_ton_sub').attr('value');
+                    var bill_delivery_ton = $('#bill_delivery_ton_sub').attr('value');
+                    var bill_receive_unit = $('#bill_receive_unit_sub').attr('value');
+                    var bill_delivery_unit = $('#bill_delivery_unit_sub').attr('value');
+                    var bill_in = $('#bill_in_sub').attr('value');
+                    var bill_out = $('#bill_out_sub').attr('value');
+                    var export_stock = $('#export_stock_sub').val();
+                    var shipment_oil = $('#shipment_oil_sub').attr('value');
+                    var bill_number = $('#bill_number_sub').attr('value');
 
 
 
@@ -4723,6 +5335,8 @@ $(document).ready(function(){
 
                             romooc: romooc,
 
+                            steersman: steersman,
+
                             shipment_charge: shipment_charge,
 
                             shipment_ton: shipment_ton,
@@ -4770,10 +5384,24 @@ $(document).ready(function(){
 
 
                             shipment_salary: shipment_salary,
+                            shipment_road_add: shipment_road_add,
+                            shipment_road_oil_add: shipment_road_oil_add,
 
                             route: route,
 
                             shipment_cost: shipment_cost,
+
+                            bill_receive_date: bill_receive_date,
+                            bill_delivery_date: bill_delivery_date,
+                            bill_receive_ton: bill_receive_ton,
+                            bill_delivery_ton: bill_delivery_ton,
+                            bill_receive_unit: bill_receive_unit,
+                            bill_delivery_unit: bill_delivery_unit,
+                            bill_in: bill_in,
+                            bill_out: bill_out,
+                            export_stock: export_stock,
+                            shipment_oil: shipment_oil,
+                            bill_number: bill_number,
 
                             
 
@@ -5793,7 +6421,7 @@ function set_item_shipment_to(value,name) {
 
 }
 
-function set_item_vehicle(value,name,romooc,number) {
+function set_item_vehicle(value,name,romooc,number,driver,driver_id) {
 
     // change input value
 
@@ -5810,6 +6438,9 @@ function set_item_vehicle(value,name,romooc,number) {
     $("#romooc").attr("data",romooc);
 
     $("#romooc").attr("code",'true');
+
+    $('#steersman').val(driver);
+    $('#steersman').attr('data',driver_id);
 
     
 
@@ -6053,7 +6684,7 @@ function set_item_shipment_to_sub(value,name) {
 
 }
 
-function set_item_vehicle_sub(value,name,romooc,number) {
+function set_item_vehicle_sub(value,name,romooc,number,driver,driver_id) {
 
     // change input value
 
@@ -6070,6 +6701,9 @@ function set_item_vehicle_sub(value,name,romooc,number) {
     $("#romooc_sub").attr("data",romooc);
 
     $("#romooc_sub").attr("code",'true');
+
+    $('#steersman_sub').val(driver);
+    $('#steersman_sub').attr('data',driver_id);
 
     
 
@@ -7987,6 +8621,10 @@ function addRow(tableID){
 
     $('.cost_document_date:last').val("");
 
+    $('.cost_document_date:last').removeClass("hasDatepicker");
+
+    $('.cost_document_date:last').attr("id","");
+
     $('.check_vat:last').attr('checked',false);
 
     
@@ -8327,6 +8965,10 @@ function addRow2(tableID){
 
     $('.cost_document_date_sub:last').val("");
 
+    $('.cost_document_date_sub:last').removeClass("hasDatepicker");
+
+    $('.cost_document_date_sub:last').attr("id","");
+
     $('.check_vat_sub:last').attr('checked',false);
 
     
@@ -8661,7 +9303,69 @@ var pickerOpay2 = {
 
 
 
+
+
 </script>
+<script type="text/javascript">
+
+var v = "<?php echo $thangchon ?>";
+
+$('#sl_customer option[value='+v+']').attr('selected','selected');
+
+
+
+var tt = "<?php echo $namchon ?>";
+
+$('#sl_staff option[value='+tt+']').attr('selected','selected');
+
+
+    $('#sl_customer').change(function(){
+
+        var m = $(this).val();
+
+        var y = $('#sl_staff').val();
+
+        var firstDay = new Date(y, m-1, 1);
+
+        var lastDay = new Date(y, m, 0);
+
+
+
+        $('#batdau').datepicker("setDate", firstDay );
+
+        $('#ketthuc').datepicker("setDate", lastDay );
+
+
+
+    });
+
+
+
+    $('#sl_staff').change(function(){
+
+        var y = $(this).val();
+
+        var m = $('#sl_customer').val();
+
+        var firstDay = new Date(y, m-1, 1);
+
+        var lastDay = new Date(y, m, 0);
+
+
+
+        $('#batdau').datepicker("setDate", firstDay );
+
+        $('#ketthuc').datepicker("setDate", lastDay );
+
+
+
+    });
+
+
+
+
+</script>
+
 
 <style type="text/css">
 .table_data td{

@@ -93,13 +93,13 @@ elseif ($order_by == 'shipment_round')
         
         <div class="add-box" style="margin-right: 5px">
             <select style="width:120px" name="sl_vehicle" id="sl_vehicle">
-                <option selected="selected" value="">Xe</option>
+                <option selected="selected" value="0">Xe</option>
                 <?php foreach ($vehicles as $sm) { ?>
                 <option value="<?php echo $sm->vehicle_id ?>"><?php echo $sm->vehicle_number ?></option>
                 <?php } ?>
             </select>
             <select style="width:120px" name="sl_status" id="sl_status">
-                <option selected="selected" value="">Khách hàng</option>
+                <option selected="selected" value="0">Khách hàng</option>
                 <?php foreach ($customers as $sm) { ?>
                 <option value="<?php echo $sm->customer_id ?>"><?php echo $sm->customer_name ?></option>
                 <?php } ?>

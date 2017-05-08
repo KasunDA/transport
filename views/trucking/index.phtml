@@ -80,6 +80,29 @@ elseif ($order_by == 'oil_excess')
     </div>
     <div class="tablenav top">
         <div class="add-box">
+            <select id="sl_round" name="sl_round" style="width:90px">
+             <?php 
+                for ($k=1; $k < 13; $k++) { 
+                    echo '<option value="'.$k.'">Tháng '.$k.'</option>';
+                }
+             ?>
+            </select>
+            <select id="sl_staff" name="sl_staff" style="width:100px">
+             <?php 
+                $nam = date('Y');
+                for ($k=($nam-5); $k < ($nam+5); $k++) { 
+                    echo '<option value="'.$k.'">Năm '.$k.'</option>';
+                }
+             ?>
+            </select>
+
+            <input type="button" name="xem" id="xem" value="Xem" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">  
+            
+        </div>
+    </div>
+    <div class="tablenav top">
+        <div style="clear:both"></div>
+        <div class="add-box">
                   
             Từ  <input style="width:80px" type="search" name="batdau" id="batdau" placeholder="Chọn ngày" <?php if(isset($batdau)) echo "value='$batdau'"; ?> >  
             Đến  <input style="width:80px" type="search" name="ketthuc" id="ketthuc" placeholder="Chọn ngày" <?php if(isset($ketthuc)) echo "value='$ketthuc'"; ?> >  
@@ -92,13 +115,18 @@ elseif ($order_by == 'oil_excess')
             <input type="button" name="chon" id="chon" value="Chọn" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">  
         </div>
         <div class="add-box" style="margin-right: 5px">
-            <select name="sl_vehicle" id="sl_vehicle">
-                <option selected="selected" value="">Xe</option>
+            <select style="width:120px" name="sl_vehicle" id="sl_vehicle">
+                <option selected="selected" value="0">Xe</option>
                 <?php foreach ($vehicles as $sm) { ?>
                 <option value="<?php echo $sm->vehicle_id ?>"><?php echo $sm->vehicle_number ?></option>
                 <?php } ?>
             </select>
-
+            <select style="width:120px" name="sl_nv" id="sl_nv">
+                <option value="0">Khách hàng</option>
+                <?php foreach ($customers as $sm) { ?>
+                <option value="<?php echo $sm->customer_id ?>"><?php echo $sm->customer_name ?></option>
+                <?php } ?>
+            </select>
             
             
         </div>
@@ -224,21 +252,21 @@ elseif ($order_by == 'oil_excess')
         <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $shipment->shipment_id ?>" class="edit_tr" >
         	
             <td class="fix" id="shipment_id_<?php echo $shipment->shipment_id; ?>"><?php echo $i++; ?></td>
-            <td class="fix" id="bill_number_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->bill_number; ?></td>
+            <td class="fix" id="bill_number_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('shipment/index/'.$shipment->shipment_id) ?>" ><?php echo $shipment->bill_number; ?></a></td>
 
             <td class="fix" id="bill_receive_date_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment->bill_receive_date); ?></td>
             <td class="fix" id="bill_delivery_date_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment->bill_delivery_date); ?></td>
             <td class="fix" data="<?php echo $shipment->vehicle; ?>" id="vehicle_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('vehicle/index/'.$shipment->vehicle) ?>" ><?php echo $shipment->vehicle_number; ?></a></td>
             <td class="fix" data="<?php echo $shipment->romooc; ?>" id="romooc_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('romooc/index/'.$shipment->romooc) ?>" ><?php echo isset($romooc_data['romooc_number'][$shipment->romooc])?$romooc_data['romooc_number'][$shipment->romooc]:null; ?></a></td>
-            <td class="fix" id="steersman_name_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('steersman/index/'.(isset($driver_data[$shipment->shipment_id]['driver_id'])?$driver_data[$shipment->shipment_id]['driver_id']:null)) ?>" ><?php echo isset($driver_data[$shipment->shipment_id]['driver_name'])?$driver_data[$shipment->shipment_id]['driver_name']:null; ?></a></td>
+            <td class="fix" id="steersman_name_<?php echo $shipment->shipment_id; ?>" data="<?php echo $shipment->steersman; ?>"><a target="_blank" href="<?php echo $this->url('steersman/index/'.$shipment->steersman) ?>" ><?php echo $shipment->steersman_name; ?></a></td>
             <td class="fix" data="<?php echo $shipment->shipment_from; ?>" id="shipment_from_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$shipment->shipment_from) ?>" ><?php echo $shipment->shipment_from==$place['place_id'][$shipment->shipment_from]?$place['place_name'][$shipment->shipment_from]:null ?></a></td>
             <td class="fix" data="<?php echo $shipment->shipment_to; ?>" id="shipment_to_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('place/view/'.$shipment->shipment_to) ?>" ><?php echo $shipment->shipment_to==$place['place_id'][$shipment->shipment_to]?$place['place_name'][$shipment->shipment_to]:null ?></a></td>
             
             <td class="fix" data="<?php echo $shipment->customer; ?>" id="customer_<?php echo $shipment->shipment_id; ?>"><a target="_blank" href="<?php echo $this->url('customer/index/'.$shipment->customer) ?>" ><?php echo $shipment->customer_name; ?></a></td>
             <td class="fix" id="road_km_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney(isset($road['road_km'][$shipment->shipment_id])?$road['road_km'][$shipment->shipment_id]:null); ?></td>
             <td class="fix" id="shipment_oil_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_oil; ?></td>
-            <td class="fix" id="road_oil_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney(isset($road['road_oil'][$shipment->shipment_id])?$road['road_oil'][$shipment->shipment_id]:null); ?></td>
-            <td class="fix" id="shipment_cost_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->advance+$shipment->cost_vat+$shipment->bridge_cost_add+$shipment->cost_add); ?></td>
+            <td class="fix" id="road_oil_<?php echo $shipment->shipment_id; ?>"><?php echo (isset($road['road_oil'][$shipment->shipment_id])?$road['road_oil'][$shipment->shipment_id]:null)+$shipment->shipment_road_oil_add; ?></td>
+            <td class="fix" id="shipment_cost_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_road_add); ?></td>
             <?php foreach ($loan_units as $loan) { ?>
             <td class="fix" id="shipment_loan_<?php echo $shipment->shipment_id; ?>"><?php echo isset($loan_shipment_data[$shipment->shipment_id][$loan->cost_list_id])?$lib->formatMoney($loan_shipment_data[$shipment->shipment_id][$loan->cost_list_id]):null; ?></td>
             <?php } ?>
@@ -406,6 +434,37 @@ var x = "<?php echo $xe ?>";
 $('#sl_vehicle option[value='+x+']').attr('selected','selected');
 var ch = "<?php echo $limit ?>";
 $('#chonloc option[value='+ch+']').attr('selected','selected');
+var tt = "<?php echo $kh ?>";
+$('#sl_nv option[value='+tt+']').attr('selected','selected');
 
+var v = "<?php echo $vong ?>";
+$('#sl_round option[value='+v+']').attr('selected','selected');
+
+var tt = "<?php echo $trangthai ?>";
+$('#sl_staff option[value='+tt+']').attr('selected','selected');
+</script>
+<script type="text/javascript">
+    
+    $('#sl_round').change(function(){
+        var m = $(this).val();
+        var y = $('#sl_staff').val();
+        var firstDay = new Date(y, m-1, 1);
+        var lastDay = new Date(y, m, 0);
+
+        $('#batdau').datepicker("setDate", firstDay );
+        $('#ketthuc').datepicker("setDate", lastDay );
+
+    });
+
+    $('#sl_staff').change(function(){
+        var y = $(this).val();
+        var m = $('#sl_round').val();
+        var firstDay = new Date(y, m-1, 1);
+        var lastDay = new Date(y, m, 0);
+
+        $('#batdau').datepicker("setDate", firstDay );
+        $('#ketthuc').datepicker("setDate", lastDay );
+
+    });
 
 </script>

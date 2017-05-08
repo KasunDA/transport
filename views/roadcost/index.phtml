@@ -182,7 +182,17 @@ elseif ($order_by == 'end_time')
 
             </select>
 
+            <select style="width:120px" name="sl_nv" id="sl_nv">
 
+                <option value="0">Mooc</option>
+
+                <?php foreach ($romoocs as $sm) { ?>
+
+                <option value="<?php echo $sm->romooc_id ?>"><?php echo $sm->romooc_number ?></option>
+
+                <?php } ?>
+
+            </select>
 
             
 
@@ -272,6 +282,18 @@ elseif ($order_by == 'end_time')
 
         <th  class="fix">
 
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','vehicle','<?php echo $url_order ?>')">Xe <?php if ($order_by == 'vehicle'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+
+        <th  class="fix">
+
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','romooc','<?php echo $url_order ?>')">Mooc <?php if ($order_by == 'romooc'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+
+        <th  class="fix">
+
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','road_cost_number','<?php echo $url_order ?>')">Số hóa đơn <?php if ($order_by == 'road_cost_number'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
 
         </th>
@@ -324,6 +346,25 @@ elseif ($order_by == 'end_time')
     foreach ($road_costs as $road_cost) : 
       $tongthanhtien += $road_cost->road_cost_price;
       $tongvat += $road_cost->road_cost_vat;
+
+      $vehicle = "";
+      if ($road_cost->vehicle != "") {
+        $ve = explode(',', $road_cost->vehicle);
+        foreach ($ve as $key) {
+            $vehicle .= ' | '.'<a target="_blank" href="'.$this->url('vehicle/index/'.$key).'" >'.$vehicle_data['vehicle_number'][$key].'</a>';
+            
+        }
+      }
+      
+      $romooc = "";
+      if ($road_cost->romooc != "") {
+        $mo = explode(',', $road_cost->romooc);
+        foreach ($mo as $key) {
+            $romooc .= ' | '.'<a target="_blank" href="'.$this->url('romooc/index/'.$key).'" >'.$romooc_data['romooc_number'][$key].'</a>';
+            
+        }
+      }
+
       ?>
 
     
@@ -338,10 +379,12 @@ elseif ($order_by == 'end_time')
 
             <td class="fix" id="road_cost_date_<?php echo $road_cost->road_cost_id; ?>"><?php echo $lib->hien_thi_ngay_thang($road_cost->road_cost_date); ?></td>
             <td class="fix" id="road_cost_comment_<?php echo $road_cost->road_cost_id; ?>"><?php echo $road_cost->road_cost_comment; ?></td>
+            <td class="fix" id="vehicle_number_<?php echo $road_cost->road_cost_id; ?>" ><?php echo $vehicle; ?></td>
+            <td class="fix" id="romooc_number_<?php echo $road_cost->road_cost_id; ?>" ><?php echo $romooc; ?></td>
 
             <td class="fix" id="road_cost_number_<?php echo $road_cost->road_cost_id; ?>"><?php echo $road_cost->road_cost_number; ?></td>
 
-            <td class="fix" data="<?php echo $road_cost->customer; ?>" id="customer_<?php echo $road_cost->road_cost_id; ?>"><?php echo $road_cost->customer_name; ?></td>
+            <td class="fix" data="<?php echo $road_cost->customer; ?>" id="customer_<?php echo $road_cost->road_cost_id; ?>"><a target="_blank" href="<?php echo $this->url('customer/editcus/'.$road_cost->customer) ?>" ><?php echo $road_cost->customer_name; ?></a></td>
 
             <td class="fix" id="road_cost_price_<?php echo $road_cost->road_cost_id; ?>"><?php echo $lib->formatMoney($road_cost->road_cost_price); ?></td>
 
@@ -375,7 +418,7 @@ elseif ($order_by == 'end_time')
 
         <tr  style="font-weight: bold; color: rgb(23, 119, 226);" >
             
-            <th colspan="6" style="border-right: 1px solid rgb(236, 235, 235);border-top: 1px solid #80C8E5;padding: 7px; text-align: right;" >
+            <th colspan="8" style="border-right: 1px solid rgb(236, 235, 235);border-top: 1px solid #80C8E5;padding: 7px; text-align: right;" >
                 Tổng cộng
             </th>
             <td class="fix" ><?php echo $lib->formatMoney($tongthanhtien) ?></td>
@@ -446,12 +489,14 @@ $this->helper('slidePaginator');
 
                       <select id="vehicle" name="vehicle" tabindex="8" required="required" multiple >
                         <?php foreach ($vehicles as $vehicle) { ?>
-                          <option value="<?php echo $vehicle->vehicle_id ?>"><?php echo $vehicle->vehicle_number ?></option>
+                          <option title="<?php echo $vehicle->vehicle_number ?>" value="<?php echo $vehicle->vehicle_id ?>"><?php echo $vehicle->vehicle_number ?></option>
                         <?php } ?>
                       </select>
 
                     </div>
-                    
+                    <div class="form-group">
+                        <textarea id="vehicle_number" name="vehicle_number" disabled></textarea>
+                    </div>
 
                   </div>
 
@@ -487,12 +532,16 @@ $this->helper('slidePaginator');
 
                       <select id="romooc" name="romooc" tabindex="10" multiple >
                         <?php foreach ($romoocs as $romooc) { ?>
-                          <option value="<?php echo $romooc->romooc_id ?>"><?php echo $romooc->romooc_number ?></option>
+                          <option title="<?php echo $romooc->romooc_number ?>" value="<?php echo $romooc->romooc_id ?>"><?php echo $romooc->romooc_number ?></option>
                         <?php } ?>
                       </select>
 
                     </div>
+                    <div class="form-group">
 
+                      <textarea id="romooc_number" name="romooc_number" disabled></textarea>
+
+                    </div>
                     
 
                   </div>
@@ -657,6 +706,9 @@ $('html').click(function(e) {
 
             var road_cost_comment = $(this).find("#road_cost_comment_"+$(this).attr('id')).text();
 
+            var vehicle_number = $(this).find("#vehicle_number_"+$(this).attr('id')).text();
+
+            var romooc_number = $(this).find("#romooc_number_"+$(this).attr('id')).text();
 
 
             $('#road_cost_number').val(road_cost_number);
@@ -679,6 +731,23 @@ $('html').click(function(e) {
 
             $('#end_time').val(end_time.replace(/\//g,"-"));
 
+            $('#vehicle_number').val(vehicle_number);
+
+            $('#romooc_number').val(romooc_number);
+
+            var text = jQuery('#vehicle_number').val(),
+                // look for any "\n" occurences
+                matches = text.match(/\n/g),
+                breaks = matches ? matches.length : 2;
+
+            jQuery('#vehicle_number').attr('rows',breaks + 2);
+
+            var text = jQuery('#romooc_number').val(),
+                // look for any "\n" occurences
+                matches = text.match(/\n/g),
+                breaks = matches ? matches.length : 2;
+
+            jQuery('#romooc_number').attr('rows',breaks + 2);
 
 
             $('#yes').val($(this).attr('id'));
@@ -699,7 +768,35 @@ $('html').click(function(e) {
 
                     $('#vehicle').multiselect( 'refresh' );
 
+                    $("#vehicle").multiselect({
+                        click: function(event, ui){
+                            if(ui.checked == 1){
+                                $('#vehicle_number').val($('#vehicle_number').val()+' | '+ui.text);
+                            }
+                            else{
+                                $('#vehicle_number').val($('#vehicle_number').val().replace(' | '+ui.text,''));
+                            }
 
+                            var text = jQuery('#vehicle_number').val(),
+                                // look for any "\n" occurences
+                                matches = text.match(/\n/g),
+                                breaks = matches ? matches.length : 2;
+
+                            jQuery('#vehicle_number').attr('rows',breaks + 2);
+                        },
+                        checkAll: function(){
+                        },
+                        uncheckAll: function(){
+                            $('#vehicle_number').val("");
+
+                            var text = jQuery('#vehicle_number').val(),
+                                // look for any "\n" occurences
+                                matches = text.match(/\n/g),
+                                breaks = matches ? matches.length : 2;
+
+                            jQuery('#vehicle_number').attr('rows',breaks + 2);
+                        }
+                    });
 
                 }
 
@@ -721,7 +818,34 @@ $('html').click(function(e) {
 
                     $('#romooc').multiselect( 'refresh' );
 
+                    $("#romooc").multiselect({
+                        click: function(event, ui){
+                            if(ui.checked == 1){
+                                $('#romooc_number').val($('#romooc_number').val()+' | '+ui.text);
+                            }
+                            else{
+                                $('#romooc_number').val($('#romooc_number').val().replace(' | '+ui.text,''));
+                            }
+                            var text = jQuery('#romooc_number').val(),
+                                // look for any "\n" occurences
+                                matches = text.match(/\n/g),
+                                breaks = matches ? matches.length : 2;
 
+                            jQuery('#romooc_number').attr('rows',breaks + 2);
+                        },
+                        checkAll: function(){
+                        },
+                        uncheckAll: function(){
+                            $('#romooc_number').val("");
+
+                            var text = jQuery('#romooc_number').val(),
+                                // look for any "\n" occurences
+                                matches = text.match(/\n/g),
+                                breaks = matches ? matches.length : 2;
+
+                            jQuery('#romooc_number').attr('rows',breaks + 2);
+                        }
+                    });
 
                 }
 
@@ -768,6 +892,23 @@ function add_click(){
 
         $('#end_time').val("");
 
+        $('#vehicle_number').val("");
+
+        $('#romooc_number').val("");
+
+        var text = jQuery('#vehicle_number').val(),
+            // look for any "\n" occurences
+            matches = text.match(/\n/g),
+            breaks = matches ? matches.length : 2;
+
+        jQuery('#vehicle_number').attr('rows',breaks + 2);
+
+        var text = jQuery('#romooc_number').val(),
+            // look for any "\n" occurences
+            matches = text.match(/\n/g),
+            breaks = matches ? matches.length : 2;
+
+        jQuery('#romooc_number').attr('rows',breaks + 2);
 
 
         $('.number').focus(function(){
@@ -1223,8 +1364,64 @@ $( ".add-field" ).dialog({
 
 
 
-$("#vehicle").multiselect({});
-$("#romooc").multiselect({});
+$("#vehicle").multiselect({
+    click: function(event, ui){
+        if(ui.checked == 1){
+            $('#vehicle_number').val($('#vehicle_number').val()+' | '+ui.text);
+        }
+        else{
+            $('#vehicle_number').val($('#vehicle_number').val().replace(' | '+ui.text,''));
+        }
+
+        var text = jQuery('#vehicle_number').val(),
+            // look for any "\n" occurences
+            matches = text.match(/\n/g),
+            breaks = matches ? matches.length : 2;
+
+        jQuery('#vehicle_number').attr('rows',breaks + 2);
+    },
+    checkAll: function(){
+    },
+    uncheckAll: function(){
+        $('#vehicle_number').val("");
+
+        var text = jQuery('#vehicle_number').val(),
+            // look for any "\n" occurences
+            matches = text.match(/\n/g),
+            breaks = matches ? matches.length : 2;
+
+        jQuery('#vehicle_number').attr('rows',breaks + 2);
+    }
+});
+$("#romooc").multiselect({
+    click: function(event, ui){
+        if(ui.checked == 1){
+            $('#romooc_number').val($('#romooc_number').val()+' | '+ui.text);
+        }
+        else{
+            $('#romooc_number').val($('#romooc_number').val().replace(' | '+ui.text,''));
+        }
+
+        var text = jQuery('#romooc_number').val(),
+            // look for any "\n" occurences
+            matches = text.match(/\n/g),
+            breaks = matches ? matches.length : 2;
+
+        jQuery('#romooc_number').attr('rows',breaks + 2);
+    },
+    checkAll: function(){
+    },
+    uncheckAll: function(){
+        $('#romooc_number').val("");
+
+        var text = jQuery('#romooc_number').val(),
+            // look for any "\n" occurences
+            matches = text.match(/\n/g),
+            breaks = matches ? matches.length : 2;
+
+        jQuery('#romooc_number').attr('rows',breaks + 2);
+    }
+});
 
 
 
@@ -1450,6 +1647,10 @@ $('#chonloc option[value='+ch+']').attr('selected','selected');
 var xe = "<?php echo $xe ?>";
 
 $('#sl_vehicle option[value='+xe+']').attr('selected','selected');
+
+var mooc = "<?php echo $mooc ?>";
+
+$('#sl_nv option[value='+mooc+']').attr('selected','selected');
 
 
 

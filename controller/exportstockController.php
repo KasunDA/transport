@@ -23,6 +23,7 @@ Class exportstockController Extends baseController {
             $vong = isset($_POST['vong']) ? $_POST['vong'] : null;
 
             $trangthai = isset($_POST['staff']) ? $_POST['staff'] : null;
+            $tab_active = isset($_POST['tha']) ? $_POST['tha'] : null;
         }
         else{
             $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'export_stock_date';
@@ -37,12 +38,25 @@ Class exportstockController Extends baseController {
             $vong = (int)date('m',strtotime($batdau));
 
             $trangthai = date('Y',strtotime($batdau));
+            $tab_active = 1;
         }
         $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
 
         $vong = (int)date('m',strtotime($batdau));
 
         $trangthai = date('Y',strtotime($batdau));
+
+        $vehicle_model = $this->model->get('vehicleModel');
+
+        $vehicles = $vehicle_model->getAllVehicle();
+
+        $this->view->data['vehicles'] = $vehicles;
+
+        $romooc_model = $this->model->get('romoocModel');
+
+        $romoocs = $romooc_model->getAllVehicle();
+
+        $this->view->data['romoocs'] = $romoocs;
 
         $costlist_model = $this->model->get('costlistModel');
         $this->view->data['cost_lists'] = $costlist_model->getAllCost();
@@ -65,7 +79,33 @@ Class exportstockController Extends baseController {
         
         $tongsodong = count($export_model->getAllStock($data,$join));
         $tongsotrang = ceil($tongsodong / $sonews);
-        
+
+        $exports = array();
+        foreach ($houses as $house) {
+            $data = array(
+                'order_by'=>$order_by,
+                'order'=>$order,
+                'limit'=>$x.','.$sonews,
+                'where' => 'house = '.$house->house_id.' AND export_stock_date >= '.strtotime($batdau).' AND export_stock_date < '.strtotime($ngayketthuc),
+                );
+
+           
+            
+            if ($keyword != '') {
+                $search = ' AND ( export_stock_code LIKE "%'.$keyword.'%" 
+                            OR username LIKE "%'.$keyword.'%" )';
+                $data['where'] .= $search;
+            }
+            
+            
+            $exports[$house->house_id] = $export_model->getAllStock($data,$join);
+
+             if ($tab_active == 0) {
+                 $tab_active = $house->house_id;
+             }
+        }
+        $this->view->data['exports'] = $exports;
+        $this->view->data['tab_active'] = $tab_active;
 
         $this->view->data['page'] = $page;
         $this->view->data['order_by'] = $order_by;
@@ -83,22 +123,7 @@ Class exportstockController Extends baseController {
 
         $this->view->data['trangthai'] = $trangthai;
 
-        $data = array(
-            'order_by'=>$order_by,
-            'order'=>$order,
-            'limit'=>$x.','.$sonews,
-            'where' => 'export_stock_date >= '.strtotime($batdau).' AND export_stock_date < '.strtotime($ngayketthuc),
-            );
-
-       
         
-        if ($keyword != '') {
-            $search = ' AND ( export_stock_code LIKE "%'.$keyword.'%" 
-                        OR username LIKE "%'.$keyword.'%" )';
-            $data['where'] .= $search;
-        }
-        
-        $this->view->data['exports'] = $export_model->getAllStock($data,$join);
 
         $this->view->data['lastID'] = isset($export_model->getLastStock()->export_stock_id)?$export_model->getLastStock()->export_stock_id:0;
         
@@ -125,6 +150,8 @@ Class exportstockController Extends baseController {
                         'export_stock_comment' => trim($_POST['export_stock_comment']),
                         'steersman' => trim($_POST['steersman']),
                         'house' => trim($_POST['house']),
+                        'vehicle' => trim($_POST['vehicle']),
+                        'romooc' => trim($_POST['romooc']),
                         );
 
 
@@ -297,6 +324,66 @@ Class exportstockController Extends baseController {
         }
     }
 
+    public function getvehicle(){
+
+
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+
+
+            return $this->view->redirect('user/login');
+
+
+
+        }
+
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $vehicle = $_POST['vehicle'];
+            $ngay = $_POST['ngay'];
+
+
+            $driver_model = $this->model->get('driverModel');
+
+            
+            $data_driver = array(
+
+                'where'=>'vehicle='.$vehicle.' AND (start_work <= '.strtotime($ngay).' AND (end_work >= '.strtotime($ngay).' OR (end_work IS NULL OR end_work=0) ) )',
+
+                'order_by'=>'start_work DESC',
+
+                'limit'=>1,
+
+            );
+
+            $join = array('table'=>'steersman','where'=>'steersman=steersman_id');
+
+            $drivers = $driver_model->getAllDriver($data_driver,$join);
+
+            $steersman_id = "";
+            $steersman_name = "";
+
+            foreach ($drivers as $driver) {
+                $steersman_id = $driver->steersman_id;
+                $steersman_name = $driver->steersman_name;
+            }
+            
+            $result = array(
+                'id' => $steersman_id,
+                'name' => $steersman_name,
+            );
+
+            echo json_encode($result);
+
+
+        }
+
+
+
+    }
+
     public function getsteersman(){
 
         if (!isset($_SESSION['userid_logined'])) {
@@ -309,7 +396,9 @@ Class exportstockController Extends baseController {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $steersman_model = $this->model->get('steersmanModel');
+            $driver_model = $this->model->get('driverModel');
 
+            $ngay = $_POST['ngay'];
             
 
             if ($_POST['keyword'] == "*") {
@@ -346,11 +435,29 @@ Class exportstockController Extends baseController {
 
                 }
 
-                
+                $data_driver = array(
+
+                    'where'=>'steersman='.$rs->steersman_id.' AND (start_work <= '.strtotime($ngay).' AND (end_work >= '.strtotime($ngay).' OR (end_work IS NULL OR end_work=0) ) )',
+
+                    'order_by'=>'start_work DESC',
+
+                    'limit'=>1,
+
+                );
+
+                $join = array('table'=>'vehicle','where'=>'vehicle=vehicle_id');
+
+                $drivers = $driver_model->getAllDriver($data_driver,$join);
+
+                $vehicle_id = "";
+
+                foreach ($drivers as $driver) {
+                    $vehicle_id = $driver->vehicle_id;
+                }
 
                 // add new option
 
-                echo '<li onclick="set_item_steersman(\''.$rs->steersman_id.'\',\''.$rs->steersman_name.'\')">'.$steersman_name.'</li>';
+                echo '<li onclick="set_item_steersman(\''.$rs->steersman_id.'\',\''.$rs->steersman_name.'\',\''.$vehicle_id.'\')">'.$steersman_name.'</li>';
 
             }
 
@@ -726,6 +833,418 @@ Class exportstockController Extends baseController {
 
     }
     
+
+    function export(){
+
+        $this->view->disableLayout();
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+
+
+        $batdau = $this->registry->router->param_id;
+
+        $ketthuc = $this->registry->router->page;
+
+        $ngayketthuc = strtotime(date('d-m-Y', strtotime(date('d-m-Y',$ketthuc). ' + 1 days')));
+
+        $info_model = $this->model->get('infoModel');
+        $infos = $info_model->getLastInfo();
+
+        $vehicle_model = $this->model->get('vehicleModel');
+        $vehicles = $vehicle_model->getAllVehicle();
+
+        $vehicle_data = array();
+        foreach ($vehicles as $vehicle) {
+            $vehicle_data['id'][$vehicle->vehicle_id] = $vehicle->vehicle_id;
+            $vehicle_data['name'][$vehicle->vehicle_id] = $vehicle->vehicle_number;
+        }
+
+        $romooc_model = $this->model->get('romoocModel');
+        $romoocs = $romooc_model->getAllVehicle();
+
+        $romooc_data = array();
+        foreach ($romoocs as $romooc) {
+            $romooc_data['id'][$romooc->romooc_id] = $romooc->romooc_id;
+            $romooc_data['name'][$romooc->romooc_id] = $romooc->romooc_number;
+        }
+
+        $house_model = $this->model->get('houseModel');
+
+        $houses = $house_model->getAllHouse();
+
+        $export_model = $this->model->get('exportstockModel');
+        $spare_stock_model = $this->model->get('sparestockModel');
+
+        $join = array('table'=>'user, steersman, house','where'=>'export_stock_user=user_id AND steersman = steersman_id AND house = house_id');
+
+
+
+        $data = array(
+
+            'where' => 'export_stock_date >= '.$batdau.' AND export_stock_date < '.$ngayketthuc,
+
+            );
+
+
+
+
+        $data['order_by'] = 'export_stock_date';
+
+        $data['order'] = 'ASC';
+
+
+
+
+            require("lib/Classes/PHPExcel/IOFactory.php");
+
+            require("lib/Classes/PHPExcel.php");
+
+
+
+            $objPHPExcel = new PHPExcel();
+
+        $index_worksheet = 0; //(worksheet mặc định là 0, nếu tạo nhiều worksheet $index_worksheet += 1)
+
+        
+            foreach ($houses as $house) {
+                
+                $data = array(
+
+                'where' => 'house = '.$house->house_id.' AND export_stock_date >= '.$batdau.' AND export_stock_date < '.$ngayketthuc,
+
+                );
+
+                $exports = $export_model->getAllStock($data,$join);
+
+                $objPHPExcel->createSheet();
+
+                $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A1', mb_strtoupper($infos->info_company, "UTF-8"))
+
+                ->setCellValue('A2', 'PHÒNG VẬT TƯ KỸ THUẬT')
+
+                ->setCellValue('E1', 'CỘNG HÒA XÃ CHỦ NGHĨA VIỆT NAM')
+
+                ->setCellValue('E2', 'Độc lập - Tự do - Hạnh phúc')
+
+                ->setCellValue('A4', 'BẢNG TỔNG HỢP PHIẾU XUẤT KHO')
+
+                ->setCellValue('A6', 'STT')
+
+               ->setCellValue('B6', 'NGÀY')
+
+               ->setCellValue('C6', 'PHIẾU XUẤT KHO')
+
+               ->setCellValue('D6', 'NỘI DUNG')
+
+               ->setCellValue('E6', 'NGƯỜI NHẬN')
+
+               ->setCellValue('F6', 'XE')
+
+               ->setCellValue('G6', 'MOOC');
+
+              
+
+
+            if ($exports) {
+
+
+
+                $hang = 7;
+
+                $i=1;
+
+
+
+                $k=0;
+                foreach ($exports as $row) {
+
+
+                        $spares = $spare_stock_model->getAllStock(array('where'=>'export_stock = '.$row->export_stock_id),array('table'=>'spare_part, spare_part_code','where'=>'spare_part = spare_part_id AND code_list = spare_part_code_id'));
+
+
+
+
+                        //$objPHPExcel->setActiveSheetIndex(0)->getStyle('B'.$hang)->getNumberFormat()->setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_TEXT );
+
+                         $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                            ->setCellValue('A' . $hang, $i++)
+
+                            ->setCellValueExplicit('B' . $hang, $this->lib->hien_thi_ngay_thang($row->export_stock_date))
+
+                            ->setCellValue('C' . $hang, $row->export_stock_code)
+
+                            ->setCellValue('D' . $hang, $row->export_stock_comment)
+
+                            ->setCellValue('E' . $hang, $row->steersman_name)
+
+                            ->setCellValue('F' . $hang, (isset($vehicle_data['name'][$row->vehicle])?$vehicle_data['name'][$row->vehicle]:null))
+
+                            ->setCellValue('G' . $hang, (isset($romooc_data['name'][$row->romooc])?$romooc_data['name'][$row->romooc]:null));
+
+                        $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':G'.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+                        $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':G'.$hang)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+                        $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':G'.$hang)->getFont()->setBold(true);
+
+                         $hang++;
+
+                         $j=1;
+
+                        foreach ($spares as $spare) {
+                            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                            ->setCellValue('A' . $hang, $j++)
+
+                            ->setCellValueExplicit('B' . $hang, $spare->code)
+
+                            ->setCellValue('C' . $hang, $spare->name)
+
+                            ->setCellValue('D' . $hang, $spare->spare_part_seri)
+
+                            ->setCellValue('E' . $hang, $spare->spare_stock_number);
+
+                            $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':G'.$hang)->getFont()->setItalic(true);
+
+                            $hang++;
+                        }
+
+
+
+
+                }
+
+            }
+
+
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('B'.$hang, 'TỔNG')
+
+
+               ->setCellValue('E'.$hang, '=SUM(E7:E'.($hang-1).')');
+
+            
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:G'.$hang)->applyFromArray(
+
+                array(
+
+                    
+
+                    'borders' => array(
+
+                        'allborders' => array(
+
+                          'style' => PHPExcel_Style_Border::BORDER_THIN
+
+                        )
+
+                    )
+
+                )
+
+            );
+
+
+            $highestColumn = $objPHPExcel->getActiveSheet()->getHighestDataColumn();
+
+            
+
+
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue('A'.($hang+3), 'NGƯỜI LẬP BIỂU')
+
+                ->setCellValue('E'.($hang+3), mb_strtoupper($infos->info_company, "UTF-8"));
+
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang+3).':C'.($hang+3));
+
+            $objPHPExcel->getActiveSheet()->mergeCells('E'.($hang+3).':G'.($hang+3));
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang+3).':G'.($hang+3))->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang+3).':G'.($hang+3))->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang).':G'.($hang+3))->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'bold'  => true,
+
+                        'color' => array('rgb' => '000000')
+
+                    )
+
+                )
+
+            );
+
+
+
+
+
+            $highestRow = $objPHPExcel->getActiveSheet()->getHighestRow();
+
+
+
+            $highestRow ++;
+
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A1:C1');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('E1:G1');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A2:C2');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('E2:G2');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A4:G4');
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:G4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:G4')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle("A4")->getFont()->setSize(16);
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:G4')->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'bold'  => true,
+
+                        'color' => array('rgb' => '000000')
+
+                    )
+
+                )
+
+            );
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A2:C2')->applyFromArray(
+
+                array(
+
+                    
+
+                    'font' => array(
+
+                        'underline' => PHPExcel_Style_Font::UNDERLINE_SINGLE,
+
+                    )
+
+                )
+
+            );
+
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('E7:E'.$highestRow)->getNumberFormat()->setFormatCode("#,##0_);[Black](#,##0)");
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:G6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:G6')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A6:G6')->getFont()->setBold(true);
+
+            $objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(26);
+
+            $objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(25);
+
+            $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
+
+            //$objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth(25);
+
+
+
+            
+
+            $objPHPExcel->getActiveSheet()->setTitle($house->house_name);
+
+
+
+            $objPHPExcel->getActiveSheet()->freezePane('A7');
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet);
+
+            $index_worksheet++;
+            }
+        
+        
+            
+
+
+
+
+
+
+
+            // Set properties
+
+            $objPHPExcel->getProperties()->setCreator("TCMT")
+
+                            ->setLastModifiedBy($_SESSION['user_logined'])
+
+                            ->setTitle("Sale Report")
+
+                            ->setSubject("Sale Report")
+
+                            ->setDescription("Sale Report.")
+
+                            ->setKeywords("Sale Report")
+
+                            ->setCategory("Sale Report");
+
+
+
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+
+
+
+            header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+            header("Content-Disposition: attachment; filename= BẢNG TỔNG HỢP PHIẾU XUẤT KHO.xlsx");
+
+            header("Cache-Control: max-age=0");
+
+            ob_clean();
+
+            $objWriter->save("php://output");
+
+        
+
+    }
 
 
 }

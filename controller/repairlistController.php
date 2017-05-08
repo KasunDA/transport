@@ -33,8 +33,8 @@ Class repairlistController Extends baseController {
             $limit = 50;
             $batdau = '01-'.date('m-Y');
             $ketthuc = date('t-m-Y');
-            $xe = "";
-            $mooc = "";
+            $xe = 0;
+            $mooc = 0;
             $vong = (int)date('m',strtotime($batdau));
             $trangthai = date('Y',strtotime($batdau));
         }
@@ -81,11 +81,11 @@ Class repairlistController Extends baseController {
             'where' => "1=1",
             );
         
-        if($xe != ""){
+        if($xe > 0){
             $data['where'] = $data['where'].' AND vehicle = '.$xe;
         }
 
-        if($mooc != ""){
+        if($mooc > 0){
             $data['where'] = $data['where'].' AND romooc = '.$mooc;
         }
 
@@ -105,7 +105,7 @@ Class repairlistController Extends baseController {
         $this->view->data['ketthuc'] = $ketthuc;
 
         $this->view->data['xe'] = $xe;
-        $this->view->data['romooc'] = $mooc;
+        $this->view->data['mooc'] = $mooc;
         $this->view->data['vong'] = $vong;
         $this->view->data['trangthai'] = $trangthai;
 
@@ -119,10 +119,10 @@ Class repairlistController Extends baseController {
             'where' => "1=1",
             );
         
-        if($xe != ""){
+        if($xe > 0){
             $data['where'] = $data['where'].' AND vehicle = '.$xe;
         }
-        if($mooc != ""){
+        if($mooc > 0){
             $data['where'] = $data['where'].' AND romooc = '.$mooc;
         }
         

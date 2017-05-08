@@ -146,6 +146,9 @@ elseif ($order_by == 'code')
       $toncuoi = $tondau+$nhap-$xuat;
 
       $donvi = isset($data_stock[$spare_part->spare_part_code_id]['dauki']['unit'])?$data_stock[$spare_part->spare_part_code_id]['dauki']['unit']:null;
+      if ($donvi == null) {
+          $donvi = isset($data_stock[$spare_part->spare_part_code_id]['import']['unit'])?$data_stock[$spare_part->spare_part_code_id]['import']['unit']:null;
+      }
       $thanhtien_dau = isset($data_stock[$spare_part->spare_part_code_id]['dauki']['price'])?$data_stock[$spare_part->spare_part_code_id]['dauki']['price']:null;
 
       $thanhtien_nhap = isset($data_stock[$spare_part->spare_part_code_id]['import']['price'])?$data_stock[$spare_part->spare_part_code_id]['import']['price']:null;

@@ -302,7 +302,7 @@ elseif ($order_by == 'bank_name')
 
         
 
-        <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $receipt_voucher->receipt_voucher_id ?>" class="edit_tr">
+        <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $receipt_voucher->receipt_voucher_id ?>" class="edit_tr" title="<?php echo $receipt_voucher->receipt_voucher_type ?>">
 
         	<td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $receipt_voucher->receipt_voucher_id ?>"></td>
 
@@ -656,6 +656,156 @@ $this->helper('slidePaginator');
 
                 </div>
                 <div class="tab" id="tab2" >
+                  <div class="box box-primary">
+
+                    <!-- /.box-header -->
+
+                    <!-- form start -->
+                    <form id="add_receipt_voucher2" role="form" method="post" action="" enctype="multipart/form-data">
+
+                      <div class="row">
+
+
+                        <div class="col-md-3 col-xs-6">
+
+                          <div class="box-body">
+
+                            <div class="form-group">
+
+                              <label for="receipt_voucher_date2">Ngày</label>
+
+                              <input class="ngay" type="text" id="receipt_voucher_date2"  name="receipt_voucher_date2" tabindex="1" required="required" >
+
+                            </div>
+                            
+                            <div class="form-group">
+
+                              <label for="bank_in2">Tài khoản nhận</label>
+
+                              <select id="bank_in2" name="bank_in2" tabindex="5" required="required" >
+                                <?php foreach ($banks as $bank) { ?>
+                                  <option value="<?php echo $bank->bank_id ?>"><?php echo $bank->bank_name ?></option>
+                                <?php } ?>
+                                
+                              </select>
+
+                            </div>
+
+                          </div>
+
+                          <!-- /.box-body -->
+
+                          
+
+                        </div>
+
+                        <div class="col-md-3 col-xs-6">
+
+                          <div class="box-body">
+
+                            <div class="form-group">
+
+                              <label for="receipt_voucher_number2">Số chứng từ</label>
+
+                              <input type="text" id="receipt_voucher_number2"  name="receipt_voucher_number2" tabindex="2" required="required" >
+
+                            </div>
+
+                            <div class="form-group">
+
+                              <label for="receipt_voucher_attach2">Kèm theo</label>
+
+                              <input type="text" id="receipt_voucher_attach2"  name="receipt_voucher_attach2" tabindex="6">
+
+                            </div>
+
+                            
+                            
+
+                          </div>
+
+                          <!-- /.box-body -->
+
+                          
+
+                        </div>
+                        <div class="col-md-3 col-xs-6">
+
+                          <div class="box-body">
+
+                            <div class="form-group">
+
+                              <label for="receipt_voucher_comment2">Nội dung</label>
+
+                              <input type="text" id="receipt_voucher_comment2"  name="receipt_voucher_comment2" tabindex="3" required="required">
+
+                            </div>
+                            
+                            
+
+                          </div>
+
+                          <!-- /.box-body -->
+
+                          
+
+                        </div>
+
+                        <div class="col-md-3 col-xs-6">
+
+                          <div class="box-body">
+
+                            
+                            <div class="form-group">
+
+                              <label for="receipt_voucher_money2">Số tiền</label>
+
+                              <input type="text" class="numbers" id="receipt_voucher_money2"  name="receipt_voucher_money2" tabindex="4" required="required" >
+
+                            </div>
+
+                          </div>
+
+                          <!-- /.box-body -->
+
+                          
+
+                        </div>
+
+
+                      </div>
+
+                      <?php if(!isset($disable_control)){ ?>
+
+                      <div class="row">
+
+                        <div class="col-md-12">
+
+                            <div class="box-footer">
+
+                            <input type="hidden" readonly id="yes2" name="yes2" required="required" >
+
+                            <button type="submit" class="btn btn-primary" tabindex="7">Hoàn thành</button>
+
+                            <button type="reset" class="btn" tabindex="8">Nhập lại</button>
+
+                          </div>
+
+                          <div class="box-footer">
+
+                            <div id="error2" class="error"><?php echo isset($error) ? $error : null; ?></div>
+
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                      <?php } ?>
+
+                    </form>
+
+                  </div>
                 </div>
               </div>
             </div>
@@ -697,6 +847,10 @@ $('html').click(function(e) {
 
     $('.edit_tr').click(function(e){
 
+      var check_sub = $(this).attr('title');
+
+        
+
         if(!$('.checkbox').is(':focus') && e.target.nodeName != "A"){
 
             if(!$('.checkbox').is(':focus')){
@@ -730,198 +884,229 @@ $('html').click(function(e) {
             var receipt_voucher_attach = $(this).find("#receipt_voucher_attach_"+$(this).attr('id')).text();
 
 
+            if (check_sub == 2) {
 
-            $('#receipt_voucher_number').val(receipt_voucher_number);
+              $('#tab2').show();
 
-            $('#receipt_voucher_date').val(receipt_voucher_date.replace(/\//g,"-"));
+              $('.tab-links li:nth-child(2)').show();
 
-            $('#bank_in option:contains('+bank_in+')').attr('selected','selected');
+              $('#tab2').addClass('active');
 
-            $('#receipt_voucher_money').val(receipt_voucher_money);
+              $('#tab1').hide();
 
-            $('#receipt_voucher_comment').val(receipt_voucher_comment);
+              $('.tab-links li:nth-child(2)').addClass('active');
 
-            $('#receipt_voucher_attach').val(receipt_voucher_attach);
+              $('.tab-links li:nth-child(1)').hide();
 
-            $('#receipt_voucher_sum').val(receipt_voucher_money);
+              $('#tab2').css({'display':'block'});
 
+              $('#tab1').hide();
 
-            if (customer > 0) {
-              $('input[name=customer_type][value=1]').prop('checked',true);
+              $('#receipt_voucher_number2').val(receipt_voucher_number);
 
-              $('#customer').val(customer_name);
+              $('#receipt_voucher_date2').val(receipt_voucher_date.replace(/\//g,"-"));
 
-              $('#customer').attr('data',customer);
+              $('#bank_in2 option:contains('+bank_in+')').attr('selected','selected');
 
-              $('#customer').attr('code',true);
+              $('#receipt_voucher_money2').val(receipt_voucher_money);
+
+              $('#receipt_voucher_comment2').val(receipt_voucher_comment);
+
+              $('#receipt_voucher_attach2').val(receipt_voucher_attach);
+
+              $('#yes2').val($(this).attr('id'));
+
             }
-            else if (staff > 0) {
-              $('input[name=customer_type][value=2]').prop('checked',true);
+            else{
+              $('#tab1').show();
 
-              $('#customer').val(staff_name);
+              $('.tab-links li:nth-child(1)').show();
 
-              $('#customer').attr('data',staff);
+              $('#tab1').addClass('active');
 
-              $('#customer').attr('code',true);
-            }
-            else if (steersman > 0) {
-              $('input[name=customer_type][value=3]').prop('checked',true);
+              $('#tab2').hide();
 
-              $('#customer').val(steersman_name);
+              $('.tab-links li:nth-child(1)').addClass('active');
 
-              $('#customer').attr('data',steersman);
+              $('.tab-links li:nth-child(2)').hide();
 
-              $('#customer').attr('code',true);
-            }
+              $('#tab1').css({'display':'block'});
 
-            
+              $('#tab2').hide();
 
 
-            $('#yes').val($(this).attr('id'));
+              $('#receipt_voucher_number').val(receipt_voucher_number);
+
+              $('#receipt_voucher_date').val(receipt_voucher_date.replace(/\//g,"-"));
+
+              $('#bank_in option:contains('+bank_in+')').attr('selected','selected');
+
+              $('#receipt_voucher_money').val(receipt_voucher_money);
+
+              $('#receipt_voucher_comment').val(receipt_voucher_comment);
+
+              $('#receipt_voucher_attach').val(receipt_voucher_attach);
+
+              $('#receipt_voucher_sum').val(receipt_voucher_money);
+
+
+              if (customer > 0) {
+                $('input[name=customer_type][value=1]').prop('checked',true);
+
+                $('#customer').val(customer_name);
+
+                $('#customer').attr('data',customer);
+
+                $('#customer').attr('code',true);
+              }
+              else if (staff > 0) {
+                $('input[name=customer_type][value=2]').prop('checked',true);
+
+                $('#customer').val(staff_name);
+
+                $('#customer').attr('data',staff);
+
+                $('#customer').attr('code',true);
+              }
+              else if (steersman > 0) {
+                $('input[name=customer_type][value=3]').prop('checked',true);
+
+                $('#customer').val(steersman_name);
+
+                $('#customer').attr('data',steersman);
+
+                $('#customer').attr('code',true);
+              }
+
+              
+
+
+              $('#yes').val($(this).attr('id'));
 
 
 
 
-            $('#dataTable tbody tr').remove();
+              $('#dataTable tbody tr').remove();
 
-        
+          
 
-            var receipt_voucher_id = $(this).attr('id');
+              var receipt_voucher_id = $(this).attr('id');
 
-            $.ajax({
+              $.ajax({
 
-                url: '<?php echo BASE_URL ?>/receiptvoucher/getdebitadd',
+                  url: '<?php echo BASE_URL ?>/receiptvoucher/getdebitadd',
 
-                type: 'POST',
+                  type: 'POST',
 
-                data: {receipt_voucher:receipt_voucher_id},
+                  data: {receipt_voucher:receipt_voucher_id},
 
-                success:function(data){
+                  success:function(data){
 
-                    //alert(data);
+                      //alert(data);
 
-                    $('#dataTable tbody').append(data);
+                      $('#dataTable tbody').append(data);
 
 
 
-                    $('.comment').keyup(function(){
+                      $('.comment').keyup(function(){
+
+                        var row = $(this).parent().parent().parent().parent().parent().parent();
+
+                        var rowIndex = row[0].rowIndex;
+
+                        var type = $('input[name=customer_type]:checked').val();
+
+                        var customer = $('#customer').attr('data');
+
+                        var keyword = $(this).val();
+
+                        $.ajax({
+
+                            url: '<?php echo BASE_URL ?>/receiptvoucher/getDebit',
+
+                            type: 'POST',
+
+                            data: {keyword:keyword, offset:rowIndex, type:type, customer:customer},
+
+                            success:function(data){
+
+                                $('.name_list_id:eq('+rowIndex+')').slideDown(200);
+
+                                $('.name_list_id:eq('+rowIndex+')').html(data);
+
+                            }
+
+                        });
+
+                        if ($('.comment:eq('+rowIndex+')').val() == "" || $('.comment:eq('+rowIndex+')').attr('data') == "") {
+
+                            
+
+                            $('.comment:eq('+rowIndex+')').attr('data',"");
+
+                        }
+
+
+
+                        
+
+                    });
+
+
+
+                $('.comment').on('keydown', function() {
+
+                        var row = $(this).parent().parent().parent().parent().parent().parent();
+
+                        var rowIndex = row[0].rowIndex;
+
+
+
+                        var key = event.keyCode || event.charCode;
+
+
+
+                        if( key == 8 || key == 46 ){
+
+                            $('.comment:eq('+rowIndex+')').attr('data',"");
+
+                        }
+
+                            
+
+                      }); 
+
+                $('.debit_pay_money').keyup(function(){
 
                       var row = $(this).parent().parent().parent().parent().parent().parent();
 
                       var rowIndex = row[0].rowIndex;
 
-                      var type = $('input[name=customer_type]:checked').val();
 
-                      var customer = $('#customer').attr('data');
+                      var number = parseFloat($(this).val().replace(/\,/g, ""));
 
-                      var keyword = $(this).val();
+                      var max = parseFloat($('.money_conlai:eq('+rowIndex+')').val().replace(/\,/g, "")) || 0;
 
-                      $.ajax({
+                      if (max == 0 || max == "") {
+                        $(this).val(0);
+                      }
 
-                          url: '<?php echo BASE_URL ?>/receiptvoucher/getDebit',
-
-                          type: 'POST',
-
-                          data: {keyword:keyword, offset:rowIndex, type:type, customer:customer},
-
-                          success:function(data){
-
-                              $('.name_list_id:eq('+rowIndex+')').slideDown(200);
-
-                              $('.name_list_id:eq('+rowIndex+')').html(data);
-
-                          }
-
-                      });
-
-                      if ($('.comment:eq('+rowIndex+')').val() == "" || $('.comment:eq('+rowIndex+')').attr('data') == "") {
-
-                          
-
-                          $('.comment:eq('+rowIndex+')').attr('data',"");
-
+                      if (number > max) {
+                        $(this).val(max);
                       }
 
 
+                      var total = 0;
 
-                      
+                      $('.debit_pay_money').each(function() { 
 
-                  });
+                        total += parseFloat($(this).val().replace(/\,/g, ""));
 
+                        $('#receipt_voucher_sum').val(total);
+                        $('#receipt_voucher_money').val(total);
 
+                    });
 
-              $('.comment').on('keydown', function() {
-
-                      var row = $(this).parent().parent().parent().parent().parent().parent();
-
-                      var rowIndex = row[0].rowIndex;
-
-
-
-                      var key = event.keyCode || event.charCode;
-
-
-
-                      if( key == 8 || key == 46 ){
-
-                          $('.comment:eq('+rowIndex+')').attr('data',"");
-
-                      }
-
-                          
-
-                    }); 
-
-              $('.debit_pay_money').keyup(function(){
-
-                    var row = $(this).parent().parent().parent().parent().parent().parent();
-
-                    var rowIndex = row[0].rowIndex;
-
-
-                    var number = parseFloat($(this).val().replace(/\,/g, ""));
-
-                    var max = parseFloat($('.money_conlai:eq('+rowIndex+')').val().replace(/\,/g, "")) || 0;
-
-                    if (max == 0 || max == "") {
-                      $(this).val(0);
-                    }
-
-                    if (number > max) {
-                      $(this).val(max);
-                    }
-
-
-                    var total = 0;
-
-                    $('.debit_pay_money').each(function() { 
-
-                      total += parseFloat($(this).val().replace(/\,/g, ""));
-
-                      $('#receipt_voucher_sum').val(total);
-                      $('#receipt_voucher_money').val(total);
-
-                  });
-
-
-
-
-                    $('.numbers').val(function(index, value) {
-
-                        return value
-
-                          .replace(/\D/g, "")
-
-                          .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-
-                        ;
-
-                      });
-
-
-
-
-                  });
 
 
 
@@ -939,85 +1124,109 @@ $('html').click(function(e) {
 
 
 
-                    $('.number').keyup(function(event) {
-
-
-
-                          // skip for arrow keys
-
-                      if(event.which >= 37 && event.which <= 40) return;
-
-
-
-                      // format number
-
-                      $(this).val(function(index, value) {
-
-                        return value
-
-                          .replace(/[^0-9-.]/g, "")
-
-                        ;
-
-                      });
-
-                    });
-
-                   
-
-                   $('.numbers').keyup(function(event) {
-
-
-
-                          // skip for arrow keys
-
-                      if(event.which >= 37 && event.which <= 40) return;
-
-
-
-                      // format number
-
-                      $(this).val(function(index, value) {
-
-                        return value
-
-                          .replace(/[^0-9]/g, "")
-
-                          .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-
-                        ;
-
-                      });
 
                     });
 
 
 
-                   function get_number(id){
+                        $('.numbers').val(function(index, value) {
 
-                    return $(id).val().replace(/\,/g,'');
+                            return value
+
+                              .replace(/\D/g, "")
+
+                              .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                            ;
+
+                          });
+
+
+
+                      $('.number').keyup(function(event) {
+
+
+
+                            // skip for arrow keys
+
+                        if(event.which >= 37 && event.which <= 40) return;
+
+
+
+                        // format number
+
+                        $(this).val(function(index, value) {
+
+                          return value
+
+                            .replace(/[^0-9-.]/g, "")
+
+                          ;
+
+                        });
+
+                      });
+
+                     
+
+                     $('.numbers').keyup(function(event) {
+
+
+
+                            // skip for arrow keys
+
+                        if(event.which >= 37 && event.which <= 40) return;
+
+
+
+                        // format number
+
+                        $(this).val(function(index, value) {
+
+                          return value
+
+                            .replace(/[^0-9]/g, "")
+
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                          ;
+
+                        });
+
+                      });
+
+
+
+                     function get_number(id){
+
+                      return $(id).val().replace(/\,/g,'');
+
+                    }
+
+
 
                   }
 
 
 
-                }
+              });
 
 
 
-            });
+              $(".numbers").val(function(index, value) {
+
+                return value
+
+                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                ;
+
+              });
+
+            }
 
 
-
-            $(".numbers").val(function(index, value) {
-
-              return value
-
-                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-
-              ;
-
-            });
+            
 
 
 
@@ -1033,11 +1242,39 @@ $('html').click(function(e) {
 
 function add_click(){
 
+  $('#tab1').show();
+
+  $('.tab-links li:nth-child(2)').show();
+
+  $('.tab-links li:nth-child(1)').show();
+
+  $('.tab-links li:nth-child(1)').addClass('active');
+
+  $('.tab-links li:nth-child(2)').removeClass('active');
+
+  $('#tab1').addClass('active');
+
+  $('#tab2').removeClass('active');
+
+
     $('#yes').val("");
+    $('#yes2').val("");
 
     $('.add-field').slideDown(500);
 
      $("html, body").animate({ scrollTop: $('.add-field').offset().top }, 300);   
+
+        $('#receipt_voucher_number2').val("");
+
+        $('#receipt_voucher_date2').val("");
+
+        $('#receipt_voucher_money2').val("");
+
+        $('#receipt_voucher_comment2').val("");
+
+        $('#receipt_voucher_attach2').val("");
+
+        ////////////
 
         $('#receipt_voucher_number').val("");
 
@@ -1247,6 +1484,141 @@ $(document).ready(function(){
                             $('#error').html('<div class="successbox">'+answer+'</div>'); // đặt kết quả trả về từ test.php vào thẻ div success
 
                             $('#error').fadeOut(10000);
+
+
+
+                            if (yes != "") {
+
+                                if (answer.trim() != "Thông tin này đã tồn tại" ) {
+
+                                  setTimeout(function() {
+
+                                        sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
+
+                                      }, 200);
+
+                                    $('#export_stock_name_'+yes).text(export_stock_name);
+
+                                    $('#province_name_'+yes).text($('#province option:selected').text());
+
+                                }
+
+                            }
+
+                            else{
+
+                                if (answer.trim() != "Thông tin này đã tồn tại") {
+
+                                  setTimeout(function() {
+
+                                        sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
+
+                                      }, 200);
+
+                                    var lastID = parseInt($('#lasted').html());
+
+                                    var rowCount = parseInt($('.table_data > tbody > tr').length);
+
+                                    $('.table_data > tbody:last')
+
+                                    .append(
+
+                                        '<tr onclick="HighLightTR(this,#4d90fe,cc3333);" id="'+parseInt(lastID+1)+'" class="edit_tr"><td><input name="check[]" type="checkbox" class="checkbox" value="'+parseInt(lastID+1)+'"></td><td class="fix">'+parseInt(rowCount+1)+'</td><td class="fix" id="export_stock_name_'+parseInt(lastID+1)+'">'+export_stock_name+'</td><td class="fix" data="'+province+'" id="province_name_'+parseInt(lastID+1)+'">'+$('#province option:selected').text()+'</td><td><a class="error" href="#">Sửa</a> | <a class="error" onclick="del('+parseInt(lastID+1)+')">Xóa</a></td></tr>'
+
+                                    );
+
+
+
+                                    $('#lasted').html(parseInt(lastID+2));
+
+                                }
+
+                            }
+
+                        }
+
+                    });
+
+                    return false;
+
+                     
+
+                 }
+
+            });
+
+
+            $("#add_receipt_voucher2").validate({
+
+                errorElement: "span", // Định dạng cho thẻ HTML hiện thông báo lỗi
+
+                rules: {
+
+                    
+
+                },
+
+                submitHandler: function(form) {
+
+                
+
+                    var receipt_voucher_number = $('#receipt_voucher_number2').attr('value');
+
+                    var bank_in = $('#bank_in2').attr('value');
+
+                    var receipt_voucher_date = $('#receipt_voucher_date2').attr('value');
+
+                    var receipt_voucher_money = $('#receipt_voucher_money2').attr('value');
+
+                    var receipt_voucher_comment = $('#receipt_voucher_comment2').attr('value');
+
+                    var receipt_voucher_attach = $('#receipt_voucher_attach2').attr('value');
+
+                    
+
+                    var yes = $('#yes2').attr('value');
+
+                    
+
+                    var action      = "them";
+
+                 
+
+                    $.ajax({
+
+                        type: "POST", // phương thức gởi đi
+
+                        url: "<?php echo BASE_URL ?>/receiptvoucher/add2", // nơi mà dữ liệu sẽ chuyển đến khi submit
+
+                        data: {
+
+                            receipt_voucher_number: receipt_voucher_number,
+
+                            bank_in: bank_in,
+
+                            receipt_voucher_date: receipt_voucher_date,
+
+                            receipt_voucher_money: receipt_voucher_money,
+
+                            receipt_voucher_comment: receipt_voucher_comment,
+
+                            receipt_voucher_attach: receipt_voucher_attach,
+
+                            yes: yes,
+
+                            }, // giá trị post
+
+                        success: function(answer){ // if everything goes well
+
+                            //alert(answer);
+
+                            $('#error2').hide();
+
+                            $('#error2').slideToggle(100); // hiển thị thẻ div success
+
+                            $('#error2').html('<div class="successbox">'+answer+'</div>'); // đặt kết quả trả về từ test.php vào thẻ div success
+
+                            $('#error2').fadeOut(10000);
 
 
 
@@ -1726,7 +2098,7 @@ $( ".add-field" ).dialog({
 
     };  
 
-    $("#receipt_voucher_date").datepicker(pickerOpts);
+    $(".ngay").datepicker(pickerOpts);
 
 
 

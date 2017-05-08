@@ -64,7 +64,7 @@ Class profitController Extends baseController {
 
             $ketthuc = date('t-m-Y'); //cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')).'-'.date('m-Y');
 
-            $xe = "";
+            $xe = 0;
 
             $vong = (int)date('m',strtotime($batdau));
 
@@ -110,7 +110,7 @@ Class profitController Extends baseController {
 
             );
 
-        if($xe != ""){
+        if($xe > 0){
 
             $data['where'] = $data['where'].' AND vehicle = '.$xe;
 
@@ -182,7 +182,7 @@ Class profitController Extends baseController {
 
             );
 
-        if($xe != ""){
+        if($xe > 0){
 
             $data['where'] = $data['where'].' AND vehicle = '.$xe;
 

@@ -20,14 +20,16 @@ class baseModel {
             $this->db_username = $config['db_username'];
             $this->db_password = $config['db_password'];
         }   
-        try 
-        {
-            $this->dbh = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->db_username, $this->db_password);
-            $this->dbh->exec("SET CHARACTER SET utf8");
-        }
-        catch (PDOException $e)
-        {
-            throw new Exception($e->getMessage());
+        if($this->dbh == null) {   
+            try 
+            {
+                $this->dbh = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->db_username, $this->db_password);
+                $this->dbh->exec("SET CHARACTER SET utf8");
+            }
+            catch (PDOException $e)
+            {
+                throw new Exception($e->getMessage());
+            }
         }
     }
 

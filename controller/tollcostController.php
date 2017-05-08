@@ -32,7 +32,7 @@ Class tollcostController Extends baseController {
             $limit = 50;
             $batdau = '01-'.date('m-Y');
             $ketthuc = date('t-m-Y');
-            $xe = "";
+            $xe = 0;
             $vong = (int)date('m',strtotime($batdau));
             $trangthai = date('Y',strtotime($batdau));
         }
@@ -84,7 +84,7 @@ Class tollcostController Extends baseController {
         if($batdau != "" && $ketthuc != "" ){
             $data['where'] = $data['where'].' AND shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc);
         }
-        if($xe != ""){
+        if($xe > 0){
             $data['where'] = $data['where'].' AND vehicle = '.$xe;
         }
 
@@ -119,7 +119,7 @@ Class tollcostController Extends baseController {
         if($batdau != "" && $ketthuc != "" ){
             $data['where'] = $data['where'].' AND shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc);
         }
-        if($xe != ""){
+        if($xe > 0){
             $data['where'] = $data['where'].' AND vehicle = '.$xe;
         }
         

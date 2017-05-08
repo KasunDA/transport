@@ -36,7 +36,7 @@ elseif ($order_by == 'username')
         <input type="search" id="search-input" name="s" value="<?php echo isset($keyword)?$keyword:null; ?>" placeholder="Tìm kiếm">
         <input type="button" name="" id="search-submit" class="button-search" value="Tìm kiếm" onclick="searchall('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');">
         <?php if(!isset($disable_control)){ ?>
-        <div class="add-box"><a class="add_button" id="btnExport" ><i class="fa fa-download"></i> Xuất</a></div>
+        <div class="add-box"><a class="add_button" id="export_excel" href="<?= $this->url('exportstock/export/'.strtotime($batdau).'/'.strtotime($ketthuc))?>" ><i class="fa fa-download"></i> Xuất</a></div>
         <div class="add-box"><a class="add_button" onClick="add_click();"><i class="fa fa-plus"></i> Thêm mới</a></div>
         <?php } ?>
     </div>
@@ -99,66 +99,83 @@ elseif ($order_by == 'username')
 
 </div>
 
+<input type="hidden" value="<?php echo $tab_active ?>" id="sl_tha">
 
-<table class="table_data" id="tblExport">
-<thead>
-    <tr>
-        <th class="fix"><input type="checkbox" onclick="checkall('checkbox', this)" name="checkall"/></th>
-        <th class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','export_stock_id','<?php echo $url_order ?>')">STT <?php if ($order_by == 'export_stock_id'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','export_stock_code','<?php echo $url_order ?>')">Phiếu xuất kho <?php if ($order_by == 'export_stock_code'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','export_stock_date','<?php echo $url_order ?>')">Ngày <?php if ($order_by == 'export_stock_date'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','export_stock_total','<?php echo $url_order ?>')">Số lượng <?php if ($order_by == 'export_stock_total'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','export_stock_price','<?php echo $url_order ?>')">Giá trị <?php if ($order_by == 'export_stock_price'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','export_stock_comment','<?php echo $url_order ?>')">Nội dung <?php if ($order_by == 'export_stock_comment'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','username','<?php echo $url_order ?>')">Người lập <?php if ($order_by == 'username'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        
-           
-        <?php if(!isset($disable_control)){ ?>
-           
-        <th  class="fix">&nbsp;</th>
-        <?php } ?>
-    </tr>
-    
-   </thead>
-   <tbody>
-    <?php foreach ($exports as $export_stock) : ?>
-        <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $export_stock->export_stock_id ?>" class="edit_tr">
-            <td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $export_stock->export_stock_id ?>"></td>
-            <td class="fix"><?php echo $i++; ?></td>
-            <td class="fix"  id="export_stock_code_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->export_stock_code ?></td>
-            <td class="fix" id="export_stock_date_<?php echo $export_stock->export_stock_id; ?>"><?php echo $lib->hien_thi_ngay_thang($export_stock->export_stock_date) ?></td>
-            <td class="fix"  id="export_stock_total_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->export_stock_total ?></td>
-            <td class="fix"  id="export_stock_price_<?php echo $export_stock->export_stock_id; ?>"><?php echo $lib->formatMoney($export_stock->export_stock_price) ?></td>
-            <td class="fix"  id="export_stock_comment_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->export_stock_comment ?></td>
-            <td class="fix"  id="username_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->username ?></td>
+<div class="tabs">
+  <ul class="tab-links">
+    <?php foreach ($houses as $house) { ?>
+    <li <?php echo $tab_active==$house->house_id?'class="active"':null ?> ><a href="#tab<?php echo $house->house_id ?>"><?php echo $house->house_name ?></a></li>
+    <?php } ?>
+  </ul>
+  <div class="tab-content">
+    <?php foreach ($houses as $house) { ?>
+    <div class="tab <?php echo $tab_active==$house->house_id?"active":null ?>" id="tab<?php echo $house->house_id ?>" >
+      <table class="table_data" id="tblExport<?php echo $house->house_id ?>">
+        <thead>
+            <tr>
+                <th class="fix"><input type="checkbox" onclick="checkall('checkbox', this)" name="checkall"/></th>
+                <th class="fix">
+                    <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','export_stock_id','<?php echo $url_order ?>')">STT <?php if ($order_by == 'export_stock_id'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+                </th>
+                <th  class="fix">
+                    <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','export_stock_code','<?php echo $url_order ?>')">Phiếu xuất kho <?php if ($order_by == 'export_stock_code'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+                </th>
+                <th  class="fix">
+                    <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','export_stock_date','<?php echo $url_order ?>')">Ngày <?php if ($order_by == 'export_stock_date'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+                </th>
+                <th  class="fix">
+                    <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','export_stock_total','<?php echo $url_order ?>')">Số lượng <?php if ($order_by == 'export_stock_total'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+                </th>
+                <th  class="fix">
+                    <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','export_stock_price','<?php echo $url_order ?>')">Giá trị <?php if ($order_by == 'export_stock_price'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+                </th>
+                <th  class="fix">
+                    <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','export_stock_comment','<?php echo $url_order ?>')">Nội dung <?php if ($order_by == 'export_stock_comment'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+                </th>
+                <th  class="fix">
+                    <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','username','<?php echo $url_order ?>')">Người lập <?php if ($order_by == 'username'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+                </th>
+                
+                   
+                <?php if(!isset($disable_control)){ ?>
+                   
+                <th  class="fix">&nbsp;</th>
+                <?php } ?>
+            </tr>
+            
+           </thead>
+           <tbody>
+            <?php foreach ($exports[$house->house_id] as $export_stock) : ?>
+                <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $export_stock->export_stock_id ?>" class="edit_tr">
+                    <td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $export_stock->export_stock_id ?>"></td>
+                    <td class="fix"><?php echo $i++; ?></td>
+                    <td class="fix"  id="export_stock_code_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->export_stock_code ?></td>
+                    <td class="fix" id="export_stock_date_<?php echo $export_stock->export_stock_id; ?>"><?php echo $lib->hien_thi_ngay_thang($export_stock->export_stock_date) ?></td>
+                    <td class="fix"  id="export_stock_total_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->export_stock_total ?></td>
+                    <td class="fix"  id="export_stock_price_<?php echo $export_stock->export_stock_id; ?>"><?php echo $lib->formatMoney($export_stock->export_stock_price) ?></td>
+                    <td class="fix"  id="export_stock_comment_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->export_stock_comment ?></td>
+                    <td class="fix"  id="username_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->username ?></td>
 
-            <td class="fix" style="display:none" data="<?php echo $export_stock->steersman ?>"  id="steersman_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->steersman_name ?></td>
-            <td class="fix" style="display:none" data="<?php echo $export_stock->house ?>" id="house_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->house_name ?></td>
-        
-            <?php if(!isset($disable_control)){ ?>
-            <td class="pull-right">
-                <button class="btn btn-sm btn-flat btn-primary"><i class="fa fa-edit"></i> Sửa</button>
-                <button class="btn btn-sm btn-flat btn-danger" onclick="del(<?php echo $export_stock->export_stock_id ?>)" ><i class="fa fa-remove"></i> Xóa</button>
-            </td>
-            <?php } ?>
-        </tr>
-    <?php endforeach; ?>
-   </tbody>
-</table>
+                    <td class="fix" style="display:none" data="<?php echo $export_stock->steersman ?>"  id="steersman_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->steersman_name ?></td>
+                    <td class="fix" style="display:none" data="<?php echo $export_stock->house ?>" id="house_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->house_name ?></td>
+                    <td class="fix" style="display:none" id="vehicle_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->vehicle ?></td>
+                    <td class="fix" style="display:none" id="romooc_<?php echo $export_stock->export_stock_id; ?>"><?php echo $export_stock->romooc ?></td>
+                
+                    <?php if(!isset($disable_control)){ ?>
+                    <td class="pull-right">
+                        <button class="btn btn-sm btn-flat btn-primary"><i class="fa fa-edit"></i> Sửa</button>
+                        <button class="btn btn-sm btn-flat btn-danger" onclick="del(<?php echo $export_stock->export_stock_id ?>)" ><i class="fa fa-remove"></i> Xóa</button>
+                    </td>
+                    <?php } ?>
+                </tr>
+            <?php endforeach; ?>
+           </tbody>
+      </table>
+    </div>
+    <?php } ?>
+  </div>
+</div>
+
 <?php
 $this->helper('slidePaginator');
 ?>
@@ -180,9 +197,24 @@ $this->helper('slidePaginator');
                       <input class="ngay" type="text" id="export_stock_date"  name="export_stock_date" tabindex="1" required="required" >
                     </div>
                     <div class="form-group">
-                      <label for="steersman">Người nhận <a target="_blank" title="Thêm tài xế" href="<?php echo $this->url('steersman') ?>"><i class="fa fa-plus"></i></a></label>
-                      <input type="text" autocomplete="off" id="steersman"  name="steersman" tabindex="4"  placeholder="Nhập tên hoặc * để chọn" required="required" >
-                        <ul id="customer_list_id"></ul>
+                      <div class="col-md-6 col-xs-6">
+                        <label for="vehicle">Xe <a title="Bàn giao xe" target="_blank" href="<?php echo $this->url('driver') ?>"><i class="fa fa-th-list"></i></a></label>
+                        <select style="width:85px" name="vehicle" id="vehicle">
+                          <option selected="selected" value="">Chọn</option>
+                          <?php foreach ($vehicles as $sm) { ?>
+                          <option value="<?php echo $sm->vehicle_id ?>"><?php echo $sm->vehicle_number ?></option>
+                          <?php } ?>
+                      </select>
+                      </div>
+                      <div class="col-md-6 col-xs-6">
+                        <label for="romooc">Mooc</label>
+                        <select style="width:85px" name="romooc" id="romooc">
+                          <option selected="selected" value="">Chọn</option>
+                          <?php foreach ($romoocs as $sm) { ?>
+                          <option value="<?php echo $sm->romooc_id ?>"><?php echo $sm->romooc_number ?></option>
+                          <?php } ?>
+                      </select>
+                      </div>
                     </div>
                     
                   </div>
@@ -196,12 +228,9 @@ $this->helper('slidePaginator');
                       <input type="text" id="export_stock_code"  name="export_stock_code" tabindex="2" required="required" >
                     </div>
                     <div class="form-group">
-                      <label for="house">Kho xuất <a target="_blank" title="Thêm kho" href="<?php echo $this->url('house') ?>"><i class="fa fa-plus"></i></a></label>
-                      <select id="house" name="house" tabindex="5">
-                        <?php foreach ($houses as $house) { ?>
-                            <option value="<?php echo $house->house_id ?>"><?php echo $house->house_name.' ['.$house->house_place.']' ?></option>
-                        <?php } ?>
-                      </select>
+                      <label for="steersman">Người nhận <a target="_blank" title="Thêm tài xế" href="<?php echo $this->url('steersman') ?>"><i class="fa fa-plus"></i></a></label>
+                      <input type="text" autocomplete="off" id="steersman"  name="steersman" tabindex="4"  placeholder="Nhập tên hoặc * để chọn" required="required" >
+                        <ul id="customer_list_id"></ul>
                     </div>
                     
                   </div>
@@ -213,6 +242,14 @@ $this->helper('slidePaginator');
                     <div class="form-group">
                       <label for="export_stock_comment">Nội dung</label>
                       <input type="text" id="export_stock_comment"  name="export_stock_comment" tabindex="3" required="required" >
+                    </div>
+                    <div class="form-group">
+                      <label for="house">Kho xuất <a target="_blank" title="Thêm kho" href="<?php echo $this->url('house') ?>"><i class="fa fa-plus"></i></a></label>
+                      <select id="house" name="house" tabindex="5">
+                        <?php foreach ($houses as $house) { ?>
+                            <option value="<?php echo $house->house_id ?>"><?php echo $house->house_name.' ['.$house->house_place.']' ?></option>
+                        <?php } ?>
+                      </select>
                     </div>
                     
                   </div>
@@ -344,6 +381,8 @@ $('html').click(function(e) {
             var steersman = $(this).find("#steersman_"+$(this).attr('id')).attr('data');
             var steersman_name = $(this).find("#steersman_"+$(this).attr('id')).text();
             var house = $(this).find("#house_"+$(this).attr('id')).attr('data');
+            var vehicle = $(this).find("#vehicle_"+$(this).attr('id')).text();
+            var romooc = $(this).find("#romooc_"+$(this).attr('id')).text();
             
             //alert(export_stock_code);
             $('#yes').val($(this).attr('id'));
@@ -355,6 +394,8 @@ $('html').click(function(e) {
             $('#steersman').val(steersman_name);
             $('#steersman').attr('data',steersman);
             $('#house option[value='+house+']').attr('selected','selected');
+            $('#vehicle option[value='+vehicle+']').attr('selected','selected');
+            $('#romooc option[value='+romooc+']').attr('selected','selected');
 
             $('#dataTable tbody tr').remove();
         
@@ -642,6 +683,9 @@ function add_click(){
 
         $('#steersman').val("");
         $('#steersman').attr('data',"");
+
+        $('#vehicle option[value=""]').attr('selected','selected');
+        $('#romooc option[value=""]').attr('selected','selected');
         
         $('input[name="chk"]').attr('data',"");
         
@@ -684,6 +728,8 @@ $(document).ready(function(){
                     var export_stock_comment = $('#export_stock_comment').attr('value');
                     var steersman = $('#steersman').attr('data');
                     var house = $('#house').attr('value');
+                    var vehicle = $('#vehicle').attr('value');
+                    var romooc = $('#romooc').attr('value');
 
                     var spare_part = [];
 
@@ -747,6 +793,8 @@ $(document).ready(function(){
                             spare_part: spare_part,
                             steersman: steersman,
                             house: house,
+                            vehicle: vehicle,
+                            romooc: romooc,
                             yes: yes,
                             }, // giá trị post
                         success: function(answer){ // if everything goes well
@@ -788,12 +836,15 @@ $(document).ready(function(){
             });
    
    $('#steersman').keyup(function(){
-      
+        var ngay = $('#export_stock_date').val();
+        if (ngay == "") {
+            ngay = "<?php echo date('d-m-Y') ?>";
+        }
         var keyword = $(this).val();
         $.ajax({
             url: '<?php echo BASE_URL ?>/exportstock/getsteersman',
             type: 'POST',
-            data: {keyword:keyword},
+            data: {keyword:keyword,ngay:ngay},
             success:function(data){
                 $('#customer_list_id').slideDown(200);
                 $('#customer_list_id').html(data);
@@ -1119,11 +1170,14 @@ function set_item_other(item,value,code,vitri,unit,price) {
     });
 
   }
-function set_item_steersman(value,name) {
+function set_item_steersman(value,name,vehicle) {
     // change input value
     $('#steersman').val(name);
     $("#steersman").attr("data",value);
     $("#steersman").attr("code",'true');
+
+    if ($('#romooc').val() == "")
+      $("#vehicle option[value="+vehicle+"]").attr("selected","selected");
     
     // hide proposition list
     $('#customer_list_id').hide();
@@ -1136,22 +1190,7 @@ function set_item_steersman(value,name) {
     var count = parseInt(<?php echo $lastID ?>);
     $('#lasted').html(count);
 
-$("#export_excel").click(function(){
-        $("#winpopup").dialog({
-            draggable:true,
-            modal: true,
-            autoOpen: false,
-            height:300,
-            width:400,
-            resizable: false,
-            title:'export Excel',
-            
-        });
-        $("#winpopup").load($(this).attr('href'));
-        $("#winpopup").dialog("open");
-         
-        return false;
-    });
+
 </script>
 </div>
 
@@ -1708,6 +1747,60 @@ $('#sl_staff option[value='+tt+']').attr('selected','selected');
 
     });
 $(".choose_seri").multiselect({});
+
+jQuery(document).ready(function() {
+    jQuery('.tabs .tab-links a').on('click', function(e)  {
+        var currentAttrValue = jQuery(this).attr('href');
+
+        var id = currentAttrValue.replace('#tab','');
+        $('#sl_tha').val(id);
+        // Show/Hide Tabs
+        jQuery('.tabs ' + currentAttrValue).slideDown(300).siblings().slideUp(300);
+ 
+        // Change/remove current tab to active
+        jQuery(this).parent('li').addClass('active').siblings().removeClass('active');
+ 
+        e.preventDefault();
+    });
+
+    jQuery('.tabs .tab-left a').on('click', function(e)  {
+        var currentAttrValue = jQuery(this).attr('href');
+ 
+        // Show/Hide Tabs
+        jQuery('.tabs ' + currentAttrValue).slideDown(300).siblings().slideUp(300);
+ 
+        // Change/remove current tab to active
+        jQuery(this).parent('li').addClass('active').siblings().removeClass('active');
+ 
+        e.preventDefault();
+    });
+});
+
+$('#vehicle').change(function(){
+    var vehicle = $(this).val();
+    var ngay = $('#export_stock_date').val();
+    if (ngay == "") {
+        ngay = "<?php echo date('d-m-Y') ?>";
+    }
+    $.ajax({
+
+        url: '<?php echo BASE_URL ?>/exportstock/getvehicle',
+
+        type: 'POST',
+
+        data: {vehicle:vehicle,ngay:ngay},
+
+        success:function(answer){
+
+            var data = JSON.parse(answer);
+            $('#steersman').val(data.name);
+            $('#steersman').attr('data',data.id);
+
+        }
+
+    });
+});
+
 </script>
 <style type="text/css">
 .ui-multiselect-menu {

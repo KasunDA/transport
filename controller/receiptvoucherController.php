@@ -148,7 +148,7 @@ Class receiptvoucherController Extends baseController {
         }
 
 
-
+        $id = $this->registry->router->param_id;
 
 
         $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
@@ -278,7 +278,7 @@ Class receiptvoucherController Extends baseController {
 
             );
 
-
+        
 
         if($batdau != "" && $ketthuc != "" ){
 
@@ -291,6 +291,9 @@ Class receiptvoucherController Extends baseController {
         }
 
 
+        if (isset($id) && $id > 0) {
+            $data['where'] = 'receipt_voucher_id = '.$id;
+        }
 
         if($kh > 0){
 
@@ -422,7 +425,9 @@ Class receiptvoucherController Extends baseController {
 
         }
 
-
+        if (isset($id) && $id > 0) {
+            $data['where'] = 'receipt_voucher_id = '.$id;
+        }
 
         if($kh > 0){
 
@@ -1002,7 +1007,7 @@ Class receiptvoucherController Extends baseController {
 
             $receipt_model = $this->model->get('receiptvoucherModel');
 
-
+            $bank_balance_model = $this->model->get('bankbalanceModel');
             $debit_pay_model = $this->model->get('debitpayModel');
 
             /**************/
@@ -1068,7 +1073,27 @@ Class receiptvoucherController Extends baseController {
                     /*Log*/
 
                     /**/
+                    if (!$bank_balance_model->getBankByWhere(array('receipt_voucher'=>$id_receipt))) {
+                        $data_bank = array(
+                            'bank_balance_date' => $data['receipt_voucher_date'],
+                            'bank' => $data['bank_in'],
+                            'bank_balance_money' => $data['receipt_voucher_money'],
+                            'receipt_voucher' => $id_receipt,
+                        );
 
+                        $bank_balance_model->createBank($data_bank);
+                    }
+                    else{
+                        $data_bank = array(
+                            'bank_balance_date' => $data['receipt_voucher_date'],
+                            'bank' => $data['bank_in'],
+                            'bank_balance_money' => $data['receipt_voucher_money'],
+                            'receipt_voucher' => $id_receipt,
+                        );
+
+                        $bank_balance_model->updateBank($data_bank,array('receipt_voucher'=>$id_receipt));
+                    }
+                    
                     
 
                     echo "Cập nhật thành công";
@@ -1118,6 +1143,15 @@ Class receiptvoucherController Extends baseController {
                     /*Log*/
 
                     /**/
+
+                    $data_bank = array(
+                        'bank_balance_date' => $data['receipt_voucher_date'],
+                        'bank' => $data['bank_in'],
+                        'bank_balance_money' => $data['receipt_voucher_money'],
+                        'receipt_voucher' => $id_receipt,
+                    );
+
+                    $bank_balance_model->createBank($data_bank);
 
 
 
@@ -1211,6 +1245,189 @@ Class receiptvoucherController Extends baseController {
 
     }
 
+    public function add2(){
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+
+            return $this->view->redirect('user/login');
+
+        }
+
+        if (isset($_POST['yes'])) {
+
+            $receipt_model = $this->model->get('receiptvoucherModel');
+
+            $bank_balance_model = $this->model->get('bankbalanceModel');
+
+            /**************/
+
+
+            /**************/
+
+
+
+            $data = array(
+
+                        'receipt_voucher_number' => trim($_POST['receipt_voucher_number']),
+
+                        'receipt_voucher_date' => strtotime($_POST['receipt_voucher_date']),
+
+                        'receipt_voucher_comment' => trim($_POST['receipt_voucher_comment']),
+
+                        'receipt_voucher_money' => trim(str_replace(',','',$_POST['receipt_voucher_money'])),
+
+                        'receipt_voucher_attach' => trim($_POST['receipt_voucher_attach']),
+
+                        'bank_in' => trim($_POST['bank_in']),
+
+                        'receipt_voucher_type' => 2,
+
+                        );
+
+
+
+
+            if ($_POST['yes'] != "") {
+
+                if ($receipt_model->checkReceipt($_POST['yes'].' AND receipt_voucher_number = "'.trim($_POST['receipt_voucher_number']).'"')) {
+
+                    echo "Thông tin này đã tồn tại";
+
+                    return false;
+
+                }
+
+                else{
+
+                    $receipt_model->updateReceipt($data,array('receipt_voucher_id' => $_POST['yes']));
+
+                    $id_receipt = $_POST['yes'];
+
+                    /*Log*/
+
+                    /**/
+                    if (!$bank_balance_model->getBankByWhere(array('receipt_voucher'=>$id_receipt))) {
+                        $data_bank = array(
+                            'bank_balance_date' => $data['receipt_voucher_date'],
+                            'bank' => $data['bank_in'],
+                            'bank_balance_money' => $data['receipt_voucher_money'],
+                            'receipt_voucher' => $id_receipt,
+                        );
+
+                        $bank_balance_model->createBank($data_bank);
+                    }
+                    else{
+                        $data_bank = array(
+                            'bank_balance_date' => $data['receipt_voucher_date'],
+                            'bank' => $data['bank_in'],
+                            'bank_balance_money' => $data['receipt_voucher_money'],
+                            'receipt_voucher' => $id_receipt,
+                        );
+
+                        $bank_balance_model->updateBank($data_bank,array('receipt_voucher'=>$id_receipt));
+                    }
+                    
+                    
+
+                    echo "Cập nhật thành công";
+
+
+
+                    date_default_timezone_set("Asia/Ho_Chi_Minh"); 
+
+                        $filename = "action_logs.txt";
+
+                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."edit"."|".$_POST['yes']."|receipt_voucher|".implode("-",$data)."\n"."\r\n";
+
+                        
+
+                        $fh = fopen($filename, "a") or die("Could not open log file.");
+
+                        fwrite($fh, $text) or die("Could not write file!");
+
+                        fclose($fh);
+
+                    }
+
+                
+
+                
+
+            }
+
+            else{
+
+
+
+                if ($receipt_model->getReceiptByWhere(array('receipt_voucher_number'=>$data['receipt_voucher_number']))) {
+
+                    echo "Thông tin này đã tồn tại";
+
+                    return false;
+
+                }
+
+                else{
+
+                    $receipt_model->createReceipt($data);
+
+                    $id_receipt = $receipt_model->getLastReceipt()->receipt_voucher_id;
+
+                    /*Log*/
+
+                    /**/
+
+                    $data_bank = array(
+                        'bank_balance_date' => $data['receipt_voucher_date'],
+                        'bank' => $data['bank_in'],
+                        'bank_balance_money' => $data['receipt_voucher_money'],
+                        'receipt_voucher' => $id_receipt,
+                    );
+
+                    $bank_balance_model->createBank($data_bank);
+
+
+
+                    echo "Thêm thành công";
+
+
+
+                    date_default_timezone_set("Asia/Ho_Chi_Minh"); 
+
+                        $filename = "action_logs.txt";
+
+                        $text = date('d/m/Y H:i:s')."|".$_SESSION['user_logined']."|"."add"."|".$receipt_model->getLastReceipt()->receipt_voucher_id."|receipt_voucher|".implode("-",$data)."\n"."\r\n";
+
+                        
+
+                        $fh = fopen($filename, "a") or die("Could not open log file.");
+
+                        fwrite($fh, $text) or die("Could not write file!");
+
+                        fclose($fh);
+
+                    }
+
+                
+
+                
+
+            }
+
+
+
+                    
+
+        }
+
+    }
+
     public function delete(){
 
         if (!isset($_SESSION['userid_logined'])) {
@@ -1231,6 +1448,8 @@ Class receiptvoucherController Extends baseController {
 
             $debit_pay_model = $this->model->get('debitpayModel');
 
+            $bank_balance_model = $this->model->get('bankbalanceModel');
+
 
 
             if (isset($_POST['xoa'])) {
@@ -1242,6 +1461,8 @@ Class receiptvoucherController Extends baseController {
 
 
                     $debit_pay_model->queryDebit('DELETE FROM debit_pay WHERE receipt_voucher = '.$data);
+
+                    $bank_balance_model->queryBank('DELETE FROM bank_balance WHERE receipt_voucher = '.$data);
 
 
 
@@ -1284,6 +1505,8 @@ Class receiptvoucherController Extends baseController {
 
 
                 $debit_pay_model->queryDebit('DELETE FROM debit_pay WHERE receipt_voucher = '.$_POST['data']);
+
+                $bank_balance_model->queryBank('DELETE FROM bank_balance WHERE receipt_voucher = '.$_POST['data']);
 
                 /*Log*/
 

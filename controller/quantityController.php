@@ -66,9 +66,9 @@ Class quantityController Extends baseController {
 
             $ketthuc = date('t-m-Y'); //cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')).'-'.date('m-Y');
 
-            $xe = "";
+            $xe = 0;
 
-            $kh = "";
+            $kh = 0;
 
             $vong = (int)date('m',strtotime($batdau));
 
@@ -132,13 +132,13 @@ Class quantityController Extends baseController {
 
         }
 
-        if($xe != ""){
+        if($xe > 0){
 
             $query = $query.' AND vehicle = '.$xe;
 
         }
 
-        if($kh != ""){
+        if($kh > 0){
 
             $query = $query.' AND customer = '.$kh;
 
@@ -220,13 +220,13 @@ Class quantityController Extends baseController {
 
         }
 
-        if($xe != ""){
+        if($xe > 0){
 
             $query = $query.' AND vehicle = '.$xe;
 
         }
 
-        if($kh != ""){
+        if($kh > 0){
 
             $query = $query.' AND customer = '.$kh;
 
