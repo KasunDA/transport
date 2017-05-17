@@ -48,8 +48,8 @@ Class shipmentModel Extends baseModel {
     public function getLastShipment(){
         return $this->getLast($this->table);
     }
-    public function checkShipment($id,$shipment_from,$shipment_to,$vehicle,$shipment_date,$shipment_round){
-        return $this->query('SELECT * FROM shipment WHERE shipment_id != '.$id.' AND shipment_from = "'.$shipment_from.'" AND shipment_to = '.$shipment_to.' AND vehicle = '.$vehicle.' AND shipment_date = '.$shipment_date.' AND shipment_round = '.$shipment_round);
+    public function checkShipment($id,$bill){
+        return $this->query('SELECT * FROM shipment WHERE shipment_id != '.$id.' AND bill_number = "'.$bill.'"');
     }
     public function checkUpdate($vehicle,$shipment_round,$shipment_date){
         return $this->query('SELECT * FROM shipment WHERE vehicle = '.$vehicle.' AND shipment_date >= '.strtotime('-1 month' ,strtotime('30-'.date('m-Y',$shipment_date))).' AND shipment_date <= '.strtotime('29-'.date('m-Y',$shipment_date)).' AND shipment_round != '.$shipment_round.' AND shipment_update = 0');

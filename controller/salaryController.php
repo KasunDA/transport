@@ -149,7 +149,7 @@ Class salaryController Extends baseController {
 
                 $daudinhmuc[$driver->steersman_id] = isset($daudinhmuc[$driver->steersman_id])?$daudinhmuc[$driver->steersman_id]+$shipment->shipment_road_oil_add:$shipment->shipment_road_oil_add;
 
-                $roads = $road_model->queryRoad('SELECT * FROM road WHERE road_id IN ('.$shipment->route.')');
+                $roads = $road_model->queryRoad('SELECT * FROM road WHERE road_id IN ("'.str_replace(',', '","', $shipment->route).'")');
 
                 foreach ($roads as $road) {
                     if ($road->road_oil_ton > 0) {
@@ -308,7 +308,7 @@ Class salaryController Extends baseController {
             
 
 
-           $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
+           $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
 
             
 

@@ -648,6 +648,7 @@ Class shipmentlistController Extends baseController {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $id = trim($_POST['id']);
+            $id = $id>0?$id:0;
 
             $customer = trim($_POST['customer']);
             $batdau = trim($_POST['start_time']);
@@ -724,7 +725,7 @@ Class shipmentlistController Extends baseController {
 
 
             $str = '<table class="table_data">';
-            $str .= '<thead><tr><th class="fix"><input checked type="checkbox" onclick="checkall(\'checkbox\', this)" name="checkall"/></th><th class="fix">STT</th><th class="fix">Ngày</th><th class="fix">Số DO</th><th class="fix">Xe</th><th class="fix">Kho đi</th><th class="fix">Kho đến</th><th class="fix">Mặt hàng</th><th class="fix">Sản lượng</th><th class="fix">ĐVT</th><th class="fix">Cước</th><th class="fix">Thành tiền</th></tr></thead';
+            $str .= '<thead><tr><th class="fix"><input checked type="checkbox" onclick="checkall(\'checkbox\', this)" name="checkall"/></th><th class="fix">STT</th><th class="fix">Ngày</th><th class="fix">Số DO</th><th class="fix">Xe</th><th class="fix">Kho đi</th><th class="fix">Kho đến</th><th class="fix">Mặt hàng</th><th class="fix">Sản lượng</th><th class="fix">ĐVT</th><th class="fix">Cước</th><th class="fix">Thành tiền</th></tr></thead>';
             $str .= '<tbody>';
 
             $i = 1; $tongtien = 0;
@@ -756,7 +757,7 @@ Class shipmentlistController Extends baseController {
 
                 $shipment_lists = $shipment_list_model->queryShipment('SELECT shipment FROM shipment_list WHERE shipment LIKE "'.$shipment->shipment_id.'" OR shipment LIKE "'.$shipment->shipment_id.',%" OR shipment LIKE "%,'.$shipment->shipment_id.',%" OR shipment LIKE "%,'.$shipment->shipment_id.'"');
 
-                $shipment_list_adds = $shipment_list_model->queryShipment('SELECT shipment FROM shipment_list WHERE shipment_list_id = '.$id.' AND shipment LIKE "'.$shipment->shipment_id.'" OR shipment LIKE "'.$shipment->shipment_id.',%" OR shipment LIKE "%,'.$shipment->shipment_id.',%" OR shipment LIKE "%,'.$shipment->shipment_id.'"');
+                $shipment_list_adds = $shipment_list_model->queryShipment('SELECT shipment FROM shipment_list WHERE shipment_list_id = '.$id.' AND (shipment LIKE "'.$shipment->shipment_id.'" OR shipment LIKE "'.$shipment->shipment_id.',%" OR shipment LIKE "%,'.$shipment->shipment_id.',%" OR shipment LIKE "%,'.$shipment->shipment_id.'")');
 
 
 

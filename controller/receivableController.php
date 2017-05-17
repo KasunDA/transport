@@ -25,7 +25,7 @@ Class receivableController Extends baseController {
             $trangthai = isset($_POST['staff']) ? $_POST['staff'] : null;
         }
         else{
-            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'code';
+            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'debit_date';
             $order = $this->registry->router->order_by ? $this->registry->router->order_by : 'ASC';
             $page = $this->registry->router->page ? (int) $this->registry->router->page : 1;
             $keyword = "";
@@ -44,6 +44,11 @@ Class receivableController Extends baseController {
         $vong = (int)date('m',strtotime($batdau));
 
         $trangthai = date('Y',strtotime($batdau));
+
+        $this->view->data['page'] = $page;
+        $this->view->data['order_by'] = $order_by;
+        $this->view->data['order'] = $order;
+        $this->view->data['keyword'] = $keyword;
 
         $this->view->data['batdau'] = $batdau;
 

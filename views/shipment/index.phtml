@@ -98,6 +98,14 @@ elseif ($order_by == 'bill_number')
 
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
 
+elseif ($order_by == 'bill_receive_date')
+
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+
+elseif ($order_by == 'bill_delivery_date')
+
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+
 
 
     $i = $sonews*$page-($sonews-1);
@@ -345,12 +353,6 @@ elseif ($order_by == 'bill_number')
 
         <th  class="fix">
 
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_round','<?php echo $url_order ?>')">Vòng <?php if ($order_by == 'shipment_round'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-
-        </th>
-
-        <th  class="fix">
-
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','bill_number','<?php echo $url_order ?>')">Số DO <?php if ($order_by == 'bill_number'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
 
         </th>
@@ -358,6 +360,16 @@ elseif ($order_by == 'bill_number')
         <th  class="fix">
 
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','shipment_date','<?php echo $url_order ?>')">Ngày <?php if ($order_by == 'shipment_date'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+        <th  class="fix">
+
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','bill_receive_date','<?php echo $url_order ?>')">Ngày nhận <?php if ($order_by == 'bill_receive_date'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+
+        </th>
+        <th  class="fix">
+
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','bill_delivery_date','<?php echo $url_order ?>')">Ngày giao <?php if ($order_by == 'bill_delivery_date'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
 
         </th>
 
@@ -492,7 +504,7 @@ elseif ($order_by == 'bill_number')
     
     <?php
         $dau_cost = isset($road['oil_cost'][$shipment->shipment_id])?$road['oil_cost'][$shipment->shipment_id]:0;
-        $dau = isset($road['road_oil'][$shipment->shipment_id])?$road['road_oil'][$shipment->shipment_id]:0;
+        $dau = ($shipment->shipment_road_oil>0?$shipment->shipment_road_oil:(isset($road['road_oil'][$shipment->shipment_id])?$road['road_oil'][$shipment->shipment_id]:0))+$shipment->shipment_road_oil_add;
         $boiduong = isset($warehouse['boiduong_cn'][$shipment->shipment_id])?$warehouse['boiduong_cn'][$shipment->shipment_id]:0;
         $cau = isset($road['bridge_cost'][$shipment->shipment_id])?$road['bridge_cost'][$shipment->shipment_id]:0;
         $ca = isset($road['police_cost'][$shipment->shipment_id])?$road['police_cost'][$shipment->shipment_id]:0;
@@ -514,11 +526,14 @@ elseif ($order_by == 'bill_number')
 
             </td>
 
-            <td class="fix" id="shipment_round_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_round; ?></td>
+            <td class="fix" style="display:none" id="shipment_round_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_round; ?></td>
 
             <td class="fix" id="bill_number_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->bill_number; ?></td>
 
             <td class="fix" id="shipment_date_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment->shipment_date); ?></td>
+
+            <td class="fix" id="bill_receive_date_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment->bill_receive_date); ?></td>
+            <td class="fix" id="bill_delivery_date_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment->bill_delivery_date); ?></td>
 
             <td class="fix" id="steersman_<?php echo $shipment->shipment_id; ?>" data="<?php echo $shipment->steersman; ?>" ><?php echo $shipment->steersman_name; ?></td>
 
@@ -535,7 +550,7 @@ elseif ($order_by == 'bill_number')
 
 
             <td class="fix" ><?php echo isset($road['road_km'][$shipment->shipment_id])?$road['road_km'][$shipment->shipment_id]:null; ?></td>
-            <td class="fix" ><?php echo (isset($road['road_oil'][$shipment->shipment_id])?$road['road_oil'][$shipment->shipment_id]:null)+$shipment->shipment_road_oil_add; ?></td>
+            <td class="fix" ><?php echo $dau; ?></td>
 
             <td class="fix" id="shipment_oil_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_oil; ?></td>
 
@@ -665,8 +680,7 @@ elseif ($order_by == 'bill_number')
 
             <td class="fix" style="display:none"  id="route_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->route; ?></td>
 
-            <td class="fix" style="display:none"  id="bill_receive_date_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment->bill_receive_date); ?></td>
-            <td class="fix" style="display:none"  id="bill_delivery_date_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment->bill_delivery_date); ?></td>
+            
             <td class="fix" style="display:none"  id="bill_receive_ton_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->bill_receive_ton; ?></td>
             <td class="fix" style="display:none"  id="bill_delivery_ton_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->bill_delivery_ton; ?></td>
             <td class="fix" style="display:none"  id="bill_receive_unit_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->bill_receive_unit; ?></td>
@@ -677,6 +691,7 @@ elseif ($order_by == 'bill_number')
             <td class="fix" style="display:none"  id="export_stock_<?php echo $shipment->shipment_id; ?>"><?php echo $export_stocks[$shipment->shipment_id]; ?></td>
 
             <td class="fix" style="display:none"  id="shipment_road_oil_add_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_road_oil_add; ?></td>
+            <td class="fix" style="display:none"  id="shipment_road_oil_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_road_oil; ?></td>
 
             <?php if(!isset($disable_control)){ ?>
 
@@ -804,7 +819,7 @@ elseif ($order_by == 'bill_number')
 
                 <tr  style="font-weight: bold; color: rgb(23, 119, 226);background-color: rgb(222, 239, 236);" >
 
-                    <td class="fix" colspan="16" ></td>
+                    <td class="fix" colspan="17" ></td>
 
                     <th style="background: rgb(23, 119, 226); color: white; border-right: 1px solid rgb(236, 235, 235);border-top: 1px solid #80C8E5;padding: 7px;" colspan="2">
 
@@ -1392,6 +1407,14 @@ $this->helper('slidePaginator');
 
                                 </div>
 
+                                <div class="form-group">
+
+                                  <label for="shipment_road_oil">Định mức dầu</label>
+
+                                  <input type="text" id="shipment_road_oil" name="shipment_road_oil" tabindex="25">
+
+                                </div>
+
                                 
 
                               </div>
@@ -1602,9 +1625,9 @@ $this->helper('slidePaginator');
 
                                 <input type="hidden" readonly id="check_temp" name="check_temp" required="required" >
 
-                                <button type="submit" class="btn btn-primary" tabindex="25">Hoàn thành</button>
+                                <button type="submit" class="btn btn-primary" tabindex="26">Hoàn thành</button>
 
-                                <button type="reset" class="btn" tabindex="26">Nhập lại</button>
+                                <button type="reset" class="btn" tabindex="27">Nhập lại</button>
 
                               </div>
 
@@ -1916,7 +1939,13 @@ $this->helper('slidePaginator');
                                           <input type="text" id="shipment_road_oil_add_sub" name="shipment_road_oil_add_sub" tabindex="24">
 
                                         </div>
-                                        
+                                        <div class="form-group">
+
+                                          <label for="shipment_road_oil_sub">Định mức dầu</label>
+
+                                          <input type="text" id="shipment_road_oil_sub" name="shipment_road_oil_sub" tabindex="25">
+
+                                        </div>
 
                                         
 
@@ -2103,9 +2132,9 @@ $this->helper('slidePaginator');
 
                                         <input type="hidden" readonly id="check_temp_sub" name="check_temp_sub" required="required" >
 
-                                        <button type="submit" class="btn btn-primary" tabindex="25">Hoàn thành</button>
+                                        <button type="submit" class="btn btn-primary" tabindex="26">Hoàn thành</button>
 
-                                        <button type="reset" class="btn" tabindex="26">Nhập lại</button>
+                                        <button type="reset" class="btn" tabindex="27">Nhập lại</button>
 
                                       </div>
 
@@ -2546,6 +2575,7 @@ $('html').click(function(e) {
                 var shipment_salary = $(this).find("#shipment_salary_"+$(this).attr('id')).text();
                 var shipment_road_add = $(this).find("#shipment_road_add_"+$(this).attr('id')).text();
                 var shipment_road_oil_add = $(this).find("#shipment_road_oil_add_"+$(this).attr('id')).text();
+                var shipment_road_oil = $(this).find("#shipment_road_oil_"+$(this).attr('id')).text();
 
                 var route = $(this).find("#route_"+$(this).attr('id')).text();
 
@@ -2574,6 +2604,8 @@ $('html').click(function(e) {
                 $('#shipment_oil_sub').val(shipment_oil);
                 $('#bill_number_sub').val(bill_number);
 
+                var data_vehicle = $(this).find("#vehicle_"+$(this).attr('id')).attr('data');
+
                 $("#export_stock_sub").tagit({
 
                   tagSource: function(search, showChoices) {
@@ -2582,7 +2614,7 @@ $('html').click(function(e) {
 
                       url: "<?php echo BASE_URL ?>/shipment/getExport",
 
-                      data: {search: search.term},
+                      data: {search: search.term, vehicle: data_vehicle},
 
                       success: function(choices) {
 
@@ -2789,6 +2821,7 @@ $('html').click(function(e) {
                 $('#shipment_salary_sub').val(shipment_salary);
                 $('#shipment_road_add_sub').val(shipment_road_add);
                 $('#shipment_road_oil_add_sub').val(shipment_road_oil_add);
+                $('#shipment_road_oil_sub').val(shipment_road_oil);
 
 
 
@@ -3225,6 +3258,7 @@ $('html').click(function(e) {
                 var shipment_salary = $(this).find("#shipment_salary_"+$(this).attr('id')).text();
                 var shipment_road_add = $(this).find("#shipment_road_add_"+$(this).attr('id')).text();
                 var shipment_road_oil_add = $(this).find("#shipment_road_oil_add_"+$(this).attr('id')).text();
+                var shipment_road_oil = $(this).find("#shipment_road_oil_"+$(this).attr('id')).text();
 
                 var route = $(this).find("#route_"+$(this).attr('id')).text();
 
@@ -3253,6 +3287,8 @@ $('html').click(function(e) {
                 $('#shipment_oil').val(shipment_oil);
                 $('#bill_number').val(bill_number);
 
+                var data_vehicle = $(this).find("#vehicle_"+$(this).attr('id')).attr('data');
+
                 $("#export_stock").tagit({
 
                   tagSource: function(search, showChoices) {
@@ -3261,7 +3297,7 @@ $('html').click(function(e) {
 
                       url: "<?php echo BASE_URL ?>/shipment/getExport",
 
-                      data: {search: search.term},
+                      data: {search: search.term, vehicle: data_vehicle},
 
                       success: function(choices) {
 
@@ -3512,6 +3548,7 @@ $('html').click(function(e) {
                 $('#shipment_salary').val(shipment_salary);
                 $('#shipment_road_add').val(shipment_road_add);
                 $('#shipment_road_oil_add').val(shipment_road_oil_add);
+                $('#shipment_road_oil').val(shipment_road_oil);
 
 
 
@@ -3813,6 +3850,7 @@ function add_click(){
         $('#shipment_salary').val(0);
         $('#shipment_road_add').val(0);
         $('#shipment_road_oil_add').val(0);
+        $('#shipment_road_oil').val("");
 
 
 
@@ -4089,6 +4127,7 @@ function add_click(){
         $('#shipment_salary_sub').val(0);
         $('#shipment_road_add_sub').val(0);
         $('#shipment_road_oil_add_sub').val(0);
+        $('#shipment_road_oil_sub').val("");
 
 
 
@@ -4221,7 +4260,7 @@ function add_click(){
 
       url: "<?php echo BASE_URL ?>/shipment/getExport",
 
-      data: {search: search.term},
+      data: {search: search.term, vehicle: $('#vehicle').attr('data')},
 
       success: function(choices) {
 
@@ -4295,7 +4334,7 @@ $("#export_stock_sub").tagit({
 
       url: "<?php echo BASE_URL ?>/shipment/getExport",
 
-      data: {search: search.term},
+      data: {search: search.term, vehicle: $('#vehicle_sub').attr('data')},
 
       success: function(choices) {
 
@@ -4624,6 +4663,7 @@ $(document).ready(function(){
                     var shipment_salary = $('#shipment_salary').attr('value');
                     var shipment_road_add = $('#shipment_road_add').attr('value');
                     var shipment_road_oil_add = $('#shipment_road_oil_add').attr('value');
+                    var shipment_road_oil = $('#shipment_road_oil').attr('value');
 
                     var route = $('#route').val();
 
@@ -4862,6 +4902,7 @@ $(document).ready(function(){
                             shipment_salary: shipment_salary,
                             shipment_road_add: shipment_road_add,
                             shipment_road_oil_add: shipment_road_oil_add,
+                            shipment_road_oil: shipment_road_oil,
 
                             route: route,
 
@@ -5182,6 +5223,7 @@ $(document).ready(function(){
                     var shipment_salary = $('#shipment_salary_sub').attr('value');
                     var shipment_road_add = $('#shipment_road_add_sub').attr('value');
                     var shipment_road_oil_add = $('#shipment_road_oil_add_sub').attr('value');
+                    var shipment_road_oil = $('#shipment_road_oil_sub').attr('value');
 
                     var route = $('#route_sub').val();
 
@@ -5386,6 +5428,7 @@ $(document).ready(function(){
                             shipment_salary: shipment_salary,
                             shipment_road_add: shipment_road_add,
                             shipment_road_oil_add: shipment_road_oil_add,
+                            shipment_road_oil: shipment_road_oil,
 
                             route: route,
 
@@ -9370,6 +9413,7 @@ $('#sl_staff option[value='+tt+']').attr('selected','selected');
 <style type="text/css">
 .table_data td{
     font-size: 11px;
+    padding: 3px;
 }
 .btn-sm {
     padding: 5px;

@@ -707,9 +707,16 @@ Class roadController Extends baseController {
 
                             );
 
-                            $toll_booth_model->createToll($data_toll_booth);
+                            if (!$toll_booth_model->getTollByWhere(array('toll_name'=>$data_toll_booth['toll_name']))) {
+                                $toll_booth_model->createToll($data_toll_booth);
 
-                            $id_toll_booth = $toll_booth_model->getLastToll()->toll_id;
+                                $id_toll_booth = $toll_booth_model->getLastToll()->toll_id;
+                            }
+                            else{
+                                $id_toll_booth = $toll_booth_model->getTollByWhere(array('toll_name'=>$data_toll_booth['toll_name']))->toll_id;
+                                
+                            }
+                            
                         }
 
                         
@@ -993,9 +1000,17 @@ Class roadController Extends baseController {
 
                                 );
 
-                                $toll_booth_model->createToll($data_toll_booth);
+                                if (!$toll_booth_model->getTollByWhere(array('toll_name'=>$data_toll_booth['toll_name']))) {
+                                    $toll_booth_model->createToll($data_toll_booth);
 
-                                $id_toll_booth = $toll_booth_model->getLastToll()->toll_id;
+                                    $id_toll_booth = $toll_booth_model->getLastToll()->toll_id;
+                                }
+                                else{
+                                    $id_toll_booth = $toll_booth_model->getTollByWhere(array('toll_name'=>$data_toll_booth['toll_name']))->toll_id;
+                                    
+                                }
+
+                                
                             }
 
                             

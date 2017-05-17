@@ -326,7 +326,7 @@ Class noinvoiceController Extends baseController {
                 }
 
 
-                $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
+                $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
 
             
 
@@ -722,7 +722,7 @@ Class noinvoiceController Extends baseController {
                                 $cost_data['kvat'][$row->shipment_id] = isset($cost_data['kvat'][$row->shipment_id])?$cost_data['kvat'][$row->shipment_id]+$cost->cost:$cost->cost;
                         }
 
-                        $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$row->route.')'));
+                        $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $row->route).'")'));
 
             
 

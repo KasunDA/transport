@@ -691,7 +691,7 @@ function add_click(){
         $('#customer_type').multiselect( 'refresh' );
 
 
-
+        $('#show_shipment_list').html("Chọn chuyến hàng (0)");
 
         $('.number').focus(function(){
 
@@ -1098,6 +1098,8 @@ $( "#show_shipment" ).dialog({
     modal: true,
 
     width: "auto",
+
+    maxHeight: $(window).height()-50,
 
     title: "Danh sách chuyến hàng",
 
@@ -1521,34 +1523,35 @@ $('#show_shipment_list').click(function(){
   var customer_type = $('#customer_type').val();
   var id = $('#yes').val();
 
-  $.ajax({
+  if (customer > 0 && start_time != "" && end_time != "") {
+    $.ajax({
 
-      url: '<?php echo BASE_URL ?>/shipmentlist/getshipment',
+        url: '<?php echo BASE_URL ?>/shipmentlist/getshipment',
 
-      type: 'POST',
+        type: 'POST',
 
-      data: {id: id, customer:customer, start_time:start_time, end_time:end_time, customer_type: customer_type},
+        data: {id: id, customer:customer, start_time:start_time, end_time:end_time, customer_type: customer_type},
 
-      success:function(data){
+        success:function(data){
 
-        $('#show_shipment').html(data);
+          $('#show_shipment').html(data);
 
-        var ship = $('#shipment').val();
-        if(ship != ""){
-          var array = ship.split(",");
-          $('input[name="check_i[]"]').prop("checked",false);
-          for (var i = 0; i < array.length; i++) {
-            $('input[name="check_i[]"][value='+array[i]+']').prop("checked",true);
-          };
+          var ship = $('#shipment').val();
+          if(ship != ""){
+            var array = ship.split(",");
+            $('input[name="check_i[]"]').prop("checked",false);
+            for (var i = 0; i < array.length; i++) {
+              $('input[name="check_i[]"][value='+array[i]+']').prop("checked",true);
+            };
+          }
+          
+
+          $( "#show_shipment" ).dialog( "open" );
         }
-        
 
-        $( "#show_shipment" ).dialog( "open" );
-      }
+    });
+  }
 
-  });
-
-  
 });
 </script>
 

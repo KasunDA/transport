@@ -293,7 +293,7 @@ Class tollsController Extends baseController {
                 unset($shipments[$k]);
             }
             else{
-                $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
+                $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
 
             
 
@@ -531,7 +531,7 @@ Class tollsController Extends baseController {
 
                     $qr = "SELECT * FROM vehicle_work WHERE vehicle = ".$row->vehicle." AND start_work <= ".$row->shipment_date." AND end_work >= ".$row->shipment_date;
                     if (!$shipment_model->queryShipment($qr)) {
-                        $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$row->route.')'));
+                        $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $row->route).'")'));
 
             
 

@@ -332,30 +332,33 @@ Class customerController Extends baseController {
                 
             }
 
-            foreach ($contact_person as $v) {
-                $data_contact_person = array(
-                    'contact_person_name' => trim($v['contact_person_name']),
-                    'contact_person_phone' => trim($v['contact_person_phone']),
-                    'contact_person_mobile' => trim($v['contact_person_mobile']),
-                    'contact_person_email' => trim($v['contact_person_email']),
-                    'contact_person_address' => trim($v['contact_person_address']),
-                    'contact_person_position' => trim($v['contact_person_position']),
-                    'contact_person_department' => trim($v['contact_person_department']),
-                    'customer' => $id_customer,
-                );
+            if (isset($id_customer)) {
+                foreach ($contact_person as $v) {
+                    $data_contact_person = array(
+                        'contact_person_name' => trim($v['contact_person_name']),
+                        'contact_person_phone' => trim($v['contact_person_phone']),
+                        'contact_person_mobile' => trim($v['contact_person_mobile']),
+                        'contact_person_email' => trim($v['contact_person_email']),
+                        'contact_person_address' => trim($v['contact_person_address']),
+                        'contact_person_position' => trim($v['contact_person_position']),
+                        'contact_person_department' => trim($v['contact_person_department']),
+                        'customer' => $id_customer,
+                    );
 
-                
+                    
 
-                if ($contact_person_model->getCustomerByWhere(array('contact_person_name'=>$data_contact_person['contact_person_name'],'customer'=>$id_customer))) {
-                    $id_contact_person = $contact_person_model->getCustomerByWhere(array('contact_person_name'=>$data_contact_person['contact_person_name'],'customer'=>$id_customer))->contact_person_id;
-                    $contact_person_model->updateCustomer($data_contact_person,array('contact_person_id'=>$id_contact_person));
-                }
-                else if (!$contact_person_model->getCustomerByWhere(array('contact_person_name'=>$data_contact_person['contact_person_name'],'customer'=>$id_customer))) {
-                    if ($data_contact_person['contact_person_name'] != "") {
-                        $contact_person_model->createCustomer($data_contact_person);
+                    if ($contact_person_model->getCustomerByWhere(array('contact_person_name'=>$data_contact_person['contact_person_name'],'customer'=>$id_customer))) {
+                        $id_contact_person = $contact_person_model->getCustomerByWhere(array('contact_person_name'=>$data_contact_person['contact_person_name'],'customer'=>$id_customer))->contact_person_id;
+                        $contact_person_model->updateCustomer($data_contact_person,array('contact_person_id'=>$id_contact_person));
+                    }
+                    else if (!$contact_person_model->getCustomerByWhere(array('contact_person_name'=>$data_contact_person['contact_person_name'],'customer'=>$id_customer))) {
+                        if ($data_contact_person['contact_person_name'] != "") {
+                            $contact_person_model->createCustomer($data_contact_person);
+                        }
                     }
                 }
             }
+            
                     
         }
     }

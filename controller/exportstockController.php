@@ -769,13 +769,13 @@ Class exportstockController Extends baseController {
 
                     $str .= '<td>Tên sản phẩm</td>';
 
-                    $str .= '<td><input type="text" autocomplete="off" class="spare_part" name="spare_part[]" placeholder="Nhập tên hoặc * để chọn" value="'.$code->name.'" data="'.$code->code.'" >';
+                    $str .= '<td><input disabled type="text" autocomplete="off" class="spare_part" name="spare_part[]" placeholder="Nhập tên hoặc * để chọn" value="'.$code->name.'" data="'.$code->spare_part_code_id.'" >';
 
                     $str .= '<ul class="name_list_id"></ul></td>';
 
                     $str .= '<td>Mã sản phẩm</td>';
 
-                    $str .= '<td><input autocomplete="off" type="text" class="spare_part_code" name="spare_part_code[]" tabindex="4" placeholder="Nhập tên hoặc * để chọn" value="'.$code->code.'" >';
+                    $str .= '<td><input disabled autocomplete="off" type="text" class="spare_part_code" name="spare_part_code[]" tabindex="4" placeholder="Nhập tên hoặc * để chọn" value="'.$code->code.'" >';
 
                     $str .= '<ul class="name_list_id_2"></ul></td></tr>';
 

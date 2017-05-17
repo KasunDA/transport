@@ -290,7 +290,7 @@ Class costController Extends baseController {
                     $cost_data[$cost->cost_list_type][$ship->shipment_id] = isset($cost_data[$cost->cost_list_type][$ship->shipment_id])?$cost_data[$cost->cost_list_type][$ship->shipment_id]+$cost->cost:$cost->cost;
                 }
 
-                $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
+                $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
 
             
 
@@ -640,7 +640,7 @@ Class costController Extends baseController {
                             $cost_data[$cost->cost_list_type][$row->shipment_id] = isset($cost_data[$cost->cost_list_type][$row->shipment_id])?$cost_data[$cost->cost_list_type][$row->shipment_id]+$cost->cost:$cost->cost;
                         }
 
-                        $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$row->route.')'));
+                        $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $row->route).'")'));
 
             
 

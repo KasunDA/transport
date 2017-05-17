@@ -691,7 +691,7 @@ Class shipmentController Extends baseController {
 
 
 
-           $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
+           $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
 
 
 
@@ -2317,6 +2317,8 @@ Class shipmentController Extends baseController {
 
                         'shipment_road_oil_add' => trim($_POST['shipment_road_oil_add']),
 
+                        'shipment_road_oil' => trim($_POST['shipment_road_oil']),
+
                         );
 
             $data['shipment_ton'] = $data['bill_delivery_ton'];
@@ -2898,7 +2900,7 @@ Class shipmentController Extends baseController {
 
 
 
-                if ($shipment->checkShipment($_POST['yes'],trim($_POST['shipment_from']),trim($_POST['shipment_to']),trim($_POST['vehicle']),$tomorrow,trim($_POST['shipment_round']))) {
+                if ($shipment->checkShipment($_POST['yes'],trim($_POST['bill_number']))) {
 
 
 
@@ -3905,7 +3907,7 @@ Class shipmentController Extends baseController {
 
 
 
-                if ($shipment->checkShipment(0,trim($_POST['shipment_from']),trim($_POST['shipment_to']),trim($_POST['vehicle']),$tomorrow,trim($_POST['shipment_round']))) {
+                if ($shipment->checkShipment(0,trim($_POST['bill_number']))) {
 
 
 
@@ -4631,6 +4633,8 @@ Class shipmentController Extends baseController {
 
                         'shipment_road_oil_add' => trim($_POST['shipment_road_oil_add']),
 
+                        'shipment_road_oil' => trim($_POST['shipment_road_oil']),
+
                         );
 
             $data['shipment_ton'] = $data['bill_delivery_ton'];
@@ -4943,7 +4947,7 @@ Class shipmentController Extends baseController {
 
 
 
-                if ($shipment->checkShipment($_POST['yes'],trim($_POST['shipment_from']),trim($_POST['shipment_to']),trim($_POST['vehicle']),$tomorrow,trim($_POST['shipment_round']))) {
+                if ($shipment->checkShipment($_POST['yes'],trim($_POST['bill_number']))) {
 
 
 
@@ -5563,7 +5567,7 @@ Class shipmentController Extends baseController {
 
 
 
-                if ($shipment->checkShipment(0,trim($_POST['shipment_from']),trim($_POST['shipment_to']),trim($_POST['vehicle']),$tomorrow,trim($_POST['shipment_round']))) {
+                if ($shipment->checkShipment(0,trim($_POST['bill_number']))) {
 
 
 
@@ -6120,7 +6124,7 @@ Class shipmentController Extends baseController {
 
 
 
-                $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
+                $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
 
 
 
@@ -6171,7 +6175,7 @@ Class shipmentController Extends baseController {
 
 
 
-                $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$ship->route.')'));
+                $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
 
 
 
@@ -6407,17 +6411,18 @@ Class shipmentController Extends baseController {
 
             $road_model = $this->model->get('roadModel');
 
+            $from = isset($_POST['road_from'])?trim($_POST['road_from']):0;
+            $to = isset($_POST['road_to'])?trim($_POST['road_to']):0;
 
-
-            $road = $road_model->getRoadByWhere(array('road_from' => trim($_POST['road_from']),'road_to' => trim($_POST['road_to'])));
-
-
-
-
+            $road = $road_model->getRoadByWhere(array('road_from' => $from,'road_to' => $to));
 
 
 
-            echo $road->way?$road->way:0;
+
+
+
+
+            echo isset($road->way)?$road->way:0;
 
 
 
@@ -7922,14 +7927,15 @@ Class shipmentController Extends baseController {
         header('Content-type: application/json');
 
         $q = $_GET["search"];
+        $v = $_GET["vehicle"];
 
-
-
+        $shipment_model = $this->model->get('shipmentModel');
         $sub_model = $this->model->get('exportstockModel');
+        $spare_stock_model = $this->model->get('sparestockModel');
 
         $data = array(
 
-            'where' => 'export_stock_code LIKE "%'.$q.'%"',
+            'where' => 'export_stock_code LIKE "%'.$q.'%" AND vehicle = '.$v,
 
         );
 
@@ -7938,8 +7944,24 @@ Class shipmentController Extends baseController {
         $arr = array();
 
         foreach ($subs as $sub) {
-
-            $arr[] = $sub->export_stock_code;
+            $num = 0;
+            $spare = $spare_stock_model->getAllStock(array('where'=>'export_stock = '.$sub->export_stock_id));
+            foreach ($spare as $sp) {
+                $num += $sp->spare_stock_number;
+            }
+            $ex = $shipment_model->queryShipment('SELECT shipment_oil FROM shipment WHERE export_stock LIKE "'.$sub->export_stock_id.'" OR export_stock LIKE "'.$sub->export_stock_id.',%" OR export_stock LIKE "%,'.$sub->export_stock_id.',%" OR export_stock LIKE "%,'.$sub->export_stock_id.'"');
+            if (!$ex) {
+                $arr[] = $sub->export_stock_code;
+            }
+            else{
+                foreach ($ex as $e) {
+                    if ($e->shipment_oil < $num) {
+                        $arr[] = $sub->export_stock_code;
+                    }
+                }
+            }
+            
+            
 
         }
 
@@ -8795,11 +8817,12 @@ Class shipmentController Extends baseController {
 
             $road_model = $this->model->get('roadModel');
 
-
+            $from = isset($_POST['road_from'])?trim($_POST['road_from']):0;
+            $to = isset($_POST['road_to'])?trim($_POST['road_to']):0;
 
             $data = array(
 
-                'where' => 'road_from = '.trim($_POST['road_from']).' AND road_to = '.trim($_POST['road_to']).' AND start_time <= '.strtotime($_POST['ngay']).' AND end_time >= '.strtotime($_POST['ngay']),
+                'where' => 'road_from = '.$from.' AND road_to = '.$to.' AND start_time <= '.strtotime($_POST['ngay']).' AND end_time >= '.strtotime($_POST['ngay']),
 
             );
 
@@ -8952,6 +8975,7 @@ Class shipmentController Extends baseController {
         if (isset($_POST['export_number'])) {
 
             $spare_stock_model = $this->model->get('sparestockModel');
+            $shipment_model = $this->model->get('shipmentModel');
 
             $join = array('table'=>'export_stock','where'=>'export_stock=export_stock_id');
 
@@ -8970,8 +8994,13 @@ Class shipmentController Extends baseController {
             $spare_parts = $spare_stock_model->getAllStock($data,$join);
 
             foreach ($spare_parts as $spare) {
+                $num = $spare->spare_stock_number;
+                $ex = $shipment_model->queryShipment('SELECT shipment_oil FROM shipment WHERE export_stock LIKE "'.$spare->export_stock_id.'" OR export_stock LIKE "'.$spare->export_stock_id.',%" OR export_stock LIKE "%,'.$spare->export_stock_id.',%" OR export_stock LIKE "%,'.$spare->export_stock_id.'"');
+                foreach ($ex as $e) {
+                    $num -= $e->shipment_oil;
+                }
 
-                echo $spare->spare_stock_number;
+                echo $num;
 
             }
 
@@ -9888,7 +9917,7 @@ Class shipmentController Extends baseController {
 
 
 
-            $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$shipment->route.')'),$r_join);
+            $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $shipment->route).'")'),$r_join);
 
 
 
@@ -11643,7 +11672,7 @@ Class shipmentController Extends baseController {
 
 
 
-            $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$shipment->route.')'));
+            $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $shipment->route).'")'));
 
 
 
@@ -12873,7 +12902,7 @@ Class shipmentController Extends baseController {
 
 
 
-                    $roads = $road_model->getAllRoad(array('where'=>'road_id IN ('.$shipment->route.')'),$r_join);
+                    $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $shipment->route).'")'),$r_join);
 
 
 

@@ -90,7 +90,7 @@ Class customershipController Extends baseController {
         $data_sub = array();
         $customer_subs = array();
         foreach ($customers as $customer) {
-            $subs = $customer_sub_model->getAllCustomer(array('where'=>'customer_sub_id IN ('.$customer->customer_sub.')'));
+            $subs = $customer_sub_model->getAllCustomer(array('where'=>'customer_sub_id IN ("'.str_replace(',', '","', $customer->customer_sub).'")'));
             if ($subs) {
                 foreach ($subs as $sub) {
                     $data_sub[$customer->customer_id]['name'][] = $sub->customer_sub_name;

@@ -47,7 +47,7 @@ Class truckinglistController Extends baseController {
 
         else{
 
-            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'shipment_date ASC, ';
+            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'bill_receive_date ASC, ';
 
             $order = $this->registry->router->order_by ? $this->registry->router->order_by : 'vehicle_number ASC';
 
@@ -133,7 +133,7 @@ Class truckinglistController Extends baseController {
 
         $data = array(
 
-            'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc),
+            'where' => 'bill_receive_date >= '.strtotime($batdau).' AND bill_receive_date < '.strtotime($ngayketthuc),
 
             );
 
@@ -209,7 +209,7 @@ Class truckinglistController Extends baseController {
 
             'limit'=>$x.','.$sonews,
 
-            'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc),
+            'where' => 'bill_receive_date >= '.strtotime($batdau).' AND bill_receive_date < '.strtotime($ngayketthuc),
 
             );
 
@@ -239,7 +239,7 @@ Class truckinglistController Extends baseController {
 
         if ($keyword != '') {
 
-            $ngay = (strtotime(str_replace("/", "-", $keyword))!="")?(' OR shipment_date LIKE "%'.strtotime(str_replace("/", "-", $keyword)).'%"'):"";
+            $ngay = (strtotime(str_replace("/", "-", $keyword))!="")?(' OR bill_receive_date LIKE "%'.strtotime(str_replace("/", "-", $keyword)).'%"'):"";
 
             $search = '(
 
@@ -391,7 +391,7 @@ Class truckinglistController Extends baseController {
 
         if($batdau != "" && $ketthuc != "" ){
 
-            $data['where'] = $data['where'].' AND shipment_date >= '.$batdau.' AND shipment_date < '.$ngayketthuc;
+            $data['where'] = $data['where'].' AND bill_receive_date >= '.$batdau.' AND bill_receive_date < '.$ngayketthuc;
 
         }
 
@@ -427,7 +427,7 @@ Class truckinglistController Extends baseController {
 
 
 
-        $data['order_by'] = 'shipment_date';
+        $data['order_by'] = 'bill_receive_date';
 
         $data['order'] = 'ASC';
 
@@ -454,7 +454,7 @@ Class truckinglistController Extends baseController {
 
 
 
-        $number_sheet = $shipment_model->queryShipment('SELECT customer,customer_name FROM shipment,customer WHERE customer=customer_id AND shipment_date >= '.$batdau.' AND shipment_date < '.$ngayketthuc.' GROUP BY customer ');
+        $number_sheet = $shipment_model->queryShipment('SELECT customer,customer_name FROM shipment,customer WHERE customer=customer_id AND bill_receive_date >= '.$batdau.' AND bill_receive_date < '.$ngayketthuc.' GROUP BY customer ');
 
 
 
@@ -477,7 +477,7 @@ Class truckinglistController Extends baseController {
                 
                 $data = array(
 
-                'where' => 'shipment_ton > 0 AND customer = '.$cus->customer.' AND shipment_date >= '.$batdau.' AND shipment_date < '.$ngayketthuc,
+                'where' => 'shipment_ton > 0 AND customer = '.$cus->customer.' AND bill_receive_date >= '.$batdau.' AND bill_receive_date < '.$ngayketthuc,
 
                 );
                 if($xe > 0){
@@ -601,7 +601,7 @@ Class truckinglistController Extends baseController {
 
                             ->setCellValue('A' . $hang, $i++)
 
-                            ->setCellValueExplicit('B' . $hang, $this->lib->hien_thi_ngay_thang($row->shipment_date))
+                            ->setCellValueExplicit('B' . $hang, $this->lib->hien_thi_ngay_thang($row->bill_receive_date))
 
                             ->setCellValue('C' . $hang, $row->customer_name)
 
@@ -1025,7 +1025,7 @@ Class truckinglistController Extends baseController {
 
                             ->setCellValue('A' . $hang, $i++)
 
-                            ->setCellValueExplicit('B' . $hang, $this->lib->hien_thi_ngay_thang($row->shipment_date))
+                            ->setCellValueExplicit('B' . $hang, $this->lib->hien_thi_ngay_thang($row->bill_receive_date))
 
                             ->setCellValue('C' . $hang, $row->customer_name)
 
