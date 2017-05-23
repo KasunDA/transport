@@ -715,7 +715,7 @@ Class shipmentController Extends baseController {
 
 
 
-           if ($ship->shipment_sub==1) {
+           /*if ($ship->shipment_sub==1) {
 
 
 
@@ -723,7 +723,7 @@ Class shipmentController Extends baseController {
 
 
 
-           }
+           }*/
 
 
 
@@ -8834,17 +8834,21 @@ Class shipmentController Extends baseController {
 
             $str = "";
 
-
+            $diduong = 0;
 
             foreach ($roads as $road) {
 
-                $str .= '<option selected value="'.$road->road_id.'">'.(isset($route_data['route_id'][$road->route_from])?$route_data['route_name'][$road->route_from]:null).'-'.(isset($route_data['route_id'][$road->route_to])?$route_data['route_name'][$road->route_to]:null).' ['.$road->road_km.'km]'.'</option>';
+                $str .= '<option title="'.$road->road_add.'" selected value="'.$road->road_id.'">'.(isset($route_data['route_id'][$road->route_from])?$route_data['route_name'][$road->route_from]:null).'-'.(isset($route_data['route_id'][$road->route_to])?$route_data['route_name'][$road->route_to]:null).' ['.$road->road_km.'km]'.'</option>';
 
+                $diduong += $road->road_add;
             }
 
 
-
-            echo $str;
+            $arr = array(
+                'data' => $str,
+                'road_add' => $diduong,
+            );
+            echo json_encode($arr);
 
 
 
@@ -9929,7 +9933,7 @@ Class shipmentController Extends baseController {
 
 
 
-           if ($shipment->shipment_sub==1) {
+           /*if ($shipment->shipment_sub==1) {
 
 
 
@@ -9937,7 +9941,7 @@ Class shipmentController Extends baseController {
 
 
 
-           }
+           }*/
 
 
 

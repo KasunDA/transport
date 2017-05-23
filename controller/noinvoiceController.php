@@ -959,8 +959,6 @@ Class noinvoiceController Extends baseController {
 
                             if(isset($cost_data[11][$row->shipment_id]))
                                 $bd += $cost_data[11][$row->shipment_id];
-                            if (isset($road_data['road_add'][$row->shipment_id]))
-                                $ps += $road_data['road_add'][$row->shipment_id];
                             if(isset($cost_data['kvat'][$row->shipment_id]))
                                 $ps += $cost_data['kvat'][$row->shipment_id];
                             

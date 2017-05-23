@@ -1062,10 +1062,20 @@ $(document).ready(function(){
                         }
                     });
                     
+                    var err = 0;
 
                     $('.spare_part_code').each(function() { 
+                      if ($(this).val().trim() == "") {
+                        alert('Vui lòng nhập vào Mã sản phẩm');
+                        err = 1;
+                        return false;
+                      }
                         spare_part_code2.push($(this).val());
                     });
+
+                    if (err == 1) {
+                      return false;
+                    }
 
                     $('.spare_part_brand').each(function() { 
                         spare_part_brand2.push($(this).val());

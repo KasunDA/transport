@@ -6357,12 +6357,69 @@ function set_item_shipment_from(value,name) {
             data: {road_from:from, road_to:to, ngay:ngay},
 
             success:function(data){
+                var data = jQuery.parseJSON(data);
 
+                $('#shipment_road_add').val(data.road_add);
 
+                $('#shipment_road_add').val(function(index, value) {
 
-                $('#route').html(data);
+                  return value
+
+                    .replace(/\D/g, "")
+
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                  ;
+
+                });
+
+                $('#route').html(data.data);
 
                 $('#route').multiselect( 'refresh' );
+
+                $('#route').multiselect({
+                    click: function(event, ui){
+                        var val = parseInt($('#shipment_road_add').val().replace(/\,/g, ""));
+                        if(ui.checked == 1){
+                            val = val + parseInt(ui.text);
+                            $('#shipment_road_add').val(val);
+                        }
+                        else{
+                            val = val - parseInt(ui.text);
+                            $('#shipment_road_add').val(val);
+                        }
+
+                        $('#shipment_road_add').val(function(index, value) {
+
+                          return value
+
+                            .replace(/\D/g, "")
+
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                          ;
+
+                        });
+                    },
+                    checkAll: function(){
+                        $('#shipment_road_add').val(data.road_add);
+
+                        $('#shipment_road_add').val(function(index, value) {
+
+                          return value
+
+                            .replace(/\D/g, "")
+
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                          ;
+
+                        });
+                    },
+                    uncheckAll: function(){
+                        $('#shipment_road_add').val(0);
+                    }
+                });
 
             }
 
@@ -6449,12 +6506,69 @@ function set_item_shipment_to(value,name) {
             data: {road_from:from, road_to:to, ngay:ngay},
 
             success:function(data){
+                var data = jQuery.parseJSON(data);
 
+                $('#shipment_road_add').val(data.road_add);
 
+                $('#shipment_road_add').val(function(index, value) {
 
-                $('#route').html(data);
+                  return value
+
+                    .replace(/\D/g, "")
+
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                  ;
+
+                });
+
+                $('#route').html(data.data);
 
                 $('#route').multiselect( 'refresh' );
+
+                $('#route').multiselect({
+                    click: function(event, ui){
+                        var val = parseInt($('#shipment_road_add').val().replace(/\,/g, ""));
+                        if(ui.checked == 1){
+                            val = val + parseInt(ui.text);
+                            $('#shipment_road_add').val(val);
+                        }
+                        else{
+                            val = val - parseInt(ui.text);
+                            $('#shipment_road_add').val(val);
+                        }
+
+                        $('#shipment_road_add').val(function(index, value) {
+
+                          return value
+
+                            .replace(/\D/g, "")
+
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                          ;
+
+                        });
+                    },
+                    checkAll: function(){
+                        $('#shipment_road_add').val(data.road_add);
+
+                        $('#shipment_road_add').val(function(index, value) {
+
+                          return value
+
+                            .replace(/\D/g, "")
+
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                          ;
+
+                        });
+                    },
+                    uncheckAll: function(){
+                        $('#shipment_road_add').val(0);
+                    }
+                });
 
             }
 
@@ -6620,12 +6734,69 @@ function set_item_shipment_from_sub(value,name) {
             data: {road_from:from, road_to:to, ngay:ngay},
 
             success:function(data){
+                var data = jQuery.parseJSON(data);
 
+                $('#shipment_road_add_sub').val(data.road_add);
 
+                $('#shipment_road_add_sub').val(function(index, value) {
 
-                $('#route_sub').html(data);
+                  return value
+
+                    .replace(/\D/g, "")
+
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                  ;
+
+                });
+
+                $('#route_sub').html(data.data);
 
                 $('#route_sub').multiselect( 'refresh' );
+
+                $('#route_sub').multiselect({
+                    click: function(event, ui){
+                        var val = parseInt($('#shipment_road_add_sub').val().replace(/\,/g, ""));
+                        if(ui.checked == 1){
+                            val = val + parseInt(ui.text);
+                            $('#shipment_road_add_sub').val(val);
+                        }
+                        else{
+                            val = val - parseInt(ui.text);
+                            $('#shipment_road_add_sub').val(val);
+                        }
+
+                        $('#shipment_road_add_sub').val(function(index, value) {
+
+                          return value
+
+                            .replace(/\D/g, "")
+
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                          ;
+
+                        });
+                    },
+                    checkAll: function(){
+                        $('#shipment_road_add_sub').val(data.road_add);
+
+                        $('#shipment_road_add_sub').val(function(index, value) {
+
+                          return value
+
+                            .replace(/\D/g, "")
+
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                          ;
+
+                        });
+                    },
+                    uncheckAll: function(){
+                        $('#shipment_road_add_sub').val(0);
+                    }
+                });
 
             }
 
@@ -6712,12 +6883,69 @@ function set_item_shipment_to_sub(value,name) {
             data: {road_from:from, road_to:to, ngay:ngay},
 
             success:function(data){
+                var data = jQuery.parseJSON(data);
 
+                $('#shipment_road_add_sub').val(data.road_add);
 
+                $('#shipment_road_add_sub').val(function(index, value) {
 
-                $('#route_sub').html(data);
+                  return value
+
+                    .replace(/\D/g, "")
+
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                  ;
+
+                });
+
+                $('#route_sub').html(data.data);
 
                 $('#route_sub').multiselect( 'refresh' );
+
+                $('#route_sub').multiselect({
+                    click: function(event, ui){
+                        var val = parseInt($('#shipment_road_add_sub').val().replace(/\,/g, ""));
+                        if(ui.checked == 1){
+                            val = val + parseInt(ui.text);
+                            $('#shipment_road_add_sub').val(val);
+                        }
+                        else{
+                            val = val - parseInt(ui.text);
+                            $('#shipment_road_add_sub').val(val);
+                        }
+
+                        $('#shipment_road_add_sub').val(function(index, value) {
+
+                          return value
+
+                            .replace(/\D/g, "")
+
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                          ;
+
+                        });
+                    },
+                    checkAll: function(){
+                        $('#shipment_road_add_sub').val(data.road_add);
+
+                        $('#shipment_road_add_sub').val(function(index, value) {
+
+                          return value
+
+                            .replace(/\D/g, "")
+
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                          ;
+
+                        });
+                    },
+                    uncheckAll: function(){
+                        $('#shipment_road_add_sub').val(0);
+                    }
+                });
 
             }
 
@@ -8105,20 +8333,133 @@ $('#shipment_temp').change(function(){
                 data: {road_from:data.shipment_from, road_to:data.shipment_to, ngay:ngay},
 
                 success:function(data){
+                        var data = jQuery.parseJSON(data);
 
+                        $('#shipment_road_add').val(data.road_add);
 
+                        $('#shipment_road_add').val(function(index, value) {
 
-                    $('#route').html(data);
+                          return value
 
-                    $('#route').multiselect( 'refresh' );
+                            .replace(/\D/g, "")
 
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 
+                          ;
 
-                    $('#route_sub').html(data);
+                        });
 
-                    $('#route_sub').multiselect( 'refresh' );
+                        $('#route').html(data.data);
 
-                }
+                        $('#route').multiselect( 'refresh' );
+
+                        $('#route').multiselect({
+                            click: function(event, ui){
+                                var val = parseInt($('#shipment_road_add').val().replace(/\,/g, ""));
+                                if(ui.checked == 1){
+                                    val = val + parseInt(ui.text);
+                                    $('#shipment_road_add').val(val);
+                                }
+                                else{
+                                    val = val - parseInt(ui.text);
+                                    $('#shipment_road_add').val(val);
+                                }
+
+                                $('#shipment_road_add').val(function(index, value) {
+
+                                  return value
+
+                                    .replace(/\D/g, "")
+
+                                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                                  ;
+
+                                });
+                            },
+                            checkAll: function(){
+                                $('#shipment_road_add').val(data.road_add);
+
+                                $('#shipment_road_add').val(function(index, value) {
+
+                                  return value
+
+                                    .replace(/\D/g, "")
+
+                                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                                  ;
+
+                                });
+                            },
+                            uncheckAll: function(){
+                                $('#shipment_road_add').val(0);
+                            }
+                        });
+
+                        $('#shipment_road_add_sub').val(data.road_add);
+
+                        $('#shipment_road_add_sub').val(function(index, value) {
+
+                          return value
+
+                            .replace(/\D/g, "")
+
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                          ;
+
+                        });
+
+                        $('#route_sub').html(data.data);
+
+                        $('#route_sub').multiselect( 'refresh' );
+
+                        $('#route_sub').multiselect({
+                            click: function(event, ui){
+                                var val = parseInt($('#shipment_road_add_sub').val().replace(/\,/g, ""));
+                                if(ui.checked == 1){
+                                    val = val + parseInt(ui.text);
+                                    $('#shipment_road_add_sub').val(val);
+                                }
+                                else{
+                                    val = val - parseInt(ui.text);
+                                    $('#shipment_road_add_sub').val(val);
+                                }
+
+                                $('#shipment_road_add_sub').val(function(index, value) {
+
+                                  return value
+
+                                    .replace(/\D/g, "")
+
+                                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                                  ;
+
+                                });
+                            },
+                            checkAll: function(){
+                                $('#shipment_road_add_sub').val(data.road_add);
+
+                                $('#shipment_road_add_sub').val(function(index, value) {
+
+                                  return value
+
+                                    .replace(/\D/g, "")
+
+                                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                                  ;
+
+                                });
+                            },
+                            uncheckAll: function(){
+                                $('#shipment_road_add_sub').val(0);
+                            }
+                        });
+
+                    }
 
             });
 

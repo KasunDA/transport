@@ -784,6 +784,8 @@ Class exvatController Extends baseController {
 
                         'payment' => trim($_POST['payment']),
 
+                        'vat_percent' => trim($_POST['vat_percent']),
+
                         );
 
 
@@ -967,7 +969,7 @@ Class exvatController Extends baseController {
 
 
                 $vat_sum += $data_vat['vat_out_number']*$data_vat['vat_out_price'];
-                $vat_price += round(($data_vat['vat_out_number']*$data_vat['vat_out_price'])*0.1);
+                $vat_price += round(($data_vat['vat_out_number']*$data_vat['vat_out_price'])*($data['vat_percent']/100));
                 $vat_comment .= $data_vat['vat_out_comment'].'.';  
 
             }

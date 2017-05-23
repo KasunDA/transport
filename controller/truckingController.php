@@ -355,11 +355,11 @@ Class truckingController Extends baseController {
 
            $check_sub = 1;
 
-           if ($ship->shipment_sub==1) {
+           /*if ($ship->shipment_sub==1) {
 
                $check_sub = 0;
 
-           }
+           }*/
 
 
 

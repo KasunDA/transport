@@ -1017,8 +1017,8 @@ padding:3px;
 	margin:-8px 0px;
     	height: 10em;
     	line-height: 10em;
-    	overflow: scroll;
-    	overflow-x: hidden;
+    	overflow:hidden; 
+    	overflow-y:scroll!important;
 }
 .table_data tbody tr td.fix {
 	border-right: 1px dotted #21759b;

@@ -240,7 +240,7 @@ elseif ($order_by == 'cont_unit')
     $ca = isset($road['police_cost'][$shipment->shipment_id])?$road['police_cost'][$shipment->shipment_id]:null;
     $cd = isset($road['bridge_cost'][$shipment->shipment_id])?$road['bridge_cost'][$shipment->shipment_id]:null;
     $vv = isset($road['tire_cost'][$shipment->shipment_id])?$road['tire_cost'][$shipment->shipment_id]:null;
-    $dd = isset($road['road_add'][$shipment->shipment_id])?$road['road_add'][$shipment->shipment_id]:null;
+    $dd = $shipment->shipment_road_add;
     $hh = isset($cost_data[9][$shipment->shipment_id])?$cost_data[9][$shipment->shipment_id]:null;
 
     if(isset($cost_data[4][$shipment->shipment_id]))
@@ -257,7 +257,6 @@ elseif ($order_by == 'cont_unit')
         $bd += $cost_data[11][$shipment->shipment_id];
     if(isset($cost_data[12][$shipment->shipment_id]))
         $dd += $cost_data[12][$shipment->shipment_id];
-    $dd += $shipment->shipment_road_add;
 
 
     $tong =  $bd+ ($kho['warehouse_weight'][$shipment->shipment_from]+$kho['warehouse_weight'][$shipment->shipment_to])+ ($kho['warehouse_clean'][$shipment->shipment_from]+$kho['warehouse_clean'][$shipment->shipment_to])+ ($kho['warehouse_gate'][$shipment->shipment_to])+ $ca+ $cd+ $vv+ $dd+ $dau+ $hh ?>

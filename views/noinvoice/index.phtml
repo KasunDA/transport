@@ -254,8 +254,6 @@ elseif ($order_by == 'shipment_round')
 
             if(isset($cost_data[11][$shipment->shipment_id]))
                 $bd += $cost_data[11][$shipment->shipment_id];
-            if (isset($road['road_add'][$shipment->shipment_id]))
-                $ps += $road['road_add'][$shipment->shipment_id];
             if(isset($cost_data['kvat'][$shipment->shipment_id]))
                 $ps += $cost_data['kvat'][$shipment->shipment_id];
             

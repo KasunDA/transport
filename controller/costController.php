@@ -64,7 +64,7 @@ Class costController Extends baseController {
 
             $ketthuc = date('t-m-Y');
 
-            $xe = "";
+            $xe = 0;
 
             $vong = (int)date('m',strtotime($batdau));
 
@@ -118,7 +118,7 @@ Class costController Extends baseController {
 
         }
 
-        if($xe != ""){
+        if($xe > 0){
 
             $data['where'] = $data['where'].' AND vehicle = '.$xe;
 
@@ -200,7 +200,7 @@ Class costController Extends baseController {
 
         }
 
-        if($xe != ""){
+        if($xe > 0){
 
             $data['where'] = $data['where'].' AND vehicle = '.$xe;
 
@@ -859,7 +859,7 @@ Class costController Extends baseController {
                             $ca = isset($road_data['police_cost'][$row->shipment_id])?$road_data['police_cost'][$row->shipment_id]:null;
                             $cd = isset($road_data['bridge_cost'][$row->shipment_id])?$road_data['bridge_cost'][$row->shipment_id]:null;
                             $vv = isset($road_data['tire_cost'][$row->shipment_id])?$road_data['tire_cost'][$row->shipment_id]:null;
-                            $dd = isset($road_add['road_add'][$row->shipment_id])?$road_data['road_add'][$row->shipment_id]:null;
+                            $dd = $row->shipment_road_add;
                             $hh = isset($cost_data[9][$row->shipment_id])?$cost_data[9][$row->shipment_id]:null;
 
                             if(isset($cost_data[4][$row->shipment_id]))
@@ -876,7 +876,6 @@ Class costController Extends baseController {
                                 $bd += $cost_data[11][$row->shipment_id];
                             if(isset($cost_data[12][$row->shipment_id]))
                                 $dd += $cost_data[12][$row->shipment_id];
-                            $dd += $row->shipment_road_add;
 
 
 

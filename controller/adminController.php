@@ -37,6 +37,10 @@ Class adminController Extends baseController {
 
         $shipments = $shipment_model->getAllShipment($data,$join);
 
+        $warehouse_model = $this->model->get('warehouseModel');
+        $road_model = $this->model->get('roadModel');
+        $shipment_cost_model = $this->model->get('shipmentcostModel');
+
         $doanhthu = 0;
         $sanluong = 0;
         $khachhang = 0;
@@ -44,6 +48,7 @@ Class adminController Extends baseController {
         $sl = array();
         $old_cus = array();
         $vehicle_data = array();
+        $cp = array();
 
         foreach ($shipments as $shipment) {
         	if (!in_array($shipment->customer,$old_cus)) {
@@ -60,6 +65,78 @@ Class adminController Extends baseController {
 
         	$sl['ngay'][(int)date('d',$shipment->shipment_date)] = isset($sl['ngay'][(int)date('d',$shipment->shipment_date)])?$sl['ngay'][(int)date('d',$shipment->shipment_date)]+$shipment->shipment_revenue+$shipment->shipment_charge_excess:$shipment->shipment_revenue+$shipment->shipment_charge_excess;
             $sl['thang'][(int)date('m',$shipment->shipment_date)] = isset($sl['thang'][(int)date('m',$shipment->shipment_date)])?$sl['thang'][(int)date('m',$shipment->shipment_date)]+$shipment->shipment_revenue+$shipment->shipment_charge_excess:$shipment->shipment_revenue+$shipment->shipment_charge_excess;
+
+            $cp['ngay'][(int)date('d',$shipment->shipment_date)] = isset($cp['ngay'][(int)date('d',$shipment->shipment_date)])?$cp['ngay'][(int)date('d',$shipment->shipment_date)]+$shipment->shipment_salary+$shipment->shipment_road_add+($shipment->shipment_oil*$shipment->oil_cost):$shipment->shipment_salary+$shipment->shipment_road_add+($shipment->shipment_oil*$shipment->oil_cost);
+            $cp['thang'][(int)date('m',$shipment->shipment_date)] = isset($cp['thang'][(int)date('m',$shipment->shipment_date)])?$cp['thang'][(int)date('m',$shipment->shipment_date)]+$shipment->shipment_salary+$shipment->shipment_road_add+($shipment->shipment_oil*$shipment->oil_cost):$shipment->shipment_salary+$shipment->shipment_road_add+($shipment->shipment_oil*$shipment->oil_cost);
+
+            $shipment_costs = $shipment_cost_model->getAllShipment(array('where'=>'shipment='.$shipment->shipment_id));
+            foreach ($shipment_costs as $cost) {
+                $cp['ngay'][(int)date('d',$shipment->shipment_date)] = isset($cp['ngay'][(int)date('d',$shipment->shipment_date)])?$cp['ngay'][(int)date('d',$shipment->shipment_date)]+$cost->cost:$cost->cost;
+                $cp['thang'][(int)date('m',$shipment->shipment_date)] = isset($cp['thang'][(int)date('m',$shipment->shipment_date)])?$cp['thang'][(int)date('m',$shipment->shipment_date)]+$cost->cost:$cost->cost;
+            }
+
+            $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $shipment->route).'")'));
+            foreach ($roads as $road) {
+            	$cp['ngay'][(int)date('d',$shipment->shipment_date)] = isset($cp['ngay'][(int)date('d',$shipment->shipment_date)])?$cp['ngay'][(int)date('d',$shipment->shipment_date)]+$road->bridge_cost+$road->police_cost+$road->tire_cost+$road->road_add:$road->bridge_cost+$road->police_cost+$road->tire_cost+$road->road_add;
+                $cp['thang'][(int)date('m',$shipment->shipment_date)] = isset($cp['thang'][(int)date('m',$shipment->shipment_date)])?$cp['thang'][(int)date('m',$shipment->shipment_date)]+$road->bridge_cost+$road->police_cost+$road->tire_cost+$road->road_add:$road->bridge_cost+$road->police_cost+$road->tire_cost+$road->road_add;
+            }
+
+            $boiduong_cont = 0;
+			$boiduong_tan = 0;
+            $warehouses = $warehouse_model->getAllWarehouse(array('where'=>'(warehouse_code = '.$shipment->shipment_from.' OR warehouse_code = '.$shipment->shipment_to.') AND start_time <= '.$shipment->shipment_date.' AND end_time >= '.$shipment->shipment_date));
+            foreach ($warehouses as $warehouse) {
+            	if ($shipment->shipment_ton > 0) {
+	            	$tan = explode(".",$shipment->shipment_ton);
+
+	                if (isset($tan[1]) && substr($tan[1], 0, 1) > 5 ) {
+
+	                    $trongluong = $tan[0] + 1;
+
+	                }
+
+	                elseif (isset($tan[1]) && substr($tan[1], 0, 1) < 5 ) {
+
+	                    $trongluong = $tan[0];
+
+	                }
+
+	                else{
+
+	                    $trongluong = $tan[0]+('0.'.(isset($tan[1])?substr($tan[1], 0, 1):0));
+
+	                }
+
+	         
+
+	                if ($warehouse->warehouse_add != 0) {
+
+	                    $boiduong_cont += $warehouse->warehouse_add;
+
+	                }
+
+	                if ($warehouse->warehouse_ton != 0 && $chek_rong==0){
+
+	                    $boiduong_tan += $trongluong * $warehouse->warehouse_ton;
+
+	                }
+
+	                $warehouse_data['warehouse_gate'][$warehouse->warehouse_code] = $warehouse->warehouse_gate;
+
+	                $cp['ngay'][(int)date('d',$shipment->shipment_date)] = isset($cp['ngay'][(int)date('d',$shipment->shipment_date)])?$cp['ngay'][(int)date('d',$shipment->shipment_date)]+$warehouse->warehouse_weight+$warehouse->warehouse_clean:$warehouse->warehouse_weight+$warehouse->warehouse_clean;
+	                $cp['thang'][(int)date('m',$shipment->shipment_date)] = isset($cp['thang'][(int)date('m',$shipment->shipment_date)])?$cp['thang'][(int)date('m',$shipment->shipment_date)]+$warehouse->warehouse_weight+$warehouse->warehouse_clean:$warehouse->warehouse_weight+$warehouse->warehouse_clean;
+	            }
+            }
+
+            $kho['warehouse_gate'][$shipment->shipment_to] = isset($warehouse_data['warehouse_gate'][$shipment->shipment_to])?$warehouse_data['warehouse_gate'][$shipment->shipment_to]:0;
+			$kho['warehouse_gate'][$shipment->shipment_from] = isset($warehouse_data['warehouse_gate'][$shipment->shipment_from])?$warehouse_data['warehouse_gate'][$shipment->shipment_from]:0;
+
+			if ($kho['warehouse_gate'][$shipment->shipment_to] > 0 ) {
+                $kho['warehouse_gate'][$shipment->shipment_to] = $kho['warehouse_gate'][$shipment->shipment_to];
+                $kho['warehouse_gate'][$shipment->shipment_from] = 0;
+            }
+
+            $cp['ngay'][(int)date('d',$shipment->shipment_date)] = isset($cp['ngay'][(int)date('d',$shipment->shipment_date)])?$cp['ngay'][(int)date('d',$shipment->shipment_date)]+$boiduong_cont+$boiduong_tan+$kho['warehouse_gate'][$shipment->shipment_from]+$kho['warehouse_gate'][$shipment->shipment_to]:$boiduong_cont+$boiduong_tan+$kho['warehouse_gate'][$shipment->shipment_from]+$kho['warehouse_gate'][$shipment->shipment_to];
+            $cp['thang'][(int)date('m',$shipment->shipment_date)] = isset($cp['thang'][(int)date('m',$shipment->shipment_date)])?$cp['thang'][(int)date('m',$shipment->shipment_date)]+$boiduong_cont+$boiduong_tan+$kho['warehouse_gate'][$shipment->shipment_from]+$kho['warehouse_gate'][$shipment->shipment_to]:$boiduong_cont+$boiduong_tan+$kho['warehouse_gate'][$shipment->shipment_from]+$kho['warehouse_gate'][$shipment->shipment_to];
         }
 
         $start = date('d',strtotime($batdau));
@@ -69,29 +146,75 @@ Class adminController Extends baseController {
         $end_month = date('m',strtotime($ketthuc));
         $end_year = date('Y',strtotime($ketthuc));
         $graph = array();
+        $bar_chart_label = array();
+        $bar_chart_dt = array();
+        $bar_chart_cp = array();
         if ($start_month == $end_month && $start_year == $end_year) {
             for ($i=$start; $i <= $end; $i++) { 
                 $graph[]['y'] = $start_year.'-'.$start_month.'-'.$i;
                 $graph[]['item1'] = isset($sl['ngay'][$i])?$sl['ngay'][$i]:0;
+
+                $bar_chart_label[] = $i.'-'.$start_month.'-'.$start_year;
+                $bar_chart_cp[] = isset($cp['ngay'][$i])?$cp['ngay'][$i]:0;
+                $bar_chart_dt[] = isset($sl['ngay'][$i])?$sl['ngay'][$i]:0;
             }
         }
         elseif ($start_month != $end_month && $start_year == $end_year) {
             for ($i=$start_month; $i <= $end_month; $i++) { 
                 $graph[]['y'] = $start_year.'-'.$i;
                 $graph[]['item1'] = isset($sl['thang'][$i])?$sl['thang'][$i]:0;
+
+                $bar_chart_label[] = $start_year.'-'.$i;
+                $bar_chart_cp[] = isset($cp['thang'][$i])?$cp['thang'][$i]:0;
+                $bar_chart_dt[] = isset($sl['thang'][$i])?$sl['thang'][$i]:0;
             }
         }
         
         $graph = str_replace('"},{"i','","i',json_encode($graph));
+        $bar_chart_label = json_encode($bar_chart_label);
+        $bar_chart_cp = json_encode($bar_chart_cp);
+        $bar_chart_dt = json_encode($bar_chart_dt);
 
         $this->view->data['doanhthu'] = $doanhthu;
         $this->view->data['sanluong'] = $sanluong;
         $this->view->data['khachhang'] = $khachhang;
         $this->view->data['donhang'] = $donhang;
         $this->view->data['graph'] = $graph;
+        $this->view->data['bar_chart_label'] = $bar_chart_label;
+        $this->view->data['bar_chart_cp'] = $bar_chart_cp;
+        $this->view->data['bar_chart_dt'] = $bar_chart_dt;
         $this->view->data['vehicle_data'] = $vehicle_data;
 
-           $this->view->show('admin/index');
+        $bank_model = $this->model->get('bankModel');
+        $banks = $bank_model->getAllBank();
+        
+        $this->view->data['banks'] = $banks;
+
+        $bank_balance_model = $this->model->get('bankbalanceModel');
+
+        $data_bank = array();
+
+        $balances = $bank_balance_model->getAllBank(array('where'=>'bank_balance_date < '.strtotime($batdau)));
+
+        foreach ($balances as $ba) {
+            $data_bank[$ba->bank]['dauki'] = isset($data_bank[$ba->bank]['dauki'])?$data_bank[$ba->bank]['dauki']+$ba->bank_balance_money:$ba->bank_balance_money;
+        }
+
+        $balances = $bank_balance_model->getAllBank(array('where'=>'bank_balance_date >= '.strtotime($batdau).' AND bank_balance_date <= '.strtotime($ketthuc)));
+
+        
+        foreach ($balances as $balance) {
+            if ($balance->bank_balance_money > 0) {
+                $data_bank[$balance->bank]['receipt'] = isset($data_bank[$balance->bank]['receipt'])?$data_bank[$balance->bank]['receipt']+$balance->bank_balance_money:$balance->bank_balance_money;
+            }
+            else {
+                $data_bank[$balance->bank]['payment'] = isset($data_bank[$balance->bank]['payment'])?$data_bank[$balance->bank]['payment']+$balance->bank_balance_money:$balance->bank_balance_money;
+            }
+        }
+
+        $this->view->data['data_bank'] = $data_bank;
+
+        $this->view->show('admin/index');
     }
 
    public function checklockuser(){

@@ -78,6 +78,7 @@
     </div>
     <!-- /.row -->
     <div class="row">
+      <div class="col-md-8">
         <section class="col-lg-12 connectedSortable">
 
           <!-- solid sales graph -->
@@ -88,10 +89,8 @@
               <h3 class="box-title">Biểu đồ doanh thu</h3>
 
               <div class="box-tools pull-right">
-                <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
-                </button>
-                <button type="button" class="btn bg-teal btn-sm" data-widget="remove"><i class="fa fa-times"></i>
-                </button>
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
               </div>
             </div>
             <div class="box-body border-radius-none">
@@ -103,6 +102,81 @@
           <!-- /.box -->
 
         </section>
+      </div>
+      <div class="col-md-4">
+        <section class="col-lg-12 connectedSortable">
+
+          <!-- solid sales graph -->
+          <div class="box box-solid">
+            <div class="box-header">
+              <h3 class="box-title">Tài khoản</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+              </div>
+            </div>
+            <div class="box-body border-radius-none">
+              <table class="table_data">
+                <?php 
+                  $tongdauki = 0; $tongthu = 0; $tongchi = 0; $tongcuoiki = 0;
+                  foreach ($banks as $bank) : 
+                    $dauki = isset($data_bank[$bank->bank_id]['dauki'])?$data_bank[$bank->bank_id]['dauki']:null;
+                    $thu = isset($data_bank[$bank->bank_id]['receipt'])?$data_bank[$bank->bank_id]['receipt']:null;
+                    $chi = isset($data_bank[$bank->bank_id]['payment'])?$data_bank[$bank->bank_id]['payment']:null;
+
+                    $tongdauki += $dauki;
+                    $tongthu += $thu;
+                    $tongchi += $chi;
+                  ?>
+                  <tr>
+                    <td class="fix" id="bank_name_<?php echo $bank->bank_id; ?>"><?php echo $bank->bank_name; ?></td>
+                    <td class="fix" ><?php echo $lib->formatMoney($dauki+$thu+$chi); ?></td>
+                  </tr>
+                  <?php endforeach; ?>
+                  <tr>
+                    <td class="fix" >Tổng thu</td>
+                    <td class="fix" ><?php echo $lib->formatMoney($tongthu); ?></td>
+                  </tr>
+                  <tr>
+                    <td class="fix" >Tổng chi</td>
+                    <td class="fix" ><?php echo $lib->formatMoney($tongchi); ?></td>
+                  </tr>
+              </table>
+            </div>
+            <!-- /.box-body -->
+            <!-- /.box-footer -->
+          </div>
+          <!-- /.box -->
+
+        </section>
+      </div>
+        
+    </div>
+    <!-- /.row -->
+    <!-- /.row -->
+    <div class="row">
+      <section class="col-lg-12 connectedSortable">
+        <!-- BAR CHART -->
+        <div class="box box-success">
+          <div class="box-header with-border">
+            <h3 class="box-title">Biểu đồ doanh thu & chi phí</h3>
+
+            <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+              </button>
+              <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+            </div>
+          </div>
+          <div class="box-body">
+            <div class="chart">
+              <canvas id="barChart" style="height:230px"></canvas>
+            </div>
+          </div>
+          <!-- /.box-body -->
+        </div>
+        <!-- /.box -->
+      </section>
     </div>
     <!-- /.row -->
     <div class="row">
@@ -151,6 +225,87 @@
       lineColors: ['#00c0ef'],
       hideHover: 'auto'
     });
+
+    
+    var areaChartData = {
+      labels: <?php echo $bar_chart_label ?>,
+      datasets: [
+        {
+          label: "Doanh thu",
+          fillColor: "rgba(60,141,188,0.9)",
+          strokeColor: "rgba(60,141,188,0.8)",
+          pointColor: "#3b8bba",
+          pointStrokeColor: "rgba(60,141,188,1)",
+          pointHighlightFill: "#fff",
+          pointHighlightStroke: "rgba(60,141,188,1)",
+          data: <?php echo $bar_chart_dt ?>
+        },
+        {
+          label: "Chi phí",
+          fillColor: "rgba(210, 214, 222, 1)",
+          strokeColor: "rgba(210, 214, 222, 1)",
+          pointColor: "rgba(210, 214, 222, 1)",
+          pointStrokeColor: "#c1c7d1",
+          pointHighlightFill: "#fff",
+          pointHighlightStroke: "rgba(220,220,220,1)",
+          data: <?php echo $bar_chart_cp ?>
+        }
+        
+      ]
+    };
+
+    
+    //-------------
+    //- BAR CHART -
+    //-------------
+    var barChartCanvas = $("#barChart").get(0).getContext("2d");
+    var barChart = new Chart(barChartCanvas);
+    var barChartData = areaChartData;
+    barChartData.datasets[1].fillColor = "#00a65a";
+    barChartData.datasets[1].strokeColor = "#00a65a";
+    barChartData.datasets[1].pointColor = "#00a65a";
+    var barChartOptions = {
+      //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+      scaleBeginAtZero: true,
+      //Boolean - Whether grid lines are shown across the chart
+      scaleShowGridLines: true,
+      //String - Colour of the grid lines
+      scaleGridLineColor: "rgba(0,0,0,.05)",
+      //Number - Width of the grid lines
+      scaleGridLineWidth: 1,
+      //Boolean - Whether to show horizontal lines (except X axis)
+      scaleShowHorizontalLines: true,
+      //Boolean - Whether to show vertical lines (except Y axis)
+      scaleShowVerticalLines: true,
+      //Boolean - If there is a stroke on each bar
+      barShowStroke: true,
+      //Number - Pixel width of the bar stroke
+      barStrokeWidth: 2,
+      //Number - Spacing between each of the X value sets
+      barValueSpacing: 5,
+      //Number - Spacing between data sets within X values
+      barDatasetSpacing: 1,
+      //String - A legend template
+      legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].fillColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>",
+      //Boolean - whether to make the chart responsive
+      responsive: true,
+      maintainAspectRatio: true,
+      scaleLabel:
+        function(label){return  label.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");},
+      scales: {
+          yAxes: [{
+              ticks: {
+                  // Create scientific notation labels
+                  callback: function(value, index, values) {
+                      return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                  }
+              }
+          }]
+      }
+    };
+
+    barChartOptions.datasetFill = false;
+    barChart.Bar(barChartData, barChartOptions);
 
   });
 
