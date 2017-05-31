@@ -26,7 +26,7 @@ Class paymentvoucherController Extends baseController {
 
 
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->paymentvoucher) || json_decode($_SESSION['user_permission_action'])->paymentvoucher != "paymentvoucher") {
 
             $this->view->data['disable_control'] = 1;
 
@@ -160,6 +160,11 @@ Class paymentvoucherController Extends baseController {
 
 
         $trangthai = date('Y',strtotime($batdau));
+
+
+        $costlist_model = $this->model->get('costlistModel');
+
+        $this->view->data['cost_lists'] = $costlist_model->getAllCost(array('where'=>'cost_list_type = 1'));
 
 
         $bank_model = $this->model->get('bankModel');
@@ -1158,7 +1163,7 @@ Class paymentvoucherController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->paymentvoucher) || json_decode($_SESSION['user_permission_action'])->paymentvoucher != "paymentvoucher") {
 
             return $this->view->redirect('user/login');
 
@@ -1416,7 +1421,7 @@ Class paymentvoucherController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->paymentvoucher) || json_decode($_SESSION['user_permission_action'])->paymentvoucher != "paymentvoucher") {
 
             return $this->view->redirect('user/login');
 
@@ -1447,6 +1452,8 @@ Class paymentvoucherController Extends baseController {
                         'payment_voucher_attach' => trim($_POST['payment_voucher_attach']),
 
                         'bank_out' => trim($_POST['bank_out']),
+
+                        'cost_list' => trim($_POST['cost_list']),
 
                         'payment_voucher_type' => 2,
 
@@ -1597,7 +1604,7 @@ Class paymentvoucherController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->paymentvoucher) || json_decode($_SESSION['user_permission_action'])->paymentvoucher != "paymentvoucher") {
 
             return $this->view->redirect('user/login');
 

@@ -5,7 +5,7 @@ Class usedController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->used) || json_decode($_SESSION['user_permission_action'])->used != "used") {
             $this->view->data['disable_control'] = 1;
         }
         $this->view->data['lib'] = $this->lib;
@@ -90,6 +90,9 @@ Class usedController Extends baseController {
             $stock_ims = $spare_vehicle_model->getAllStock($data_im);
             foreach ($stock_ims as $im) {
                 $data_vehicle[$spare->spare_part_id]['import'] = $im->start_time;
+                
+                $data_vehicle[$spare->spare_part_id]['vehicle'] = $im->vehicle;
+                $data_vehicle[$spare->spare_part_id]['romooc'] = $im->romooc;
 
                 $end_time = 0;
                 $data_ex = array(
@@ -111,9 +114,13 @@ Class usedController Extends baseController {
                     }
                     $shipments = $shipment_model->getAllShipment($data_ship);
                     foreach ($shipments as $ship) {
+                        $check_sub = 1;
+                        if ($ship->shipment_sub==1) {
+                           $check_sub = 0;
+                        }
                         $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
                         foreach ($roads as $road) {
-                            $data_vehicle[$spare->spare_part_id]['km'] = isset($data_vehicle[$spare->spare_part_id]['km'])?$data_vehicle[$spare->spare_part_id]['km']+$road->road_km:$road->road_km;
+                            $data_vehicle[$spare->spare_part_id]['km'] = isset($data_vehicle[$spare->spare_part_id]['km'])?$data_vehicle[$spare->spare_part_id]['km']+$road->road_km*$check_sub:$road->road_km*$check_sub;
                         }
                     }
                 }
@@ -126,9 +133,13 @@ Class usedController Extends baseController {
                     }
                     $shipments = $shipment_model->getAllShipment($data_ship);
                     foreach ($shipments as $ship) {
+                        $check_sub = 1;
+                        if ($ship->shipment_sub==1) {
+                           $check_sub = 0;
+                        }
                         $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
                         foreach ($roads as $road) {
-                            $data_vehicle[$spare->spare_part_id]['km'] = isset($data_vehicle[$spare->spare_part_id]['km'])?$data_vehicle[$spare->spare_part_id]['km']+$road->road_km:$road->road_km;
+                            $data_vehicle[$spare->spare_part_id]['km'] = isset($data_vehicle[$spare->spare_part_id]['km'])?$data_vehicle[$spare->spare_part_id]['km']+$road->road_km*$check_sub:$road->road_km*$check_sub;
                         }
                     }
                 }

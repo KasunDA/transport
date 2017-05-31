@@ -328,6 +328,8 @@ elseif ($order_by == 'bank_name')
 
             <td class="fix" style="display:none" data="<?php echo $payment_voucher->toll; ?>" id="toll_<?php echo $payment_voucher->payment_voucher_id; ?>"><?php echo $payment_voucher->toll>0?$data_toll[$payment_voucher->toll]['name']:null; ?></td>
 
+            <td class="fix" style="display:none" id="cost_list_<?php echo $payment_voucher->payment_voucher_id; ?>"><?php echo $payment_voucher->cost_list; ?></td>
+
             <?php if(!isset($disable_control)){ ?>
 
             <td class="pull-right">
@@ -741,6 +743,21 @@ $this->helper('slidePaginator');
                               <input type="text" id="payment_voucher_comment2"  name="payment_voucher_comment2" tabindex="3" required="required">
 
                             </div>
+                            <div class="form-group">
+
+                              <label for="payment_voucher_attach2">Chi phí</label>
+
+                              <select style="width:150px" id="cost_list2"  name="cost_list2" tabindex="7" >
+
+                                  <?php foreach ($cost_lists as $cost) { ?>
+
+                                      <option value="<?php echo $cost->cost_list_id ?>"><?php echo $cost->cost_list_name ?></option>
+
+                                  <?php } ?>
+
+                              </select>
+
+                            </div>
                             
                             
 
@@ -786,9 +803,9 @@ $this->helper('slidePaginator');
 
                             <input type="hidden" readonly id="yes2" name="yes2" required="required" >
 
-                            <button type="submit" class="btn btn-primary" tabindex="7">Hoàn thành</button>
+                            <button type="submit" class="btn btn-primary" tabindex="8">Hoàn thành</button>
 
-                            <button type="reset" class="btn" tabindex="8">Nhập lại</button>
+                            <button type="reset" class="btn" tabindex="9">Nhập lại</button>
 
                           </div>
 
@@ -888,6 +905,8 @@ $('html').click(function(e) {
 
             var payment_voucher_attach = $(this).find("#payment_voucher_attach_"+$(this).attr('id')).text();
 
+            var cost_list = $(this).find("#cost_list_"+$(this).attr('id')).text();
+
 
             if (check_sub == 2) {
 
@@ -918,6 +937,8 @@ $('html').click(function(e) {
               $('#payment_voucher_comment2').val(payment_voucher_comment);
 
               $('#payment_voucher_attach2').val(payment_voucher_attach);
+
+              $('#cost_list2 option[value='+cost_list+']').attr('selected','selected');
 
               $('#yes2').val($(this).attr('id'));
 
@@ -1586,6 +1607,8 @@ $(document).ready(function(){
 
                     var payment_voucher_attach = $('#payment_voucher_attach2').attr('value');
 
+                    var cost_list = $('#cost_list2').attr('value');
+
                     
                     
 
@@ -1616,6 +1639,8 @@ $(document).ready(function(){
                             payment_voucher_comment: payment_voucher_comment,
 
                             payment_voucher_attach: payment_voucher_attach,
+
+                            cost_list: cost_list,
 
                             yes: yes,
 

@@ -14,7 +14,9 @@ session_start();
  /*** include the init.php file ***/
  include 'includes/init.php';
 
-if (!isset($_SESSION['user_logined'])) {
+
+
+ if (!isset($_SESSION['user_logined'])) {
     if (isset($_COOKIE['remember']) && isset($_COOKIE['ui']) && isset($_COOKIE['up']) && $_COOKIE['remember'] == 1) {
         $model = baseModel::getInstance();
         $user = $model->get('user2Model');
@@ -23,6 +25,8 @@ if (!isset($_SESSION['user_logined'])) {
             $_SESSION['user_logined'] = $row->username;
             $_SESSION['userid_logined'] = $row->user_id;
             $_SESSION['role_logined'] = $row->role;
+            $_SESSION['user_permission'] = $row->permission;
+            $_SESSION['user_permission_action'] = $row->permission_action;
 
             $ipaddress = '';
             if (getenv('HTTP_CLIENT_IP'))
@@ -68,5 +72,16 @@ if (!isset($_SESSION['user_logined'])) {
  $registry->router->setPath (__SITE_PATH . '/controller'); 
  $registry->router->loader();
 
- 
+if (isset($_SESSION['userid_logined'])) {
+    if ($registry->router->controller != "" && $registry->router->controller != "index" && $registry->router->controller != "admin" && $registry->router->controller != "support") {
+        
+        if ($_SESSION['user_permission'] == NULL || $_SESSION['user_permission'] == "" || !in_array($registry->router->controller, json_decode($_SESSION['user_permission']))) {
+            return header('Location:'.BASE_URL.'/admin');
+        }
+    }
+    
+}
+
+
+
 ?>

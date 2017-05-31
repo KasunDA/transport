@@ -169,9 +169,6 @@ elseif ($order_by == 'status')
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','police_cost','<?php echo $url_order ?>')">Công an <?php if ($order_by == 'police_cost'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','tire_cost','<?php echo $url_order ?>')">Vá vỏ-Rửa xe<?php if ($order_by == 'tire_cost'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','charge_add','<?php echo $url_order ?>')">Cước vượt tải<?php if ($order_by == 'charge_add'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
@@ -183,9 +180,7 @@ elseif ($order_by == 'status')
         <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','end_time','<?php echo $url_order ?>')">Hết hiệu lực<?php if ($order_by == 'end_time'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','status','<?php echo $url_order ?>')">Trạng thái<?php if ($order_by == 'status'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
+        
         
         <?php if(!isset($disable_control)){ ?>
            
@@ -200,7 +195,7 @@ elseif ($order_by == 'status')
       <td colspan="2" class="fix"><?php echo $i++; ?></td>
       <td class="fix" data="<?php echo $r->road_from; ?>" ><a target="_blank" href="<?php echo $this->url('place/view/'.$r->road_from) ?>" ><?php echo $r->road_from==$place['place_id'][$r->road_from]?$place['place_name'][$r->road_from]:null ?></a></td>
       <td class="fix" data="<?php echo $r->road_to; ?>" ><a target="_blank" href="<?php echo $this->url('place/view/'.$r->road_to) ?>" ><?php echo $r->road_to==$place['place_id'][$r->road_to]?$place['place_name'][$r->road_to]:null ?></a></td>
-      <td colspan="15" class="fix"></td>
+      <td colspan="13" class="fix"></td>
       <?php if(!isset($disable_control)){ ?>
       <td><div class="add-box"><a data-from-name="<?php echo $r->road_from==$place['place_id'][$r->road_from]?$place['place_name'][$r->road_from]:null ?>" data-from="<?php echo $r->road_from; ?>" data-to="<?php echo $r->road_to; ?>" data-to-name="<?php echo $r->road_to==$place['place_id'][$r->road_to]?$place['place_name'][$r->road_to]:null ?>" title="Thêm mới" class="add_button add_new" ><i class="fa fa-plus"></i></a></div></td>
       <?php } ?>
@@ -227,12 +222,12 @@ elseif ($order_by == 'status')
             <td class="fix" id="bridge_cost_<?php echo $road->road_id; ?>"><?php echo $lib->formatMoney($road->bridge_cost); ?></td>
             <td class="fix" id="road_add_<?php echo $road->road_id; ?>"><?php echo $lib->formatMoney($road->road_add); ?></td>
             <td class="fix" id="police_cost_<?php echo $road->road_id; ?>"><?php echo $lib->formatMoney($road->police_cost); ?></td>
-            <td class="fix" id="tire_cost_<?php echo $road->road_id; ?>"><?php echo $lib->formatMoney($road->tire_cost); ?></td>
             <td class="fix" id="charge_add_<?php echo $road->road_id; ?>"><?php echo $lib->formatMoney($road->charge_add); ?></td>
             <td class="fix" id="road_time_<?php echo $road->road_id; ?>"><?php echo $road->road_time; ?></td>
             <td class="fix" id="start_time_<?php echo $road->road_id; ?>"><?php echo $lib->hien_thi_ngay_thang($road->start_time); ?></td>
             <td class="fix" id="end_time_<?php echo $road->road_id; ?>"><?php echo $lib->hien_thi_ngay_thang($road->end_time); ?></td>
-            <td class="fix" data="<?php echo $road->status; ?>" id="status_<?php echo $road->road_id; ?>"><?php echo $road->status==1?'Sử dụng':'Không sử dụng'; ?></td>
+            <td class="fix" style="display:none" id="tire_cost_<?php echo $road->road_id; ?>"><?php echo $lib->formatMoney($road->tire_cost); ?></td>
+            <td class="fix" style="display:none" data="<?php echo $road->status; ?>" id="status_<?php echo $road->road_id; ?>"><?php echo $road->status==1?'Sử dụng':'Không sử dụng'; ?></td>
             <?php if(!isset($disable_control)){ ?>
             <td class="pull-right">
                 <button class="btn btn-sm btn-flat btn-primary"><i class="fa fa-edit"></i> Sửa</button>
@@ -1948,7 +1943,7 @@ $('.distance_way').change(function() {
 $( ".add-field" ).dialog({
     autoOpen: false,
     modal: true,
-    width: "auto",
+    width: "85%",
     title: "Bảng định mức tuyến đường",
     hide: 'fold',
     show: 'blind'

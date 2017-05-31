@@ -12,7 +12,7 @@ Class vehicleworkController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->vehiclework) || json_decode($_SESSION['user_permission_action'])->vehiclework != "vehiclework") {
             $this->view->data['disable_control'] = 1;
         }
 
@@ -54,7 +54,7 @@ Class vehicleworkController Extends baseController {
 
         $vehicle_model = $this->model->get('vehicleModel');
 
-        $vehicles = $vehicle_model->getAllVehicle();
+        $vehicles = $vehicle_model->getAllVehicle(array('order_by'=>'vehicle_number','order'=>'ASC'));
 
         $this->view->data['vehicles'] = $vehicles;
 
@@ -151,7 +151,7 @@ Class vehicleworkController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->vehiclework) || json_decode($_SESSION['user_permission_action'])->vehiclework != "vehiclework") {
 
             return $this->view->redirect('user/login');
 
@@ -239,7 +239,7 @@ Class vehicleworkController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->vehiclework) || json_decode($_SESSION['user_permission_action'])->vehiclework != "vehiclework") {
 
             return $this->view->redirect('user/login');
 

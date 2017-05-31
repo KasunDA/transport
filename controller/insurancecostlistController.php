@@ -26,7 +26,7 @@ Class insurancecostlistController Extends baseController {
 
 
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->insurancecostlist) || json_decode($_SESSION['user_permission_action'])->insurancecostlist != "insurancecostlist") {
 
             $this->view->data['disable_control'] = 1;
 
@@ -173,7 +173,7 @@ Class insurancecostlistController Extends baseController {
 
 
 
-        $vehicles = $vehicle_model->getAllVehicle();
+        $vehicles = $vehicle_model->getAllVehicle(array('order_by'=>'vehicle_number','order'=>'ASC'));
 
 
 
@@ -191,7 +191,7 @@ Class insurancecostlistController Extends baseController {
 
 
 
-        $romoocs = $romooc_model->getAllVehicle();
+        $romoocs = $romooc_model->getAllVehicle(array('order_by'=>'romooc_number','order'=>'ASC'));
 
 
 

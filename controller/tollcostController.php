@@ -5,7 +5,7 @@ Class tollcostController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->tollcost) || json_decode($_SESSION['user_permission_action'])->tollcost != "tollcost") {
             $this->view->data['disable_control'] = 1;
         }
         $this->view->data['lib'] = $this->lib;
@@ -66,7 +66,7 @@ Class tollcostController Extends baseController {
 
 
         $vehicle_model = $this->model->get('vehicleModel');
-        $vehicles = $vehicle_model->getAllVehicle();
+        $vehicles = $vehicle_model->getAllVehicle(array('order_by'=>'vehicle_number','order'=>'ASC'));
 
         $this->view->data['vehicles'] = $vehicles;
 
@@ -289,7 +289,7 @@ Class tollcostController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->tollcost) || json_decode($_SESSION['user_permission_action'])->tollcost != "tollcost") {
             return $this->view->redirect('user/login');
         }
         if (isset($_POST['yes'])) {
@@ -473,7 +473,7 @@ Class tollcostController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->tollcost) || json_decode($_SESSION['user_permission_action'])->tollcost != "tollcost") {
             return $this->view->redirect('user/login');
         }
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {

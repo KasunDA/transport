@@ -5,7 +5,7 @@ Class steersmanController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 7) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->steersman) || json_decode($_SESSION['user_permission_action'])->steersman != "steersman") {
             $this->view->data['disable_control'] = 1;
         }
         $this->view->data['lib'] = $this->lib;
@@ -86,7 +86,7 @@ Class steersmanController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 7) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->steersman) || json_decode($_SESSION['user_permission_action'])->steersman != "steersman") {
             return $this->view->redirect('user/login');
         }
         if (isset($_POST['yes'])) {
@@ -166,7 +166,7 @@ Class steersmanController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 7) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->steersman) || json_decode($_SESSION['user_permission_action'])->steersman != "steersman") {
             return $this->view->redirect('user/login');
         }
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -221,7 +221,7 @@ Class steersmanController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 7) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->steersman) || json_decode($_SESSION['user_permission_action'])->steersman != "steersman") {
             return $this->view->redirect('user/login');
         }
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_FILES['import']['name'] != null) {

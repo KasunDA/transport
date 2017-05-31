@@ -143,6 +143,10 @@ Class salaryController Extends baseController {
 
 
             foreach ($shipments as $shipment) {
+                $check_sub = 1;
+                if ($shipment->shipment_sub==1) {
+                   $check_sub = 0;
+                }
 
                 $luongchuyen[$driver->steersman_id] = isset($luongchuyen[$driver->steersman_id])?($luongchuyen[$driver->steersman_id]+$shipment->shipment_salary) : (0+$shipment->shipment_salary);
                 $dauthuclanh[$driver->steersman_id] = isset($dauthuclanh[$driver->steersman_id])?($dauthuclanh[$driver->steersman_id]+$shipment->shipment_oil) : (0+$shipment->shipment_oil);
@@ -153,10 +157,10 @@ Class salaryController Extends baseController {
 
                 foreach ($roads as $road) {
                     if ($road->road_oil_ton > 0) {
-                        $daudinhmuc[$driver->steersman_id] = isset($daudinhmuc[$driver->steersman_id])?($daudinhmuc[$driver->steersman_id]+$road->road_oil_ton) : (0+$road->road_oil_ton);
+                        $daudinhmuc[$driver->steersman_id] = isset($daudinhmuc[$driver->steersman_id])?($daudinhmuc[$driver->steersman_id]+$road->road_oil_ton*$check_sub) : (0+$road->road_oil_ton*$check_sub);
                     }
                     else{
-                        $daudinhmuc[$driver->steersman_id] = isset($daudinhmuc[$driver->steersman_id])?($daudinhmuc[$driver->steersman_id]+$road->road_oil) : (0+$road->road_oil);
+                        $daudinhmuc[$driver->steersman_id] = isset($daudinhmuc[$driver->steersman_id])?($daudinhmuc[$driver->steersman_id]+$road->road_oil*$check_sub) : (0+$road->road_oil*$check_sub);
                     }
                     
                 }
@@ -320,11 +324,11 @@ Class salaryController Extends baseController {
 
            $check_sub = 1;
 
-           /*if ($ship->shipment_sub==1) {
+           if ($ship->shipment_sub==1) {
 
                $check_sub = 0;
 
-           }*/
+           }
 
 
 
@@ -342,12 +346,12 @@ Class salaryController Extends baseController {
                 $road_data['tire_cost'][$ship->shipment_id] = isset($road_data['tire_cost'][$ship->shipment_id])?$road_data['tire_cost'][$ship->shipment_id]+($road->tire_cost)*$check_sub:($road->tire_cost)*$check_sub;
 
                 if($road->road_oil_ton > 0){
-                    $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+($road->road_oil_ton*round($ship->oil_cost*1.1))*$check_sub:($road->road_oil_ton*round($ship->oil_cost*1.1))*$check_sub;
+                    $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+($road->road_oil_ton*round($ship->oil_cost))*$check_sub:($road->road_oil_ton*round($ship->oil_cost))*$check_sub;
 
                     $road_data['road_oil'][$ship->shipment_id] = isset($road_data['road_oil'][$ship->shipment_id])?$road_data['road_oil'][$ship->shipment_id]+($road->road_oil_ton)*$check_sub:($road->road_oil_ton)*$check_sub;
                 }
                 else{
-                    $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+($road->road_oil*round($ship->oil_cost*1.1))*$check_sub:($road->road_oil*round($ship->oil_cost*1.1))*$check_sub;
+                    $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+($road->road_oil*round($ship->oil_cost))*$check_sub:($road->road_oil*round($ship->oil_cost))*$check_sub;
 
                     $road_data['road_oil'][$ship->shipment_id] = isset($road_data['road_oil'][$ship->shipment_id])?$road_data['road_oil'][$ship->shipment_id]+($road->road_oil)*$check_sub:($road->road_oil)*$check_sub;
                 }
@@ -355,7 +359,7 @@ Class salaryController Extends baseController {
 
                 $road_data['road_time'][$ship->shipment_id] = isset($road_data['road_time'][$ship->shipment_id])?$road_data['road_time'][$ship->shipment_id]+($road->road_time)*$check_sub:($road->road_time)*$check_sub;
 
-                $road_data['road_km'][$ship->shipment_id] = isset($road_data['road_km'][$ship->shipment_id])?$road_data['road_km'][$ship->shipment_id]+$road->road_km:$road->road_km;
+                $road_data['road_km'][$ship->shipment_id] = isset($road_data['road_km'][$ship->shipment_id])?$road_data['road_km'][$ship->shipment_id]+$road->road_km*$check_sub:$road->road_km*$check_sub;
 
 
 

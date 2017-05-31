@@ -143,11 +143,11 @@ elseif ($order_by == 'status')
             <td  class="fix"><?php echo $i++; ?></td>
             <td class="fix" id="marketing_start_<?php echo $marketing->marketing_id; ?>"><?php echo $lib->hien_thi_ngay_thang($marketing->marketing_start); ?></td>
             <td class="fix" id="marketing_end_<?php echo $marketing->marketing_id; ?>"><?php echo $lib->hien_thi_ngay_thang($marketing->marketing_end); ?></td>
-            <td nowrap class="fix" data="<?php echo $marketing->customer; ?>" id="customer_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->customer_name; ?></td>
+            <td class="fix" data="<?php echo $marketing->customer; ?>" id="customer_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->customer_name; ?></td>
             <td  class="fix"  id="customer_type_<?php echo $marketing->marketing_id; ?>"><?php echo $customer_types[$marketing->marketing_id]; ?></td>
 
-            <td nowrap class="fix" data="<?php echo $marketing->marketing_from; ?>" id="marketing_from_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->marketing_from==$place['place_id'][$marketing->marketing_from]?$place['place_name'][$marketing->marketing_from]:null ?></td>
-            <td nowrap class="fix" data="<?php echo $marketing->marketing_to; ?>" id="marketing_to_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->marketing_to==$place['place_id'][$marketing->marketing_to]?$place['place_name'][$marketing->marketing_to]:null ?></td>
+            <td class="fix" data="<?php echo $marketing->marketing_from; ?>" id="marketing_from_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->marketing_from==$place['place_id'][$marketing->marketing_from]?$place['place_name'][$marketing->marketing_from]:null ?></td>
+            <td class="fix" data="<?php echo $marketing->marketing_to; ?>" id="marketing_to_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->marketing_to==$place['place_id'][$marketing->marketing_to]?$place['place_name'][$marketing->marketing_to]:null ?></td>
             <td class="fix" id="marketing_ton_<?php echo $marketing->marketing_id; ?>"><?php echo $marketing->marketing_ton; ?></td>
             <td class="fix" id="marketing_charge_<?php echo $marketing->marketing_id; ?>"><?php echo $lib->formatMoney($marketing->marketing_charge); ?></td>
             <td class="fix" id="marketing_revenue_<?php echo $marketing->marketing_id; ?>"><?php echo $lib->formatMoney($marketing->marketing_ton*$marketing->marketing_charge); ?></td>

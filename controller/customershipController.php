@@ -5,7 +5,7 @@ Class customershipController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 4 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->customership) || json_decode($_SESSION['user_permission_action'])->customership != "customership") {
             $this->view->data['disable_control'] = 1;
         }
         $this->view->data['lib'] = $this->lib;
@@ -47,13 +47,13 @@ Class customershipController Extends baseController {
 
         $vehicle_model = $this->model->get('vehicleModel');
 
-        $vehicles = $vehicle_model->getAllVehicle();
+        $vehicles = $vehicle_model->getAllVehicle(array('order_by'=>'vehicle_number','order'=>'ASC'));
 
         $this->view->data['vehicles'] = $vehicles;
 
         $customer_model = $this->model->get('customerModel');
 
-        $customers = $customer_model->getAllCustomer();
+        $customers = $customer_model->getAllCustomer(array('order_by'=>'customer_name','order'=>'ASC'));
 
         $this->view->data['customer_lists'] = $customers;
 

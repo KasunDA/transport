@@ -5,6 +5,9 @@ Class customerController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
+        if (!isset(json_decode($_SESSION['user_permission_action'])->customer) || json_decode($_SESSION['user_permission_action'])->customer != "customer") {
+            $this->view->data['disable_control'] = 1;
+        }
         
         $this->view->data['lib'] = $this->lib;
         $this->view->data['title'] = 'Quản lý Khách hàng - Đối tác - Người thụ hưởng';
@@ -85,6 +88,9 @@ Class customerController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
+        if (!isset(json_decode($_SESSION['user_permission_action'])->customer) || json_decode($_SESSION['user_permission_action'])->customer != "customer") {
+            $this->view->data['disable_control'] = 1;
+        }
         
         $this->view->data['lib'] = $this->lib;
         $this->view->data['title'] = 'Thêm Khách hàng - Đối tác - Người thụ hưởng';
@@ -94,6 +100,9 @@ Class customerController Extends baseController {
         $this->view->setLayout('admin');
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
+        }
+        if (!isset(json_decode($_SESSION['user_permission_action'])->customer) || json_decode($_SESSION['user_permission_action'])->customer != "customer") {
+            $this->view->data['disable_control'] = 1;
         }
         
         if (!$id) {

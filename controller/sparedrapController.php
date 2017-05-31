@@ -5,7 +5,7 @@ Class sparedrapController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->sparedrap) || json_decode($_SESSION['user_permission_action'])->sparedrap != "sparedrap") {
             $this->view->data['disable_control'] = 1;
         }
         $this->view->data['lib'] = $this->lib;

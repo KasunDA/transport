@@ -12,7 +12,7 @@ Class oilexcessController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 7 && $_SESSION['role_logined'] != 8 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 4) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->oilexcess) || json_decode($_SESSION['user_permission_action'])->oilexcess != "oilexcess") {
 
             return $this->view->redirect('user/login');
 
@@ -82,7 +82,7 @@ Class oilexcessController Extends baseController {
 
         $vehicle_model = $this->model->get('vehicleModel');
 
-        $vehicles = $vehicle_model->getAllVehicle();
+        $vehicles = $vehicle_model->getAllVehicle(array('order_by'=>'vehicle_number','order'=>'ASC'));
 
 
 
@@ -268,7 +268,7 @@ Class oilexcessController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 7 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->oilexcess) || json_decode($_SESSION['user_permission_action'])->oilexcess != "oilexcess") {
 
             return $this->view->redirect('user/login');
 

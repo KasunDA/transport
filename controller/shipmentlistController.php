@@ -26,7 +26,7 @@ Class shipmentlistController Extends baseController {
 
 
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 4) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipmentlist) || json_decode($_SESSION['user_permission_action'])->shipmentlist != "shipmentlist") {
 
             $this->view->data['disable_control'] = 1;
 
@@ -862,7 +862,7 @@ Class shipmentlistController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipmentlist) || json_decode($_SESSION['user_permission_action'])->shipmentlist != "shipmentlist") {
 
             return $this->view->redirect('user/login');
 
@@ -1048,7 +1048,7 @@ Class shipmentlistController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipmentlist) || json_decode($_SESSION['user_permission_action'])->shipmentlist != "shipmentlist") {
 
             return $this->view->redirect('user/login');
 

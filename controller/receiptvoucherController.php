@@ -26,7 +26,7 @@ Class receiptvoucherController Extends baseController {
 
 
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->receiptvoucher) || json_decode($_SESSION['user_permission_action'])->receiptvoucher != "receiptvoucher") {
 
             $this->view->data['disable_control'] = 1;
 
@@ -997,7 +997,7 @@ Class receiptvoucherController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->receiptvoucher) || json_decode($_SESSION['user_permission_action'])->receiptvoucher != "receiptvoucher") {
 
             return $this->view->redirect('user/login');
 
@@ -1253,7 +1253,7 @@ Class receiptvoucherController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->receiptvoucher) || json_decode($_SESSION['user_permission_action'])->receiptvoucher != "receiptvoucher") {
 
             return $this->view->redirect('user/login');
 
@@ -1436,7 +1436,7 @@ Class receiptvoucherController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->receiptvoucher) || json_decode($_SESSION['user_permission_action'])->receiptvoucher != "receiptvoucher") {
 
             return $this->view->redirect('user/login');
 

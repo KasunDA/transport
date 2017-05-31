@@ -5,7 +5,7 @@ Class infoController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->info) || json_decode($_SESSION['user_permission_action'])->info != "info") {
             $this->view->data['disable_control'] = 1;
         }
         $this->view->data['lib'] = $this->lib;
@@ -21,7 +21,7 @@ Class infoController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->info) || json_decode($_SESSION['user_permission_action'])->info != "info") {
             return $this->view->redirect('user/login');
         }
         if (isset($_POST['yes'])) {

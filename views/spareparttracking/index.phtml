@@ -611,10 +611,20 @@ $(document).ready(function() {
 $(document).ready(function() {
     $('#tblExport').DataTable({
         "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tất cả"]],
-        "order": [[ 2, "desc" ], [ 3, "desc" ], [ 4, "desc" ]]
+        "order": [[ 2, "desc" ], [ 3, "desc" ], [ 4, "desc" ]],
+        "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+          var index = iDisplayIndex +1;
+            $('td:eq(0)',nRow).html(index);
+            return nRow
+        }
     });
     $('#tblExport3').DataTable({
-        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tất cả"]]
+        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tất cả"]],
+        "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+          var index = iDisplayIndex +1;
+            $('td:eq(0)',nRow).html(index);
+            return nRow
+        }
     });
 } );
 

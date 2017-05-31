@@ -12,7 +12,7 @@ Class profitController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->profit) || json_decode($_SESSION['user_permission_action'])->profit != "profit") {
             $this->view->data['disable_control'] = 1;
         }
 
@@ -82,7 +82,7 @@ Class profitController Extends baseController {
 
         $vehicle_model = $this->model->get('vehicleModel');
 
-        $vehicles = $vehicle_model->getAllVehicle();
+        $vehicles = $vehicle_model->getAllVehicle(array('order_by'=>'vehicle_number','order'=>'ASC'));
 
 
 
@@ -292,7 +292,7 @@ Class profitController Extends baseController {
 
             foreach ($roads as $road) {
 
-                $road_data['bridge_cost'][$ship->shipment_from.'-'.$ship->shipment_to] = round($road->bridge_cost*1.1);
+                $road_data['bridge_cost'][$ship->shipment_from.'-'.$ship->shipment_to] = $road->bridge_cost;
 
                 $road_data['police_cost'][$ship->shipment_from.'-'.$ship->shipment_to] = $road->police_cost;
 

@@ -5,7 +5,7 @@ Class placeController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 4) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->place) || json_decode($_SESSION['user_permission_action'])->place != "place") {
             $this->view->data['disable_control'] = 1;
         }
         $this->view->data['lib'] = $this->lib;
@@ -87,7 +87,7 @@ Class placeController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 4) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->place) || json_decode($_SESSION['user_permission_action'])->place != "place") {
             return $this->view->redirect('user/login');
         }
         if (isset($_POST['yes'])) {
@@ -166,7 +166,7 @@ Class placeController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 4) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->place) || json_decode($_SESSION['user_permission_action'])->place != "place") {
             return $this->view->redirect('user/login');
         }
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {

@@ -12,7 +12,7 @@ Class shipmenttempController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipmenttemp) || json_decode($_SESSION['user_permission_action'])->shipmenttemp != "shipmenttemp") {
             $this->view->data['disable_control'] = 1;
         }
 
@@ -227,7 +227,7 @@ Class shipmenttempController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipmenttemp) || json_decode($_SESSION['user_permission_action'])->shipmenttemp != "shipmenttemp") {
 
             return $this->view->redirect('user/login');
 
@@ -327,7 +327,7 @@ Class shipmenttempController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipmenttemp) || json_decode($_SESSION['user_permission_action'])->shipmenttemp != "shipmenttemp") {
 
             return $this->view->redirect('user/login');
 

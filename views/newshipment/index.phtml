@@ -58,10 +58,6 @@ elseif ($order_by == 'status')
                             <td><?php echo $lib->hien_thi_ngay_thang($marketing->marketing_start); ?> - <?php echo $lib->hien_thi_ngay_thang($marketing->marketing_end); ?></td>
                         </tr>
                         <tr>
-                            <td><span class="fa fa-dollar fa-1g"></span></td>
-                            <td><?php echo $lib->formatMoney($marketing->marketing_charge); ?> VNĐ</td>
-                        </tr>
-                        <tr>
                             <td><span class="fa fa-truck fa-1g"></span></td>
                             <td><?php echo $marketing->marketing_ton-$marketing->marketing_ton_use." ".$marketing->cont_unit_name; ?></td>
                         </tr>

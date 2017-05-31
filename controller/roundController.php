@@ -12,7 +12,7 @@ Class roundController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->round) || json_decode($_SESSION['user_permission_action'])->round != "round") {
             $this->view->data['disable_control'] = 1;
         }
 
@@ -82,7 +82,7 @@ Class roundController Extends baseController {
 
         $vehicle_model = $this->model->get('vehicleModel');
 
-        $vehicles = $vehicle_model->getAllVehicle();
+        $vehicles = $vehicle_model->getAllVehicle(array('order_by'=>'vehicle_number','order'=>'ASC'));
 
 
 
@@ -303,13 +303,13 @@ Class roundController Extends baseController {
 
             foreach ($roads as $road) {
 
-                $road_data['bridge_cost'][$ship->shipment_from.'-'.$ship->shipment_to] = round($road->bridge_cost*1.1);
+                $road_data['bridge_cost'][$ship->shipment_from.'-'.$ship->shipment_to] = $road->bridge_cost;
 
                 $road_data['police_cost'][$ship->shipment_from.'-'.$ship->shipment_to] = $road->police_cost;
 
                 $road_data['tire_cost'][$ship->shipment_from.'-'.$ship->shipment_to] = $road->tire_cost;
 
-                $road_data['road_oil'][$ship->shipment_from.'-'.$ship->shipment_to] = round($road->road_oil*($ship->oil_cost*1.1));
+                $road_data['road_oil'][$ship->shipment_from.'-'.$ship->shipment_to] = round($road->road_oil*($ship->oil_cost));
 
                 $road_data['road_time'][$ship->shipment_from.'-'.$ship->shipment_to] = $road->road_time;
 
@@ -609,13 +609,13 @@ Class roundController Extends baseController {
 
             foreach ($roads as $road) {
 
-                $road_data['bridge_cost'][$ship->shipment_from.'-'.$ship->shipment_to] = round($road->bridge_cost*1.1);
+                $road_data['bridge_cost'][$ship->shipment_from.'-'.$ship->shipment_to] = $road->bridge_cost;
 
                 $road_data['police_cost'][$ship->shipment_from.'-'.$ship->shipment_to] = $road->police_cost;
 
                 $road_data['tire_cost'][$ship->shipment_from.'-'.$ship->shipment_to] = $road->tire_cost;
 
-                $road_data['road_oil'][$ship->shipment_from.'-'.$ship->shipment_to] = round($road->road_oil*($ship->oil_cost*1.1));
+                $road_data['road_oil'][$ship->shipment_from.'-'.$ship->shipment_to] = round($road->road_oil*($ship->oil_cost));
 
                 $road_data['road_time'][$ship->shipment_from.'-'.$ship->shipment_to] = $road->road_time;
 

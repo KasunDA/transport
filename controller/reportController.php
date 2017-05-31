@@ -12,7 +12,7 @@ Class reportController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 4 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->report) || json_decode($_SESSION['user_permission_action'])->report != "report") {
 
             return $this->view->redirect('user/login');
 
@@ -56,6 +56,8 @@ Class reportController Extends baseController {
 
         $v_data = array(
             'where' => 'vehicle_id NOT IN (SELECT vehicle FROM vehicle_work WHERE start_work >= '.strtotime($batdau).' AND end_work < '.strtotime($ngayketthuc).')',
+            'order_by'=>'vehicle_number',
+            'order'=>'ASC',
         );
 
         $vehicle_model = $this->model->get('vehicleModel');
@@ -171,11 +173,9 @@ Class reportController Extends baseController {
             else{
                 $check_sub = 1;
 
-                /*if ($shipment->shipment_sub==1) {
-
+                if ($shipment->shipment_sub==1) {
                    $check_sub = 0;
-
-                }*/
+                }
 
 
 
@@ -240,7 +240,7 @@ Class reportController Extends baseController {
 
                 $dauthuclanh[$shipment->vehicle] = isset($dauthuclanh[$shipment->vehicle])?($dauthuclanh[$shipment->vehicle]+$shipment->shipment_oil) : (0+$shipment->shipment_oil);
                 
-                $road_data['oil_cost'][$shipment->vehicle] = isset($road_data['oil_cost'][$shipment->vehicle])?$road_data['oil_cost'][$shipment->vehicle]+$shipment->shipment_road_oil_add*$check_sub:$shipment->shipment_road_oil_add*$check_sub;
+                $road_data['oil_cost'][$shipment->vehicle] = isset($road_data['oil_cost'][$shipment->vehicle])?$road_data['oil_cost'][$shipment->vehicle]+$shipment->shipment_road_oil_add:$shipment->shipment_road_oil_add;
                 
 
                 foreach ($roads as $road) {
@@ -455,7 +455,7 @@ Class reportController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 4 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->report) || json_decode($_SESSION['user_permission_action'])->report != "report") {
 
             return $this->view->redirect('user/login');
 
@@ -473,6 +473,8 @@ Class reportController Extends baseController {
 
             $v_data = array(
                 'where' => 'vehicle_id NOT IN (SELECT vehicle FROM vehicle_work WHERE start_work >= '.$batdau.' AND end_work < '.$ngayketthuc.')',
+                'order_by'=>'vehicle_number',
+                'order'=>'ASC',
             );
 
             $vehicle_model = $this->model->get('vehicleModel');
@@ -586,11 +588,9 @@ Class reportController Extends baseController {
             if (!$shipment_model->queryShipment($qr)) {
                 $check_sub = 1;
 
-                /*if ($shipment->shipment_sub==1) {
-
+                if ($shipment->shipment_sub==1) {
                    $check_sub = 0;
-
-                }*/
+                }
 
 
 
@@ -655,7 +655,7 @@ Class reportController Extends baseController {
 
                 $dauthuclanh[$shipment->vehicle] = isset($dauthuclanh[$shipment->vehicle])?($dauthuclanh[$shipment->vehicle]+$shipment->shipment_oil) : (0+$shipment->shipment_oil);
                 
-                $road_data['oil_cost'][$shipment->vehicle] = isset($road_data['oil_cost'][$shipment->vehicle])?$road_data['oil_cost'][$shipment->vehicle]+$shipment->shipment_road_oil_add*$check_sub:$shipment->shipment_road_oil_add*$check_sub;
+                $road_data['oil_cost'][$shipment->vehicle] = isset($road_data['oil_cost'][$shipment->vehicle])?$road_data['oil_cost'][$shipment->vehicle]+$shipment->shipment_road_oil_add:$shipment->shipment_road_oil_add;
                 
 
                 foreach ($roads as $road) {
@@ -1094,7 +1094,7 @@ Class reportController Extends baseController {
 
                     $objPHPExcel->setActiveSheetIndex(0)
 
-                        ->setCellValue($current_column ."18", (isset($diduong[$vehicle->vehicle_id])?$diduong[$vehicle->vehicle_id]:0));
+                        ->setCellValue($current_column ."18", ((isset($road_data['road_add'][$vehicle->vehicle_id])?$road_data['road_add'][$vehicle->vehicle_id]:0)+(isset($diduong[$vehicle->vehicle_id])?$diduong[$vehicle->vehicle_id]:0)));
 
                 }
 
@@ -1549,7 +1549,7 @@ Class reportController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 7 && $_SESSION['role_logined'] != 4 && $_SESSION['role_logined'] != 6) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->report) || json_decode($_SESSION['user_permission_action'])->report != "report") {
 
             return $this->view->redirect('user/login');
 
@@ -2747,7 +2747,7 @@ Class reportController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 7 && $_SESSION['role_logined'] != 4 && $_SESSION['role_logined'] != 6) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->report) || json_decode($_SESSION['user_permission_action'])->report != "report") {
 
             return $this->view->redirect('user/login');
 

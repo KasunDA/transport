@@ -5,7 +5,7 @@ Class receivableController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->receivable) || json_decode($_SESSION['user_permission_action'])->receivable != "receivable") {
             $this->view->data['disable_control'] = 1;
         }
         $this->view->data['lib'] = $this->lib;
@@ -149,7 +149,7 @@ Class receivableController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->receivable) || json_decode($_SESSION['user_permission_action'])->receivable != "receivable") {
             $this->view->data['disable_control'] = 1;
         }
         $this->view->data['lib'] = $this->lib;
@@ -305,7 +305,7 @@ Class receivableController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->receivable) || json_decode($_SESSION['user_permission_action'])->receivable != "receivable") {
             $this->view->data['disable_control'] = 1;
         }
         $this->view->data['lib'] = $this->lib;
@@ -452,7 +452,7 @@ Class receivableController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->receivable) || json_decode($_SESSION['user_permission_action'])->receivable != "receivable") {
             $this->view->data['disable_control'] = 1;
         }
         $this->view->data['lib'] = $this->lib;

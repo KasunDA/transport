@@ -22,7 +22,7 @@ Class adminController Extends baseController {
 
         $vehicle_model = $this->model->get('vehicleModel');
 
-        $vehicles = $vehicle_model->getAllVehicle();
+        $vehicles = $vehicle_model->getAllVehicle(array('order_by'=>'vehicle_number','order'=>'ASC'));
         $this->view->data['vehicles'] = $vehicles;
 
         $join = array('table'=>'customer, vehicle, cont_unit','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND cont_unit=cont_unit_id');
@@ -51,6 +51,11 @@ Class adminController Extends baseController {
         $cp = array();
 
         foreach ($shipments as $shipment) {
+            $check_sub = 1;
+            if ($shipment->shipment_sub==1) {
+               $check_sub = 0;
+            }
+
         	if (!in_array($shipment->customer,$old_cus)) {
         		$khachhang++;
                 $old_cus[] = $shipment->customer;
@@ -77,8 +82,8 @@ Class adminController Extends baseController {
 
             $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $shipment->route).'")'));
             foreach ($roads as $road) {
-            	$cp['ngay'][(int)date('d',$shipment->shipment_date)] = isset($cp['ngay'][(int)date('d',$shipment->shipment_date)])?$cp['ngay'][(int)date('d',$shipment->shipment_date)]+$road->bridge_cost+$road->police_cost+$road->tire_cost+$road->road_add:$road->bridge_cost+$road->police_cost+$road->tire_cost+$road->road_add;
-                $cp['thang'][(int)date('m',$shipment->shipment_date)] = isset($cp['thang'][(int)date('m',$shipment->shipment_date)])?$cp['thang'][(int)date('m',$shipment->shipment_date)]+$road->bridge_cost+$road->police_cost+$road->tire_cost+$road->road_add:$road->bridge_cost+$road->police_cost+$road->tire_cost+$road->road_add;
+            	$cp['ngay'][(int)date('d',$shipment->shipment_date)] = isset($cp['ngay'][(int)date('d',$shipment->shipment_date)])?$cp['ngay'][(int)date('d',$shipment->shipment_date)]+($road->bridge_cost+$road->police_cost+$road->tire_cost+$road->road_add)*$check_sub:($road->bridge_cost+$road->police_cost+$road->tire_cost+$road->road_add)*$check_sub;
+                $cp['thang'][(int)date('m',$shipment->shipment_date)] = isset($cp['thang'][(int)date('m',$shipment->shipment_date)])?$cp['thang'][(int)date('m',$shipment->shipment_date)]+($road->bridge_cost+$road->police_cost+$road->tire_cost+$road->road_add)*$check_sub:($road->bridge_cost+$road->police_cost+$road->tire_cost+$road->road_add)*$check_sub;
             }
 
             $boiduong_cont = 0;
@@ -122,8 +127,8 @@ Class adminController Extends baseController {
 
 	                $warehouse_data['warehouse_gate'][$warehouse->warehouse_code] = $warehouse->warehouse_gate;
 
-	                $cp['ngay'][(int)date('d',$shipment->shipment_date)] = isset($cp['ngay'][(int)date('d',$shipment->shipment_date)])?$cp['ngay'][(int)date('d',$shipment->shipment_date)]+$warehouse->warehouse_weight+$warehouse->warehouse_clean:$warehouse->warehouse_weight+$warehouse->warehouse_clean;
-	                $cp['thang'][(int)date('m',$shipment->shipment_date)] = isset($cp['thang'][(int)date('m',$shipment->shipment_date)])?$cp['thang'][(int)date('m',$shipment->shipment_date)]+$warehouse->warehouse_weight+$warehouse->warehouse_clean:$warehouse->warehouse_weight+$warehouse->warehouse_clean;
+	                $cp['ngay'][(int)date('d',$shipment->shipment_date)] = isset($cp['ngay'][(int)date('d',$shipment->shipment_date)])?$cp['ngay'][(int)date('d',$shipment->shipment_date)]+($warehouse->warehouse_weight+$warehouse->warehouse_clean)*$check_sub:($warehouse->warehouse_weight+$warehouse->warehouse_clean)*$check_sub;
+	                $cp['thang'][(int)date('m',$shipment->shipment_date)] = isset($cp['thang'][(int)date('m',$shipment->shipment_date)])?$cp['thang'][(int)date('m',$shipment->shipment_date)]+($warehouse->warehouse_weight+$warehouse->warehouse_clean)*$check_sub:($warehouse->warehouse_weight+$warehouse->warehouse_clean)*$check_sub;
 	            }
             }
 
@@ -135,8 +140,8 @@ Class adminController Extends baseController {
                 $kho['warehouse_gate'][$shipment->shipment_from] = 0;
             }
 
-            $cp['ngay'][(int)date('d',$shipment->shipment_date)] = isset($cp['ngay'][(int)date('d',$shipment->shipment_date)])?$cp['ngay'][(int)date('d',$shipment->shipment_date)]+$boiduong_cont+$boiduong_tan+$kho['warehouse_gate'][$shipment->shipment_from]+$kho['warehouse_gate'][$shipment->shipment_to]:$boiduong_cont+$boiduong_tan+$kho['warehouse_gate'][$shipment->shipment_from]+$kho['warehouse_gate'][$shipment->shipment_to];
-            $cp['thang'][(int)date('m',$shipment->shipment_date)] = isset($cp['thang'][(int)date('m',$shipment->shipment_date)])?$cp['thang'][(int)date('m',$shipment->shipment_date)]+$boiduong_cont+$boiduong_tan+$kho['warehouse_gate'][$shipment->shipment_from]+$kho['warehouse_gate'][$shipment->shipment_to]:$boiduong_cont+$boiduong_tan+$kho['warehouse_gate'][$shipment->shipment_from]+$kho['warehouse_gate'][$shipment->shipment_to];
+            $cp['ngay'][(int)date('d',$shipment->shipment_date)] = isset($cp['ngay'][(int)date('d',$shipment->shipment_date)])?$cp['ngay'][(int)date('d',$shipment->shipment_date)]+($boiduong_cont+$boiduong_tan+$kho['warehouse_gate'][$shipment->shipment_from]+$kho['warehouse_gate'][$shipment->shipment_to])*$check_sub:($boiduong_cont+$boiduong_tan+$kho['warehouse_gate'][$shipment->shipment_from]+$kho['warehouse_gate'][$shipment->shipment_to])*$check_sub;
+            $cp['thang'][(int)date('m',$shipment->shipment_date)] = isset($cp['thang'][(int)date('m',$shipment->shipment_date)])?$cp['thang'][(int)date('m',$shipment->shipment_date)]+($boiduong_cont+$boiduong_tan+$kho['warehouse_gate'][$shipment->shipment_from]+$kho['warehouse_gate'][$shipment->shipment_to])*$check_sub:($boiduong_cont+$boiduong_tan+$kho['warehouse_gate'][$shipment->shipment_from]+$kho['warehouse_gate'][$shipment->shipment_to])*$check_sub;
         }
 
         $start = date('d',strtotime($batdau));

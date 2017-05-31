@@ -5,7 +5,7 @@ Class bankController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->bank) || json_decode($_SESSION['user_permission_action'])->bank != "bank") {
             $this->view->data['disable_control'] = 1;
         }
         $this->view->data['lib'] = $this->lib;
@@ -190,7 +190,7 @@ Class bankController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->bank) || json_decode($_SESSION['user_permission_action'])->bank != "bank") {
             return $this->view->redirect('user/login');
         }
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_FILES['import']['name'] != null) {
@@ -302,7 +302,7 @@ Class bankController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] > 2 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->bank) || json_decode($_SESSION['user_permission_action'])->bank != "bank") {
             return $this->view->redirect('user/login');
         }
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_FILES['import']['name'] != null) {

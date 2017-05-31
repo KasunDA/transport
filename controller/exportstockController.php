@@ -5,7 +5,7 @@ Class exportstockController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->exportstock) || json_decode($_SESSION['user_permission_action'])->exportstock != "exportstock") {
             $this->view->data['disable_control'] = 1;
         }
         $this->view->data['lib'] = $this->lib;
@@ -48,13 +48,13 @@ Class exportstockController Extends baseController {
 
         $vehicle_model = $this->model->get('vehicleModel');
 
-        $vehicles = $vehicle_model->getAllVehicle();
+        $vehicles = $vehicle_model->getAllVehicle(array('order_by'=>'vehicle_number','order'=>'ASC'));
 
         $this->view->data['vehicles'] = $vehicles;
 
         $romooc_model = $this->model->get('romoocModel');
 
-        $romoocs = $romooc_model->getAllVehicle();
+        $romoocs = $romooc_model->getAllVehicle(array('order_by'=>'romooc_number','order'=>'ASC'));
 
         $this->view->data['romoocs'] = $romoocs;
 
@@ -134,7 +134,7 @@ Class exportstockController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->exportstock) || json_decode($_SESSION['user_permission_action'])->exportstock != "exportstock") {
             return $this->view->redirect('user/login');
         }
         if (isset($_POST['yes'])) {
@@ -280,7 +280,7 @@ Class exportstockController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->exportstock) || json_decode($_SESSION['user_permission_action'])->exportstock != "exportstock") {
             return $this->view->redirect('user/login');
         }
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {

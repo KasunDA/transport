@@ -5,7 +5,7 @@ Class provinceController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->province) || json_decode($_SESSION['user_permission_action'])->province != "province") {
             return $this->view->redirect('user/login');
         }
         $this->view->data['lib'] = $this->lib;
@@ -81,7 +81,7 @@ Class provinceController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->province) || json_decode($_SESSION['user_permission_action'])->province != "province") {
             return $this->view->redirect('user/login');
         }
         if (isset($_POST['yes'])) {
@@ -159,7 +159,7 @@ Class provinceController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->province) || json_decode($_SESSION['user_permission_action'])->province != "province") {
             return $this->view->redirect('user/login');
         }
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -216,7 +216,7 @@ Class provinceController Extends baseController {
         if (!isset($_SESSION['userid_logined'])) {
             return $this->view->redirect('user/login');
         }
-        if ($_SESSION['role_logined'] != 1) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->province) || json_decode($_SESSION['user_permission_action'])->province != "province") {
             return $this->view->redirect('user/login');
         }
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_FILES['import']['name'] != null) {

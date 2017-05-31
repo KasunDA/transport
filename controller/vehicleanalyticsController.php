@@ -117,6 +117,10 @@ Class vehicleanalyticsController Extends baseController {
             );
             $shipments = $shipment_model->getAllShipment($data_ship);
             foreach ($shipments as $ship) {
+                $check_sub = 1;
+                if ($ship->shipment_sub==1) {
+                   $check_sub = 0;
+                }
                 if ($xem == 0) {
                     $data_vehicle[$vehicle->vehicle_id]['ship'] = isset($data_vehicle[$vehicle->vehicle_id]['ship'])?$data_vehicle[$vehicle->vehicle_id]['ship']+1:1;
                     $data_vehicle[$vehicle->vehicle_id]['oil'] = isset($data_vehicle[$vehicle->vehicle_id]['oil'])?$data_vehicle[$vehicle->vehicle_id]['oil']+$ship->shipment_oil:$ship->shipment_oil;
@@ -124,7 +128,7 @@ Class vehicleanalyticsController Extends baseController {
 
                     $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
                     foreach ($roads as $road) {
-                        $data_vehicle[$vehicle->vehicle_id]['km'] = isset($data_vehicle[$vehicle->vehicle_id]['km'])?$data_vehicle[$vehicle->vehicle_id]['km']+$road->road_km:$road->road_km;
+                        $data_vehicle[$vehicle->vehicle_id]['km'] = isset($data_vehicle[$vehicle->vehicle_id]['km'])?$data_vehicle[$vehicle->vehicle_id]['km']+$road->road_km*$check_sub:$road->road_km*$check_sub;
                     }
                 }
                 else{
@@ -135,7 +139,7 @@ Class vehicleanalyticsController Extends baseController {
 
                     $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
                     foreach ($roads as $road) {
-                        $data_vehicle[$vehicle->vehicle_id]['km'][$thang] = isset($data_vehicle[$vehicle->vehicle_id]['km'][$thang])?$data_vehicle[$vehicle->vehicle_id]['km'][$thang]+$road->road_km:$road->road_km;
+                        $data_vehicle[$vehicle->vehicle_id]['km'][$thang] = isset($data_vehicle[$vehicle->vehicle_id]['km'][$thang])?$data_vehicle[$vehicle->vehicle_id]['km'][$thang]+$road->road_km*$check_sub:$road->road_km*$check_sub;
                     }
                 }
                 
@@ -153,13 +157,17 @@ Class vehicleanalyticsController Extends baseController {
             );
             $shipments = $shipment_model->getAllShipment($data_ship);
             foreach ($shipments as $ship) {
+                $check_sub = 1;
+                if ($ship->shipment_sub==1) {
+                   $check_sub = 0;
+                }
                 if ($xem == 0) {
                     $data_romooc[$romooc->romooc_id]['ship'] = isset($data_romooc[$romooc->romooc_id]['ship'])?$data_romooc[$romooc->romooc_id]['ship']+1:1;
                     $data_romooc[$romooc->romooc_id]['revenue'] = isset($data_romooc[$romooc->romooc_id]['revenue'])?$data_romooc[$romooc->romooc_id]['revenue']+$ship->shipment_revenue+$ship->shipment_charge_excess:$ship->shipment_revenue+$ship->shipment_charge_excess;
                     
                     $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
                     foreach ($roads as $road) {
-                        $data_romooc[$romooc->romooc_id]['km'] = isset($data_romooc[$romooc->romooc_id]['km'])?$data_romooc[$romooc->romooc_id]['km']+$road->road_km:$road->road_km;
+                        $data_romooc[$romooc->romooc_id]['km'] = isset($data_romooc[$romooc->romooc_id]['km'])?$data_romooc[$romooc->romooc_id]['km']+$road->road_km*$check_sub:$road->road_km*$check_sub;
                     }
                 }
                 else{
@@ -170,7 +178,7 @@ Class vehicleanalyticsController Extends baseController {
                     
                     $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
                     foreach ($roads as $road) {
-                        $data_romooc[$romooc->romooc_id]['km'][$thang] = isset($data_romooc[$romooc->romooc_id]['km'][$thang])?$data_romooc[$romooc->romooc_id]['km'][$thang]+$road->road_km:$road->road_km;
+                        $data_romooc[$romooc->romooc_id]['km'][$thang] = isset($data_romooc[$romooc->romooc_id]['km'][$thang])?$data_romooc[$romooc->romooc_id]['km'][$thang]+$road->road_km*$check_sub:$road->road_km*$check_sub;
                     }
                 }
                 

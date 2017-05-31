@@ -12,7 +12,7 @@ Class vehicleromoocController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->vehicleromooc) || json_decode($_SESSION['user_permission_action'])->vehicleromooc != "vehicleromooc") {
             $this->view->data['disable_control'] = 1;
         }
 
@@ -145,7 +145,7 @@ Class vehicleromoocController Extends baseController {
             return $this->view->redirect('user/login');
 
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->vehicleromooc) || json_decode($_SESSION['user_permission_action'])->vehicleromooc != "vehicleromooc") {
             $this->view->data['disable_control'] = 1;
         }
 
@@ -220,7 +220,7 @@ Class vehicleromoocController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->vehicleromooc) || json_decode($_SESSION['user_permission_action'])->vehicleromooc != "vehicleromooc") {
 
             return $this->view->redirect('user/login');
 
@@ -309,7 +309,7 @@ Class vehicleromoocController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->vehicleromooc) || json_decode($_SESSION['user_permission_action'])->vehicleromooc != "vehicleromooc") {
 
             return $this->view->redirect('user/login');
 
@@ -414,7 +414,7 @@ Class vehicleromoocController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->vehicleromooc) || json_decode($_SESSION['user_permission_action'])->vehicleromooc != "vehicleromooc") {
 
             return $this->view->redirect('user/login');
 
@@ -724,7 +724,7 @@ Class vehicleromoocController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->vehicleromooc) || json_decode($_SESSION['user_permission_action'])->vehicleromooc != "vehicleromooc") {
 
             return $this->view->redirect('user/login');
 

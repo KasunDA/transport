@@ -12,7 +12,7 @@ Class noinvoiceController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->noinvoice) || json_decode($_SESSION['user_permission_action'])->noinvoice != "noinvoice") {
             $this->view->data['disable_control'] = 1;
         }
 
@@ -88,7 +88,7 @@ Class noinvoiceController Extends baseController {
 
         $vehicle_model = $this->model->get('vehicleModel');
 
-        $vehicles = $vehicle_model->getAllVehicle();
+        $vehicles = $vehicle_model->getAllVehicle(array('order_by'=>'vehicle_number','order'=>'ASC'));
 
 
 
@@ -98,7 +98,7 @@ Class noinvoiceController Extends baseController {
 
         $customer_model = $this->model->get('customerModel');
 
-        $customers = $customer_model->getAllCustomer();
+        $customers = $customer_model->getAllCustomer(array('order_by'=>'customer_name','order'=>'ASC'));
 
 
 
@@ -306,6 +306,10 @@ Class noinvoiceController Extends baseController {
 
 
         foreach ($shipments as $ship) {
+            $check_sub = 1;
+            if ($ship->shipment_sub==1) {
+               $check_sub = 0;
+            }
 
             $qr = "SELECT * FROM vehicle_work WHERE vehicle = ".$ship->vehicle." AND start_work <= ".$ship->shipment_date." AND end_work >= ".$ship->shipment_date;
             if ($shipment_model->queryShipment($qr)) {
@@ -342,21 +346,21 @@ Class noinvoiceController Extends baseController {
 
                 foreach ($roads as $road) {
 
-                    $road_data['bridge_cost'][$ship->shipment_id] = isset($road_data['bridge_cost'][$ship->shipment_id])?$road_data['bridge_cost'][$ship->shipment_id]+$road->bridge_cost:$road->bridge_cost;
+                    $road_data['bridge_cost'][$ship->shipment_id] = isset($road_data['bridge_cost'][$ship->shipment_id])?$road_data['bridge_cost'][$ship->shipment_id]+$road->bridge_cost*$check_sub:$road->bridge_cost*$check_sub;
 
-                    $road_data['police_cost'][$ship->shipment_id] = isset($road_data['police_cost'][$ship->shipment_id])?$road_data['police_cost'][$ship->shipment_id]+$road->police_cost:$road->police_cost;
+                    $road_data['police_cost'][$ship->shipment_id] = isset($road_data['police_cost'][$ship->shipment_id])?$road_data['police_cost'][$ship->shipment_id]+$road->police_cost*$check_sub:$road->police_cost*$check_sub;
 
-                    $road_data['tire_cost'][$ship->shipment_id] = isset($road_data['tire_cost'][$ship->shipment_id])?$road_data['tire_cost'][$ship->shipment_id]+$road->tire_cost:$road->tire_cost;
+                    $road_data['tire_cost'][$ship->shipment_id] = isset($road_data['tire_cost'][$ship->shipment_id])?$road_data['tire_cost'][$ship->shipment_id]+$road->tire_cost*$check_sub:$road->tire_cost*$check_sub;
 
                     
                     if($road->road_oil_ton > 0){
-                        $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+$road->road_oil_ton:$road->road_oil_ton;
+                        $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+$road->road_oil_ton*$check_sub:$road->road_oil_ton*$check_sub;
                     }
                     else{
-                        $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+$road->road_oil:$road->road_oil;
+                        $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+$road->road_oil*$check_sub:$road->road_oil*$check_sub;
                     }
 
-                    $road_data['road_add'][$ship->shipment_id] = isset($road_data['road_add'][$ship->shipment_id])?$road_data['road_add'][$ship->shipment_id]+$road->road_add:$road->road_add;
+                    $road_data['road_add'][$ship->shipment_id] = isset($road_data['road_add'][$ship->shipment_id])?$road_data['road_add'][$ship->shipment_id]+$road->road_add*$check_sub:$road->road_add*$check_sub;
 
                     $road_data['way'][$ship->shipment_id] = $road->way;
 
@@ -430,13 +434,13 @@ Class noinvoiceController Extends baseController {
 
 
 
-                        $warehouse_data['warehouse_weight'][$warehouse->warehouse_code] = $warehouse->warehouse_weight;
+                        $warehouse_data['warehouse_weight'][$warehouse->warehouse_code] = $warehouse->warehouse_weight*$check_sub;
 
-                        $warehouse_data['warehouse_clean'][$warehouse->warehouse_code] = $warehouse->warehouse_clean;
+                        $warehouse_data['warehouse_clean'][$warehouse->warehouse_code] = $warehouse->warehouse_clean*$check_sub;
 
-                        $warehouse_data['warehouse_gate'][$warehouse->warehouse_code] = $warehouse->warehouse_gate;
+                        $warehouse_data['warehouse_gate'][$warehouse->warehouse_code] = $warehouse->warehouse_gate*$check_sub;
 
-                        $warehouse_data['warehouse_add'][$warehouse->warehouse_code] = $warehouse->warehouse_add;
+                        $warehouse_data['warehouse_add'][$warehouse->warehouse_code] = $warehouse->warehouse_add*$check_sub;
 
 
 
@@ -446,7 +450,7 @@ Class noinvoiceController Extends baseController {
 
                 }
 
-                $warehouse_data['boiduong_cn'][$ship->shipment_id] = $boiduong_cont+$boiduong_tan;
+                $warehouse_data['boiduong_cn'][$ship->shipment_id] = ($boiduong_cont+$boiduong_tan)*$check_sub;
 
                 $places = $place_model->getAllPlace(array('where'=>'place_id = '.$ship->shipment_from.' OR place_id = '.$ship->shipment_to));
 
@@ -707,6 +711,11 @@ Class noinvoiceController Extends baseController {
                 $k=0;
 
                 foreach ($shipments as $row) {
+                    $check_sub = 1;
+                    if ($row->shipment_sub==1) {
+                       $check_sub = 0;
+                    }
+
                     $qr = "SELECT * FROM vehicle_work WHERE vehicle = ".$row->vehicle." AND start_work <= ".$row->shipment_date." AND end_work >= ".$row->shipment_date;
                     if (!$shipment_model->queryShipment($qr)) {
 
@@ -738,21 +747,21 @@ Class noinvoiceController Extends baseController {
 
                         foreach ($roads as $road) {
 
-                            $road_data['bridge_cost'][$row->shipment_id] = isset($road_data['bridge_cost'][$row->shipment_id])?$road_data['bridge_cost'][$row->shipment_id]+$road->bridge_cost:$road->bridge_cost;
+                            $road_data['bridge_cost'][$row->shipment_id] = isset($road_data['bridge_cost'][$row->shipment_id])?$road_data['bridge_cost'][$row->shipment_id]+$road->bridge_cost*$check_sub:$road->bridge_cost*$check_sub;
 
-                            $road_data['police_cost'][$row->shipment_id] = isset($road_data['police_cost'][$row->shipment_id])?$road_data['police_cost'][$row->shipment_id]+$road->police_cost:$road->police_cost;
+                            $road_data['police_cost'][$row->shipment_id] = isset($road_data['police_cost'][$row->shipment_id])?$road_data['police_cost'][$row->shipment_id]+$road->police_cost*$check_sub:$road->police_cost*$check_sub;
 
-                            $road_data['tire_cost'][$row->shipment_id] = isset($road_data['tire_cost'][$row->shipment_id])?$road_data['tire_cost'][$row->shipment_id]+$road->tire_cost:$road->tire_cost;
+                            $road_data['tire_cost'][$row->shipment_id] = isset($road_data['tire_cost'][$row->shipment_id])?$road_data['tire_cost'][$row->shipment_id]+$road->tire_cost*$check_sub:$road->tire_cost*$check_sub;
 
                             
                             if($road->road_oil_ton > 0){
-                                $road_data['oil_cost'][$row->shipment_id] = isset($road_data['oil_cost'][$row->shipment_id])?$road_data['oil_cost'][$row->shipment_id]+$road->road_oil_ton:$road->road_oil_ton;
+                                $road_data['oil_cost'][$row->shipment_id] = isset($road_data['oil_cost'][$row->shipment_id])?$road_data['oil_cost'][$row->shipment_id]+$road->road_oil_ton*$check_sub:$road->road_oil_ton*$check_sub;
                             }
                             else{
-                                $road_data['oil_cost'][$row->shipment_id] = isset($road_data['oil_cost'][$row->shipment_id])?$road_data['oil_cost'][$row->shipment_id]+$road->road_oil:$road->road_oil;
+                                $road_data['oil_cost'][$row->shipment_id] = isset($road_data['oil_cost'][$row->shipment_id])?$road_data['oil_cost'][$row->shipment_id]+$road->road_oil*$check_sub:$road->road_oil*$check_sub;
                             }
 
-                            $road_data['road_add'][$row->shipment_id] = isset($road_data['road_add'][$row->shipment_id])?$road_data['road_add'][$row->shipment_id]+$road->road_add:$road->road_add;
+                            $road_data['road_add'][$row->shipment_id] = isset($road_data['road_add'][$row->shipment_id])?$road_data['road_add'][$row->shipment_id]+$road->road_add*$check_sub:$road->road_add*$check_sub;
 
                             $road_data['way'][$row->shipment_id] = $road->way;
 
@@ -856,13 +865,13 @@ Class noinvoiceController Extends baseController {
 
 
 
-                                $warehouse_data['warehouse_weight'][$warehouse->warehouse_code] = $warehouse->warehouse_weight;
+                                $warehouse_data['warehouse_weight'][$warehouse->warehouse_code] = $warehouse->warehouse_weight*$check_sub;
 
-                                $warehouse_data['warehouse_clean'][$warehouse->warehouse_code] = $warehouse->warehouse_clean;
+                                $warehouse_data['warehouse_clean'][$warehouse->warehouse_code] = $warehouse->warehouse_clean*$check_sub;
 
-                                $warehouse_data['warehouse_gate'][$warehouse->warehouse_code] = $warehouse->warehouse_gate;
+                                $warehouse_data['warehouse_gate'][$warehouse->warehouse_code] = $warehouse->warehouse_gate*$check_sub;
 
-                                $warehouse_data['warehouse_add'][$warehouse->warehouse_code] = $warehouse->warehouse_add;
+                                $warehouse_data['warehouse_add'][$warehouse->warehouse_code] = $warehouse->warehouse_add*$check_sub;
 
 
 
@@ -872,7 +881,7 @@ Class noinvoiceController Extends baseController {
 
                         }
 
-                        $warehouse_data['boiduong_cn'][$row->shipment_id] = $boiduong_cont+$boiduong_tan;
+                        $warehouse_data['boiduong_cn'][$row->shipment_id] = ($boiduong_cont+$boiduong_tan)*$check_sub;
 
 
 

@@ -12,7 +12,7 @@ Class driverController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->driver) || json_decode($_SESSION['user_permission_action'])->driver != "driver") {
             $this->view->data['disable_control'] = 1;
         }
 
@@ -54,7 +54,7 @@ Class driverController Extends baseController {
 
         $vehicle_model = $this->model->get('vehicleModel');
 
-        $vehicles = $vehicle_model->getAllVehicle();
+        $vehicles = $vehicle_model->getAllVehicle(array('order_by'=>'vehicle_number','order'=>'ASC'));
 
         $this->view->data['vehicles'] = $vehicles;
 
@@ -212,7 +212,7 @@ Class driverController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->driver) || json_decode($_SESSION['user_permission_action'])->driver != "driver") {
 
             return $this->view->redirect('user/login');
 
@@ -317,7 +317,7 @@ Class driverController Extends baseController {
                     if ($dm3) {
                             foreach ($dm3 as $row) {
                                 $d = array(
-                                    'start_work' => strtotime(date('d-m-Y',strtotime($_POST['start_work'].' -1 day'))),
+                                    'end_work' => strtotime(date('d-m-Y',strtotime($_POST['start_work'].' -1 day'))),
                                     );
                                 $driver->updateDriver($d,array('driver_id'=>$row->driver_id));
 
@@ -430,7 +430,7 @@ Class driverController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->driver) || json_decode($_SESSION['user_permission_action'])->driver != "driver") {
 
             return $this->view->redirect('user/login');
 
@@ -523,7 +523,7 @@ Class driverController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->driver) || json_decode($_SESSION['user_permission_action'])->driver != "driver") {
 
             return $this->view->redirect('user/login');
 

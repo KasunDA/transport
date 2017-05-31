@@ -233,7 +233,7 @@ $tongkhackhd = 0;
                     $suachuahd = (isset($repair[$vehicle->vehicle_id])?$repair[$vehicle->vehicle_id]:0)+(isset($suachuavat[$vehicle->vehicle_id])?$suachuavat[$vehicle->vehicle_id]:0);
                     $khachd = isset($khacvat[$vehicle->vehicle_id])?$khacvat[$vehicle->vehicle_id]:0;
 
-                    $tiendiduong = (isset($diduong[$vehicle->vehicle_id])?$diduong[$vehicle->vehicle_id]:0);
+                    $tiendiduong = (isset($road['road_add'][$vehicle->vehicle_id])?$road['road_add'][$vehicle->vehicle_id]:0)+(isset($diduong[$vehicle->vehicle_id])?$diduong[$vehicle->vehicle_id]:0);
                     $congan = (isset($road['police_cost'][$vehicle->vehicle_id])?$road['police_cost'][$vehicle->vehicle_id]:0)+(isset($congankvat[$vehicle->vehicle_id])?$congankvat[$vehicle->vehicle_id]:0);
                     $boiduong = (isset($warehouse['boiduong'][$vehicle->vehicle_id])?$warehouse['boiduong'][$vehicle->vehicle_id]:0)+(isset($boiduongkvat[$vehicle->vehicle_id])?$boiduongkvat[$vehicle->vehicle_id]:0);
                     $canxe = (isset($warehouse['canxe'][$vehicle->vehicle_id])?$warehouse['canxe'][$vehicle->vehicle_id]:0);
@@ -366,7 +366,7 @@ $tongkhackhd = 0;
                 <tr style=" color:rgb(0, 32, 96); font-style: italic; font-weight:bold;">
                     <td></td>
                     <?php foreach ($vehicles as $vehicle): 
-                    $tiendiduong = (isset($diduong[$vehicle->vehicle_id])?$diduong[$vehicle->vehicle_id]:0);
+                    $tiendiduong = (isset($road['road_add'][$vehicle->vehicle_id])?$road['road_add'][$vehicle->vehicle_id]:0)+(isset($diduong[$vehicle->vehicle_id])?$diduong[$vehicle->vehicle_id]:0);
                     $congan = (isset($road['police_cost'][$vehicle->vehicle_id])?$road['police_cost'][$vehicle->vehicle_id]:0)+(isset($congankvat[$vehicle->vehicle_id])?$congankvat[$vehicle->vehicle_id]:0);
                     $boiduong = (isset($warehouse['boiduong'][$vehicle->vehicle_id])?$warehouse['boiduong'][$vehicle->vehicle_id]:0)+(isset($boiduongkvat[$vehicle->vehicle_id])?$boiduongkvat[$vehicle->vehicle_id]:0);
                     $canxe = (isset($warehouse['canxe'][$vehicle->vehicle_id])?$warehouse['canxe'][$vehicle->vehicle_id]:0);
@@ -385,7 +385,7 @@ $tongkhackhd = 0;
                 <tr >
                     <td></td>
                     <?php foreach ($vehicles as $vehicle): 
-                    $tiendiduong = (isset($diduong[$vehicle->vehicle_id])?$diduong[$vehicle->vehicle_id]:0);
+                    $tiendiduong = (isset($road['road_add'][$vehicle->vehicle_id])?$road['road_add'][$vehicle->vehicle_id]:0)+(isset($diduong[$vehicle->vehicle_id])?$diduong[$vehicle->vehicle_id]:0);
                     $tongdiduong += $tiendiduong;
                     ?>
                     <td class="fix masterTooltip"><?php echo $lib->formatMoney($tiendiduong) ?></td>
@@ -488,7 +488,7 @@ $tongkhackhd = 0;
                     $suachuahd = (isset($repair[$vehicle->vehicle_id])?$repair[$vehicle->vehicle_id]:0)+(isset($suachuavat[$vehicle->vehicle_id])?$suachuavat[$vehicle->vehicle_id]:0);
                     $khachd = isset($khacvat[$vehicle->vehicle_id])?$khacvat[$vehicle->vehicle_id]:0;
 
-                    $tiendiduong = (isset($diduong[$vehicle->vehicle_id])?$diduong[$vehicle->vehicle_id]:0);
+                    $tiendiduong = (isset($road['road_add'][$vehicle->vehicle_id])?$road['road_add'][$vehicle->vehicle_id]:0)+(isset($diduong[$vehicle->vehicle_id])?$diduong[$vehicle->vehicle_id]:0);
                     $congan = (isset($road['police_cost'][$vehicle->vehicle_id])?$road['police_cost'][$vehicle->vehicle_id]:0)+(isset($congankvat[$vehicle->vehicle_id])?$congankvat[$vehicle->vehicle_id]:0);
                     $boiduong = (isset($warehouse['boiduong'][$vehicle->vehicle_id])?$warehouse['boiduong'][$vehicle->vehicle_id]:0)+(isset($boiduongkvat[$vehicle->vehicle_id])?$boiduongkvat[$vehicle->vehicle_id]:0);
                     $canxe = (isset($warehouse['canxe'][$vehicle->vehicle_id])?$warehouse['canxe'][$vehicle->vehicle_id]:0);

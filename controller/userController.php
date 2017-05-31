@@ -12,7 +12,7 @@ Class userController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 ) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->user) || json_decode($_SESSION['user_permission_action'])->user != "user") {
 
             return $this->view->redirect('user/login');
 
@@ -162,6 +162,10 @@ Class userController Extends baseController {
 
                         $_SESSION['role_logined'] = $row->role;
 
+                        $_SESSION['user_permission'] = $row->permission;
+
+                        $_SESSION['user_permission_action'] = $row->permission_action;
+
                         echo "Đăng nhập thành công";
 
 
@@ -276,7 +280,7 @@ Class userController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 ) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->user) || json_decode($_SESSION['user_permission_action'])->user != "user") {
 
             return $this->view->redirect('user/login');
 
@@ -306,6 +310,8 @@ Class userController Extends baseController {
 
                 if (!$r) {
 
+                    $role_permission = $role->getRole(trim($_POST['role']));
+
                     $time = time();
 
                     $data = array(
@@ -317,6 +323,10 @@ Class userController Extends baseController {
                         'create_time' => $time,
 
                         'role' => trim($_POST['role']),
+
+                        'permission' => $role_permission->role_permission,
+
+                        'permission_action' => $role_permission->role_permission_action,
 
                         );
 
@@ -370,7 +380,7 @@ Class userController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 ) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->user) || json_decode($_SESSION['user_permission_action'])->user != "user") {
 
             return $this->view->redirect('user/login');
 
@@ -418,9 +428,10 @@ Class userController Extends baseController {
 
                 if ($_POST['role'] != '') {
 
+                    $role_permission = $role->getRole(trim($_POST['role']));
+
                     if ($_POST['password'] != '') {
 
-                        
 
                         $data = array(
 
@@ -430,17 +441,26 @@ Class userController Extends baseController {
 
                             'user_lock' => trim($_POST['userlock']),
 
+                            'permission' => $role_permission->role_permission,
+
+                            'permission_action' => $role_permission->role_permission_action,
+
                             );
 
                     }
 
                     else{
 
+
                         $data = array(
 
                             'role' => trim($_POST['role']),
 
                             'user_lock' => trim($_POST['userlock']),
+
+                            'permission' => $role_permission->role_permission,
+
+                            'permission_action' => $role_permission->role_permission_action,
 
                             );
 
@@ -492,7 +512,7 @@ Class userController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 ) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->user) || json_decode($_SESSION['user_permission_action'])->user != "user") {
 
             return $this->view->redirect('user/login');
 

@@ -11,7 +11,7 @@ Class houseController Extends baseController {
             return $this->view->redirect('user/login');
 
         }
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->house) || json_decode($_SESSION['user_permission_action'])->house != "house") {
             $this->view->data['disable_control'] = 1;
         }
 
@@ -154,7 +154,7 @@ Class houseController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->house) || json_decode($_SESSION['user_permission_action'])->house != "house") {
 
             return $this->view->redirect('user/login');
 
@@ -289,7 +289,7 @@ Class houseController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->house) || json_decode($_SESSION['user_permission_action'])->house != "house") {
 
             return $this->view->redirect('user/login');
 
@@ -610,7 +610,7 @@ Class houseController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->house) || json_decode($_SESSION['user_permission_action'])->house != "house") {
 
             return $this->view->redirect('user/login');
 

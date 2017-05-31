@@ -26,7 +26,7 @@ Class shipmentController Extends baseController {
 
 
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipment) || json_decode($_SESSION['user_permission_action'])->shipment != "shipment") {
 
             $this->view->data['disable_control'] = 1;
 
@@ -265,7 +265,1039 @@ Class shipmentController Extends baseController {
 
 
 
-        $vehicles = $vehicle_model->getAllVehicle();
+        $vehicles = $vehicle_model->getAllVehicle(array('order_by'=>'vehicle_number','order'=>'ASC'));
+
+
+
+
+
+
+
+        $this->view->data['vehicles'] = $vehicles;
+
+
+
+
+
+
+
+        $shipment_temp_model = $this->model->get('shipmenttempModel');
+
+
+
+        $join = array('table'=>'customer, marketing, cont_unit','where'=>'marketing.marketing_id = shipment_temp.marketing AND customer.customer_id = marketing.customer AND cont_unit=cont_unit_id');
+
+
+
+        $shipment_temps = $shipment_temp_model->getAllShipment(array('where'=>'shipment_temp_status=0 AND owner='.$_SESSION['userid_logined']),$join);
+
+
+
+        $this->view->data['shipment_temps'] = $shipment_temps;
+
+
+
+
+
+
+
+        $join = array('table'=>'customer, vehicle, cont_unit, steersman','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND cont_unit=cont_unit_id AND steersman = steersman_id');
+
+
+
+
+
+
+
+        $shipment_model = $this->model->get('shipmentModel');
+
+
+
+        $sonews = $limit;
+
+
+
+        $x = ($page-1) * $sonews;
+
+
+
+        $pagination_stages = 2;
+
+
+
+
+
+
+
+        $data = array(
+
+
+
+            'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc),
+
+
+
+            );
+
+
+        if (isset($id) && $id > 0) {
+            $data['where'] = 'shipment_id = '.$id;
+        }
+
+
+        if($xe != 0){
+
+
+
+            $data['where'] = $data['where'].' AND vehicle = '.$xe;
+
+
+
+        }
+
+
+
+        if($vong != 0){
+
+
+
+            $data['where'] = $data['where'].' AND shipment_round = '.$vong;
+
+
+
+        }
+
+
+
+
+
+
+
+        /*if ($_SESSION['role_logined'] == 3) {
+
+
+
+            $data['where'] = $data['where'].' AND shipment_create_user = '.$_SESSION['userid_logined'];
+
+
+
+            
+
+
+
+        }*/
+
+
+
+
+
+
+
+        $tongsodong = count($shipment_model->getAllShipment($data,$join));
+
+
+
+        $tongsotrang = ceil($tongsodong / $sonews);
+
+
+
+        
+
+
+
+
+
+
+
+        $this->view->data['page'] = $page;
+
+
+
+        $this->view->data['order_by'] = $order_by;
+
+
+
+        $this->view->data['order'] = $order;
+
+
+
+        $this->view->data['keyword'] = $keyword;
+
+
+
+        $this->view->data['limit'] = $limit;
+
+
+
+        $this->view->data['pagination_stages'] = $pagination_stages;
+
+
+
+        $this->view->data['tongsotrang'] = $tongsotrang;
+
+
+
+        $this->view->data['sonews'] = $sonews;
+
+
+
+
+
+
+
+        $this->view->data['batdau'] = $batdau;
+
+
+
+        $this->view->data['ketthuc'] = $ketthuc;
+
+
+        $this->view->data['thangchon'] = $thangchon;
+
+        $this->view->data['namchon'] = $namchon;
+
+
+
+
+        $this->view->data['xe'] = $xe;
+
+
+
+        $this->view->data['vong'] = $vong;
+
+
+
+
+
+
+
+
+
+
+
+        $data = array(
+
+
+
+            'order_by'=>$order_by,
+
+
+
+            'order'=>$order,
+
+
+
+            'limit'=>$x.','.$sonews,
+
+
+
+            'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc),
+
+
+
+            );
+
+
+        if (isset($id) && $id > 0) {
+            $data['where'] = 'shipment_id = '.$id;
+        }
+
+
+        if($xe != 0){
+
+
+
+            $data['where'] = $data['where'].' AND vehicle = '.$xe;
+
+
+
+        }
+
+
+
+        if($vong != 0){
+
+
+
+            $data['where'] = $data['where'].' AND shipment_round = '.$vong;
+
+
+
+        }
+
+
+
+
+
+
+
+        /*if ($_SESSION['role_logined'] == 3) {
+
+
+
+            $data['where'] = $data['where'].' AND shipment_create_user = '.$_SESSION['userid_logined'];
+
+
+
+            
+
+
+
+        }*/
+
+
+
+
+
+
+
+        if ($keyword != '') {
+
+
+
+            $ngay = (strtotime(str_replace("/", "-", $keyword))!="")?(' OR shipment_date LIKE "%'.strtotime(str_replace("/", "-", $keyword)).'%"'):"";
+
+
+
+            $search = '(
+
+
+
+                    vehicle_number LIKE "%'.$keyword.'%" 
+
+                    OR bill_number LIKE "%'.$keyword.'%" 
+
+                    OR steersman_name LIKE "%'.$keyword.'%" 
+
+                    OR customer_name LIKE "%'.$keyword.'%" 
+
+                    OR customer_type IN (SELECT customer_sub_id FROM customer_sub WHERE customer_sub_name LIKE "%'.$keyword.'%" ) 
+
+                    OR shipment_from in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
+
+
+
+                    OR shipment_to in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
+
+
+
+                    '.$ngay.'
+
+
+
+                        )';
+
+
+
+            $data['where'] = $data['where']." AND ".$search;
+
+
+
+        }
+
+
+
+
+
+
+
+        $road_model = $this->model->get('roadModel');
+
+
+
+       
+
+
+
+        $road_data = array();
+
+
+
+        
+
+
+
+        $datas = $shipment_model->getAllShipment($data,$join);
+
+
+
+
+
+
+
+        $this->view->data['shipments'] = $datas;
+
+
+
+
+
+
+
+        $this->view->data['lastID'] = isset($shipment_model->getLastShipment()->shipment_id)?$shipment_model->getLastShipment()->shipment_id:0;
+
+
+
+
+
+        $customer_sub_model = $this->model->get('customersubModel');
+
+
+
+        $export_stock_model = $this->model->get('exportstockModel');
+
+
+
+        $customer_types = array();
+
+
+
+        $export_stocks = array();
+
+
+       
+
+
+        $v = array();
+
+
+
+
+
+        foreach ($datas as $ship) {
+
+            
+
+
+
+            $month = intval(date('m',$ship->shipment_date));
+
+
+
+            $year = date('Y',$ship->shipment_date);
+
+
+
+
+
+
+
+
+
+           $v[$ship->vehicle.$ship->shipment_round.$month.$year] = isset($v[$ship->vehicle.$ship->shipment_round.$month.$year])?($v[$ship->vehicle.$ship->shipment_round.$month.$year] + 1) : (0+1) ;
+
+
+
+
+
+
+
+           $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
+
+
+
+            
+
+
+
+           $road_data['oil_add'][$ship->shipment_id] = ($ship->oil_add_dc == 5)?$ship->oil_add:0;
+
+
+
+           $road_data['oil_add2'][$ship->shipment_id] = ($ship->oil_add_dc2 == 5)?$ship->oil_add2:0;
+
+
+
+
+
+
+
+           $check_sub = 1;
+
+           if ($ship->shipment_sub==1) {
+               $check_sub = 0;
+           }
+
+
+
+
+
+
+
+            $chek_rong = 0;
+
+
+
+            
+
+
+
+            foreach ($roads as $road) {
+
+
+
+                $road_data['bridge_cost'][$ship->shipment_id] = isset($road_data['bridge_cost'][$ship->shipment_id])?$road_data['bridge_cost'][$ship->shipment_id]+$road->bridge_cost*$check_sub:$road->bridge_cost*$check_sub;
+
+
+
+                $road_data['police_cost'][$ship->shipment_id] = isset($road_data['police_cost'][$ship->shipment_id])?$road_data['police_cost'][$ship->shipment_id]+($road->police_cost)*$check_sub:($road->police_cost)*$check_sub;
+
+
+
+                $road_data['tire_cost'][$ship->shipment_id] = isset($road_data['tire_cost'][$ship->shipment_id])?$road_data['tire_cost'][$ship->shipment_id]+($road->tire_cost)*$check_sub:($road->tire_cost)*$check_sub;
+
+                if($road->road_oil_ton > 0){
+                    $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+($road->road_oil_ton*round($ship->oil_cost))*$check_sub:($road->road_oil_ton*round($ship->oil_cost))*$check_sub;
+
+                    $road_data['road_oil'][$ship->shipment_id] = isset($road_data['road_oil'][$ship->shipment_id])?$road_data['road_oil'][$ship->shipment_id]+($road->road_oil_ton)*$check_sub:($road->road_oil_ton)*$check_sub;
+                }
+                else{
+                    $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+($road->road_oil*round($ship->oil_cost))*$check_sub:($road->road_oil*round($ship->oil_cost))*$check_sub;
+
+                    $road_data['road_oil'][$ship->shipment_id] = isset($road_data['road_oil'][$ship->shipment_id])?$road_data['road_oil'][$ship->shipment_id]+($road->road_oil)*$check_sub:($road->road_oil)*$check_sub;
+                }
+
+
+                $road_data['road_time'][$ship->shipment_id] = isset($road_data['road_time'][$ship->shipment_id])?$road_data['road_time'][$ship->shipment_id]+($road->road_time)*$check_sub:($road->road_time)*$check_sub;
+
+
+
+                $road_data['road_km'][$ship->shipment_id] = isset($road_data['road_km'][$ship->shipment_id])?$road_data['road_km'][$ship->shipment_id]+$road->road_km*$check_sub:$road->road_km*$check_sub;
+
+
+
+
+
+
+
+                $chek_rong = ($road->way == 0)?1:0;
+
+
+
+
+
+
+
+            }
+
+
+
+
+
+
+
+            $warehouse = $warehouse_model->getAllWarehouse(array('where'=>'(warehouse_code = '.$ship->shipment_from.' OR warehouse_code = '.$ship->shipment_to.') AND start_time <= '.$ship->shipment_date.' AND end_time >= '.$ship->shipment_date));
+
+
+
+        
+
+
+
+
+
+
+
+            $boiduong_cont = 0;
+
+
+
+            $boiduong_tan = 0;
+
+
+
+
+
+
+
+            
+
+
+
+            foreach ($warehouse as $warehouse) {
+
+
+
+                
+
+
+
+                    $warehouse_data['warehouse_id'][$warehouse->warehouse_code] = $warehouse->warehouse_code;
+
+
+
+                    $warehouse_data['warehouse_name'][$warehouse->warehouse_code] = $warehouse->warehouse_name;
+
+
+
+
+
+
+
+                    $tan = explode(".",$ship->shipment_ton);
+
+
+
+                    if (isset($tan[1]) && substr($tan[1], 0, 1) > 5 ) {
+
+
+
+                        $trongluong = $tan[0] + 1;
+
+
+
+                    }
+
+
+
+                    elseif (isset($tan[1]) && substr($tan[1], 0, 1) < 5 ) {
+
+
+
+                        $trongluong = $tan[0];
+
+
+
+                    }
+
+
+
+                    else{
+
+
+
+                        $trongluong = $tan[0]+('0.'.(isset($tan[1])?substr($tan[1], 0, 1):0));
+
+
+
+                    }
+
+
+
+
+
+
+
+
+
+
+
+                if($chek_rong == 0){
+
+
+
+                    if ($warehouse->warehouse_cont != 0) {
+
+
+
+                        $boiduong_cont += $warehouse->warehouse_cont;
+
+
+
+                    }
+
+
+
+                    if ($warehouse->warehouse_ton != 0){
+
+
+
+                        $boiduong_tan += $trongluong * $warehouse->warehouse_ton;
+
+
+
+                    }
+
+
+
+                }
+
+
+
+                else{
+
+
+
+                    if ($ship->shipment_ton > 0) {
+
+
+
+                        $boiduong_cont += $warehouse->warehouse_add;
+
+
+
+                    }
+
+
+
+                }
+
+
+
+                
+
+
+
+                
+
+
+
+            }
+
+
+
+            $warehouse_data['boiduong_cn'][$ship->shipment_id] = ($boiduong_cont+$boiduong_tan)*$check_sub;
+
+
+
+
+
+            $customer_sub = "";
+
+            $sts = explode(',', $ship->customer_type);
+
+            foreach ($sts as $key) {
+
+                $subs = $customer_sub_model->getCustomer($key);
+
+                if ($subs) {
+
+                    if ($customer_sub == "")
+
+                        $customer_sub .= $subs->customer_sub_name;
+
+                    else
+
+                        $customer_sub .= ','.$subs->customer_sub_name;
+
+                }
+
+                
+
+            }
+
+            $customer_types[$ship->shipment_id] = $customer_sub;
+
+
+
+            $export_sub = "";
+
+            $sts = explode(',', $ship->export_stock);
+
+            foreach ($sts as $key) {
+
+                $subs = $export_stock_model->getStock($key);
+
+                if ($subs) {
+
+                    if ($export_sub == "")
+
+                        $export_sub .= $subs->export_stock_code;
+
+                    else
+
+                        $export_sub .= ','.$subs->export_stock_code;
+
+                }
+
+                
+
+            }
+
+            $export_stocks[$ship->shipment_id] = $export_sub;
+
+
+
+        }
+
+
+
+        $this->view->data['customer_types'] = $customer_types;
+
+
+
+        $this->view->data['export_stocks'] = $export_stocks;
+
+
+
+        $this->view->data['warehouse'] = $warehouse_data;
+
+
+
+        $this->view->data['road'] = $road_data;
+
+
+
+        $this->view->data['arr'] = $v;
+
+
+
+
+
+        $this->view->show('shipment/index');
+
+
+
+    }
+    public function index2() {
+
+
+
+        $this->view->setLayout('admin');
+
+
+
+        if (!isset($_SESSION['userid_logined'])) {
+
+
+
+            return $this->view->redirect('user/login');
+
+
+
+        }
+
+
+
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipment) || json_decode($_SESSION['user_permission_action'])->shipment != "shipment") {
+
+            $this->view->data['disable_control'] = 1;
+
+        }
+
+
+
+        $this->view->data['lib'] = $this->lib;
+
+
+
+        $this->view->data['title'] = 'Điều xe';
+
+
+
+
+
+
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+
+
+            $order_by = isset($_POST['order_by']) ? $_POST['order_by'] : null;
+
+
+
+            $order = isset($_POST['order']) ? $_POST['order'] : null;
+
+
+
+            $page = isset($_POST['page']) ? $_POST['page'] : null;
+
+
+
+            $keyword = isset($_POST['keyword']) ? $_POST['keyword'] : null;
+
+
+
+            $limit = isset($_POST['limit']) ? $_POST['limit'] : 18446744073709;
+
+
+
+            $batdau = isset($_POST['batdau']) ? $_POST['batdau'] : null;
+
+
+
+            $ketthuc = isset($_POST['ketthuc']) ? $_POST['ketthuc'] : null;
+
+
+
+            $xe = isset($_POST['xe']) ? $_POST['xe'] : null;
+
+
+
+            $vong = isset($_POST['vong']) ? $_POST['vong'] : null;
+
+
+
+        }
+
+
+
+        else{
+
+
+
+            $order_by = $this->registry->router->order_by ? $this->registry->router->order_by : 'vehicle_number ASC, shipment_date ASC, ';
+
+
+
+            $order = $this->registry->router->order_by ? $this->registry->router->order_by : 'shipment_round ASC';
+
+
+
+            $page = $this->registry->router->page ? (int) $this->registry->router->page : 1;
+
+
+
+            $keyword = "";
+
+
+
+            $limit = 50;
+
+
+
+
+
+            $batdau = '01-'.date('m-Y');
+
+            $ketthuc = date('t-m-Y'); //cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')).'-'.date('m-Y');
+
+
+
+
+
+            $xe = 0;
+
+
+
+            $vong = 0;
+
+
+
+        }
+
+        $id = $this->registry->router->param_id;
+
+        $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
+
+        $thangchon = (int)date('m',strtotime($batdau));
+
+        $namchon = date('Y',strtotime($batdau));
+
+
+        $contunit_model = $this->model->get('contunitModel');
+
+        $loanunit_model = $this->model->get('loanunitModel');
+
+
+
+        $this->view->data['cont_units'] = $contunit_model->getAllUnit();
+
+        $this->view->data['loan_units'] = $loanunit_model->getAllUnit();
+
+
+
+        $costlist_model = $this->model->get('costlistModel');
+
+        $this->view->data['cost_lists'] = $costlist_model->getAllCost();
+
+
+
+
+
+        $place_model = $this->model->get('placeModel');
+
+
+
+        $place_data = array();
+
+
+
+        $places = $place_model->getAllPlace();
+
+
+
+
+
+        foreach ($places as $place) {
+
+
+
+                $place_data['place_id'][$place->place_id] = $place->place_id;
+
+
+
+                $place_data['place_name'][$place->place_id] = $place->place_name;
+
+
+
+        }
+
+
+
+        $this->view->data['place'] = $place_data;
+
+
+
+        $romooc_model = $this->model->get('romoocModel');
+
+
+
+        $romooc_data = array();
+
+
+
+        $romoocs = $romooc_model->getAllVehicle();
+
+
+
+
+
+        foreach ($romoocs as $romooc) {
+
+
+
+                $romooc_data['romooc_id'][$romooc->romooc_id] = $romooc->romooc_id;
+
+
+
+                $romooc_data['romooc_number'][$romooc->romooc_id] = $romooc->romooc_number;
+
+
+
+        }
+
+
+
+        $this->view->data['romooc_data'] = $romooc_data;
+
+
+
+
+
+        $warehouse_model = $this->model->get('warehouseModel');
+
+
+
+
+
+
+
+        $warehouse_data = array();
+
+
+
+
+
+
+
+        $giadauhientai = $this->craw();
+
+
+
+        $this->view->data['giadauhientai'] = $giadauhientai;
+
+
+
+
+
+
+
+        $vehicle_model = $this->model->get('vehicleModel');
+
+
+
+        $vehicles = $vehicle_model->getAllVehicle(array('order_by'=>'vehicle_number','order'=>'ASC'));
 
 
 
@@ -1041,7 +2073,7 @@ Class shipmentController Extends baseController {
 
 
 
-        $this->view->show('shipment/index');
+        $this->view->show('shipment/index2');
 
 
 
@@ -1720,7 +2752,7 @@ Class shipmentController Extends baseController {
             $place_model = $this->model->get('placeModel');
 
 
-
+            $customer_sub_model = $this->model->get('customersubModel');
 
 
 
@@ -1756,7 +2788,29 @@ Class shipmentController Extends baseController {
                 }
 
 
+                $customer_sub = "";
 
+                $sts = explode(',', $shipment_data->customer_type);
+
+                foreach ($sts as $key) {
+
+                    $subs = $customer_sub_model->getCustomer($key);
+
+                    if ($subs) {
+
+                        if ($customer_sub == "")
+
+                            $customer_sub .= $subs->customer_sub_name;
+
+                        else
+
+                            $customer_sub .= ','.$subs->customer_sub_name;
+
+                    }
+
+                    
+
+                }
 
 
 
@@ -1810,6 +2864,9 @@ Class shipmentController Extends baseController {
 
 
                     'cont_unit' => $shipment_data->shipment_temp_cont_unit,
+
+
+                    'customer_sub' => $customer_sub,
 
 
 
@@ -2075,7 +3132,7 @@ Class shipmentController Extends baseController {
 
 
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipment) || json_decode($_SESSION['user_permission_action'])->shipment != "shipment") {
 
 
 
@@ -2319,6 +3376,8 @@ Class shipmentController Extends baseController {
 
                         'shipment_road_oil' => trim($_POST['shipment_road_oil']),
 
+                        'shipment_link' => trim($_POST['shipment_link']),
+
                         );
 
             $data['shipment_ton'] = $data['bill_delivery_ton'];
@@ -2326,6 +3385,7 @@ Class shipmentController Extends baseController {
             $data['shipment_ton_net'] = $data['bill_receive_ton'];
             $data['cont_unit_net'] = $data['bill_receive_unit'];
             $data['oil_add'] = $data['shipment_oil'];
+
 
             $export_stock_model = $this->model->get('exportstockModel');
 
@@ -2820,84 +3880,7 @@ Class shipmentController Extends baseController {
 
 
 
-                $data_shipments = $shipment->getShipment($_POST['yes']);
-
-
-
-                $shipment_temp_id = $data_shipments->shipment_temp;
-
-
-
-                if($shipment_temp_id > 0){
-
-
-
-                    $shipment_temp_model = $this->model->get('shipmenttempModel');
-
-
-
-                    $shipment_temp_data = $shipment_temp_model->getShipment($shipment_temp_id);
-
-
-
-
-
-
-
-                    $data_shipment_temp = array(
-
-
-
-                        'shipment_ton_use' => $shipment_temp_data->shipment_ton_use-$data_shipments->shipment_ton+$data['shipment_ton'],
-
-
-
-                    );
-
-
-
-
-
-
-
-                    $shipment_temp_model->updateShipment($data_shipment_temp,array('shipment_temp_id'=>$shipment_temp_id));
-
-
-
-
-
-
-
-                    $shipment_temp_data = $shipment_temp_model->getShipment($shipment_temp_id);
-
-
-
-
-
-
-
-                    if ( ($shipment_temp_data->shipment_temp_ton-$shipment_temp_data->shipment_ton_use) <= 0) {
-
-
-
-                        $shipment_temp_model->updateShipment(array('shipment_temp_status'=>1), array('shipment_temp_id'=>$shipment_temp_id));
-
-
-
-                    }
-
-
-
-                }
-
-
-
                 
-
-
-
-
-
 
 
                 if ($shipment->checkShipment($_POST['yes'],trim($_POST['bill_number']))) {
@@ -2934,8 +3917,73 @@ Class shipmentController Extends baseController {
 
                 else{
 
+                    $data_shipments = $shipment->getShipment($_POST['yes']);
+
+                    $shipment_temp_id = $data_shipments->shipment_temp;
 
 
+
+                    if($shipment_temp_id > 0){
+
+
+
+                        $shipment_temp_model = $this->model->get('shipmenttempModel');
+
+
+
+                        $shipment_temp_data = $shipment_temp_model->getShipment($shipment_temp_id);
+
+
+
+
+
+
+
+                        $data_shipment_temp = array(
+
+
+
+                            'shipment_ton_use' => $shipment_temp_data->shipment_ton_use-$data_shipments->shipment_ton_net+$data['shipment_ton_net'],
+
+
+
+                        );
+
+
+
+
+
+
+
+                        $shipment_temp_model->updateShipment($data_shipment_temp,array('shipment_temp_id'=>$shipment_temp_id));
+
+
+
+
+
+
+
+                        $shipment_temp_data = $shipment_temp_model->getShipment($shipment_temp_id);
+
+
+
+
+
+
+
+                        if ( ($shipment_temp_data->shipment_temp_ton-$shipment_temp_data->shipment_ton_use) <= 0) {
+
+
+
+                            $shipment_temp_model->updateShipment(array('shipment_temp_status'=>1), array('shipment_temp_id'=>$shipment_temp_id));
+
+
+
+                        }
+
+
+
+                    }
 
 
 
@@ -3751,79 +4799,7 @@ Class shipmentController Extends baseController {
 
 
 
-                $data['shipment_create_user'] = $_SESSION['userid_logined'];
-
-
-
-                $data['shipment_temp'] = trim($_POST['check_temp']);
-
-
-
-
-
-
-
-                if($data['shipment_temp'] > 0){
-
-
-
-                    $shipment_temp_model = $this->model->get('shipmenttempModel');
-
-
-
-                    $shipment_temp_data = $shipment_temp_model->getShipment($data['shipment_temp']);
-
-
-
-
-
-
-
-                    $data_shipment_temp = array(
-
-
-
-                        'shipment_ton_use' => $shipment_temp_data->shipment_ton_use+$data['shipment_ton'],
-
-
-
-                    );
-
-
-
-
-
-
-
-                    $shipment_temp_model->updateShipment($data_shipment_temp,array('shipment_temp_id'=>$data['shipment_temp']));
-
-
-
-
-
-
-
-                    $shipment_temp_data = $shipment_temp_model->getShipment($data['shipment_temp']);
-
-
-
-
-
-
-
-                    if ( ($shipment_temp_data->shipment_temp_ton-$shipment_temp_data->shipment_ton_use) <= 0) {
-
-
-
-                        $shipment_temp_model->updateShipment(array('shipment_temp_status'=>1), array('shipment_temp_id'=>$data['shipment_temp']));
-
-
-
-                    }
-
-
-
-                }
+                
 
 
 
@@ -3940,6 +4916,81 @@ Class shipmentController Extends baseController {
 
 
                 else{
+
+
+                    $data['shipment_create_user'] = $_SESSION['userid_logined'];
+
+
+
+                    $data['shipment_temp'] = trim($_POST['check_temp']);
+
+
+
+
+
+
+
+                    if($data['shipment_temp'] > 0){
+
+
+
+                        $shipment_temp_model = $this->model->get('shipmenttempModel');
+
+
+
+                        $shipment_temp_data = $shipment_temp_model->getShipment($data['shipment_temp']);
+
+
+
+
+
+
+
+                        $data_shipment_temp = array(
+
+
+
+                            'shipment_ton_use' => $shipment_temp_data->shipment_ton_use+$data['shipment_ton_net'],
+
+
+
+                        );
+
+
+
+
+
+
+
+                        $shipment_temp_model->updateShipment($data_shipment_temp,array('shipment_temp_id'=>$data['shipment_temp']));
+
+
+
+
+
+
+
+                        $shipment_temp_data = $shipment_temp_model->getShipment($data['shipment_temp']);
+
+
+
+
+
+
+
+                        if ( ($shipment_temp_data->shipment_temp_ton-$shipment_temp_data->shipment_ton_use) <= 0) {
+
+
+
+                            $shipment_temp_model->updateShipment(array('shipment_temp_status'=>1), array('shipment_temp_id'=>$data['shipment_temp']));
+
+
+
+                        }
+
+
+
+                    }
 
 
 
@@ -4385,6 +5436,9 @@ Class shipmentController Extends baseController {
             }
 
 
+            if ($data['shipment_link'] > 0) {
+                $shipment->updateShipment(array('shipment_link'=>$id_shipment),array('shipment_id'=>$data['shipment_link']));
+            }
 
             $loan_shipment_model = $this->model->get('loanshipmentModel');
 
@@ -4450,7 +5504,7 @@ Class shipmentController Extends baseController {
 
 
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipment) || json_decode($_SESSION['user_permission_action'])->shipment != "shipment") {
 
 
 
@@ -4982,10 +6036,74 @@ Class shipmentController Extends baseController {
                 else{
 
 
+                    $data_shipments = $shipment->getShipment($_POST['yes']);
+
+
+                    $shipment_temp_id = $data_shipments->shipment_temp;
+
+
+
+                    if($shipment_temp_id > 0){
+
+
+
+                        $shipment_temp_model = $this->model->get('shipmenttempModel');
+
+
+
+                        $shipment_temp_data = $shipment_temp_model->getShipment($shipment_temp_id);
 
 
 
 
+
+
+
+                        $data_shipment_temp = array(
+
+
+
+                            'shipment_ton_use' => $shipment_temp_data->shipment_ton_use-$data_shipments->shipment_ton_net+$data['shipment_ton_net'],
+
+
+
+                        );
+
+
+
+
+
+
+
+                        $shipment_temp_model->updateShipment($data_shipment_temp,array('shipment_temp_id'=>$shipment_temp_id));
+
+
+
+
+
+
+
+                        $shipment_temp_data = $shipment_temp_model->getShipment($shipment_temp_id);
+
+
+
+
+
+
+
+                        if ( ($shipment_temp_data->shipment_temp_ton-$shipment_temp_data->shipment_ton_use) <= 0) {
+
+
+
+                            $shipment_temp_model->updateShipment(array('shipment_temp_status'=>1), array('shipment_temp_id'=>$shipment_temp_id));
+
+
+
+                        }
+
+
+
+                    }
 
 
 
@@ -5008,6 +6126,9 @@ Class shipmentController Extends baseController {
 
 
                     $result['profit'] = $loinhuan;
+
+
+                    $result['id'] = $_POST['yes'];
 
 
 
@@ -5603,7 +6724,79 @@ Class shipmentController Extends baseController {
 
 
 
+                    $data['shipment_create_user'] = $_SESSION['userid_logined'];
 
+
+
+                    $data['shipment_temp'] = trim($_POST['check_temp']);
+
+
+
+
+
+
+
+                    if($data['shipment_temp'] > 0){
+
+
+
+                        $shipment_temp_model = $this->model->get('shipmenttempModel');
+
+
+
+                        $shipment_temp_data = $shipment_temp_model->getShipment($data['shipment_temp']);
+
+
+
+
+
+
+
+                        $data_shipment_temp = array(
+
+
+
+                            'shipment_ton_use' => $shipment_temp_data->shipment_ton_use+$data['shipment_ton_net'],
+
+
+
+                        );
+
+
+
+
+
+
+
+                        $shipment_temp_model->updateShipment($data_shipment_temp,array('shipment_temp_id'=>$data['shipment_temp']));
+
+
+
+
+
+
+
+                        $shipment_temp_data = $shipment_temp_model->getShipment($data['shipment_temp']);
+
+
+
+
+
+
+
+                        if ( ($shipment_temp_data->shipment_temp_ton-$shipment_temp_data->shipment_ton_use) <= 0) {
+
+
+
+                            $shipment_temp_model->updateShipment(array('shipment_temp_status'=>1), array('shipment_temp_id'=>$data['shipment_temp']));
+
+
+
+                        }
+
+
+
+                    }
 
 
 
@@ -5698,12 +6891,12 @@ Class shipmentController Extends baseController {
                     $result['profit'] = $loinhuan;
 
 
+                    $id_shipment = $shipment->getLastShipment()->shipment_id;
+
+
+                    $result['id'] = $id_shipment;
 
                     echo json_encode($result);
-
-
-
-                    $id_shipment = $shipment->getLastShipment()->shipment_id;
 
 
                     if ($data['shipment_road_add'] > 0) {
@@ -6036,7 +7229,7 @@ Class shipmentController Extends baseController {
 
 
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipment) || json_decode($_SESSION['user_permission_action'])->shipment != "shipment") {
 
 
 
@@ -6393,7 +7586,7 @@ Class shipmentController Extends baseController {
 
 
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipment) || json_decode($_SESSION['user_permission_action'])->shipment != "shipment") {
 
 
 
@@ -8611,7 +9804,7 @@ Class shipmentController Extends baseController {
 
 
 
-                $str .= '<td><input style="width:120px" type="text" class="cost_sub number" name="cost_sub[]"><input type="checkbox" class="check_vat" name="check_vat[]" value="1"> VAT</td></tr>';
+                $str .= '<td><input style="width:120px" type="text" class="cost_sub number" name="cost_sub[]"><input type="checkbox" class="check_vat_sub" name="check_vat_sub[]" value="1"> VAT</td></tr>';
 
 
 
@@ -8707,7 +9900,7 @@ Class shipmentController Extends baseController {
 
 
 
-                    $str .= '<td><input style="width:120px" type="text" class="cost_sub number" name="cost_sub[]" value="'.$this->lib->formatMoney($v->cost).'" ><input '.$checked.' type="checkbox" class="check_vat" name="check_vat[]" value="1"> VAT</td></tr>';
+                    $str .= '<td><input style="width:120px" type="text" class="cost_sub number" name="cost_sub[]" value="'.$this->lib->formatMoney($v->cost).'" ><input '.$checked.' type="checkbox" class="check_vat_sub" name="check_vat_sub[]" value="1"> VAT</td></tr>';
 
 
 
@@ -9034,7 +10227,7 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipment) || json_decode($_SESSION['user_permission_action'])->shipment != "shipment") {
 
 
 
@@ -9151,7 +10344,7 @@ Class shipmentController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipment) || json_decode($_SESSION['user_permission_action'])->shipment != "shipment") {
 
 
 
@@ -9287,7 +10480,7 @@ Class shipmentController Extends baseController {
 
 
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipment) || json_decode($_SESSION['user_permission_action'])->shipment != "shipment") {
 
 
 
@@ -9353,7 +10546,7 @@ Class shipmentController Extends baseController {
 
 
 
-                            'shipment_ton_use' => $shipment_temp_data->shipment_ton_use-$shipment_data->shipment_ton,
+                            'shipment_ton_use' => $shipment_temp_data->shipment_ton_use-$shipment_data->shipment_ton_net,
 
 
 
@@ -9366,11 +10559,37 @@ Class shipmentController Extends baseController {
 
 
 
-
-
-
                     }
 
+                    /*if ($shipment_data->shipment_link > 0) {
+                        $shipment_2_data = $shipment->getShipment($shipment_data->shipment_link);
+
+                        if ($shipment_2_data->shipment_temp > 0) {
+                            $shipment_temp_data = $shipment_temp->getShipment($shipment_2_data->shipment_temp);
+
+
+
+                            $data_shipment = array(
+
+
+
+                                'shipment_temp_status' => 0,
+
+
+
+                                'shipment_ton_use' => $shipment_temp_data->shipment_ton_use-$shipment_2_data->shipment_ton_net,
+
+
+
+                            );
+
+
+
+                            $shipment_temp->updateShipment($data_shipment,array('shipment_temp_id'=>$shipment_2_data->shipment_temp));
+
+                        }
+                    }*/
+                    
 
 
                     $costs = $shipment_cost->getAllShipment(array('where'=>'shipment = '.$data));
@@ -9394,6 +10613,7 @@ Class shipmentController Extends baseController {
                     $vat->queryVAT('DELETE FROM vat WHERE shipment = '.$data);
 
 
+                    //$shipment->queryShipment('DELETE FROM shipment WHERE shipment_id = '.$shipment_data->shipment_link);
 
                     $shipment->deleteShipment($data);
 
@@ -9475,7 +10695,7 @@ Class shipmentController Extends baseController {
 
 
 
-                        'shipment_ton_use' => $shipment_temp_data->shipment_ton_use-$shipment_data->shipment_ton,
+                        'shipment_ton_use' => $shipment_temp_data->shipment_ton_use-$shipment_data->shipment_ton_net,
 
 
 
@@ -9492,6 +10712,35 @@ Class shipmentController Extends baseController {
 
 
                 }
+
+                /*if ($shipment_data->shipment_link > 0) {
+                    $shipment_2_data = $shipment->getShipment($shipment_data->shipment_link);
+
+                    if ($shipment_2_data->shipment_temp > 0) {
+                        $shipment_temp_data = $shipment_temp->getShipment($shipment_2_data->shipment_temp);
+
+
+
+                        $data_shipment = array(
+
+
+
+                            'shipment_temp_status' => 0,
+
+
+
+                            'shipment_ton_use' => $shipment_temp_data->shipment_ton_use-$shipment_2_data->shipment_ton_net,
+
+
+
+                        );
+
+
+
+                        $shipment_temp->updateShipment($data_shipment,array('shipment_temp_id'=>$shipment_2_data->shipment_temp));
+
+                    }
+                }*/
 
 
 
@@ -9515,7 +10764,7 @@ Class shipmentController Extends baseController {
 
                 $vat->queryVAT('DELETE FROM vat WHERE shipment = '.$_POST['data']);
 
-
+                //$shipment->queryShipment('DELETE FROM shipment WHERE shipment_id = '.$shipment_data->shipment_link);
 
                 date_default_timezone_set("Asia/Ho_Chi_Minh"); 
 
@@ -9665,71 +10914,71 @@ Class shipmentController Extends baseController {
 
 
 
-        $batdau = strtotime('30-'.($thang-1).'-'.$nam);
+        $batdau = strtotime('01-'.$thang.'-'.$nam);
 
 
 
-        $ketthuc = strtotime('29-'.$thang.'-'.$nam);
+        $ketthuc = date('t-m-Y',strtotime('01-'.$thang.'-'.$nam));
 
 
 
-
-
-
+        $ngayketthuc = strtotime(date('d-m-Y', strtotime($ketthuc. ' + 1 days')));
 
 
 
 
+        $contunit_model = $this->model->get('contunitModel');
+        $cost_list_model = $this->model->get('costlistModel');
 
-        $driver_model = $this->model->get('driverModel');
-
-
-
-        
-
-
-
+        $this->view->data['cont_units'] = $contunit_model->getAllUnit();
+        $this->view->data['loan_units'] = $cost_list_model->getAllCost(array('where'=>'cost_list_type = 8'));
 
 
         $place_model = $this->model->get('placeModel');
 
-
-
         $place_data = array();
-
-
 
         $places = $place_model->getAllPlace();
 
 
-
-
-
         foreach ($places as $place) {
-
-
 
                 $place_data['place_id'][$place->place_id] = $place->place_id;
 
-
-
                 $place_data['place_name'][$place->place_id] = $place->place_name;
-
-
 
         }
 
-
-
         $this->view->data['place'] = $place_data;
 
-        
+        $romooc_model = $this->model->get('romoocModel');
+
+        $romooc_data = array();
+
+        $romoocs = $romooc_model->getAllVehicle();
+
+
+        foreach ($romoocs as $romooc) {
+
+                $romooc_data['romooc_id'][$romooc->romooc_id] = $romooc->romooc_id;
+
+                $romooc_data['romooc_number'][$romooc->romooc_id] = $romooc->romooc_number;
+
+        }
+
+        $this->view->data['romooc_data'] = $romooc_data;
+
+
+        $warehouse_model = $this->model->get('warehouseModel');
+
+
+
+        $warehouse_data = array();
 
 
 
 
-
-
+        $join = array('table'=>'customer, vehicle, cont_unit, steersman','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND cont_unit=cont_unit_id AND steersman = steersman_id');
 
 
 
@@ -9740,18 +10989,11 @@ Class shipmentController Extends baseController {
 
 
 
-
-
-
-        $join = array('table'=>'customer, vehicle, cont_unit','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND cont_unit = cont_unit_id');
-
-
-
         $data = array(
 
 
 
-            'where' => 'vehicle = '.$id.' AND shipment_round <= '.$round.' AND shipment_date >= '.$batdau.' AND shipment_date <= '.$ketthuc,
+            'where' => 'vehicle = '.$id.' AND shipment_round <= '.$round.' AND shipment_date >= '.$batdau.' AND shipment_date < '.$ngayketthuc,
 
 
 
@@ -9772,239 +11014,95 @@ Class shipmentController Extends baseController {
         $this->view->data['shipments'] = $shipments;
 
 
-
-
-
-
-
-        $warehouse_model = $this->model->get('warehouseModel');
-
-
-
-        
-
-
-
-
-
-
-
         $road_model = $this->model->get('roadModel');
 
-
-
-
-
-
-
-        $warehouse_data = array();
-
-
+       
 
         $road_data = array();
 
+        
 
+        $customer_sub_model = $this->model->get('customersubModel');
 
+        $export_stock_model = $this->model->get('exportstockModel');
 
+        $shipment_cost_model = $this->model->get('shipmentcostModel');
 
+        $customer_types = array();
 
+        $export_stocks = array();
+
+        
+
+        $loan_shipment_data = array();
 
         $v = array();
 
 
+        foreach ($shipments as $ship) {
+
+            $month = intval(date('m',$ship->shipment_date));
+
+            $year = date('Y',$ship->shipment_date);
+
+           $v[$ship->vehicle.$ship->shipment_round.$month.$year] = isset($v[$ship->vehicle.$ship->shipment_round.$month.$year])?($v[$ship->vehicle.$ship->shipment_round.$month.$year] + 1) : (0+1) ;
 
 
-
-
-
-        $driver_data = array();
-
-
-
-
-
-
-
-        foreach ($shipments as $shipment) {
-
-
-
-
-
-
-
-            $d_data = array(
-
-
-
-                'where'=> ' start_work <= '.$shipment->shipment_date.' AND end_work > '.$shipment->shipment_date.' AND vehicle = '.$shipment->vehicle,
-
-
-
-            );
-
-
-
-            $d_join = array('table'=>'steersman','where'=>'steersman = steersman_id');
-
-
-
-            $drivers = $driver_model->getAllDriver($d_data,$d_join);
-
-
+           $loans = $shipment_cost_model->getAllShipment(array('where'=>'shipment = '.$ship->shipment_id),array('table'=>'cost_list','where'=>'cost_list = cost_list_id AND cost_list_type = 8'));
+            foreach ($loans as $loan) {
+                $loan_shipment_data[$ship->shipment_id][$loan->cost_list] = isset($loan_shipment_data[$ship->shipment_id][$loan->cost_list])?$loan_shipment_data[$ship->shipment_id][$loan->cost_list]+$loan->cost:$loan->cost;
+                
+            }
 
             
 
 
-
-            foreach ($drivers as $driver) {
-
-
-
-                $driver_data[$shipment->shipment_id]['driver_name'] = $driver->steersman_name;
-
-
-
-                $driver_data[$shipment->shipment_id]['driver_phone'] = $driver->steersman_phone;
-
-
-
-            }
-
-
-
-
-
-
-
-            $month = intval(date('m',$shipment->shipment_date));
-
-
-
-            $year = date('Y',$shipment->shipment_date);
-
-
-
-            if(date('d',$shipment->shipment_date)>29){
-
-
-
-                $month = intval(date('m',$shipment->shipment_date)+1);
-
-                if ($month == 13) {
-
-                    $month = 1;
-
-                    $year = $year+1;
-
-                }
-
-
-
-            }
-
-
-
-
-
-
-
-           $v[$shipment->vehicle.$shipment->shipment_round.$month.$year] = isset($v[$shipment->vehicle.$shipment->shipment_round.$month.$year])?($v[$shipment->vehicle.$shipment->shipment_round.$month.$year] + 1) : (0+1) ;
-
-
-
-
-
-
-
-            $r_join = array('table'=>'oil','where'=>'road.way = oil.oil_id');
-
-
-
-            $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $shipment->route).'")'),$r_join);
-
-
+           $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
 
             
+
+           $road_data['oil_add'][$ship->shipment_id] = ($ship->oil_add_dc == 5)?$ship->oil_add:0;
+
+           $road_data['oil_add2'][$ship->shipment_id] = ($ship->oil_add_dc2 == 5)?$ship->oil_add2:0;
 
 
 
            $check_sub = 1;
 
-
-
-           /*if ($shipment->shipment_sub==1) {
-
-
-
+           if ($ship->shipment_sub==1) {
                $check_sub = 0;
-
-
-
-           }*/
-
-
-
-
+           }
 
 
 
             $chek_rong = 0;
 
-
-
             
-
-
 
             foreach ($roads as $road) {
 
 
+                $road_data['bridge_cost'][$ship->shipment_id] = isset($road_data['bridge_cost'][$ship->shipment_id])?$road_data['bridge_cost'][$ship->shipment_id]+$road->bridge_cost*$check_sub:$road->bridge_cost*$check_sub;
 
-                $road_data['road_id'][$shipment->shipment_id] = $road->road_id;
+                $road_data['police_cost'][$ship->shipment_id] = isset($road_data['police_cost'][$ship->shipment_id])?$road_data['police_cost'][$ship->shipment_id]+($road->police_cost)*$check_sub:($road->police_cost)*$check_sub;
 
+                $road_data['tire_cost'][$ship->shipment_id] = isset($road_data['tire_cost'][$ship->shipment_id])?$road_data['tire_cost'][$ship->shipment_id]+($road->tire_cost)*$check_sub:($road->tire_cost)*$check_sub;
 
+                if($road->road_oil_ton > 0){
+                    $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+($road->road_oil_ton*round($ship->oil_cost))*$check_sub:($road->road_oil_ton*round($ship->oil_cost))*$check_sub;
 
-                $road_data['way'][$shipment->shipment_id] = $road->way;
-
-
-
-                $road_data['way_name'][$shipment->shipment_id] = $road->way;
-
-
-                $road_data['bridge_cost'][$shipment->shipment_id] = isset($road_data['bridge_cost'][$shipment->shipment_id])?$road_data['bridge_cost'][$shipment->shipment_id]+$road->bridge_cost*$check_sub:$road->bridge_cost*$check_sub;
-
-
-
-                $road_data['police_cost'][$shipment->shipment_id] = isset($road_data['police_cost'][$shipment->shipment_id])?$road_data['police_cost'][$shipment->shipment_id]+($road->police_cost)*$check_sub:($road->police_cost)*$check_sub;
-
-
-
-                $road_data['tire_cost'][$shipment->shipment_id] = isset($road_data['tire_cost'][$shipment->shipment_id])?$road_data['tire_cost'][$shipment->shipment_id]+($road->tire_cost)*$check_sub:($road->tire_cost)*$check_sub;
-
-                if ($road->road_oil_ton > 0) {
-                    $road_data['oil_cost'][$shipment->shipment_id] = isset($road_data['oil_cost'][$shipment->shipment_id])?$road_data['oil_cost'][$shipment->shipment_id]+($road->road_oil_ton*round($shipment->oil_cost*1.1))*$check_sub:($road->road_oil_ton*round($shipment->oil_cost*1.1))*$check_sub;
-
-
-                    $road_data['road_oil'][$shipment->shipment_id] = isset($road_data['road_oil'][$shipment->shipment_id])?$road_data['road_oil'][$shipment->shipment_id]+($road->road_oil_ton)*$check_sub:($road->road_oil_ton)*$check_sub;
+                    $road_data['road_oil'][$ship->shipment_id] = isset($road_data['road_oil'][$ship->shipment_id])?$road_data['road_oil'][$ship->shipment_id]+($road->road_oil_ton)*$check_sub:($road->road_oil_ton)*$check_sub;
                 }
                 else{
-                    $road_data['oil_cost'][$shipment->shipment_id] = isset($road_data['oil_cost'][$shipment->shipment_id])?$road_data['oil_cost'][$shipment->shipment_id]+($road->road_oil*round($shipment->oil_cost*1.1))*$check_sub:($road->road_oil*round($shipment->oil_cost*1.1))*$check_sub;
+                    $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+($road->road_oil*round($ship->oil_cost))*$check_sub:($road->road_oil*round($ship->oil_cost))*$check_sub;
 
-
-                    $road_data['road_oil'][$shipment->shipment_id] = isset($road_data['road_oil'][$shipment->shipment_id])?$road_data['road_oil'][$shipment->shipment_id]+($road->road_oil)*$check_sub:($road->road_oil)*$check_sub;
+                    $road_data['road_oil'][$ship->shipment_id] = isset($road_data['road_oil'][$ship->shipment_id])?$road_data['road_oil'][$ship->shipment_id]+($road->road_oil)*$check_sub:($road->road_oil)*$check_sub;
                 }
-
                 
 
+                $road_data['road_time'][$ship->shipment_id] = isset($road_data['road_time'][$ship->shipment_id])?$road_data['road_time'][$ship->shipment_id]+($road->road_time)*$check_sub:($road->road_time)*$check_sub;
 
-
-                $road_data['road_time'][$shipment->shipment_id] = isset($road_data['road_time'][$shipment->shipment_id])?$road_data['road_time'][$shipment->shipment_id]+($road->road_time)*$check_sub:($road->road_time)*$check_sub;
-
-
-
-                $road_data['road_km'][$shipment->shipment_id] = isset($road_data['road_km'][$shipment->shipment_id])?$road_data['road_km'][$shipment->shipment_id]+$road->road_km:$road->road_km;
-
+                $road_data['road_km'][$ship->shipment_id] = isset($road_data['road_km'][$ship->shipment_id])?$road_data['road_km'][$ship->shipment_id]+$road->road_km*$check_sub:$road->road_km*$check_sub;
 
 
 
@@ -10012,57 +11110,63 @@ Class shipmentController Extends baseController {
 
 
 
+            }
 
+            $cds = $shipment_cost_model->getAllShipment(array('where'=>'shipment = '.$ship->shipment_id),array('table'=>'cost_list','where'=>'cost_list = cost_list_id AND cost_list_type = 6'));
+            foreach ($cds as $cd) {
+                $road_data['bridge_cost'][$ship->shipment_id] = isset($road_data['bridge_cost'][$ship->shipment_id])?$road_data['bridge_cost'][$ship->shipment_id]+$cd->cost:$cd->cost;
+            }
 
-
-
+            $cas = $shipment_cost_model->getAllShipment(array('where'=>'shipment = '.$ship->shipment_id),array('table'=>'cost_list','where'=>'cost_list = cost_list_id AND cost_list_type = 10'));
+            foreach ($cas as $ca) {
+                $road_data['police_cost'][$ship->shipment_id] = isset($road_data['police_cost'][$ship->shipment_id])?$road_data['police_cost'][$ship->shipment_id]+$ca->cost:$ca->cost;
             }
 
 
 
-
-
-
-
-            $warehouse = $warehouse_model->getAllWarehouse(array('where'=>'(warehouse_code = '.$shipment->shipment_from.' OR warehouse_code = '.$shipment->shipment_to.') AND start_time <= '.$shipment->shipment_date.' AND end_time >= '.$shipment->shipment_date));
-
-
+            $warehouse = $warehouse_model->getAllWarehouse(array('where'=>'(warehouse_code = '.$ship->shipment_from.' OR warehouse_code = '.$ship->shipment_to.') AND start_time <= '.$ship->shipment_date.' AND end_time >= '.$ship->shipment_date));
 
         
 
 
 
-
-
-
-
             $boiduong_cont = 0;
-
-
 
             $boiduong_tan = 0;
 
 
 
-
-
-
-
             
-
-
 
             foreach ($warehouse as $warehouse) {
 
-
-
                 
 
+                    $warehouse_data['warehouse_id'][$warehouse->warehouse_code] = $warehouse->warehouse_code;
+
+                    $warehouse_data['warehouse_name'][$warehouse->warehouse_code] = $warehouse->warehouse_name;
 
 
-                    $trongluong = round($shipment->shipment_ton/1000,2);
 
+                    $tan = explode(".",$ship->shipment_ton);
 
+                    if (isset($tan[1]) && substr($tan[1], 0, 1) > 5 ) {
+
+                        $trongluong = $tan[0] + 1;
+
+                    }
+
+                    elseif (isset($tan[1]) && substr($tan[1], 0, 1) < 5 ) {
+
+                        $trongluong = $tan[0];
+
+                    }
+
+                    else{
+
+                        $trongluong = $tan[0]+('0.'.(isset($tan[1])?substr($tan[1], 0, 1):0));
+
+                    }
 
 
 
@@ -10070,75 +11174,71 @@ Class shipmentController Extends baseController {
 
                 if($chek_rong == 0){
 
-
-
                     if ($warehouse->warehouse_cont != 0) {
-
-
 
                         $boiduong_cont += $warehouse->warehouse_cont;
 
-
-
                     }
-
-
 
                     if ($warehouse->warehouse_ton != 0){
 
-
-
                         $boiduong_tan += $trongluong * $warehouse->warehouse_ton;
-
-
 
                     }
 
-
-
                 }
-
-
 
                 else{
 
-
-
-                    if ($shipment->shipment_ton > 0) {
-
-
+                    if ($ship->shipment_ton > 0) {
 
                         $boiduong_cont += $warehouse->warehouse_add;
 
-
-
                     }
-
-
 
                 }
 
-
+                
 
                 
 
+            }
 
+            $warehouse_data['boiduong_cn'][$ship->shipment_id] = ($boiduong_cont+$boiduong_tan)*$check_sub;
 
+            $bds = $shipment_cost_model->getAllShipment(array('where'=>'shipment = '.$ship->shipment_id),array('table'=>'cost_list','where'=>'cost_list = cost_list_id AND cost_list_type = 11'));
+            foreach ($bds as $bd) {
+                $warehouse_data['boiduong_cn'][$ship->shipment_id] = isset($warehouse_data['boiduong_cn'][$ship->shipment_id])?$warehouse_data['boiduong_cn'][$ship->shipment_id]+$bd->cost:$bd->cost;
             }
 
 
+            $customer_sub = "";
+            $sts = explode(',', $ship->customer_type);
+            foreach ($sts as $key) {
+                $subs = $customer_sub_model->getCustomer($key);
+                if ($subs) {
+                    if ($customer_sub == "")
+                        $customer_sub .= $subs->customer_sub_name;
+                    else
+                        $customer_sub .= ','.$subs->customer_sub_name;
+                }
+                
+            }
+            $customer_types[$ship->shipment_id] = $customer_sub;
 
-            $warehouse_data['boiduong_cn'][$shipment->shipment_id] = ($boiduong_cont+$boiduong_tan)*$check_sub;
-
-
-
-            
-
-
-
-
-
-
+            $export_sub = "";
+            $sts = explode(',', $ship->export_stock);
+            foreach ($sts as $key) {
+                $subs = $export_stock_model->getStock($key);
+                if ($subs) {
+                    if ($export_sub == "")
+                        $export_sub .= $subs->export_stock_code;
+                    else
+                        $export_sub .= ','.$subs->export_stock_code;
+                }
+                
+            }
+            $export_stocks[$ship->shipment_id] = $export_sub;
 
 
 
@@ -10147,26 +11247,13 @@ Class shipmentController Extends baseController {
         }
 
 
+        $this->view->data['customer_types'] = $customer_types;
 
+        $this->view->data['export_stocks'] = $export_stocks;
 
-
-
-
-        $this->view->data['driver_data'] = $driver_data;
-
-
-
-
-
-
+        $this->view->data['loan_shipment_data'] = $loan_shipment_data;
 
         $this->view->data['warehouse'] = $warehouse_data;
-
-
-
-
-
-
 
         $this->view->data['road'] = $road_data;
 
@@ -10216,7 +11303,7 @@ Class shipmentController Extends baseController {
 
 
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipment) || json_decode($_SESSION['user_permission_action'])->shipment != "shipment") {
 
 
 
@@ -11444,7 +12531,7 @@ Class shipmentController Extends baseController {
 
 
 
-        if ($_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipment) || json_decode($_SESSION['user_permission_action'])->shipment != "shipment") {
 
 
 
@@ -12000,7 +13087,7 @@ Class shipmentController Extends baseController {
 
 
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 7 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->shipment) || json_decode($_SESSION['user_permission_action'])->shipment != "shipment") {
 
 
 
@@ -13500,25 +14587,27 @@ Class shipmentController Extends baseController {
 
     public static function get_content_by_url($url){
 
+        $ch = curl_init();
+        curl_setopt ($ch, CURLOPT_URL, $url);
+        curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt ($ch, CURLOPT_RETURNTRANSFER, true);
+        $contents = curl_exec($ch);
+        if (curl_errno($ch)) {
+          echo curl_error($ch);
+          echo "\n<br />";
+          $contents = '';
+        } else {
+          curl_close($ch);
+        }
 
+        if (!is_string($contents) || !strlen($contents)) {
+        echo "Failed to get contents.";
+        $contents = '';
+        }
 
-        $content = file_get_contents($url);
+        
 
-
-
-        do{
-
-
-
-            $content = str_replace("  "," ",$content);
-
-
-
-        }while(strpos($content,"  ",0)!==false);
-
-
-
-        return $content;
+        return $contents;
 
 
 

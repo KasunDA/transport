@@ -12,7 +12,7 @@ Class oilreportController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->oilreport) || json_decode($_SESSION['user_permission_action'])->oilreport != "oilreport") {
             $this->view->data['disable_control'] = 1;
         }
 
@@ -309,7 +309,7 @@ Class oilreportController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->oilreport) || json_decode($_SESSION['user_permission_action'])->oilreport != "oilreport") {
             return $this->view->redirect('user/login');
         }
 

@@ -12,7 +12,7 @@ Class sparevehiclelistController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->sparevehiclelist) || json_decode($_SESSION['user_permission_action'])->sparevehiclelist != "sparevehiclelist") {
             $this->view->data['disable_control'] = 1;
         }
 
@@ -274,7 +274,7 @@ Class sparevehiclelistController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->sparevehiclelist) || json_decode($_SESSION['user_permission_action'])->sparevehiclelist != "sparevehiclelist") {
 
             return $this->view->redirect('user/login');
 
@@ -363,7 +363,7 @@ Class sparevehiclelistController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->sparevehiclelist) || json_decode($_SESSION['user_permission_action'])->sparevehiclelist != "sparevehiclelist") {
 
             return $this->view->redirect('user/login');
 
@@ -673,7 +673,7 @@ Class sparevehiclelistController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->sparevehiclelist) || json_decode($_SESSION['user_permission_action'])->sparevehiclelist != "sparevehiclelist") {
 
             return $this->view->redirect('user/login');
 

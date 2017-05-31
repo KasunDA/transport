@@ -26,7 +26,7 @@ Class exvatController Extends baseController {
 
 
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->exvat) || json_decode($_SESSION['user_permission_action'])->exvat != "exvat") {
 
             $this->view->data['disable_control'] = 1;
 
@@ -740,7 +740,7 @@ Class exvatController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->exvat) || json_decode($_SESSION['user_permission_action'])->exvat != "exvat") {
 
             return $this->view->redirect('user/login');
 
@@ -1039,7 +1039,7 @@ Class exvatController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 3) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->exvat) || json_decode($_SESSION['user_permission_action'])->exvat != "exvat") {
 
             return $this->view->redirect('user/login');
 

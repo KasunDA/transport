@@ -26,7 +26,7 @@ Class sellController Extends baseController {
 
 
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 4 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->sell) || json_decode($_SESSION['user_permission_action'])->sell != "sell") {
 
             $this->view->data['disable_control'] = 1;
 
@@ -524,7 +524,7 @@ Class sellController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 4 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->sell) || json_decode($_SESSION['user_permission_action'])->sell != "sell") {
 
             return $this->view->redirect('user/login');
 
@@ -678,7 +678,7 @@ Class sellController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 4 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->sell) || json_decode($_SESSION['user_permission_action'])->sell != "sell") {
 
             return $this->view->redirect('user/login');
 

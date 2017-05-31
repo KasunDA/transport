@@ -11,7 +11,7 @@ Class oilController Extends baseController {
             return $this->view->redirect('user/login');
 
         }
-        if ($_SESSION['role_logined'] != 1) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->oil) || json_decode($_SESSION['user_permission_action'])->oil != "oil") {
             $this->view->data['disable_control'] = 1;
         }
 
@@ -139,7 +139,7 @@ Class oilController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->oil) || json_decode($_SESSION['user_permission_action'])->oil != "oil") {
 
             return $this->view->redirect('user/login');
 
@@ -277,7 +277,7 @@ Class oilController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->oil) || json_decode($_SESSION['user_permission_action'])->oil != "oil") {
 
             return $this->view->redirect('user/login');
 
@@ -599,7 +599,7 @@ Class oilController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->oil) || json_decode($_SESSION['user_permission_action'])->oil != "oil") {
 
             return $this->view->redirect('user/login');
 

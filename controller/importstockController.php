@@ -12,7 +12,7 @@ Class importstockController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->importstock) || json_decode($_SESSION['user_permission_action'])->importstock != "importstock") {
 
             $this->view->data['disable_control'] = 1;
 
@@ -395,7 +395,7 @@ Class importstockController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->importstock) || json_decode($_SESSION['user_permission_action'])->importstock != "importstock") {
 
             return $this->view->redirect('user/login');
 
@@ -1340,7 +1340,7 @@ Class importstockController Extends baseController {
 
 
 
-                        if (!$spare_model->getStockByWhere(array('spare_part_seri'=>$data_spare_part['spare_part_seri']))) {
+                        if (!$spare_model->getStockByWhere(array('spare_part_seri'=>$data_spare_part['spare_part_seri'],'cost_list'=>$id_code))) {
 
                             $spare_model->createStock($data_spare_part);
 
@@ -1350,7 +1350,7 @@ Class importstockController Extends baseController {
 
                         else{
 
-                            $id_spare_part = $spare_model->getStockByWhere(array('spare_part_seri'=>$data_spare_part['spare_part_seri']))->spare_part_id;
+                            $id_spare_part = $spare_model->getStockByWhere(array('spare_part_seri'=>$data_spare_part['spare_part_seri'],'cost_list'=>$id_code))->spare_part_id;
 
                         }
 
@@ -1473,7 +1473,7 @@ Class importstockController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 6 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->importstock) || json_decode($_SESSION['user_permission_action'])->importstock != "importstock") {
 
             return $this->view->redirect('user/login');
 

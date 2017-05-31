@@ -12,7 +12,7 @@ Class marketingController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 4) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->marketing) || json_decode($_SESSION['user_permission_action'])->marketing != "marketing") {
             $this->view->data['disable_control'] = 1;
         }
 
@@ -585,7 +585,7 @@ Class marketingController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 4) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->marketing) || json_decode($_SESSION['user_permission_action'])->marketing != "marketing") {
 
             return $this->view->redirect('user/login');
 
@@ -594,6 +594,8 @@ Class marketingController Extends baseController {
         if (isset($_POST['yes'])) {
 
             $marketing = $this->model->get('marketingModel');
+            $shipment = $this->model->get('shipmentModel');
+            $shipment_temp = $this->model->get('shipmenttempModel');
 
 
             $data = array(
@@ -679,6 +681,28 @@ Class marketingController Extends baseController {
 
                     $marketing->updateMarketing($data,array('marketing_id' => $_POST['yes']));
 
+                    $join_ship = array('table'=>'shipment_temp, marketing','where'=>'shipment_temp = shipment_temp_id AND marketing = marketing_id');
+                    $shipments = $shipment->getAllShipment(array('where'=>'marketing = '.$_POST['yes']),$join_ship);
+                    foreach ($shipments as $ship) {
+                        $data_ship = array(
+                            'shipment_charge' => $data['marketing_charge'],
+                            'shipment_revenue' => $ship->shipment_ton*$data['marketing_charge'],
+                            'commission' => $data['commission'],
+                            'commission_number' => $data['commission_number'],
+                        );
+                        $shipment->updateShipment($data_ship,array('shipment_id'=>$ship->shipment_id));
+                    }
+
+                    $join_ship = array('table'=>'marketing','where'=>'marketing = marketing_id');
+                    $shipments = $shipment_temp->getAllShipment(array('where'=>'marketing = '.$_POST['yes']),$join_ship);
+                    foreach ($shipments as $ship) {
+                        $data_ship = array(
+                            'shipment_temp_commission' => $data['commission'],
+                            'shipment_temp_commission_number' => $data['commission_number'],
+                        );
+                        $shipment_temp->updateShipment($data_ship,array('shipment_temp_id'=>$ship->shipment_temp_id));
+                    }
+
                     echo "Cập nhật thành công";
 
 
@@ -755,7 +779,7 @@ Class marketingController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->marketing) || json_decode($_SESSION['user_permission_action'])->marketing != "marketing") {
 
             return $this->view->redirect('user/login');
 
@@ -823,7 +847,7 @@ Class marketingController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 4) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->marketing) || json_decode($_SESSION['user_permission_action'])->marketing != "marketing") {
 
             return $this->view->redirect('user/login');
 

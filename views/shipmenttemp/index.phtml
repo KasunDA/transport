@@ -109,12 +109,6 @@ elseif ($order_by == 'status')
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','cont_unit','<?php echo $url_order ?>')">ĐVT <?php if ($order_by == 'cont_unit'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','marketing_charge','<?php echo $url_order ?>')">Đơn giá <?php if ($order_by == 'marketing_charge'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>
-        <th  class="fix">
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','marketing_revenue','<?php echo $url_order ?>')">Thành tiền <?php if ($order_by == 'marketing_revenue'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
-        </th>  
-        <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','commission','<?php echo $url_order ?>')">Hoa hồng <?php if ($order_by == 'commission'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
@@ -133,7 +127,7 @@ elseif ($order_by == 'status')
         <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $shipment_temp->shipment_temp_id ?>" class="edit_tr">
             
         	<td>
-                <?php if($shipment_temp->shipment_temp_status!=1){ ?>
+                <?php if($shipment_temp->shipment_ton_use == "" || $shipment_temp->shipment_ton_use <= 0){ ?>
                 <input name="check[]" type="checkbox" class="checkbox" value="<?php echo $shipment_temp->shipment_temp_id ?>">
                 <?php } ?>
             </td>
@@ -156,15 +150,13 @@ elseif ($order_by == 'status')
             <td class="fix" id="shipment_temp_number_<?php echo $shipment_temp->shipment_temp_id; ?>"><?php echo $shipment_temp->shipment_temp_number; ?></td>
             <td class="fix" id="shipment_temp_ton_<?php echo $shipment_temp->shipment_temp_id; ?>"><?php echo $shipment_temp->shipment_temp_ton; ?></td>
             <td class="fix" id="cont_unit_<?php echo $shipment_temp->shipment_temp_id; ?>"><?php echo $shipment_temp->cont_unit_name; ?></td>
-            <td class="fix" id="marketing_charge_<?php echo $shipment_temp->shipment_temp_id; ?>"><?php echo $lib->formatMoney($shipment_temp->marketing_charge); ?></td>
-            <td class="fix" id="marketing_revenue_<?php echo $shipment_temp->shipment_temp_id; ?>"><?php echo $lib->formatMoney($shipment_temp->shipment_temp_ton*$shipment_temp->marketing_charge); ?></td>
             <td class="fix" id="shipment_temp_commission_<?php echo $shipment_temp->shipment_temp_id; ?>"><?php echo $lib->formatMoney($shipment_temp->shipment_temp_commission); ?></td>
-            <td class="fix" style="color: <?php echo $shipment_temp->shipment_temp_status==1?"red":"green"; ?>" id="shipment_temp_status_<?php echo $shipment_temp->shipment_temp_id; ?>"><?php echo $shipment_temp->shipment_temp_status==1?"Đã chạy":"Chưa chạy"; ?></td>
+            <td class="fix" style="color: <?php echo $shipment_temp->shipment_ton_use>=$shipment_temp->shipment_temp_ton?"red":($shipment_temp->shipment_ton_use>0 && $shipment_temp->shipment_ton_use<$shipment_temp->shipment_temp_ton?"green":"gray"); ?>" id="shipment_temp_status_<?php echo $shipment_temp->shipment_temp_id; ?>"><?php echo $shipment_temp->shipment_ton_use>=$shipment_temp->shipment_temp_ton?"Đã chạy":($shipment_temp->shipment_ton_use>0 && $shipment_temp->shipment_ton_use<$shipment_temp->shipment_temp_ton?"Đang chạy":"Chưa chạy"); ?></td>
             
             <td>
                 <?php if(!isset($disable_control)){ ?>
                 <?php 
-                    if($shipment_temp->shipment_temp_status!=1){
+                    if($shipment_temp->shipment_ton_use == "" || $shipment_temp->shipment_ton_use <= 0){
                 ?>
                     <button class="btn btn-sm btn-flat btn-danger" onclick="del(<?php echo $shipment_temp->shipment_temp_id ?>)" ><i class="fa fa-remove"></i> Hủy</button>
                 <?php } ?>

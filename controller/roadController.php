@@ -12,7 +12,7 @@ Class roadController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->road) || json_decode($_SESSION['user_permission_action'])->road != "road") {
             $this->view->data['disable_control'] = 1;
         }
 
@@ -527,7 +527,7 @@ Class roadController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->road) || json_decode($_SESSION['user_permission_action'])->road != "road") {
 
             return $this->view->redirect('user/login');
 
@@ -833,7 +833,7 @@ Class roadController Extends baseController {
                     if ($dm3) {
                             foreach ($dm3 as $row) {
                                 $d = array(
-                                    'start_time' => strtotime(date('d-m-Y',strtotime($_POST['start_time'].' -1 day'))),
+                                    'end_time' => strtotime(date('d-m-Y',strtotime($_POST['start_time'].' -1 day'))),
                                     );
                                 $road->updateRoad($d,array('road_id'=>$row->road_id));
 
@@ -1428,7 +1428,7 @@ Class roadController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 2 && $_SESSION['role_logined'] != 5) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->road) || json_decode($_SESSION['user_permission_action'])->road != "road") {
 
             return $this->view->redirect('user/login');
 
@@ -1520,7 +1520,7 @@ Class roadController Extends baseController {
 
         }
 
-        if ($_SESSION['role_logined'] != 1 && $_SESSION['role_logined'] != 3 && $_SESSION['role_logined'] != 8) {
+        if (!isset(json_decode($_SESSION['user_permission_action'])->road) || json_decode($_SESSION['user_permission_action'])->road != "road") {
 
             return $this->view->redirect('user/login');
 
