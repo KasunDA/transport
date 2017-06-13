@@ -10477,6 +10477,23 @@ $("#route").multiselect({});
 
 //$("#route_sub").multiselect({});
 
+$("#bill_receive_unit").change(function(){
+    var val = $(this).val();
+    $("#bill_delivery_unit option[value="+val+"]").attr('selected','selected');
+});
+$("#bill_delivery_unit").change(function(){
+    var val = $(this).val();
+    $("#bill_receive_unit option[value="+val+"]").attr('selected','selected');
+});
+
+$("#bill_receive_unit_sub").change(function(){
+    var val = $(this).val();
+    $("#bill_delivery_unit_sub option[value="+val+"]").attr('selected','selected');
+});
+$("#bill_delivery_unit_sub").change(function(){
+    var val = $(this).val();
+    $("#bill_receive_unit_sub option[value="+val+"]").attr('selected','selected');
+});
 
 
 var pickerOpay2 = {

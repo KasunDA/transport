@@ -653,6 +653,8 @@ Class shipmentlistController Extends baseController {
             $customer = trim($_POST['customer']);
             $batdau = trim($_POST['start_time']);
             $ketthuc = trim($_POST['end_time']);
+            $giobatdau = trim($_POST['start_work']);
+            $gioketthuc = trim($_POST['end_work']);
             $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
             $customer_type = $_POST['customer_type'];
 
@@ -714,9 +716,9 @@ Class shipmentlistController Extends baseController {
 
             $data = array(
 
-                'where'=>'customer = '.$customer.' AND shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc).$and,
+                'where'=>'customer = '.$customer.' AND bill_out >= '.strtotime($batdau.' '.$giobatdau).' AND bill_out <= '.strtotime($ketthuc.' '.$gioketthuc).$and,
 
-                'order_by'=>'shipment_date ASC',
+                'order_by'=>'bill_delivery_date ASC',
 
                 );
 
@@ -724,11 +726,11 @@ Class shipmentlistController Extends baseController {
 
 
 
-            $str = '<table class="table_data">';
-            $str .= '<thead><tr><th class="fix"><input checked type="checkbox" onclick="checkall(\'checkbox\', this)" name="checkall"/></th><th class="fix">STT</th><th class="fix">Ngày</th><th class="fix">Số DO</th><th class="fix">Xe</th><th class="fix">Kho đi</th><th class="fix">Kho đến</th><th class="fix">Mặt hàng</th><th class="fix">Sản lượng</th><th class="fix">ĐVT</th><th class="fix">Cước</th><th class="fix">Thành tiền</th></tr></thead>';
+            $str = '<table class="table_data" id="tblExport2">';
+            $str .= '<thead><tr><th class="fix"><input checked type="checkbox" onclick="checkall(\'checkbox\', this)" name="checkall"/></th><th class="fix">STT</th><th class="fix">Ngày giao</th><th class="fix">Giờ ra</th><th class="fix">Số DO</th><th class="fix">Xe</th><th class="fix">Kho đi</th><th class="fix">Kho đến</th><th class="fix">Mặt hàng</th><th class="fix">Sản lượng nhận</th><th class="fix">Sản lượng giao</th><th class="fix">ĐVT</th><th class="fix">Cước</th><th class="fix">Thành tiền</th></tr></thead>';
             $str .= '<tbody>';
 
-            $i = 1; $tongtien = 0;
+            $i = 1; $tongtien = 0; $tongnhan=0; $tonggiao=0;
             foreach ($shipments as $shipment) {
                 $customer_sub = "";
 
@@ -762,17 +764,19 @@ Class shipmentlistController Extends baseController {
 
 
                 if (!$shipment_lists || $shipment_list_adds) {
-                    $tien = $shipment->shipment_charge*$shipment->shipment_ton;
+                    $tien = $shipment->shipment_charge*$shipment->bill_delivery_ton;
                     $tongtien += $tien;
+                    $tongnhan += $shipment->bill_receive_ton;
+                    $tonggiao += $shipment->bill_delivery_ton;
                     
-                    $str .= '<tr class="tr" data="'.$shipment->shipment_id.'"><td><input checked name="check_i[]" type="checkbox" class="checkbox" value="'.$shipment->shipment_id.'" data="'.$tien.'" ></td><td class="fix">'.$i++.'</td><td class="fix">'.$this->lib->hien_thi_ngay_thang($shipment->shipment_date).'</td><td class="fix">'.$shipment->bill_number.'</td><td class="fix">'.$shipment->vehicle_number.'</td><td class="fix">'.$place_data['place_name'][$shipment->shipment_from].'</td><td class="fix">'.$place_data['place_name'][$shipment->shipment_to].'</td><td class="fix">'.$customer_sub.'</td><td class="fix">'.$shipment->shipment_ton.'</td><td class="fix">'.$shipment->cont_unit_name.'</td><td class="fix">'.$this->lib->formatMoney($shipment->shipment_charge).'</td><td class="fix">'.$this->lib->formatMoney($tien).'</td></tr>';
+                    $str .= '<tr class="tr" data="'.$shipment->shipment_id.'"><td><input checked name="check_i[]" type="checkbox" class="checkbox" value="'.$shipment->shipment_id.'" data="'.$tien.'" ></td><td class="fix">'.$i++.'</td><td class="fix">'.$this->lib->hien_thi_ngay_thang($shipment->bill_delivery_date).'</td><td class="fix">'.date('H:i:s',$shipment->bill_out).'</td><td class="fix">'.$shipment->bill_number.'</td><td class="fix">'.$shipment->vehicle_number.'</td><td class="fix">'.$place_data['place_name'][$shipment->shipment_from].'</td><td class="fix">'.$place_data['place_name'][$shipment->shipment_to].'</td><td class="fix">'.$customer_sub.'</td><td class="fix">'.$shipment->bill_receive_ton.'</td><td class="fix">'.$shipment->bill_delivery_ton.'</td><td class="fix">'.$shipment->cont_unit_name.'</td><td class="fix">'.$this->lib->formatMoney($shipment->shipment_charge).'</td><td class="fix">'.$this->lib->formatMoney($tien).'</td></tr>';
                 }
 
                 
 
             }
 
-            $str .= '<tr style="font-weight:bold"><td colspan="11">Tổng cộng</td><td class="fix">'.$this->lib->formatMoney($tongtien).'</td></tr>';
+            $str .= '<tr style="font-weight:bold"><td colspan="9">Tổng cộng</td><td class="fix">'.$this->lib->formatMoney($tongnhan).'</td><td class="fix">'.$this->lib->formatMoney($tonggiao).'</td><td class="fix"></td><td class="fix"></td><td class="fix">'.$this->lib->formatMoney($tongtien).'</td></tr>';
 
             $str .= '</tbody></table>';
 
@@ -888,6 +892,10 @@ Class shipmentlistController Extends baseController {
                         'start_time' => strtotime($_POST['start_time']),
 
                         'end_time' => strtotime($_POST['end_time']),
+
+                        'start_work' => strtotime(trim($_POST['start_time']).' '.trim($_POST['start_work'])),
+
+                        'end_work' => strtotime(trim($_POST['end_time']).' '.trim($_POST['end_work'])),
 
                         );
 

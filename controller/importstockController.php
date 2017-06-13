@@ -1338,21 +1338,38 @@ Class importstockController Extends baseController {
 
                         );
 
+                        if ($data_spare_part['spare_part_seri'] != "") {
+                            if (!$spare_model->getStockByWhere(array('spare_part_seri'=>$data_spare_part['spare_part_seri'],'code_list'=>$id_code))) {
 
+                                $spare_model->createStock($data_spare_part);
 
-                        if (!$spare_model->getStockByWhere(array('spare_part_seri'=>$data_spare_part['spare_part_seri'],'cost_list'=>$id_code))) {
+                                $id_spare_part = $spare_model->getLastStock()->spare_part_id;
 
-                            $spare_model->createStock($data_spare_part);
+                            }
 
-                            $id_spare_part = $spare_model->getLastStock()->spare_part_id;
+                            else{
 
+                                $id_spare_part = $spare_model->getStockByWhere(array('spare_part_seri'=>$data_spare_part['spare_part_seri'],'code_list'=>$id_code))->spare_part_id;
+
+                            }
                         }
-
                         else{
+                            if (!$spare_model->getStockByWhere(array('spare_part_code'=>$data_spare_part['spare_part_code'],'code_list'=>$id_code))) {
 
-                            $id_spare_part = $spare_model->getStockByWhere(array('spare_part_seri'=>$data_spare_part['spare_part_seri'],'cost_list'=>$id_code))->spare_part_id;
+                                $spare_model->createStock($data_spare_part);
 
+                                $id_spare_part = $spare_model->getLastStock()->spare_part_id;
+
+                            }
+
+                            else{
+
+                                $id_spare_part = $spare_model->getStockByWhere(array('spare_part_code'=>$data_spare_part['spare_part_code'],'code_list'=>$id_code))->spare_part_id;
+
+                            }
                         }
+
+                        
 
 
 

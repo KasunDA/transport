@@ -3,6 +3,8 @@
 
 <script type="text/javascript" src="<?php BASE_URL ?>/public/js/jquery.multiselect.js"></script>
 
+<script src="<?php echo BASE_URL ?>/public/js/jquery.maskedinput.js" type="text/javascript" charset="utf-8"></script>
+
 <?php
 
 $url_order = 'ASC';
@@ -310,6 +312,8 @@ elseif ($order_by == 'customer_name')
 
             <td class="fix" style="display:none" id="start_time_<?php echo $shipment_list->shipment_list_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment_list->start_time); ?></td>
             <td class="fix" style="display:none" id="end_time_<?php echo $shipment_list->shipment_list_id; ?>"><?php echo $lib->hien_thi_ngay_thang($shipment_list->end_time); ?></td>
+            <td class="fix" style="display:none"  id="start_work_<?php echo $shipment_list->shipment_list_id; ?>"><?php echo date('H:i:s',$shipment_list->start_work); ?></td>
+            <td class="fix" style="display:none"  id="end_work_<?php echo $shipment_list->shipment_list_id; ?>"><?php echo date('H:i:s',$shipment_list->end_work); ?></td>
             <td class="fix" style="display:none" id="shipment_<?php echo $shipment_list->shipment_list_id; ?>"><?php echo $shipment_list->shipment; ?></td>
             <td class="fix" style="display:none" id="customer_type_<?php echo $shipment_list->shipment_list_id; ?>"><?php echo $shipment_list->customer_type; ?></td>
 
@@ -385,7 +389,9 @@ $this->helper('slidePaginator');
 
                       <label for="start_time">Từ ngày</label>
 
-                      <input type="text" id="start_time"  name="start_time" required="required" tabindex="5" >
+                      <input style="width:80px" type="text" id="start_time"  name="start_time" required="required" tabindex="5" >
+
+                      <input style="width:50px" type="text" class="time" id="start_work" name="start_work" required="required" tabindex="6" />
 
                     </div>
 
@@ -415,7 +421,9 @@ $this->helper('slidePaginator');
 
                       <label for="end_time">Đến ngày</label>
 
-                      <input type="text" id="end_time"  name="end_time" required="required" tabindex="6" >
+                      <input style="width:80px" type="text" id="end_time"  name="end_time" required="required" tabindex="7" >
+
+                      <input style="width:50px" type="text" class="time" id="end_work" name="end_work" required="required" tabindex="8" />
 
                     </div>
                     
@@ -466,7 +474,7 @@ $this->helper('slidePaginator');
 
 
                     <div class="form-group">
-                      <button id="show_shipment_list" type="button" class="btn btn-block" tabindex="7">Chọn chuyến hàng (0)</button>
+                      <button id="show_shipment_list" type="button" class="btn btn-block" tabindex="9">Chọn chuyến hàng (0)</button>
                     </div>
 
 
@@ -515,9 +523,9 @@ $this->helper('slidePaginator');
 
                     <input type="hidden" readonly id="yes" name="yes" required="required" >
 
-                    <button type="submit" class="btn btn-primary" tabindex="7">Hoàn thành</button>
+                    <button type="submit" class="btn btn-primary" tabindex="10">Hoàn thành</button>
 
-                    <button type="reset" class="btn" tabindex="8">Nhập lại</button>
+                    <button type="reset" class="btn" tabindex="11">Nhập lại</button>
 
                   </div>
 
@@ -597,6 +605,10 @@ $('html').click(function(e) {
 
             var end_time = $(this).find("#end_time_"+$(this).attr('id')).text();
 
+            var start_work = $(this).find("#start_work_"+$(this).attr('id')).text();
+
+            var end_work = $(this).find("#end_work_"+$(this).attr('id')).text();
+
             var customer_type = $(this).find("#customer_type_"+$(this).attr('id')).text();
 
             var array = shipment.split(",");
@@ -621,6 +633,10 @@ $('html').click(function(e) {
             $('#start_time').val(start_time.replace(/\//g,"-"));
 
             $('#end_time').val(end_time.replace(/\//g,"-"));
+
+            $('#start_work').val(start_work);
+
+            $('#end_work').val(end_work);
 
 
 
@@ -683,6 +699,10 @@ function add_click(){
         $('#start_time').val("");
 
         $('#end_time').val("");
+
+        $('#start_work').val("00:00:00");
+
+        $('#end_work').val("23:59:59");
 
         $('#shipment').val("");
 
@@ -771,6 +791,10 @@ $(document).ready(function(){
 
                     var end_time = $('#end_time').attr('value');
 
+                    var start_work = $('#start_work').attr('value');
+
+                    var end_work = $('#end_work').attr('value');
+
                     var customer_type = $('#customer_type').val();
 
                     var shipment = $('#shipment').val();
@@ -812,6 +836,10 @@ $(document).ready(function(){
                             start_time: start_time,
 
                             end_time: end_time,
+
+                            start_work: start_work,
+
+                            end_work: end_work,
 
                             yes: yes,
 
@@ -991,7 +1019,7 @@ $(document).ready(function(){
 
         return value
 
-          .replace(/[^0-9]/g, "")
+          .replace(/[^0-9-.]/g, "")
 
           .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 
@@ -1060,7 +1088,7 @@ function set_item_customer(value,name,mst,address,sub) {
     $(".numbers").val(function(index, value) {
 
       return value
-
+        .replace(/[^0-9-.]/g, "")
         .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 
       ;
@@ -1117,7 +1145,7 @@ $( "#show_shipment" ).dialog({
             
               $(this).find('input[name="check_i[]"]:checked').each(function () {
                 num++;
-                tien += parseInt($(this).attr('data'));
+                tien += parseFloat($(this).attr('data'));
                  if (val =="")
                   val += $(this).val();
                  else
@@ -1133,7 +1161,7 @@ $( "#show_shipment" ).dialog({
           $(".numbers").val(function(index, value) {
 
             return value
-
+              .replace(/[^0-9-.]/g, "")
               .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 
             ;
@@ -1142,7 +1170,16 @@ $( "#show_shipment" ).dialog({
 
           $( this ).dialog( "close" );
 
-        },        
+        },
+        Export: function(){
+          $("#tblExport2").battatech_excelexport({
+
+                  containerid: "tblExport2"
+
+                 , datatype: 'table'
+
+              });
+        } ,       
 
 
     }
@@ -1520,6 +1557,8 @@ $('#show_shipment_list').click(function(){
   var customer = $('#customer').attr('data');
   var start_time = $('#start_time').val();
   var end_time = $('#end_time').val();
+  var start_work = $('#start_work').val();
+  var end_work = $('#end_work').val();
   var customer_type = $('#customer_type').val();
   var id = $('#yes').val();
 
@@ -1530,7 +1569,7 @@ $('#show_shipment_list').click(function(){
 
         type: 'POST',
 
-        data: {id: id, customer:customer, start_time:start_time, end_time:end_time, customer_type: customer_type},
+        data: {id: id, customer:customer, start_time:start_time, end_time:end_time, start_work:start_work, end_work:end_work, customer_type: customer_type},
 
         success:function(data){
 
@@ -1553,6 +1592,8 @@ $('#show_shipment_list').click(function(){
   }
 
 });
+
+$(".time").mask("99:99:99");
 </script>
 
 <style type="text/css">
