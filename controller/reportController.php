@@ -34,6 +34,8 @@ Class reportController Extends baseController {
 
             $trangthai = isset($_POST['trangthai']) ? $_POST['trangthai'] : null;
 
+            $xe = isset($_POST['sl_vehicle']) ? $_POST['sl_vehicle'] : null;
+
         }
 
         else{
@@ -46,6 +48,8 @@ Class reportController Extends baseController {
 
             $trangthai = date('Y',strtotime($batdau));
 
+            $xe = 0;
+
         }
 
         $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
@@ -54,13 +58,20 @@ Class reportController Extends baseController {
 
         $trangthai = date('Y',strtotime($batdau));
 
+        $vehicle_model = $this->model->get('vehicleModel');
+
+        $vehicle_datas = $vehicle_model->getAllVehicle(array('order_by'=>'vehicle_number','order'=>'ASC'));
+        $this->view->data['vehicle_datas'] = $vehicle_datas;
+
         $v_data = array(
             'where' => 'vehicle_id NOT IN (SELECT vehicle FROM vehicle_work WHERE start_work >= '.strtotime($batdau).' AND end_work < '.strtotime($ngayketthuc).')',
             'order_by'=>'vehicle_number',
             'order'=>'ASC',
         );
 
-        $vehicle_model = $this->model->get('vehicleModel');
+        if ($xe>0) {
+            $v_data['where'] .= ' AND vehicle_id = '.$xe;
+        }
 
         $vehicles = $vehicle_model->getAllVehicle($v_data);
 
@@ -70,7 +81,15 @@ Class reportController Extends baseController {
 
         $join = array('table'=>'customer, vehicle','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle');
 
-        $shipments = $shipment_model->getAllShipment(array('where'=>'shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc)),$join);
+        $s_data = array(
+            'where'=>'shipment_date >= '.strtotime($batdau).' AND shipment_date < '.strtotime($ngayketthuc)
+        );
+
+        if ($xe>0) {
+            $s_data['where'] .= ' AND vehicle_id = '.$xe;
+        }
+
+        $shipments = $shipment_model->getAllShipment($s_data,$join);
 
 
 
@@ -259,7 +278,7 @@ Class reportController Extends baseController {
                         $road_data['oil_cost'][$shipment->vehicle] = isset($road_data['oil_cost'][$shipment->vehicle])?$road_data['oil_cost'][$shipment->vehicle]+$road->road_oil*$check_sub:$road->road_oil*$check_sub;
                     }
 
-                    $road_data['road_add'][$shipment->vehicle] = isset($road_data['road_add'][$shipment->vehicle])?$road_data['road_add'][$shipment->vehicle]+$road->road_add*$check_sub:$road->road_add*$check_sub;
+                    //$road_data['road_add'][$shipment->vehicle] = isset($road_data['road_add'][$shipment->vehicle])?$road_data['road_add'][$shipment->vehicle]+$road->road_add*$check_sub:$road->road_add*$check_sub;
 
                     $road_data['way'][$shipment->vehicle] = $road->way;
 
@@ -438,6 +457,8 @@ Class reportController Extends baseController {
 
         $this->view->data['trangthai'] = $trangthai;
 
+        $this->view->data['xe'] = $xe;
+
         $this->view->show('report/index');
 
     }
@@ -471,11 +492,17 @@ Class reportController Extends baseController {
 
             $ngayketthuc = strtotime(date('d-m-Y', strtotime(date('d-m-Y',$ketthuc). ' + 1 days')));
 
+            $xe = $this->registry->router->order_by;
+
             $v_data = array(
                 'where' => 'vehicle_id NOT IN (SELECT vehicle FROM vehicle_work WHERE start_work >= '.$batdau.' AND end_work < '.$ngayketthuc.')',
                 'order_by'=>'vehicle_number',
                 'order'=>'ASC',
             );
+
+            if ($xe>0) {
+                $v_data['where'] .= ' AND vehicle_id = '.$xe;
+            }
 
             $vehicle_model = $this->model->get('vehicleModel');
 
@@ -487,7 +514,15 @@ Class reportController Extends baseController {
 
             $join = array('table'=>'customer, vehicle','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle');
 
-            $shipments = $shipment_model->getAllShipment(array('where'=>'shipment_date >= '.$batdau.' AND shipment_date < '.$ngayketthuc),$join);
+            $s_data = array(
+                'where'=>'shipment_date >= '.$batdau.' AND shipment_date < '.$ngayketthuc
+            );
+
+            if ($xe>0) {
+                $s_data['where'] .= ' AND vehicle_id = '.$xe;
+            }
+
+            $shipments = $shipment_model->getAllShipment($s_data,$join);
 
 
 
@@ -674,7 +709,7 @@ Class reportController Extends baseController {
                         $road_data['oil_cost'][$shipment->vehicle] = isset($road_data['oil_cost'][$shipment->vehicle])?$road_data['oil_cost'][$shipment->vehicle]+$road->road_oil*$check_sub:$road->road_oil*$check_sub;
                     }
 
-                    $road_data['road_add'][$shipment->vehicle] = isset($road_data['road_add'][$shipment->vehicle])?$road_data['road_add'][$shipment->vehicle]+$road->road_add*$check_sub:$road->road_add*$check_sub;
+                    //$road_data['road_add'][$shipment->vehicle] = isset($road_data['road_add'][$shipment->vehicle])?$road_data['road_add'][$shipment->vehicle]+$road->road_add*$check_sub:$road->road_add*$check_sub;
 
                     $road_data['way'][$shipment->vehicle] = $road->way;
 
@@ -969,7 +1004,7 @@ Class reportController Extends baseController {
 
                     $objPHPExcel->setActiveSheetIndex(0)
 
-                        ->setCellValue($current_column ."8", (isset($road_cost[$vehicle->vehicle_id])?$road_cost[$vehicle->vehicle_id]:0) );
+                        ->setCellValue($current_column ."8", (isset($road_cost_data[$vehicle->vehicle_id])?$road_cost_data[$vehicle->vehicle_id]:0) );
 
                 }
 
@@ -983,7 +1018,7 @@ Class reportController Extends baseController {
 
                     $objPHPExcel->setActiveSheetIndex(0)
 
-                        ->setCellValue($current_column ."9", (isset($checking_cost[$vehicle->vehicle_id])?$checking_cost[$vehicle->vehicle_id]:0) );
+                        ->setCellValue($current_column ."9", (isset($checking_cost_data[$vehicle->vehicle_id])?$checking_cost_data[$vehicle->vehicle_id]:0) );
 
                 }
 
@@ -997,7 +1032,7 @@ Class reportController Extends baseController {
 
                     $objPHPExcel->setActiveSheetIndex(0)
 
-                        ->setCellValue($current_column ."10", (isset($insurance_cost[$vehicle->vehicle_id])?$insurance_cost[$vehicle->vehicle_id]:0) );
+                        ->setCellValue($current_column ."10", (isset($insurance_cost_data[$vehicle->vehicle_id])?$insurance_cost_data[$vehicle->vehicle_id]:0) );
 
                 }
 
@@ -1066,7 +1101,7 @@ Class reportController Extends baseController {
 
                     $objPHPExcel->setActiveSheetIndex(0)
 
-                        ->setCellValue($current_column ."15", ((isset($repair[$vehicle->vehicle_id])?$repair[$vehicle->vehicle_id]:0)+(isset($suachuavat[$vehicle->vehicle_id])?$suachuavat[$vehicle->vehicle_id]:0)) );
+                        ->setCellValue($current_column ."15", ((isset($repair_data[$vehicle->vehicle_id])?$repair_data[$vehicle->vehicle_id]:0)+(isset($suachuavat[$vehicle->vehicle_id])?$suachuavat[$vehicle->vehicle_id]:0)) );
 
                 }
 

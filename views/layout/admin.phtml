@@ -1429,6 +1429,7 @@
 
             <li><a data="marketing" data-role="marketing" href="<?php echo $this->url('marketing') ?>"><i class="fa fa-fw fa-cubes text-aqua"></i>Lô hàng</a></li>
             <li><a data="shipmentlist" data-role="shipmentlist" href="<?php echo $this->url('shipmentlist') ?>"><i class="fa fa-fw fa-file-text-o text-aqua"></i>Bảng kê</a></li>
+            <li><a data="loanlist" data-role="loanlist" href="<?php echo $this->url('loanlist') ?>"><i class="fa fa-fw fa-file-text-o text-aqua"></i>Bảng kê chi hộ</a></li>
             <li><a data="sell" data-role="sell" href="<?php echo $this->url('sell') ?>"><i class="fa fa-fw fa-hdd-o text-aqua"></i>Xuất bán hàng hóa</a></li>
 
           </ul>
@@ -1872,6 +1873,7 @@ $( document ).ajaxStart(function() {
   $("#ajax_loader").fadeIn(200);
 
   $('input[type="submit"]').attr('disabled',true);
+  $('button[type="submit"]').attr('disabled',true);
 
 });
 
@@ -1880,6 +1882,7 @@ $( document ).ajaxComplete(function() {
   $("#ajax_loader").fadeOut(200);
 
   $('input[type="submit"]').attr('disabled',false);
+  $('button[type="submit"]').attr('disabled',false);
 
 });
 

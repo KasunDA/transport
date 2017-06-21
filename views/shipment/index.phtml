@@ -3074,7 +3074,7 @@ $('html').click(function(e) {
 
                         var export_number = ui.tagLabel;
 
-                        $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number},
+                        $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number, shipment: shipment_link},
 
                            function(data){
 
@@ -3086,11 +3086,13 @@ $('html').click(function(e) {
 
                             $('#shipment_oil').attr('max',new_max);
 
-                            if (val > new_max || val == 0) {
+                            $('#shipment_oil').val(new_max);
 
-                                $('#shipment_oil').val(new_max);
+                            // if (val > new_max || val == 0) {
 
-                            }
+                            //     $('#shipment_oil').val(new_max);
+
+                            // }
 
                         }); 
 
@@ -3100,7 +3102,7 @@ $('html').click(function(e) {
 
                         var export_number = ui.tagLabel;
 
-                        $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number},
+                        $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number, shipment: shipment_link},
 
                            function(data){
 
@@ -3777,6 +3779,8 @@ $('html').click(function(e) {
 
                 var data_vehicle = $(this).find("#vehicle_"+$(this).attr('id')).attr('data');
 
+                var $this = $(this);
+
                 $("#export_stock").tagit({
 
                   tagSource: function(search, showChoices) {
@@ -3803,7 +3807,7 @@ $('html').click(function(e) {
 
                         var export_number = ui.tagLabel;
 
-                        $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number},
+                        $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number, shipment: $this.attr('id')},
 
                            function(data){
 
@@ -3815,11 +3819,13 @@ $('html').click(function(e) {
 
                             $('#shipment_oil').attr('max',new_max);
 
-                            if (val > new_max || val == 0) {
+                            $('#shipment_oil').val(new_max);
 
-                                $('#shipment_oil').val(new_max);
+                            // if (val > new_max || val == 0) {
 
-                            }
+                            //     $('#shipment_oil').val(new_max);
+
+                            // }
 
                         }); 
 
@@ -3829,7 +3835,7 @@ $('html').click(function(e) {
 
                         var export_number = ui.tagLabel;
 
-                        $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number},
+                        $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number, shipment: $this.attr('id')},
 
                            function(data){
 
@@ -5245,7 +5251,7 @@ function add_click(){
 
                 var export_number = ui.tagLabel;
 
-                $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number},
+                $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number, shipment: 0},
 
                    function(data){
 
@@ -5256,12 +5262,13 @@ function add_click(){
                     var val = parseFloat($('#shipment_oil').val());
 
                     $('#shipment_oil').attr('max',new_max);
+                    $('#shipment_oil').val(new_max);
 
-                    if (val > new_max || val == 0) {
+                    // if (val > new_max || val == 0) {
 
-                        $('#shipment_oil').val(new_max);
+                    //     $('#shipment_oil').val(new_max);
 
-                    }
+                    // }
 
                 }); 
 
@@ -5271,7 +5278,7 @@ function add_click(){
 
                 var export_number = ui.tagLabel;
 
-                $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number},
+                $.post("<?php echo BASE_URL ?>/shipment/getExportCode", {export_number: export_number, shipment: 0},
 
                    function(data){
 
@@ -5574,6 +5581,7 @@ $(document).ready(function(){
                     var bill_out = $('#bill_out').attr('value');
                     var export_stock = $('#export_stock').val();
                     var shipment_oil = $('#shipment_oil').attr('value');
+                    var shipment_oil_max = $('#shipment_oil').attr('max');
                     var bill_number = $('#bill_number').attr('value');
 
 
@@ -6203,6 +6211,7 @@ $(document).ready(function(){
                                 bill_out: bill_out,
                                 export_stock: export_stock,
                                 shipment_oil: shipment_oil,
+                                shipment_oil_max: shipment_oil_max,
                                 bill_number: bill_number,
 
                                 shipment_link: shipment_link,

@@ -12,6 +12,8 @@ elseif ($order_by == 'steersman_name')
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
 elseif ($order_by == 'money')
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+elseif ($order_by == 'vehicle_number')
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
 
     $i = $sonews*$page-($sonews-1);
 
@@ -112,6 +114,9 @@ elseif ($order_by == 'money')
                 <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','steersman_name','<?php echo $url_order ?>')">Tài xế <?php if ($order_by == 'steersman_name'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
             </th>
             <th class="fix">
+                <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','vehicle_number','<?php echo $url_order ?>')">Xe <?php if ($order_by == 'vehicle_number'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            </th>
+            <th class="fix">
                 <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','comment','<?php echo $url_order ?>')">Nội dung <?php if ($order_by == 'comment'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
             </th>
             <th class="fix">
@@ -142,6 +147,7 @@ elseif ($order_by == 'money')
                 <td class="fix"  id="debit_date_<?php echo $debit->debit_id; ?>"><?php echo $lib->hien_thi_ngay_thang($debit->debit_date) ?></td>
                 
                 <td class="fix"  id="steersman_name_<?php echo $debit->debit_id; ?>"><a target="_blank" href="<?php echo $this->url('steersman/index/'.$debit->steersman) ?>"><?php echo $debit->steersman_name ?></a></td>
+                <td class="fix"  id="vehicle_<?php echo $debit->debit_id; ?>"><a target="_blank" href="<?php echo $this->url('vehicle/index/'.$debit->vehicle) ?>"><?php echo $debit->vehicle_number ?></a></td>
                 <td class="fix"  id="comment_<?php echo $debit->debit_id; ?>"><?php echo $debit->comment ?></td>
                 <td class="fix" id="money_<?php echo $debit->debit_id; ?>"><?php echo $lib->formatMoney($thu) ?></td>
                 <td class="fix" ><?php echo $lib->formatMoney($dathu) ?></td>
@@ -149,7 +155,7 @@ elseif ($order_by == 'money')
             </tr>
         <?php endforeach; ?>
         <tr style="font-weight:bold">
-            <td class="fix" colspan="5">Tổng cộng</td>
+            <td class="fix" colspan="6">Tổng cộng</td>
             <td class="fix" ><?php echo $lib->formatMoney($tongthu) ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($tongdathu) ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($tongthu-$tongdathu) ?></td>

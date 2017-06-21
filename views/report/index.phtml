@@ -16,9 +16,23 @@
     <form id="report" name="report" action method="post" style="margin:0;">
     <div>
         <div class="add-box">
-            <a class="add_button" id="export_excel" href="<?php echo BASE_URL.'/report/exportreport/'.strtotime($batdau).'/'.strtotime($ketthuc) ?>">Export Excel</a>
+            <a class="add_button" id="export_excel" href="<?php echo BASE_URL.'/report/exportreport/'.strtotime($batdau).'/'.strtotime($ketthuc).'/'.$xe ?>">Export Excel</a>
         </div>
+        <div style="clear:both"></div>
+        <div class="add-box">
+            <select name="sl_vehicle" id="sl_vehicle" style="width:120px">
 
+                <option selected="selected" value="0">Xe</option>
+
+                <?php foreach ($vehicle_datas as $sm) { ?>
+
+                <option value="<?php echo $sm->vehicle_id ?>"><?php echo $sm->vehicle_number ?></option>
+
+                <?php } ?>
+
+            </select>
+            <input type="submit" name="submit" id="chon" value="Chọn">  
+        </div>
         
         <select id="sl_round" name="sl_round" style="width:90px; margin-left:5px;">
          <?php 
@@ -45,6 +59,7 @@
          <input type="submit" name="submit" id="xem" value="Xem">  
                               
     </div>
+    
     </form>  
 </div>
   
@@ -799,6 +814,9 @@ $('#sl_round option[value='+v+']').attr('selected','selected');
 var tt = "<?php echo $trangthai ?>";
 $('#sl_trangthai option[value='+tt+']').attr('selected','selected');
 
+var x = "<?php echo $xe ?>";
+
+$('#sl_vehicle option[value='+x+']').attr('selected','selected');
 </script>
 <script type="text/javascript">
     

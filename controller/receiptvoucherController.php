@@ -819,7 +819,7 @@ Class receiptvoucherController Extends baseController {
                 $join = array('table'=>'customer','where'=>'customer = customer_id');
 
                 $data = array(
-                    'where' => 'check_debit = 1 AND customer = '.$_POST['customer'],
+                    'where' => 'check_debit = 1 AND customer = '.$_POST['customer'].' AND (shipment_cost IS NULL OR shipment_cost NOT IN (SELECT shipment_cost_id FROM shipment_cost,cost_list WHERE cost_list=cost_list_id AND cost_list_type=8) )',
                 );
 
                 if ($_POST['keyword'] == "*") {
@@ -840,6 +840,31 @@ Class receiptvoucherController Extends baseController {
 
                 }
 
+                if (!$list) {
+                    $join = array('table'=>'loan_list','where'=>'loan = loan_list_id');
+
+                    $data = array(
+                        'where' => 'loan > 0 AND check_loan = 1 AND check_debit = 1 AND loan_list.customer = '.$_POST['customer'],
+                    );
+
+                    if ($_POST['keyword'] == "*") {
+                        $list = $debit_model->getAllDebit($data,$join);
+                    }
+
+
+                    else{
+
+
+                        $data['where'] .= ' AND ( comment LIKE "%'.$_POST['keyword'].'%" )';
+
+
+
+                        $list = $debit_model->getAllDebit($data,$join);
+
+
+
+                    }
+                }
 
 
                 foreach ($list as $rs) {
@@ -1010,6 +1035,8 @@ Class receiptvoucherController Extends baseController {
             $bank_balance_model = $this->model->get('bankbalanceModel');
             $debit_pay_model = $this->model->get('debitpayModel');
 
+            $loan_list_model = $this->model->get('loanlistModel');
+            $debit_model = $this->model->get('debitModel');
             /**************/
 
 
@@ -1191,7 +1218,7 @@ Class receiptvoucherController Extends baseController {
 
                 if (isset($v['debit_pay_id']) && $v['debit_pay_id'] > 0) {
 
-
+                    $debit_pays = $debit_pay_model->getDebit($v['debit_pay_id']);
 
                     $data_debit = array(
 
@@ -1209,7 +1236,47 @@ Class receiptvoucherController Extends baseController {
 
                     $debit_pay_model->updateDebit($data_debit,array('debit_pay_id'=>$v['debit_pay_id']));
 
+                    $debits = $debit_model->getDebit($v['debit_id']);
 
+                    if ($debits->loan > 0) {
+                        $loan_lists = $loan_list_model->getShipment($debits->loan);
+                        $arr = explode(',', $loan_lists->shipment_cost);
+
+                        $tongtien = trim(str_replace(',','',$v['debit_pay_money']));
+                        foreach ($arr as $key => $value) {
+                            $debit_id = $debit_model->getDebitByWhere(array('shipment_cost'=>$value,'check_debit'=>1,'check_loan'=>1));
+                            
+                            $debit_pay_model->queryDebit('DELETE FROM debit_pay WHERE check_sub = 1 AND debit = '.$debit_id->debit_id.' AND receipt_voucher = '.$id_receipt);
+
+                            $debit_add = $debit_pay_model->getAllDebit(array('where'=>'debit = '.$debit_id->debit_id));
+
+                            $tien = $debit_id->money+$debit_id->money_vat_price;
+                            foreach ($debit_add as $add) {
+                                $tien = $tien - $add->debit_pay_money;
+                            }
+
+                            if ($tien > 0) {
+                                $tien = $tien > $tongtien ? $tongtien : $tien;
+                                $tongtien = $tongtien - $tien;
+
+                                $data_debit = array(
+
+                                    'receipt_voucher'=>$id_receipt,
+
+                                    'debit'=>$debit_id->debit_id,
+
+                                    'debit_pay_date'=>$data['receipt_voucher_date'],
+
+                                    'debit_pay_money'=>$tien,
+
+                                    'check_sub'=>1,
+
+                                );
+
+                                $debit_pay_model->createDebit($data_debit);
+                            }
+                        }
+                    }
 
                 }
 
@@ -1228,6 +1295,46 @@ Class receiptvoucherController Extends baseController {
                     );
 
                     $debit_pay_model->createDebit($data_debit);
+
+                    $debits = $debit_model->getDebit($v['debit_id']);
+
+                    if ($debits->loan > 0) {
+                        $loan_lists = $loan_list_model->getShipment($debits->loan);
+                        $arr = explode(',', $loan_lists->shipment_cost);
+
+                        $tongtien = trim(str_replace(',','',$v['debit_pay_money']));
+                        foreach ($arr as $key => $value) {
+                            $debit_id = $debit_model->getDebitByWhere(array('shipment_cost'=>$value,'check_debit'=>1,'check_loan'=>1));
+                            $debit_add = $debit_pay_model->getAllDebit(array('where'=>'debit = '.$debit_id->debit_id));
+
+                            $tien = $debit_id->money+$debit_id->money_vat_price;
+                            foreach ($debit_add as $add) {
+                                $tien = $tien - $add->debit_pay_money;
+                            }
+
+                            if ($tien > 0) {
+                                $tien = $tien > $tongtien ? $tongtien : $tien;
+                                $tongtien = $tongtien - $tien;
+
+                                $data_debit = array(
+
+                                    'receipt_voucher'=>$id_receipt,
+
+                                    'debit'=>$debit_id->debit_id,
+
+                                    'debit_pay_date'=>$data['receipt_voucher_date'],
+
+                                    'debit_pay_money'=>$tien,
+
+                                    'check_sub'=>1,
+
+                                );
+
+                                $debit_pay_model->createDebit($data_debit);
+                            }
+                            
+                        }
+                    }
 
                 }
 
@@ -1566,7 +1673,7 @@ Class receiptvoucherController Extends baseController {
 
 
 
-                'where' => 'receipt_voucher = '.$_POST['receipt_voucher'],
+                'where' => 'check_sub = 0 AND receipt_voucher = '.$_POST['receipt_voucher'],
 
 
 
@@ -1706,6 +1813,12 @@ Class receiptvoucherController Extends baseController {
 
 
             $debit_pay_model = $this->model->get('debitpayModel');
+
+            $pay = $debit_pay_model->getDebit($_POST['debit_pay_id']);
+
+            if ($pay->check_sub == 1) {
+                $debit_pay_model->queryDebit('DELETE FROM debit_pay WHERE check_sub = 1 AND  receipt_voucher = '.$pay->receipt_voucher);
+            }
 
             $debit_pay_model->queryDebit('DELETE FROM debit_pay WHERE debit_pay_id = '.$_POST['debit_pay_id']);
 

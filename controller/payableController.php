@@ -514,14 +514,14 @@ Class payableController Extends baseController {
 
         $debit_model = $this->model->get('debitModel');
 
-        $join = array('table'=>'steersman','where'=>'debit.steersman=steersman_id');
+        $join = array('table'=>'steersman,shipment,vehicle','where'=>'debit.steersman=steersman_id AND shipment=shipment_id AND vehicle=vehicle_id');
 
         $sonews = $limit;
         $x = ($page-1) * $sonews;
         $pagination_stages = 2;
 
         $data = array(
-            'where' => 'check_debit = 2 AND check_loan = 2 AND steersman > 0 AND debit_date >= '.strtotime($batdau).' AND debit_date < '.strtotime($ngayketthuc),
+            'where' => 'check_debit = 2 AND check_loan = 2 AND debit.steersman > 0 AND debit_date >= '.strtotime($batdau).' AND debit_date < '.strtotime($ngayketthuc),
         );
 
         if (isset($id) && $id > 0) {
@@ -558,7 +558,7 @@ Class payableController Extends baseController {
             'order_by'=>$order_by,
             'order'=>$order,
             'limit'=>$x.','.$sonews,
-            'where' => 'check_debit = 2 AND check_loan = 2 AND steersman > 0 AND debit_date >= '.strtotime($batdau).' AND debit_date < '.strtotime($ngayketthuc),
+            'where' => 'check_debit = 2 AND check_loan = 2 AND debit.steersman > 0 AND debit_date >= '.strtotime($batdau).' AND debit_date < '.strtotime($ngayketthuc),
             );
 
         if (isset($id) && $id > 0) {

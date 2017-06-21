@@ -929,9 +929,9 @@ Class exportstockController Extends baseController {
 
                 ->setCellValue('A2', 'PHÒNG VẬT TƯ KỸ THUẬT')
 
-                ->setCellValue('E1', 'CỘNG HÒA XÃ CHỦ NGHĨA VIỆT NAM')
+                ->setCellValue('F1', 'CỘNG HÒA XÃ CHỦ NGHĨA VIỆT NAM')
 
-                ->setCellValue('E2', 'Độc lập - Tự do - Hạnh phúc')
+                ->setCellValue('F2', 'Độc lập - Tự do - Hạnh phúc')
 
                 ->setCellValue('A4', 'BẢNG TỔNG HỢP PHIẾU XUẤT KHO')
 
@@ -943,11 +943,13 @@ Class exportstockController Extends baseController {
 
                ->setCellValue('D6', 'NỘI DUNG')
 
-               ->setCellValue('E6', 'NGƯỜI NHẬN')
+               ->setCellValue('E6', 'SỐ LƯỢNG')
 
-               ->setCellValue('F6', 'XE')
+               ->setCellValue('F6', 'NGƯỜI NHẬN')
 
-               ->setCellValue('G6', 'MOOC');
+               ->setCellValue('G6', 'XE')
+
+               ->setCellValue('H6', 'MOOC');
 
               
 
@@ -983,15 +985,16 @@ Class exportstockController Extends baseController {
 
                             ->setCellValue('D' . $hang, $row->export_stock_comment)
 
-                            ->setCellValue('E' . $hang, $row->steersman_name)
+                            ->setCellValue('E' . $hang, $row->export_stock_total)
 
-                            ->setCellValue('F' . $hang, (isset($vehicle_data['name'][$row->vehicle])?$vehicle_data['name'][$row->vehicle]:null))
+                            ->setCellValue('F' . $hang, $row->steersman_name)
 
-                            ->setCellValue('G' . $hang, (isset($romooc_data['name'][$row->romooc])?$romooc_data['name'][$row->romooc]:null));
+                            ->setCellValue('G' . $hang, (isset($vehicle_data['name'][$row->vehicle])?$vehicle_data['name'][$row->vehicle]:null))
 
-                        $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':G'.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-                        $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':G'.$hang)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
-                        $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':G'.$hang)->getFont()->setBold(true);
+                            ->setCellValue('H' . $hang, (isset($romooc_data['name'][$row->romooc])?$romooc_data['name'][$row->romooc]:null));
+
+                        
+                        $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':H'.$hang)->getFont()->setBold(true);
 
                          $hang++;
 
@@ -1008,9 +1011,14 @@ Class exportstockController Extends baseController {
 
                             ->setCellValue('D' . $hang, $spare->spare_part_seri)
 
-                            ->setCellValue('E' . $hang, $spare->spare_stock_number);
+                            ->setCellValue('E' . $hang, $spare->spare_stock_number)
 
-                            $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':G'.$hang)->getFont()->setItalic(true);
+                            ->setCellValue('G' . $hang, (isset($vehicle_data['name'][$row->vehicle])?$vehicle_data['name'][$row->vehicle]:null))
+
+                            ->setCellValue('H' . $hang, (isset($romooc_data['name'][$row->romooc])?$romooc_data['name'][$row->romooc]:null));
+
+
+                            $objPHPExcel->getActiveSheet()->getStyle('A'.$hang.':H'.$hang)->getFont()->setItalic(true);
 
                             $hang++;
                         }
@@ -1029,12 +1037,16 @@ Class exportstockController Extends baseController {
                 ->setCellValue('B'.$hang, 'TỔNG')
 
 
-               ->setCellValue('E'.$hang, '=SUM(E7:E'.($hang-1).')');
+               ->setCellValue('E'.$hang, '=SUM(E7:E'.($hang-1).')/2');
 
             
 
+            $objPHPExcel->getActiveSheet()->getStyle('A7:D'.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('A7:D'.$hang)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('F7:H'.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('F7:H'.$hang)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A6:G'.$hang)->applyFromArray(
+            $objPHPExcel->getActiveSheet()->getStyle('A6:H'.$hang)->applyFromArray(
 
                 array(
 
@@ -1065,22 +1077,22 @@ Class exportstockController Extends baseController {
 
                 ->setCellValue('A'.($hang+3), 'NGƯỜI LẬP BIỂU')
 
-                ->setCellValue('E'.($hang+3), mb_strtoupper($infos->info_company, "UTF-8"));
+                ->setCellValue('F'.($hang+3), mb_strtoupper($infos->info_company, "UTF-8"));
 
 
 
             $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang+3).':C'.($hang+3));
 
-            $objPHPExcel->getActiveSheet()->mergeCells('E'.($hang+3).':G'.($hang+3));
+            $objPHPExcel->getActiveSheet()->mergeCells('F'.($hang+3).':H'.($hang+3));
 
 
-            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang+3).':G'.($hang+3))->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang+3).':H'.($hang+3))->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang+3).':G'.($hang+3))->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang+3).':H'.($hang+3))->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
 
 
-            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang).':G'.($hang+3))->applyFromArray(
+            $objPHPExcel->getActiveSheet()->getStyle('A'.($hang).':H'.($hang+3))->applyFromArray(
 
                 array(
 
@@ -1112,19 +1124,19 @@ Class exportstockController Extends baseController {
 
             $objPHPExcel->getActiveSheet()->mergeCells('A1:C1');
 
-            $objPHPExcel->getActiveSheet()->mergeCells('E1:G1');
+            $objPHPExcel->getActiveSheet()->mergeCells('F1:H1');
 
             $objPHPExcel->getActiveSheet()->mergeCells('A2:C2');
 
-            $objPHPExcel->getActiveSheet()->mergeCells('E2:G2');
+            $objPHPExcel->getActiveSheet()->mergeCells('F2:H2');
 
-            $objPHPExcel->getActiveSheet()->mergeCells('A4:G4');
+            $objPHPExcel->getActiveSheet()->mergeCells('A4:H4');
 
 
 
-            $objPHPExcel->getActiveSheet()->getStyle('A1:G4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('A1:H4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A1:G4')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('A1:H4')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
 
 
@@ -1132,7 +1144,7 @@ Class exportstockController Extends baseController {
 
 
 
-            $objPHPExcel->getActiveSheet()->getStyle('A1:G4')->applyFromArray(
+            $objPHPExcel->getActiveSheet()->getStyle('A1:H4')->applyFromArray(
 
                 array(
 
@@ -1172,11 +1184,11 @@ Class exportstockController Extends baseController {
 
             $objPHPExcel->getActiveSheet()->getStyle('E7:E'.$highestRow)->getNumberFormat()->setFormatCode("#,##0_);[Black](#,##0)");
 
-            $objPHPExcel->getActiveSheet()->getStyle('A6:G6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('A6:H6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A6:G6')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle('A6:H6')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A6:G6')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('A6:H6')->getFont()->setBold(true);
 
             $objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(26);
 
