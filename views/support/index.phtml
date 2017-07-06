@@ -1,3 +1,5 @@
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+
 <div class="row">
   <div class="col-sm-12">
     <div class="help-block text-center">
@@ -7,17 +9,84 @@
       <button type="button" class="btn btn-primary btn-arrow-right"><i class="fa fa-dollar"></i> FINANCE</button>
       <button type="button" class="btn btn-success btn-arrow-right"><i class="fa fa-user"></i> HUMAN RESOURCES</button>
     </div>
+    
     <div class="text-center">
       SUPPORT CENTER <br>
       <i class="fa fa-phone"></i> +84 129 279 1234  &nbsp; &nbsp; &nbsp; &nbsp; <i class="fa fa-commenting"></i> +84 902 085 911 <br>
       <i class="fa fa-envelope"></i> ngoton@tinhoctainha.com - ngoton.it@gmail.com <br>
       <i class="fa fa-globe"></i> www.tinhoctainha.com
     </div>
+
     <div class="lockscreen-footer text-center">
       Copyright &copy; <?php echo date('Y') ?> <b><a href="http://www.tinhoctainha.com" class="text-black">TMS</a></b>
     </div>
   </div><!-- /.col -->
 </div>
+
+
+<div class="hisella-messages">
+
+  <div class="hisella-messages-outer">
+    
+    <div class="hangout-messages">
+      <g:hangout render="createhangout"
+        invites="[{ id : 'ngoton.it@gmail.com', invite_type : 'EMAIL' }]">
+      </g:hangout>
+    </div>
+    <div id="hisella-minimize">Facebook chat</div>
+    <div id="hisella-facebook" class='fb-page' data-adapt-container-width='true' data-height='300' data-hide-cover='false' data-href='https://www.facebook.com/tinhoctainha/' data-show-facepile='true' data-show-posts='false' data-small-header='false' data-tabs='messages' data-width='250'></div>
+  </div>
+</div>
+<style type="text/css">
+
+.hisella-messages { position: fixed; bottom: 0; right: 0; z-index: 999999; }
+
+.hisella-messages-outer { position: relative; }
+
+#hisella-minimize { background: #3b5998; font-size: 14px; color: #fff; padding: 3px 10px; position: absolute; top: -34px; left: -1px; border: 1px solid #E9EAED; cursor: pointer; }
+
+#hisella-facebook { opacity:0; } .hisella-messages { bottom: -300px; right: -120px; }
+
+</style>
+
+<div id='fb-root'></div>
+
+<script>
+
+(function($) { $(document).ready(function(){ $( '#hisella-minimize' ).click( function() { if( $( '#hisella-facebook' ).css( 'opacity' ) == 0 ) { $( '#hisella-facebook' ).css( 'opacity', 1 ); $( '.hisella-messages' ).animate( { right: '0' } ).animate( { bottom: '0' } ); } else { $( '.hisella-messages' ).animate( { bottom: '-300px' } ).animate( { right: '-120px' }, 400, function(){ $( '#hisella-facebook' ).css( 'opacity', 0 ) } ); } } ) }); })(jQuery);
+
+(function(d, s, id) {
+
+
+
+  var js, fjs = d.getElementsByTagName(s)[0];
+
+
+
+  if (d.getElementById(id)) return;
+
+
+
+  js = d.createElement(s); js.id = id;
+
+
+
+  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.4";
+
+
+
+  fjs.parentNode.insertBefore(js, fjs);
+
+
+
+}(document, 'script', 'facebook-jssdk'));
+
+</script>
+
+
+
+
+
 
 <style type="text/css">
 .btn { /* just for this demo. */

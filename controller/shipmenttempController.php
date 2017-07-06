@@ -91,6 +91,9 @@ Class shipmenttempController Extends baseController {
 
             );
 
+        if ($_SESSION['role_logined'] > 2) {
+            $data['where'] .= ' AND owner = '.$_SESSION['userid_logined'];
+        }
         
 
         $tongsodong = count($shipment_temp_model->getAllShipment($data,$join));
@@ -137,6 +140,9 @@ Class shipmenttempController Extends baseController {
 
             );
 
+        if ($_SESSION['role_logined'] > 2) {
+            $data['where'] .= ' AND owner = '.$_SESSION['userid_logined'];
+        }
         
 
         if ($keyword != '') {

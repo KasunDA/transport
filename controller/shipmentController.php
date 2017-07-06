@@ -287,9 +287,15 @@ Class shipmentController Extends baseController {
 
         $join = array('table'=>'customer, marketing, cont_unit','where'=>'marketing.marketing_id = shipment_temp.marketing AND customer.customer_id = marketing.customer AND cont_unit=cont_unit_id');
 
+        $temp_data = array(
+            'where'=>'shipment_temp_status=0',
+        );
 
+        if ($_SESSION['role_logined'] > 2) {
+            $temp_data['where'] .= ' AND owner='.$_SESSION['userid_logined'];
+        }
 
-        $shipment_temps = $shipment_temp_model->getAllShipment(array('where'=>'shipment_temp_status=0 AND owner='.$_SESSION['userid_logined']),$join);
+        $shipment_temps = $shipment_temp_model->getAllShipment($temp_data,$join);
 
 
 
