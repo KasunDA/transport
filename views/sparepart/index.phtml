@@ -119,10 +119,13 @@ elseif ($order_by == 'spare_part_date_manufacture')
           </td>
           <?php } ?>
       </tr>
+      <tr class="show_spare" data="<?php echo $spare->spare_part_code_id ?>">
+        <td colspan="8"><i class="fa fa-angle-double-down"></i> Có (<?php echo count($spares[$spare->spare_part_code_id]) ?>) sản phẩm</td>
+      </tr>
     <?php 
       $j = "1";
     foreach ($spares[$spare->spare_part_code_id] as $spare_part) : ?>
-        <tr style="font-style:italic" onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $spare_part->spare_part_id ?>" class="edit_tr <?php echo $spare->spare_part_code_id ?>">
+        <tr style="font-style:italic; display:none" onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $spare_part->spare_part_id ?>" class="edit_tr <?php echo $spare->spare_part_code_id ?>">
             <td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $spare_part->spare_part_id ?>"></td>
             <td class="fix"><?php echo $j++; ?></td>
             <td class="fix"><?php echo $spare_part->spare_part_code ?></td>
@@ -756,4 +759,18 @@ function del2(id)
        }); 
   }
 }
+
+$('.show_spare').toggle(function(){
+    var val = $(this).attr('data');
+    $('.'+val).slideDown(300);
+    
+},function(){
+  var val = $(this).attr('data');
+    $('.'+val).slideUp(300);
+});
 </script>
+<style type="text/css">
+.show_spare{
+  cursor: pointer;
+}
+</style>

@@ -581,17 +581,32 @@ Class shipmentController Extends baseController {
 
                     OR shipment_from in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
 
-
-
                     OR shipment_to in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
-
 
 
                     '.$ngay.'
 
+                    OR shipment_id IN (SELECT shipment_link FROM shipment WHERE 
+                        vehicle_number LIKE "%'.$keyword.'%" 
+
+                        OR bill_number LIKE "%'.$keyword.'%" 
+
+                        OR steersman_name LIKE "%'.$keyword.'%" 
+
+                        OR customer_name LIKE "%'.$keyword.'%" 
+
+                        OR customer_type IN (SELECT customer_sub_id FROM customer_sub WHERE customer_sub_name LIKE "%'.$keyword.'%" ) 
+
+                        OR shipment_from in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
+
+                        OR shipment_to in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
 
 
-                        )';
+                        '.$ngay.'
+                     ) 
+
+
+                    )';
 
 
 

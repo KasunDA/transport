@@ -266,7 +266,7 @@ Class newshipmentController Extends baseController {
 
             $data_marketing = array(
 
-                'marketing_ton_use' => $marketing->marketing_ton_use+trim($_POST['ton']),
+                'marketing_ton_use' => $marketing->marketing_ton_use+trim(str_replace(',','',$_POST['ton'])),
 
             );
 
@@ -323,7 +323,7 @@ Class newshipmentController Extends baseController {
 
                         'shipment_temp_status' => 0,
 
-                        'shipment_temp_ton' => trim($_POST['ton']),
+                        'shipment_temp_ton' => trim(str_replace(',','',$_POST['ton'])),
 
                         'shipment_temp_number' => trim($_POST['number']),
 

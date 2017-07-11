@@ -72,7 +72,7 @@
       <div class="add-box">
         <form id="spare_form_x" action="" method="post">
           Phiếu xuất kho
-          <select style="width:100px" id="export_stock" name="export_stock">
+          <select style="width:200px" id="export_stock" name="export_stock">
             <?php foreach ($export_stocks as $ex) { ?>
               <option value="<?php echo $ex->export_stock_id ?>" ><?php echo $ex->export_stock_code ?></option>
             <?php } ?>
@@ -523,4 +523,6 @@ $('#update').click(function(){
     }
   });
 });
+
+$("#export_stock").chosen();
 </script>
