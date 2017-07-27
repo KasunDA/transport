@@ -542,7 +542,7 @@ elseif ($order_by == 'bill_delivery_date')
 
             <td class="fix" id="cont_unit_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->cont_unit_name; ?></td>
 
-            <td class="fix" style="display:none" id="shipment_charge_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_charge); ?></td>
+            <td class="fix" style="display:none" id="shipment_charge_<?php echo $shipment->shipment_id; ?>"><?php echo $shipment->shipment_charge; ?></td>
 
             <td class="fix" style="display:none" id="shipment_revenue_<?php echo $shipment->shipment_id; ?>"><?php echo $lib->formatMoney($shipment->shipment_revenue+$shipment->revenue_other+$shipment->shipment_charge_excess); ?></td>
 
@@ -1419,7 +1419,7 @@ $this->helper('slidePaginator');
 
                                                 </legend>
 
-                                                <input type="hidden" class="number" id="shipment_charge" name="shipment_charge" tabindex="19" >
+                                                <input type="hidden" id="shipment_charge" name="shipment_charge" tabindex="19" >
 
                                                 <input style="width:50px" type="hidden" class="numbers" id="shipment_ton_net" name="shipment_ton_net" tabindex="10" >
 
@@ -1847,7 +1847,7 @@ $this->helper('slidePaginator');
                                                         <input type="hidden"  autocomplete="off"  id="shipment_to_sub" name="shipment_to_sub" tabindex="8"  placeholder="Nhập tên hoặc * để chọn" >
                                                         <input type="hidden" id="route_sub" name="route_sub"  tabindex="9">
                                                         <input type="hidden" class="number" id="shipment_salary_sub" name="shipment_salary_sub" tabindex="10"  >
-                                                        <input type="hidden" class="number" id="shipment_charge_sub" name="shipment_charge_sub" tabindex="19" >
+                                                        <input type="hidden" id="shipment_charge_sub" name="shipment_charge_sub" tabindex="19" >
                                                         <input type="hidden" class="number" id="oil_cost_sub" name="oil_cost_sub" tabindex="22" required="required" >
                                                         <input type="hidden" class="number" id="shipment_road_add_sub" name="shipment_road_add_sub" tabindex="23"  >
                                                         <input type="hidden" id="export_stock_sub" name="export_stock_sub" tabindex="20"  >

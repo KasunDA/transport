@@ -1920,7 +1920,7 @@ Class importstockController Extends baseController {
 
                 $imports[$code->spare_part_code_id] = $spare_model->getAllStock($data,$join);
 
-
+                $check_seri[$code->spare_part_code_id] = 0;
 
                 foreach ($imports[$code->spare_part_code_id] as $spare) {
 
@@ -1930,7 +1930,7 @@ Class importstockController Extends baseController {
 
 
 
-                    $check_seri[$code->spare_part_code_id] = 0;
+                    
 
                     if ($spare->spare_part_seri != "") {
 
@@ -2080,7 +2080,7 @@ Class importstockController Extends baseController {
 
                                     $str .= '<td>';
 
-                                      $str .= '<input code="" data="0" type="text" class="spare_part_seri2" name="spare_part_seri2[]" tabindex="6" >';
+                                      $str .= '<input code="" data="0" type="text" class="spare_part_seri2" name="spare_part_seri2[]" tabindex="6" ><span class="dem" data="1">(1)</span>';
 
                                     $str .= '</td>';
 
@@ -2237,9 +2237,9 @@ Class importstockController Extends baseController {
                             $str .= '<table class="dataTb" id="dataTb'.$i.'" border="1" style="width: 100%; border: 1px solid rgb(221, 217, 217); margin-bottom: 10px" >';
 
                               $str .= '<tbody>';
-
+                            $ns = 0;  
                               foreach ($imports[$code->spare_part_code_id] as $v) {
-
+                                $ns++;
                                 $str .= '<tr>';
 
                                   $str .= '<td><input type="checkbox" name="chk3" class="chk3" alt="'.$v->spare_part_id.'" data="'.$_POST['import_stock'].'" ></td>';
@@ -2254,7 +2254,7 @@ Class importstockController Extends baseController {
 
                                         $str .= '<td>';
 
-                                          $str .= '<input code="'.$v->spare_part_id.'" data="'.$i.'" type="text" class="spare_part_seri2" name="spare_part_seri2[]" tabindex="6" value="'.($check_seri[$code->spare_part_code_id]>0?$v->spare_part_seri:null).'" >';
+                                          $str .= '<input code="'.$v->spare_part_id.'" data="'.$i.'" type="text" class="spare_part_seri2" name="spare_part_seri2[]" tabindex="6" value="'.($check_seri[$code->spare_part_code_id]>0?$v->spare_part_seri:null).'" ><span class="dem" data="'.$ns.'">('.$ns.')</span>';
 
                                         $str .= '</td>';
 

@@ -372,6 +372,7 @@ $this->helper('slidePaginator');
                                                                 <td>Số seri</td>
                                                                 <td>
                                                                   <input code="" data="0" type="text" class="spare_part_seri2" name="spare_part_seri2[]" tabindex="6" >
+                                                                  <span class="dem" data="1">(1)</span>
                                                                 </td>
                                                                 
                                                               </tr>
@@ -668,6 +669,7 @@ $('html').click(function(e) {
                           });
 
                         if ($('.check_seri:eq('+rowIndex+')').is(':checked')) {
+                          var ns = parseInt($('.dem:last').attr("data"));
                           $('.tr_seri:eq('+rowIndex+')').show();
                           var table=document.getElementById('dataTb'+rowIndex);
                           var rowCount=table.rows.length;
@@ -699,6 +701,11 @@ $('html').click(function(e) {
                               $('input[name="chk3"]:last').attr('class',"");
                               $('input[name="chk3"]:last').attr('alt',0);
 
+                              ns++;
+            
+                              $('.dem:last').attr("data",ns);
+                              $('.dem:last').html("("+ns+")");
+
                               rowCount++;
                             }
                           }
@@ -722,6 +729,7 @@ $('html').click(function(e) {
                     var rowIndex = row[0].rowIndex;
 
                       if($(this).is(':checked')){
+                        var ns = parseInt($('.dem:last').attr("data"));
                         $('.tr_seri:eq('+rowIndex+')').show();
                           var table=document.getElementById('dataTb'+rowIndex);
                           var rowCount=table.rows.length;
@@ -752,6 +760,11 @@ $('html').click(function(e) {
                               $('input[name="chk3"]:last').attr('title',"");
                               $('input[name="chk3"]:last').attr('class',"");
                               $('input[name="chk3"]:last').attr('alt',0);
+
+                              ns++;
+            
+                              $('.dem:last').attr("data",ns);
+                              $('.dem:last').html("("+ns+")");
 
                               rowCount++;
                             }
@@ -1489,6 +1502,7 @@ $('.spare_stock_price').keyup(function(){
         });
 
       if ($('.check_seri:eq('+rowIndex+')').is(':checked')) {
+        var ns = parseInt($('.dem:last').attr("data"));
         $('.tr_seri:eq('+rowIndex+')').show();
         var table=document.getElementById('dataTb'+rowIndex);
         var rowCount=table.rows.length;
@@ -1520,6 +1534,11 @@ $('.spare_stock_price').keyup(function(){
             $('input[name="chk3"]:last').attr('class',"");
             $('input[name="chk3"]:last').attr('alt',0);
 
+            ns++;
+            
+            $('.dem:last').attr("data",ns);
+            $('.dem:last').html("("+ns+")");
+
             rowCount++;
           }
         }
@@ -1543,6 +1562,7 @@ $('.check_seri').click(function(){
   var rowIndex = row[0].rowIndex;
 
     if($(this).is(':checked')){
+      var ns = parseInt($('.dem:last').attr("data"));
       $('.tr_seri:eq('+rowIndex+')').show();
         var table=document.getElementById('dataTb'+rowIndex);
         var rowCount=table.rows.length;
@@ -1573,6 +1593,11 @@ $('.check_seri').click(function(){
             $('input[name="chk3"]:last').attr('title',"");
             $('input[name="chk3"]:last').attr('class',"");
             $('input[name="chk3"]:last').attr('alt',0);
+
+            ns++;
+            
+            $('.dem:last').attr("data",ns);
+            $('.dem:last').html("("+ns+")");
 
             rowCount++;
           }
@@ -2032,6 +2057,7 @@ $('.spare_stock_price').keyup(function(){
         });
 
       if ($('.check_seri:eq('+rowIndex+')').is(':checked')) {
+        var ns = parseInt($('.dem:last').attr("data"));
         $('.tr_seri:eq('+rowIndex+')').show();
         var table=document.getElementById('dataTb'+rowIndex);
         var rowCount=table.rows.length;
@@ -2063,6 +2089,11 @@ $('.spare_stock_price').keyup(function(){
             $('input[name="chk3"]:last').attr('class',"");
             $('input[name="chk3"]:last').attr('alt',0);
 
+            ns++;
+            
+            $('.dem:last').attr("data",ns);
+            $('.dem:last').html("("+ns+")");
+
             rowCount++;
           }
         }
@@ -2086,6 +2117,7 @@ $('.check_seri').click(function(){
   var rowIndex = row[0].rowIndex;
 
     if($(this).is(':checked')){
+      var ns = parseInt($('.dem:last').attr("data"));
       $('.tr_seri:eq('+rowIndex+')').show();
         var table=document.getElementById('dataTb'+rowIndex);
         var rowCount=table.rows.length;
@@ -2116,6 +2148,11 @@ $('.check_seri').click(function(){
             $('input[name="chk3"]:last').attr('title',"");
             $('input[name="chk3"]:last').attr('class',"");
             $('input[name="chk3"]:last').attr('alt',0);
+
+            ns++;
+            
+            $('.dem:last').attr("data",ns);
+            $('.dem:last').html("("+ns+")");
 
             rowCount++;
           }
@@ -2421,6 +2458,7 @@ function deleteRow2(tableID){
 }
 
 function addRow3(tableID){
+  var ns = parseInt($('.dem:last').attr("data"));
     var table=document.getElementById(tableID);
     var rowCount=table.rows.length;
     var row=table.insertRow(rowCount);
@@ -2446,6 +2484,11 @@ function addRow3(tableID){
     $('input[name="chk3"]:last').attr('title',"");
     $('input[name="chk3"]:last').attr('class',"");
     $('input[name="chk3"]:last').attr('alt',0);
+
+    ns++;
+            
+    $('.dem:last').attr("data",ns);
+    $('.dem:last').html("("+ns+")");
 
     var rowIndex = parseInt(tableID.replace('dataTb',''));
 
