@@ -158,19 +158,38 @@ Class sparevehicleController Extends baseController {
         $export_stock_model = $this->model->get('exportstockModel');
         $spare_stock_model = $this->model->get('sparestockModel');
         $sparevehicle_model = $this->model->get('sparevehicleModel');
+        $house_model = $this->model->get('houseModel');
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $vehicle = $_POST['vehicle'];
             $romooc = $_POST['romooc'];
+            $house = $_POST['house'];
             $export_stock = $_POST['export_stock'];
             $tab_active = $_POST['tab_active'];
         }
         else{
             $vehicle = $vehicle_model->getLastVehicle()->vehicle_id;
             $romooc = $romooc_model->getLastVehicle()->romooc_id;
-            $export_stock = $export_stock_model->getLastStock()->export_stock_id;
+            $house = $house_model->getLastHouse()->house_id;
+            $export_stocks = $export_stock_model->getAllStock(array('where'=>'house='.$house,'order_by'=>'export_stock_id DESC','limit'=>1));
+            foreach ($export_stocks as $key) {
+                $export_stock = $key->export_stock_id;
+            }
             $tab_active = 1;
         }
+
+        if (isset($_POST['house_change'])) {
+            $export_stocks = $export_stock_model->getAllStock(array('where'=>'house='.$house,'order_by'=>'export_stock_id DESC','limit'=>1));
+            foreach ($export_stocks as $key) {
+                $export_stock = $key->export_stock_id;
+            }
+        }
+
+        $houses = $house_model->getAllHouse();
+
+        $this->view->data['houses'] = $houses;
+
+        $this->view->data['house'] = $house;
 
         $spare_vehicles = $sparevehicle_model->getAllStock();
         $arr = array();
@@ -182,6 +201,7 @@ Class sparevehicleController Extends baseController {
         $this->view->data['arr_stock'] = $arr_stock;
         /////////////////// Lấy số lượng theo phiếu xuất kho và loại phụ tùng
         $data = array(
+            'where'=>'house='.$house,
             'order_by'=>'export_stock_code',
             'order'=>'DESC'
         );

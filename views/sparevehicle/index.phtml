@@ -44,6 +44,7 @@
         </div>
         <input type="hidden" value="<?php echo $tab_active ?>" class="tab_active" name="tab_active" >
         <input type="hidden" value="<?php echo $export_stock ?>" name="export_stock" >
+        <input type="hidden" value="<?php echo $house ?>" name="house" >
         </form>
         <div class="alignleft actions">
           <div class="form-group">
@@ -70,7 +71,21 @@
   <div class="tab-content">
     <div class="tab <?php echo $tab_active==1?'active':null ?>" id="tab1" >
       <div class="add-box">
+        <form id="house_form_x" action="" method="post">
+          <input type="hidden" value="<?php echo $tab_active ?>" class="tab_active" name="tab_active" >
+          <input type="hidden" value="<?php echo $export_stock ?>" name="export_stock" >
+          <input type="hidden" value="<?php echo $house ?>" name="house" >
+          <input type="hidden" value="<?php echo $vehicle ?>" name="vehicle" >
+          <input type="hidden" value="<?php echo $romooc ?>" name="romooc" >
+          <input type="hidden" value="1" name="house_change" >
+        </form>
         <form id="spare_form_x" action="" method="post">
+          Kho xuất
+          <select id="house" name="house">
+            <?php foreach ($houses as $ho) { ?>
+              <option value="<?php echo $ho->house_id ?>" ><?php echo $ho->house_name ?></option>
+            <?php } ?>
+          </select>
           Phiếu xuất kho
           <select style="width:200px" id="export_stock" name="export_stock">
             <?php foreach ($export_stocks as $ex) { ?>
@@ -279,13 +294,15 @@ var pickerOpay2 = {
 
 
 $(".card").draggable({
-    appendTo: "body",
+    containment: "body",
+    scroll: true,
     cursor: "move",
     helper: 'clone',
     revert: "invalid"
 });
 $(".card2").draggable({
-    appendTo: "body",
+    containment: "body",
+    scroll: true,
     cursor: "move",
     helper: 'clone',
     revert: "invalid"
@@ -331,13 +348,15 @@ $(".stackDrop2").droppable({
 
 
 $(".spare-card").draggable({
-    appendTo: "body",
+    containment: "body",
+    scroll: true,
     cursor: "move",
     helper: 'clone',
     revert: "invalid"
 });
 $(".spare-card2").draggable({
-    appendTo: "body",
+    containment: "body",
+    scroll: true,
     cursor: "move",
     helper: 'clone',
     revert: "invalid"
@@ -386,6 +405,8 @@ var r = "<?php echo $romooc ?>";
 $('#romooc option[value='+r+']').attr('selected','selected');
 var e = "<?php echo $export_stock ?>";
 $('#export_stock option[value='+e+']').attr('selected','selected');
+var h = "<?php echo $house ?>";
+$('#house option[value='+h+']').attr('selected','selected');
 
 
 $('#vehicle').change(function(){
@@ -396,6 +417,10 @@ $('#romooc').change(function(){
 });
 $('#export_stock').change(function(){
   $('#spare_form_x').submit();
+});
+$('#house').change(function(){
+  $('#house_form_x input[name="house"]').val($(this).val());
+  $('#house_form_x').submit();
 });
 
 jQuery(document).ready(function() {

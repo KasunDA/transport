@@ -59,6 +59,9 @@ Class marketingController Extends baseController {
             $ketthuc = date('t-m-Y');
 
         }
+
+        $id = $this->registry->router->param_id;
+
         $ngayketthuc = date('d-m-Y', strtotime($ketthuc. ' + 1 days'));
 
         $contunit_model = $this->model->get('contunitModel');
@@ -85,6 +88,9 @@ Class marketingController Extends baseController {
 
             );
 
+        if ($id>0) {
+            $data['where'] = 'marketing_id = '.$id;
+        }
         
 
         $tongsodong = count($marketing_model->getAllMarketing($data,$join));
@@ -131,13 +137,16 @@ Class marketingController Extends baseController {
 
             );
 
+        if ($id>0) {
+            $data['where'] = 'marketing_id = '.$id;
+        }
         
 
         if ($keyword != '') {
 
-            $search = '( 
+            $search = ' AND ( 
 
-                    OR customer_name LIKE "%'.$keyword.'%"
+                    customer_name LIKE "%'.$keyword.'%"
 
                     OR marketing_from in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
 
@@ -145,7 +154,7 @@ Class marketingController Extends baseController {
 
                  )';
 
-            $data['where'] = $search;
+            $data['where'] .= $search;
 
         }
 

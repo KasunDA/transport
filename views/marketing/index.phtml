@@ -381,6 +381,10 @@ $('html').click(function(e) {
             $('#customer').attr('data',customer);
             $("#customer").attr("code",'true');
             
+            if ($('#customer_type').hasClass('tagit-hidden-field')) {
+                $('#customer_type').tagit('destroy');
+            }
+
             $('#customer_type').val(customer_type.trim());
 
                 $("#customer_type").tagit({
@@ -453,6 +457,11 @@ function add_click(){
         $('#customer').val("");
         $("#customer").attr("data",'');
         $("#customer").attr("code",'false');
+
+        if ($('#customer_type').hasClass('tagit-hidden-field')) {
+            $('#customer_type').tagit('destroy');
+        }
+        $('#customer_type').val("");
 
        var array = [];
         $("#customer_type").tagit({
@@ -1097,11 +1106,6 @@ $( ".add-field" ).dialog({
     title: "Lô hàng",
     hide: 'fold',
     show: 'blind',
-    close: function(){
-      setTimeout(function() {
-        sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
-      }, 200);
-    },
 });
 
 </script>

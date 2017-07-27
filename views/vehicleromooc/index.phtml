@@ -208,13 +208,15 @@ var pickerOpay2 = {
 
 
 $(".card").draggable({
-    appendTo: "body",
+    containment: "body",
+    scroll: true,
     cursor: "move",
     helper: 'clone',
     revert: "invalid"
 });
 $(".card2").draggable({
-    appendTo: "body",
+    containment: "body",
+    scroll: true,
     cursor: "move",
     helper: 'clone',
     revert: "invalid"

@@ -64,6 +64,8 @@ Class oilreportController Extends baseController {
 
         $data = array(
             'where' => 'vehicle_id NOT IN (SELECT vehicle FROM vehicle_work WHERE start_work >= '.strtotime($batdau).' AND end_work < '.strtotime($ngayketthuc).')',
+            'order_by' => 'vehicle_number',
+            'order' => 'ASC',
         );
 
         if ($vehicle != 0) {
@@ -329,6 +331,8 @@ Class oilreportController Extends baseController {
 
             $data = array(
                 'where' => 'vehicle_id NOT IN (SELECT vehicle FROM vehicle_work WHERE start_work >= '.$batdau.' AND end_work < '.$ngayketthuc.')',
+                'order_by' => 'vehicle_number',
+                'order' => 'ASC',
             );
 
         if ($vehicle != 0) {

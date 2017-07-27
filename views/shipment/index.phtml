@@ -2656,6 +2656,10 @@ $('html').click(function(e) {
                 ud2 = oil_add2;
 
 
+                if ($('#customer_type_sub').hasClass('tagit-hidden-field')) {
+                    $('#customer_type_sub').tagit('destroy');
+                }
+
 
                 $('#customer_type_sub').val(customer_type.trim());
 
@@ -3039,7 +3043,7 @@ $('html').click(function(e) {
                 $('#bill_delivery_unit option[value='+bill_delivery_unit+']').attr("selected","selected");
                 $('#bill_in').val(bill_in);
                 $('#bill_out').val(bill_out);
-                $('#export_stock').val(export_stock);
+                
                 $('#shipment_oil').val(shipment_oil);
                 $('#bill_number').val(bill_number);
 
@@ -3047,6 +3051,12 @@ $('html').click(function(e) {
                 $('#check_temp').val(shipment_temp);
 
                 var data_vehicle = $("#vehicle_"+shipment_link).attr('data');
+
+                if ($('#export_stock').hasClass('tagit-hidden-field')) {
+                    $('#export_stock').tagit('destroy');
+                }
+
+                $('#export_stock').val(export_stock);
 
                 $("#export_stock").tagit({
 
@@ -3325,7 +3335,9 @@ $('html').click(function(e) {
 
                 ud2 = oil_add2;
 
-
+                if ($('#customer_type').hasClass('tagit-hidden-field')) {
+                    $('#customer_type').tagit('destroy');
+                }
 
                 $('#customer_type').val(customer_type.trim());
 
@@ -3770,7 +3782,7 @@ $('html').click(function(e) {
                 $('#bill_delivery_unit option[value='+bill_delivery_unit+']').attr("selected","selected");
                 $('#bill_in').val(bill_in);
                 $('#bill_out').val(bill_out);
-                $('#export_stock').val(export_stock);
+                
                 $('#shipment_oil').val(shipment_oil);
                 $('#bill_number').val(bill_number);
 
@@ -3780,6 +3792,12 @@ $('html').click(function(e) {
                 var data_vehicle = $(this).find("#vehicle_"+$(this).attr('id')).attr('data');
 
                 var $this = $(this);
+
+                if ($('#export_stock').hasClass('tagit-hidden-field')) {
+                    $('#export_stock').tagit('destroy');
+                }
+
+                $('#export_stock').val(export_stock);
 
                 $("#export_stock").tagit({
 
@@ -4059,6 +4077,9 @@ $('html').click(function(e) {
                 ud2 = oil_add2;
 
 
+                if ($('#customer_type').hasClass('tagit-hidden-field')) {
+                    $('#customer_type').tagit('destroy');
+                }
 
                 $('#customer_type').val(customer_type.trim());
 
@@ -4630,6 +4651,9 @@ $('html').click(function(e) {
                     ud2 = oil_add2;
 
 
+                    if ($('#customer_type_sub').hasClass('tagit-hidden-field')) {
+                        $('#customer_type_sub').tagit('destroy');
+                    }
 
                     $('#customer_type_sub').val(customer_type.trim());
 
@@ -5221,7 +5245,11 @@ function add_click(){
 
 
 
-        
+        if ($('#export_stock').hasClass('tagit-hidden-field')) {
+            $('#export_stock').tagit('destroy');
+        }
+
+        $('#export_stock').val("");
 
 
 
@@ -5301,6 +5329,74 @@ function add_click(){
         });
 
 
+    $('.cost_list').attr('disabled',false);
+
+    $('.receiver').attr('disabled',false);
+
+    $('.receiver').attr('data',"");
+
+    $('.receiver').val("");
+
+    $('.cost').val("");
+
+    $('.comment').val("");
+
+    $('.cost_document').val("");
+
+    $('.cost_document_date').val("");
+
+    $('.cost_document_date').removeClass("hasDatepicker");
+
+    $('.cost_document_date').attr("id","");
+
+    $('.check_vat').attr('checked',false);
+
+    
+
+    $('input[name="chk"]').attr('data',"");
+
+    $('input[name="chk"]').attr('tabindex',0);
+
+    $('input[name="chk"]').attr('title',"");
+
+    $('input[name="chk"]').attr('class',"");
+
+    $('input[name="chk"]').attr('alt',0);
+    
+
+    $('.cost_list_sub').attr('disabled',false);
+
+    $('.receiver_sub').attr('disabled',false);
+
+    $('.receiver_sub').attr('data',"");
+
+    $('.receiver_sub').val("");
+
+    $('.cost_sub').val("");
+
+    $('.comment_sub').val("");
+
+    $('.cost_document_sub').val("");
+
+    $('.cost_document_date_sub').val("");
+
+    $('.cost_document_date_sub').removeClass("hasDatepicker");
+
+    $('.cost_document_date_sub').attr("id","");
+
+    $('.check_vat_sub').attr('checked',false);
+
+    
+
+    $('input[name="chk2"]').attr('data',"");
+
+    $('input[name="chk2"]').attr('tabindex',0);
+
+    $('input[name="chk2"]').attr('title',"");
+
+    $('input[name="chk2"]').attr('class',"");
+
+    $('input[name="chk2"]').attr('alt',0);
 
 
     $( ".add-field input" ).attr('disabled',true);
@@ -7130,8 +7226,9 @@ function set_item_shipment_from(value,name) {
                 var data = jQuery.parseJSON(data);
 
                 $('#shipment_road_add').val(data.road_add);
+                $('#shipment_salary').val(data.road_salary);
 
-                $('#shipment_road_add').val(function(index, value) {
+                $('.number').val(function(index, value) {
 
                   return value
 
@@ -7149,17 +7246,23 @@ function set_item_shipment_from(value,name) {
 
                 $('#route').multiselect({
                     click: function(event, ui){
+                        var totalval = ui.text.split(',');
                         var val = parseInt($('#shipment_road_add').val().replace(/\,/g, ""));
+                        var val2 = parseInt($('#shipment_salary').val().replace(/\,/g, ""));
                         if(ui.checked == 1){
-                            val = val + parseInt(ui.text);
+                            val = val + parseInt(+totalval[0]);
                             $('#shipment_road_add').val(val);
+                            val2 = val2 + parseInt(+totalval[1]);
+                            $('#shipment_salary').val(val2);
                         }
                         else{
-                            val = val - parseInt(ui.text);
+                            val = val - parseInt(+totalval[0]);
                             $('#shipment_road_add').val(val);
+                            val2 = val2 - parseInt(+totalval[1]);
+                            $('#shipment_salary').val(val2);
                         }
 
-                        $('#shipment_road_add').val(function(index, value) {
+                        $('.number').val(function(index, value) {
 
                           return value
 
@@ -7173,8 +7276,9 @@ function set_item_shipment_from(value,name) {
                     },
                     checkAll: function(){
                         $('#shipment_road_add').val(data.road_add);
+                        $('#shipment_salary').val(data.road_salary);
 
-                        $('#shipment_road_add').val(function(index, value) {
+                        $('.number').val(function(index, value) {
 
                           return value
 
@@ -7188,6 +7292,7 @@ function set_item_shipment_from(value,name) {
                     },
                     uncheckAll: function(){
                         $('#shipment_road_add').val(0);
+                        $('#shipment_salary').val(0);
                     }
                 });
 
@@ -7279,8 +7384,9 @@ function set_item_shipment_to(value,name) {
                 var data = jQuery.parseJSON(data);
 
                 $('#shipment_road_add').val(data.road_add);
+                $('#shipment_salary').val(data.road_salary);
 
-                $('#shipment_road_add').val(function(index, value) {
+                $('.number').val(function(index, value) {
 
                   return value
 
@@ -7298,17 +7404,23 @@ function set_item_shipment_to(value,name) {
 
                 $('#route').multiselect({
                     click: function(event, ui){
+                        var totalval = ui.text.split(',');
                         var val = parseInt($('#shipment_road_add').val().replace(/\,/g, ""));
+                        var val2 = parseInt($('#shipment_salary').val().replace(/\,/g, ""));
                         if(ui.checked == 1){
-                            val = val + parseInt(ui.text);
+                            val = val + parseInt(+totalval[0]);
                             $('#shipment_road_add').val(val);
+                            val2 = val2 + parseInt(+totalval[1]);
+                            $('#shipment_salary').val(val2);
                         }
                         else{
-                            val = val - parseInt(ui.text);
+                            val = val - parseInt(+totalval[0]);
                             $('#shipment_road_add').val(val);
+                            val2 = val2 - parseInt(+totalval[1]);
+                            $('#shipment_salary').val(val2);
                         }
 
-                        $('#shipment_road_add').val(function(index, value) {
+                        $('.number').val(function(index, value) {
 
                           return value
 
@@ -7322,8 +7434,9 @@ function set_item_shipment_to(value,name) {
                     },
                     checkAll: function(){
                         $('#shipment_road_add').val(data.road_add);
+                        $('#shipment_salary').val(data.road_salary);
 
-                        $('#shipment_road_add').val(function(index, value) {
+                        $('.number').val(function(index, value) {
 
                           return value
 
@@ -7337,6 +7450,7 @@ function set_item_shipment_to(value,name) {
                     },
                     uncheckAll: function(){
                         $('#shipment_road_add').val(0);
+                        $('#shipment_salary').val(0);
                     }
                 });
 
@@ -7507,8 +7621,9 @@ function set_item_shipment_from_sub(value,name) {
                 var data = jQuery.parseJSON(data);
 
                 $('#shipment_road_add_sub').val(data.road_add);
+                $('#shipment_salary_sub').val(data.road_salary);
 
-                $('#shipment_road_add_sub').val(function(index, value) {
+                $('.number').val(function(index, value) {
 
                   return value
 
@@ -7526,17 +7641,23 @@ function set_item_shipment_from_sub(value,name) {
 
                 $('#route_sub').multiselect({
                     click: function(event, ui){
+                        var totalval = ui.text.split(',');
                         var val = parseInt($('#shipment_road_add_sub').val().replace(/\,/g, ""));
+                        var val2 = parseInt($('#shipment_salary_sub').val().replace(/\,/g, ""));
                         if(ui.checked == 1){
-                            val = val + parseInt(ui.text);
+                            val = val + parseInt(+totalval[0]);
                             $('#shipment_road_add_sub').val(val);
+                            val2 = val2 + parseInt(+totalval[1]);
+                            $('#shipment_salary_sub').val(val2);
                         }
                         else{
-                            val = val - parseInt(ui.text);
+                            val = val - parseInt(+totalval[0]);
                             $('#shipment_road_add_sub').val(val);
+                            val2 = val2 - parseInt(+totalval[1]);
+                            $('#shipment_salary_sub').val(val2);
                         }
 
-                        $('#shipment_road_add_sub').val(function(index, value) {
+                        $('.number').val(function(index, value) {
 
                           return value
 
@@ -7550,8 +7671,9 @@ function set_item_shipment_from_sub(value,name) {
                     },
                     checkAll: function(){
                         $('#shipment_road_add_sub').val(data.road_add);
+                        $('#shipment_salary_sub').val(data.road_salary);
 
-                        $('#shipment_road_add_sub').val(function(index, value) {
+                        $('.number').val(function(index, value) {
 
                           return value
 
@@ -7565,6 +7687,7 @@ function set_item_shipment_from_sub(value,name) {
                     },
                     uncheckAll: function(){
                         $('#shipment_road_add_sub').val(0);
+                        $('#shipment_salary_sub').val(0);
                     }
                 });
 
@@ -7656,8 +7779,9 @@ function set_item_shipment_to_sub(value,name) {
                 var data = jQuery.parseJSON(data);
 
                 $('#shipment_road_add_sub').val(data.road_add);
+                $('#shipment_salary_sub').val(data.road_salary);
 
-                $('#shipment_road_add_sub').val(function(index, value) {
+                $('.number').val(function(index, value) {
 
                   return value
 
@@ -7675,17 +7799,23 @@ function set_item_shipment_to_sub(value,name) {
 
                 $('#route_sub').multiselect({
                     click: function(event, ui){
+                        var totalval = ui.text.split(',');
                         var val = parseInt($('#shipment_road_add_sub').val().replace(/\,/g, ""));
+                        var val2 = parseInt($('#shipment_salary_sub').val().replace(/\,/g, ""));
                         if(ui.checked == 1){
-                            val = val + parseInt(ui.text);
+                            val = val + parseInt(+totalval[0]);
                             $('#shipment_road_add_sub').val(val);
+                            val2 = val2 + parseInt(+totalval[1]);
+                            $('#shipment_salary_sub').val(val2);
                         }
                         else{
-                            val = val - parseInt(ui.text);
+                            val = val - parseInt(+totalval[0]);
                             $('#shipment_road_add_sub').val(val);
+                            val2 = val2 - parseInt(+totalval[1]);
+                            $('#shipment_salary_sub').val(val2);
                         }
 
-                        $('#shipment_road_add_sub').val(function(index, value) {
+                        $('.number').val(function(index, value) {
 
                           return value
 
@@ -7699,8 +7829,9 @@ function set_item_shipment_to_sub(value,name) {
                     },
                     checkAll: function(){
                         $('#shipment_road_add_sub').val(data.road_add);
+                        $('#shipment_salary_sub').val(data.road_salary);
 
-                        $('#shipment_road_add_sub').val(function(index, value) {
+                        $('.number').val(function(index, value) {
 
                           return value
 
@@ -7714,6 +7845,7 @@ function set_item_shipment_to_sub(value,name) {
                     },
                     uncheckAll: function(){
                         $('#shipment_road_add_sub').val(0);
+                        $('#shipment_salary_sub').val(0);
                     }
                 });
 
@@ -8824,16 +8956,6 @@ $( ".add-field" ).dialog({
 
     show: 'blind',
 
-    close: function(){
-
-      setTimeout(function() {
-
-        sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
-
-      }, 100);
-
-    },
-
 });
 
 
@@ -9031,8 +9153,17 @@ $('#shipment_temp').change(function(){
 
             $('#bill_receive_unit option[value='+data.cont_unit+']').attr("selected","selected");
 
-            $('#customer_type').val(data.customer_sub);
+            $('#bill_delivery_unit option[value='+data.cont_unit+']').attr("selected","selected");
+
             
+            
+            
+
+            if ($('#customer_type').hasClass('tagit-hidden-field')) {
+                $('#customer_type').tagit('destroy');
+            }
+
+            $('#customer_type').val(data.customer_sub);
             $("#tab1 .tagit-label").html(data.customer_sub);
 
             $("#customer_type").tagit({
@@ -9100,8 +9231,9 @@ $('#shipment_temp').change(function(){
                         var data = jQuery.parseJSON(data);
 
                         $('#shipment_road_add').val(data.road_add);
+                        $('#shipment_salary').val(data.road_salary);
 
-                        $('#shipment_road_add').val(function(index, value) {
+                        $('.number').val(function(index, value) {
 
                           return value
 
@@ -9119,17 +9251,23 @@ $('#shipment_temp').change(function(){
 
                         $('#route').multiselect({
                             click: function(event, ui){
+                                var totalval = ui.text.split(',');
                                 var val = parseInt($('#shipment_road_add').val().replace(/\,/g, ""));
+                                var val2 = parseInt($('#shipment_salary').val().replace(/\,/g, ""));
                                 if(ui.checked == 1){
-                                    val = val + parseInt(ui.text);
+                                    val = val + parseInt(+totalval[0]);
                                     $('#shipment_road_add').val(val);
+                                    val2 = val2 + parseInt(+totalval[1]);
+                                    $('#shipment_salary').val(val2);
                                 }
                                 else{
-                                    val = val - parseInt(ui.text);
+                                    val = val - parseInt(+totalval[0]);
                                     $('#shipment_road_add').val(val);
+                                    val2 = val2 - parseInt(+totalval[1]);
+                                    $('#shipment_salary').val(val2);
                                 }
 
-                                $('#shipment_road_add').val(function(index, value) {
+                                $('.number').val(function(index, value) {
 
                                   return value
 
@@ -9143,8 +9281,9 @@ $('#shipment_temp').change(function(){
                             },
                             checkAll: function(){
                                 $('#shipment_road_add').val(data.road_add);
+                                $('#shipment_salary').val(data.road_salary);
 
-                                $('#shipment_road_add').val(function(index, value) {
+                                $('.number').val(function(index, value) {
 
                                   return value
 
@@ -9158,6 +9297,7 @@ $('#shipment_temp').change(function(){
                             },
                             uncheckAll: function(){
                                 $('#shipment_road_add').val(0);
+                                $('#shipment_salary').val(0);
                             }
                         });
 
@@ -9252,10 +9392,18 @@ $('#shipment_temp_sub').change(function(){
             $('#cont_unit_sub option[value='+data.cont_unit+']').attr("selected","selected");
 
             $('#bill_receive_unit_sub option[value='+data.cont_unit+']').attr("selected","selected");
+            $('#bill_delivery_unit_sub option[value='+data.cont_unit+']').attr("selected","selected");
+
+            
+
+            if ($('#customer_type_sub').hasClass('tagit-hidden-field')) {
+                $('#customer_type_sub').tagit('destroy');
+            }
 
             $('#customer_type_sub').val(data.customer_sub);
 
             $("#tab2 .tagit-label").html(data.customer_sub);
+
 
             $("#customer_type_sub").tagit({
 
@@ -9623,6 +9771,10 @@ $('.editButton2')
             $('#i_shipment_oil').val($(this).attr('data'));
 
             $('#i_oil').val($(this).attr('data-oil'));
+
+            if ($('#i_export').hasClass('tagit-hidden-field')) {
+                $('#i_export').tagit('destroy');
+            }
 
             $('#i_export').val($(this).attr('data-export'));
 

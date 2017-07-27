@@ -615,7 +615,9 @@
 
         var path = window.location.pathname;
 
-        path = path.replace(/^\/([^\/]*).*$/, '/$1');
+        path = path.replace(/\/$/, "");
+
+        //path = path.replace(/^\/([^\/]*).*$/, '/$1');
 
         path = decodeURIComponent(path);
 
@@ -1552,7 +1554,19 @@
 
             <li><a data="importstock" data-role="importstock" href="<?php echo $this->url('importstock') ?>"><i class="fa fa-fw fa-download text-aqua"></i>Nhập kho</a></li>
 
-            <li><a data="exportstock" data-role="exportstock" href="<?php echo $this->url('exportstock') ?>"><i class="fa fa-fw fa-upload text-aqua"></i>Xuất kho</a></li>
+            <li>
+              <a  data="#" href="#">
+                <i class="fa fa-upload fa-fw text-aqua" ></i>
+                <span>Xuất kho</span>
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-right pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                <li><a data="exportstock/sale" data-role="exportstock" href="<?php echo $this->url('exportstock/sale') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Xuất kinh doanh</a></li>
+                <li><a data="exportstock/internal" data-role="exportstock" href="<?php echo $this->url('exportstock/internal') ?>"><i class="fa fa-fw fa-caret-right text-aqua"></i>Xuất nội bộ</a></li>
+              </ul>
+            </li>
 
             <li><a data="house" data-role="house" href="<?php echo $this->url('house') ?>"><i class="fa fa-fw fa-home text-aqua"></i>Danh sách kho vật tư</a></li>
 

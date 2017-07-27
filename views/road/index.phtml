@@ -30,6 +30,8 @@ elseif ($order_by == 'charge_add')
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
 elseif ($order_by == 'road_add')
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+elseif ($order_by == 'road_salary')
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
 elseif ($order_by == 'start_time')
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
 elseif ($order_by == 'end_time')
@@ -175,6 +177,9 @@ elseif ($order_by == 'status')
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','road_time','<?php echo $url_order ?>')">Thời gian chạy (ngày)<?php if ($order_by == 'road_time'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','road_salary','<?php echo $url_order ?>')">Lương chuyến <?php if ($order_by == 'road_salary'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+        </th>
+        <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','start_time','<?php echo $url_order ?>')">Áp dụng<?php if ($order_by == 'start_time'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
         <th  class="fix">
@@ -224,6 +229,7 @@ elseif ($order_by == 'status')
             <td class="fix" id="police_cost_<?php echo $road->road_id; ?>"><?php echo $lib->formatMoney($road->police_cost); ?></td>
             <td class="fix" id="charge_add_<?php echo $road->road_id; ?>"><?php echo $lib->formatMoney($road->charge_add); ?></td>
             <td class="fix" id="road_time_<?php echo $road->road_id; ?>"><?php echo $road->road_time; ?></td>
+            <td class="fix" id="road_salary_<?php echo $road->road_id; ?>"><?php echo $lib->formatMoney($road->road_salary); ?></td>
             <td class="fix" id="start_time_<?php echo $road->road_id; ?>"><?php echo $lib->hien_thi_ngay_thang($road->start_time); ?></td>
             <td class="fix" id="end_time_<?php echo $road->road_id; ?>"><?php echo $lib->hien_thi_ngay_thang($road->end_time); ?></td>
             <td class="fix" style="display:none" id="tire_cost_<?php echo $road->road_id; ?>"><?php echo $lib->formatMoney($road->tire_cost); ?></td>
@@ -305,6 +311,10 @@ $this->helper('slidePaginator');
                     <div class="form-group">
                       <label for="police_cost">Công an</label>
                       <input type="text" class="number" id="police_cost" name="police_cost" tabindex="8" >
+                    </div>
+                    <div class="form-group">
+                      <label for="road_salary">Lương chuyến</label>
+                      <input type="text" class="number" id="road_salary" name="road_salary" tabindex="4" >
                     </div>
                     
                   </div>
@@ -771,6 +781,7 @@ $('html').click(function(e) {
         var end_time = $(this).find("#end_time_"+$(this).attr('id')).text();
         var status = $(this).find("#status_"+$(this).attr('id')).attr('data');
         var road_add = $(this).find("#road_add_"+$(this).attr('id')).text();
+        var road_salary = $(this).find("#road_salary_"+$(this).attr('id')).text();
         var road_oil_ton = $(this).find("#road_oil_ton_"+$(this).attr('id')).text();
         //alert(road_from);
         $('#yes').val($(this).attr('id'));
@@ -787,6 +798,7 @@ $('html').click(function(e) {
         $('#tire_cost').val(tire_cost);
         $('#charge_add').val(charge_add);
         $('#road_add').val(road_add);
+        $('#road_salary').val(road_salary);
         $('#road_oil_ton').val(road_oil_ton);
         $('#start_time').val(start_time.replace(/\//g,"-"));
         $('#end_time').val(end_time.replace(/\//g,"-"));
@@ -844,6 +856,7 @@ $('.add_new').click(function(){
         $('#tire_cost').val(0);
         $('#charge_add').val(0);
         $('#road_add').val(0);
+        $('#road_salary').val(0);
         $('#road_oil_ton').val(0);
 
         $('#start_time').val("");
@@ -906,6 +919,7 @@ function add_click(){
         $('#tire_cost').val(0);
         $('#charge_add').val(0);
         $('#road_add').val(0);
+        $('#road_salary').val(0);
         $('#road_oil_ton').val(0);
 
         $('#start_time').val("");
@@ -1001,6 +1015,7 @@ $(document).ready(function(){
                     var yes = $('#yes').attr('value');
                     var charge_add = $('#charge_add').attr('value');
                     var road_add = $('#road_add').attr('value');
+                    var road_salary = $('#road_salary').attr('value');
                     var status = $('input[name=status]:checked').val();
                     var start_time = $('#start_time').attr('value');
                     var end_time = $('#end_time').attr('value');
@@ -1098,6 +1113,7 @@ $(document).ready(function(){
                             way: way,
                             charge_add: charge_add,
                             road_add: road_add,
+                            road_salary: road_salary,
                             road_oil_ton: road_oil_ton,
                             start_time: start_time,
                             end_time: end_time,

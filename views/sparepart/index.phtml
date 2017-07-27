@@ -334,6 +334,10 @@ $('html').click(function(e) {
             $('#spare_part_code').attr('data',code_list);
             $('#spare_part_name').attr('data',code_list);
 
+            if ($('#spare_part_type').hasClass('tagit-hidden-field')) {
+                $('#spare_part_type').tagit('destroy');
+            }
+
             $('#spare_part_type').val(spare_part_type.trim());
 
             $("#spare_part_type").tagit({
@@ -403,6 +407,12 @@ function add_click(){
             };
             
         });
+
+        if ($('#spare_part_type').hasClass('tagit-hidden-field')) {
+            $('#spare_part_type').tagit('destroy');
+        }
+
+        $('#spare_part_type').val("");
 
         $("#spare_part_type").tagit({
               tagSource: function(search, showChoices) {
@@ -722,11 +732,6 @@ $( ".add-field" ).dialog({
     title: "Thông tin vật tư",
     hide: 'fold',
     show: 'blind',
-    close: function(){
-      setTimeout(function() {
-        sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
-      }, 200);
-    },
 });
 $( ".add-field2" ).dialog({
     autoOpen: false,

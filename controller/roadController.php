@@ -580,6 +580,8 @@ Class roadController Extends baseController {
 
                         'road_add' => trim(str_replace(',','',$_POST['road_add'])),
 
+                        'road_salary' => trim(str_replace(',','',$_POST['road_salary'])),
+
                         'road_oil_ton' => trim(str_replace(',','',$_POST['road_oil_ton'])),
 
                         'start_time' => strtotime(trim($_POST['start_time'])),
@@ -851,6 +853,8 @@ Class roadController Extends baseController {
                                     'tire_cost' => $row->tire_cost,
                                     'charge_add' => $row->charge_add,
                                     'road_add' => $row->road_add,
+                                    'road_oil_ton' => $row->road_oil_ton,
+                                    'road_salary' => $row->road_salary,
                                     'start_time' => strtotime(date('d-m-Y',strtotime($_POST['end_time'].' +1 day'))),
                                     'end_time' => $row->end_time,
                                     'status' => $row->status

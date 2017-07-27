@@ -567,42 +567,11 @@ Class shipmentController Extends baseController {
 
             $search = '(
 
-
-
-                    vehicle_number LIKE "%'.$keyword.'%" 
-
-                    OR bill_number LIKE "%'.$keyword.'%" 
-
-                    OR steersman_name LIKE "%'.$keyword.'%" 
-
-                    OR customer_name LIKE "%'.$keyword.'%" 
-
-                    OR customer_type IN (SELECT customer_sub_id FROM customer_sub WHERE customer_sub_name LIKE "%'.$keyword.'%" ) 
-
-                    OR shipment_from in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
-
-                    OR shipment_to in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
-
-
-                    '.$ngay.'
+                    bill_number LIKE "%'.$keyword.'%" 
 
                     OR shipment_id IN (SELECT shipment_link FROM shipment WHERE 
-                        vehicle_number LIKE "%'.$keyword.'%" 
+                        bill_number LIKE "%'.$keyword.'%" 
 
-                        OR bill_number LIKE "%'.$keyword.'%" 
-
-                        OR steersman_name LIKE "%'.$keyword.'%" 
-
-                        OR customer_name LIKE "%'.$keyword.'%" 
-
-                        OR customer_type IN (SELECT customer_sub_id FROM customer_sub WHERE customer_sub_name LIKE "%'.$keyword.'%" ) 
-
-                        OR shipment_from in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
-
-                        OR shipment_to in (SELECT place_id FROM place WHERE place_name LIKE "%'.$keyword.'%" ) 
-
-
-                        '.$ngay.'
                      ) 
 
 
@@ -10049,18 +10018,21 @@ Class shipmentController Extends baseController {
             $str = "";
 
             $diduong = 0;
+            $luongchuyen = 0;
 
             foreach ($roads as $road) {
 
-                $str .= '<option title="'.$road->road_add.'" selected value="'.$road->road_id.'">'.(isset($route_data['route_id'][$road->route_from])?$route_data['route_name'][$road->route_from]:null).'-'.(isset($route_data['route_id'][$road->route_to])?$route_data['route_name'][$road->route_to]:null).' ['.$road->road_km.'km]'.'</option>';
+                $str .= '<option title="'.$road->road_add.','.$road->road_salary.'" selected value="'.$road->road_id.'">'.(isset($route_data['route_id'][$road->route_from])?$route_data['route_name'][$road->route_from]:null).'-'.(isset($route_data['route_id'][$road->route_to])?$route_data['route_name'][$road->route_to]:null).' ['.$road->road_km.'km]'.'</option>';
 
                 $diduong += $road->road_add;
+                $luongchuyen += $road->road_salary;
             }
 
 
             $arr = array(
                 'data' => $str,
                 'road_add' => $diduong,
+                'road_salary' => $luongchuyen,
             );
             echo json_encode($arr);
 
@@ -10213,8 +10185,23 @@ Class shipmentController Extends baseController {
 
             foreach ($spare_parts as $spare) {
                 $num = $spare->spare_stock_number;
-                $ex = $shipment_model->queryShipment('SELECT shipment_oil FROM shipment WHERE export_stock LIKE "'.$spare->export_stock_id.'" OR export_stock LIKE "'.$spare->export_stock_id.',%" OR export_stock LIKE "%,'.$spare->export_stock_id.',%" OR export_stock LIKE "%,'.$spare->export_stock_id.'"');
+                $ex = $shipment_model->queryShipment('SELECT shipment_oil,export_stock FROM shipment WHERE shipment_id != '.$_POST['shipment'].' AND ( export_stock LIKE "'.$spare->export_stock_id.'" OR export_stock LIKE "'.$spare->export_stock_id.',%" OR export_stock LIKE "%,'.$spare->export_stock_id.',%" OR export_stock LIKE "%,'.$spare->export_stock_id.'" )');
                 foreach ($ex as $e) {
+                    $exp = explode(',', $e->export_stock);
+                    foreach ($exp as $key) {
+                        if ($key != $spare->export_stock_id) {
+                            $data = array(
+                                'where' => 'export_stock = '.$key,
+                                'order_by'=>'spare_stock_number',
+                                'order'=>'DESC',
+                                'limit'=>1,
+                            );
+                            $spare_part2s = $spare_stock_model->getAllStock($data,$join);
+                            foreach ($spare_part2s as $spare2) {
+                                $num += $spare2->spare_stock_number;
+                            }
+                        }
+                    }
                     $num -= $e->shipment_oil;
                 }
 
