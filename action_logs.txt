@@ -542,3 +542,7 @@
 
 15/07/2017 11:37:01|admin|edit|2362|road|56-6-57-4-8.74-0-19-22-0-0-0-0-0-10-0-1496268000-1590962400-1
 
+28/07/2017 16:51:27|admin|add|42|user|dieudo
+
+28/07/2017 16:53:57|admin|edit|42|user|5-1-["oil","road","warehouse","customer","vehicle","romooc","place","route","steersman","shipment","newshipment","shipmenttemp","driver","vehiclework","vehicleromooc","vehicleromooc","tollcost","trucking","oilreport","advance"]-{"oil":"oil","road":"road","warehouse":"warehouse","customer":"customer","vehicle":"vehicle","romooc":"romooc","place":"place","route":"route","steersman":"steersman","shipment":"shipment","newshipment":"newshipment","shipmenttemp":"shipmenttemp","driver":"driver","vehiclework":"vehiclework","vehicleromooc":"vehicleromooc","tollcost":"tollcost","trucking":"trucking","oilreport":"oilreport","advance":"advance"}
+
