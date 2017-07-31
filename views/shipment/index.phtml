@@ -2119,6 +2119,14 @@ $('html').click(function(e) {
 });
 
     $('.edit_tr').click(function(e){
+        add_click();
+        $('.add-field input').attr('disabled',false);
+
+        $('.add-field select').attr('disabled',false);
+
+        $('.add-field textarea').attr('disabled',false);
+
+        $('.add-field button').attr('disabled',false);
 
         var check_sub = $(this).attr('title');
 
@@ -5017,6 +5025,8 @@ function add_click(){
 
         $('#customer').val("");
 
+        $('#customer').attr('data',"");
+
         $('#vehicle').val("");
 
         $("#customer").attr("code",'false');
@@ -5169,6 +5179,8 @@ function add_click(){
 
 
         $('#customer_sub').val("");
+
+        $('#customer_sub').attr('data',"");
 
         $('#vehicle_sub').val("");
 
@@ -8955,6 +8967,8 @@ $( ".add-field" ).dialog({
     hide: 'fold',
 
     show: 'blind',
+
+    
 
 });
 
