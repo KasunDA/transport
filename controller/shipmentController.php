@@ -5791,16 +5791,18 @@ Class shipmentController Extends baseController {
 
             $contributor = "";
 
-            foreach ($_POST['route'] as $key) {
+            if(is_array($_POST['route'])){
+                foreach ($_POST['route'] as $key) {
 
-                if ($contributor == "")
+                    if ($contributor == "")
 
-                    $contributor .= $key;
+                        $contributor .= $key;
 
-                else
+                    else
 
-                    $contributor .= ','.$key;
+                        $contributor .= ','.$key;
 
+                }
             }
 
             $data['route'] = $contributor;

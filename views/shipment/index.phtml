@@ -4719,6 +4719,10 @@ $('html').click(function(e) {
 
         $('#customer_type_sub').attr('disabled',true);
 
+        $('#romooc').attr('disabled',true);
+
+        $('#steersman').attr('disabled',true);
+
 
         var lock = $(this).attr('alt');
 
@@ -6160,6 +6164,7 @@ $(document).ready(function(){
                             success: function(answer){ // if everything goes well
 
                                 //alert(answer);
+                                console.log(answer);
 
                                 var data = jQuery.parseJSON(answer);
 
@@ -6348,33 +6353,6 @@ $(document).ready(function(){
 
                                     if (data.err.trim() != "Bảng này đã tồn tại") {
 
-                                        $('#shipment_charge_'+yes).text(shipment_charge);
-
-                                        $('#shipment_ton_'+yes).text(shipment_ton);
-
-                                        $('#shipment_from_'+yes).text($('#shipment_from').val());
-
-                                        $('#shipment_to_'+yes).text($('#shipment_to').val());
-
-                                        $('#customer_'+yes).text($('#customer').val());
-
-                                        $('#vehicle_'+yes).text($('#vehicle').val());
-
-                                        $('#shipment_round_'+yes).text(shipment_round);
-
-                                        $('#shipment_revenue_'+yes).text(data.revenue);
-
-                                        $('#shipment_cost_'+yes).text(data.cost);
-
-                                        $('#shipment_profit_'+yes).text(data.profit);
-
-                                        $('#oil_cost_'+yes).text(oil_cost);
-
-                                        $('#shipment_date_'+yes).text(shipment_date);
-
-                                        $('#oil_excess_'+yes).text(oil_excess);
-
-
 
                                         setTimeout(function() {
 
@@ -6390,24 +6368,7 @@ $(document).ready(function(){
 
                                     if (data.err.trim() != "Bảng này đã tồn tại" && data.err.trim() != "Vui lòng hoàn tất vòng trước" && data.err.trim() != "Vui lòng cập nhật trọng tải vòng trước") {
 
-                                        var lastID = parseInt($('#lasted').html());
-
-                                        var rowCount = parseInt($('.table_data > tbody > tr').length);
-
-                                        $('.table_data > tbody:last')
-
-                                        .append(
-
-                                            '<tr onclick="HighLightTR(this,"#4d90fe","cc3333");" id="'+parseInt(lastID+1)+'" class="edit_tr"><td><input name="check[]" type="checkbox" class="checkbox" value="'+parseInt(lastID+1)+'"></td><td class="fix">'+parseInt(rowCount+1)+'</td><td class="fix" id="vehicle_'+parseInt(lastID+1)+'">'+$( "#vehicle" ).val()+'</td><td class="fix" id="shipment_round_'+parseInt(lastID+1)+'">'+shipment_round+'</td><td class="fix" id="shipment_date_'+parseInt(lastID+1)+'">'+shipment_date+'</td><td class="fix" id="shipment_from_'+parseInt(lastID+1)+'">'+$( "#shipment_from" ).val()+'</td><td class="fix" id="shipment_to_'+parseInt(lastID+1)+'">'+$( "#shipment_to" ).val()+'</td><td class="fix" id="customer_'+parseInt(lastID+1)+'">'+$( "#customer" ).val()+'</td><td class="fix" id="shipment_charge_'+parseInt(lastID+1)+'">'+shipment_charge+'</td><td class="fix" id="shipment_ton_'+parseInt(lastID+1)+'">'+shipment_ton+'</td><td class="fix" id="oil_cost_'+parseInt(lastID+1)+'">'+oil_cost+'</td><td class="fix" id="oil_excess_'+parseInt(lastID+1)+'">'+oil_excess+'</td><td class="fix" id="shipment_revenue_'+parseInt(lastID+1)+'">'+data.revenue+'</td><td class="fix" id="shipment_cost_'+parseInt(lastID+1)+'">'+data.cost+'</td><td class="fix" id="shipment_profit_'+parseInt(lastID+1)+'">'+data.profit+'</td><td><a class="error" onclick="del('+parseInt(lastID+1)+')">Xóa</a></td></tr>'
-
-                                        );
-
-
-
-                                        $('#lasted').html(parseInt(lastID+2));
-
-
-
+                                        
                                        setTimeout(function() {
 
                                             sapxep('<?php echo $page ?>','<?php echo $order_by ?>','<?php echo $order ?>');
