@@ -524,9 +524,9 @@ var pickerOpts = {
         onSelect: function(dateStr) {
           if ($('#end_work').val()=="") {
             var d = $.datepicker.parseDate('dd-mm-yy', dateStr);
-            var years = parseInt(10, 10);
+            //var years = parseInt(10, 10);
 
-            d.setFullYear(d.getFullYear() + years);
+            //d.setFullYear(d.getFullYear() + years);
 
             $('#end_work').datepicker('setDate', d);
           }

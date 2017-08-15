@@ -514,13 +514,7 @@ Class truckinglistController Extends baseController {
 
                ->setCellValue('F6', 'Số xe')
 
-               ->setCellValue('G6', 'Sản lượng')
-
-               ->setCellValue('J6', 'Đơn giá')
-
-               ->setCellValue('K6', 'Thành tiền')
-
-               ->setCellValue('L6', 'Phí phát sinh');
+               ->setCellValue('G6', 'Sản lượng');
 
                
             $dvt = "G";
@@ -530,8 +524,21 @@ Class truckinglistController Extends baseController {
 
                 $dvt++;
             }
-            
-            $phatsinh = "L";
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue(($dvt++).'6', 'Đơn giá')
+
+                ->setCellValue(($dvt++).'6', 'Thành tiền')
+
+                ->setCellValue($dvt.'6', 'Phí phát sinh');
+
+            $ascii = ord($dvt);
+            $tt = chr($ascii -1);
+            $dg = chr($ascii -2);
+            $sln = chr($ascii -3);
+            $ps = $dvt;
+            $phatsinh = $dvt;
 
             foreach ($loan_units as $loan) {
                 $objPHPExcel->setActiveSheetIndex($index_worksheet)
@@ -609,11 +616,7 @@ Class truckinglistController Extends baseController {
 
                             ->setCellValue('E' . $hang, $place_data['place_name'][$row->shipment_from].'-'.$place_data['place_name'][$row->shipment_to])
 
-                            ->setCellValue('F' . $hang, $row->vehicle_number)
-
-                            ->setCellValue('J' . $hang, $row->shipment_charge)
-
-                            ->setCellValue('K' . $hang, '=((G'.$hang.'+H'.$hang.'+I'.$hang.')*J'.$hang.')');
+                            ->setCellValue('F' . $hang, $row->vehicle_number);
 
 
                         $dvt = "G";
@@ -625,7 +628,21 @@ Class truckinglistController Extends baseController {
 
                             $dvt++;
                         }
-                        $phatsinh = "L";
+
+                        $ascii = ord($dvt);
+                        $dvt = chr($ascii -1);
+                        $l = $dvt;
+                        $dvt++;
+
+                        $s = '=SUM(G'.$hang.':'.$l.$hang.')*'.$dvt.$hang;
+
+                        $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                        ->setCellValue(($dvt++).$hang, $row->shipment_charge)
+                        ->setCellValue(($dvt++).$hang, $s);
+
+
+                        $phatsinh = $dvt;
 
                         foreach ($loan_units as $loan) {
                             $chiho = isset($loan_shipment_data[$row->shipment_id][$loan->cost_list_id])?$loan_shipment_data[$row->shipment_id][$loan->cost_list_id]:null;
@@ -664,7 +681,7 @@ Class truckinglistController Extends baseController {
 
                ->setCellValue('K'.$hang, '=SUM(K8:K'.($hang-1).')');
 
-            $phatsinh = "L";
+            $phatsinh = $ps;
 
             foreach ($loan_units as $loan) {
                 $objPHPExcel->setActiveSheetIndex($index_worksheet)
@@ -682,7 +699,7 @@ Class truckinglistController Extends baseController {
                 ->setCellValue('A'.$hang, 'Thuế GTGT 10%')
 
 
-               ->setCellValue('K'.$hang, '=K'.($hang-1).'*10%');
+               ->setCellValue($tt.$hang, '='.$tt.($hang-1).'*10%');
 
             $hang++;
 
@@ -691,9 +708,9 @@ Class truckinglistController Extends baseController {
                 ->setCellValue('A'.$hang, 'Tổng cộng')
 
 
-               ->setCellValue('K'.$hang, '=SUM(K'.($hang-1).':K'.($hang-2).')')
+               ->setCellValue($tt.$hang, '=SUM('.$tt.($hang-1).':'.$tt.($hang-2).')')
 
-               ->setCellValue('L'.$hang, '=SUM(L'.($hang-2).':'.$phatsinh.($hang-2).')');
+               ->setCellValue($ps.$hang, '=SUM('.$ps.($hang-2).':'.$phatsinh.($hang-2).')');
 
 
             $objPHPExcel->getActiveSheet()->getStyle('A6:'.$phatsinh.$hang)->applyFromArray(
@@ -732,13 +749,13 @@ Class truckinglistController Extends baseController {
             $objPHPExcel->getActiveSheet()->mergeCells('A'.$hang.':F'.$hang);
             $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang-1).':F'.($hang-1));
             $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang-2).':F'.($hang-2));
-            $objPHPExcel->getActiveSheet()->mergeCells('L'.$hang.':'.$phatsinh.$hang);
+            $objPHPExcel->getActiveSheet()->mergeCells($ps.$hang.':'.$phatsinh.$hang);
             $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang+1).':'.$phatsinh.($hang+1));
 
 
-            $objPHPExcel->getActiveSheet()->getStyle('L'.$hang.':'.$phatsinh.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle($ps.$hang.':'.$phatsinh.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('L'.$hang.':'.$phatsinh.$hang)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle($ps.$hang.':'.$phatsinh.$hang)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
 
             $objPHPExcel->getActiveSheet()->getStyle('A'.($hang-2).':A'.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
@@ -821,11 +838,11 @@ Class truckinglistController Extends baseController {
             $objPHPExcel->getActiveSheet()->mergeCells('D6:D7');
             $objPHPExcel->getActiveSheet()->mergeCells('E6:E7');
             $objPHPExcel->getActiveSheet()->mergeCells('F6:F7');
-            $objPHPExcel->getActiveSheet()->mergeCells('J6:J7');
-            $objPHPExcel->getActiveSheet()->mergeCells('K6:K7');
+            $objPHPExcel->getActiveSheet()->mergeCells($dg.'6:'.$dg.'7');
+            $objPHPExcel->getActiveSheet()->mergeCells($tt.'6:'.$tt.'7');
 
-            $objPHPExcel->getActiveSheet()->mergeCells('G6:I6');
-            $objPHPExcel->getActiveSheet()->mergeCells('L6:'.$phatsinh.'6');
+            $objPHPExcel->getActiveSheet()->mergeCells('G6:'.$sln.'6');
+            $objPHPExcel->getActiveSheet()->mergeCells($ps.'6:'.$phatsinh.'6');
 
 
 
@@ -938,13 +955,7 @@ Class truckinglistController Extends baseController {
 
                ->setCellValue('F6', 'Số xe')
 
-               ->setCellValue('G6', 'Sản lượng')
-
-               ->setCellValue('J6', 'Đơn giá')
-
-               ->setCellValue('K6', 'Thành tiền')
-
-               ->setCellValue('L6', 'Phí phát sinh');
+               ->setCellValue('G6', 'Sản lượng');
 
                
             $dvt = "G";
@@ -955,7 +966,21 @@ Class truckinglistController Extends baseController {
                 $dvt++;
             }
             
-            $phatsinh = "L";
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                ->setCellValue(($dvt++).'6', 'Đơn giá')
+
+                ->setCellValue(($dvt++).'6', 'Thành tiền')
+
+                ->setCellValue($dvt.'6', 'Phí phát sinh');
+
+           
+            $ascii = ord($dvt);
+            $tt = chr($ascii -1);
+            $dg = chr($ascii -2);
+            $sln = chr($ascii -3);
+            $ps = $dvt;
+            $phatsinh = $dvt;
 
             foreach ($loan_units as $loan) {
                 $objPHPExcel->setActiveSheetIndex($index_worksheet)
@@ -1033,11 +1058,7 @@ Class truckinglistController Extends baseController {
 
                             ->setCellValue('E' . $hang, $place_data['place_name'][$row->shipment_from].'-'.$place_data['place_name'][$row->shipment_to])
 
-                            ->setCellValue('F' . $hang, $row->vehicle_number)
-
-                            ->setCellValue('J' . $hang, $row->shipment_charge)
-
-                            ->setCellValue('K' . $hang, '=((G'.$hang.'+H'.$hang.'+I'.$hang.')*J'.$hang.')');
+                            ->setCellValue('F' . $hang, $row->vehicle_number);
 
 
                         $dvt = "G";
@@ -1049,7 +1070,20 @@ Class truckinglistController Extends baseController {
 
                             $dvt++;
                         }
-                        $phatsinh = "L";
+                        $ascii = ord($dvt);
+                        $dvt = chr($ascii -1);
+                        $l = $dvt;
+                        $dvt++;
+
+                        $s = '=SUM(G'.$hang.':'.$l.$hang.')*'.$dvt.$hang;
+
+                        $objPHPExcel->setActiveSheetIndex($index_worksheet)
+
+                        ->setCellValue(($dvt++).$hang, $row->shipment_charge)
+                        ->setCellValue(($dvt++).$hang, $s);
+
+
+                        $phatsinh = $dvt;
 
                         foreach ($loan_units as $loan) {
                             $chiho = isset($loan_shipment_data[$row->shipment_id][$loan->cost_list_id])?$loan_shipment_data[$row->shipment_id][$loan->cost_list_id]:null;
@@ -1086,9 +1120,9 @@ Class truckinglistController Extends baseController {
                 ->setCellValue('A'.$hang, 'TỔNG')
 
 
-               ->setCellValue('K'.$hang, '=SUM(K8:K'.($hang-1).')');
+               ->setCellValue($tt.$hang, '=SUM('.$tt.'8:'.$tt.($hang-1).')');
 
-            $phatsinh = "L";
+            $phatsinh = $ps;
 
             foreach ($loan_units as $loan) {
                 $objPHPExcel->setActiveSheetIndex($index_worksheet)
@@ -1106,7 +1140,7 @@ Class truckinglistController Extends baseController {
                 ->setCellValue('A'.$hang, 'Thuế GTGT 10%')
 
 
-               ->setCellValue('K'.$hang, '=K'.($hang-1).'*10%');
+               ->setCellValue($tt.$hang, '='.$tt.($hang-1).'*10%');
 
             $hang++;
 
@@ -1115,9 +1149,9 @@ Class truckinglistController Extends baseController {
                 ->setCellValue('A'.$hang, 'Tổng cộng')
 
 
-               ->setCellValue('K'.$hang, '=SUM(K'.($hang-1).':K'.($hang-2).')')
+               ->setCellValue($tt.$hang, '=SUM('.$tt.($hang-1).':'.$tt.($hang-2).')')
 
-               ->setCellValue('L'.$hang, '=SUM(L'.($hang-2).':'.$phatsinh.($hang-2).')');
+               ->setCellValue($ps.$hang, '=SUM('.$ps.($hang-2).':'.$phatsinh.($hang-2).')');
 
 
             $objPHPExcel->getActiveSheet()->getStyle('A6:'.$phatsinh.$hang)->applyFromArray(
@@ -1156,13 +1190,13 @@ Class truckinglistController Extends baseController {
             $objPHPExcel->getActiveSheet()->mergeCells('A'.$hang.':F'.$hang);
             $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang-1).':F'.($hang-1));
             $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang-2).':F'.($hang-2));
-            $objPHPExcel->getActiveSheet()->mergeCells('L'.$hang.':'.$phatsinh.$hang);
+            $objPHPExcel->getActiveSheet()->mergeCells($ps.$hang.':'.$phatsinh.$hang);
             $objPHPExcel->getActiveSheet()->mergeCells('A'.($hang+1).':'.$phatsinh.($hang+1));
 
 
-            $objPHPExcel->getActiveSheet()->getStyle('L'.$hang.':'.$phatsinh.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle($ps.$hang.':'.$phatsinh.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
-            $objPHPExcel->getActiveSheet()->getStyle('L'.$hang.':'.$phatsinh.$hang)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+            $objPHPExcel->getActiveSheet()->getStyle($ps.$hang.':'.$phatsinh.$hang)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
 
             $objPHPExcel->getActiveSheet()->getStyle('A'.($hang-2).':A'.$hang)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
@@ -1245,11 +1279,11 @@ Class truckinglistController Extends baseController {
             $objPHPExcel->getActiveSheet()->mergeCells('D6:D7');
             $objPHPExcel->getActiveSheet()->mergeCells('E6:E7');
             $objPHPExcel->getActiveSheet()->mergeCells('F6:F7');
-            $objPHPExcel->getActiveSheet()->mergeCells('J6:J7');
-            $objPHPExcel->getActiveSheet()->mergeCells('K6:K7');
+            $objPHPExcel->getActiveSheet()->mergeCells($dg.'6:'.$dg.'7');
+            $objPHPExcel->getActiveSheet()->mergeCells($tt.'6:'.$tt.'7');
 
-            $objPHPExcel->getActiveSheet()->mergeCells('G6:I6');
-            $objPHPExcel->getActiveSheet()->mergeCells('L6:'.$phatsinh.'6');
+            $objPHPExcel->getActiveSheet()->mergeCells('G6:'.$sln.'6');
+            $objPHPExcel->getActiveSheet()->mergeCells($ps.'6:'.$phatsinh.'6');
 
 
 

@@ -13109,164 +13109,142 @@ Class shipmentController Extends baseController {
 
 
 
+        $xe = $this->registry->router->order_by;
+
+
+
+        $vong = $this->registry->router->order;
+
+
+
+        $batdau = date('d-m-Y',$this->registry->router->param_id);
+
+
+
+        $ketthuc = date('d-m-Y',$this->registry->router->page);
+
+
+
+        $ngayketthuc = strtotime(date('d-m-Y', strtotime($ketthuc. ' + 1 days')));
 
 
 
 
-            $batdau = ($this->registry->router->param_id != "") ? $this->registry->router->param_id : ('30-'.date('m-Y', strtotime("last month")));
+        $contunit_model = $this->model->get('contunitModel');
+        $cost_list_model = $this->model->get('costlistModel');
+
+        $cont_units = $contunit_model->getAllUnit();
+        $loan_units = $cost_list_model->getAllCost(array('where'=>'cost_list_type = 8'));
 
 
+        $place_model = $this->model->get('placeModel');
 
-            $ketthuc = ($this->registry->router->page != "") ? $this->registry->router->page : (date('d-m-Y', time()+86400));
+        $place_data = array();
 
-
-
-            $xe = ($this->registry->router->order_by != 0) ? $this->registry->router->order_by : "";
-
+        $places = $place_model->getAllPlace();
 
 
-            $vong = ($this->registry->router->order != 0) ? $this->registry->router->order : "";
+        foreach ($places as $place) {
+
+                $place_data['place_id'][$place->place_id] = $place->place_id;
+
+                $place_data['place_name'][$place->place_id] = $place->place_name;
+
+        }
+
+        $place = $place_data;
+
+        $romooc_model = $this->model->get('romoocModel');
+
+        $romooc_data = array();
+
+        $romoocs = $romooc_model->getAllVehicle();
 
 
+        foreach ($romoocs as $romooc) {
 
-        
+                $romooc_data['romooc_id'][$romooc->romooc_id] = $romooc->romooc_id;
 
-
-
-        
-
-
-
-            $warehouse_model = $this->model->get('warehouseModel');
-
-
-
-            $shipment_model = $this->model->get('shipmentModel');
-
-
-
-
-
-
-
-            $join = array('table'=>'customer, vehicle','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle');
-
-
-
-            $data = array(
-
-
-
-                'where' => 'shipment_date >= '.$batdau.' AND shipment_date <= '.$ketthuc,
-
-
-
-                );
-
-
-
-
-
-
-
-            if ($_SESSION['role_logined'] == 3) {
-
-
-
-            if( ($batdau < strtotime('04-06-2015')) && ($ketthuc > strtotime('04-06-2015')) )
-
-
-
-                $data['where'] = '( (shipment_date >= '.$batdau.' AND shipment_date <= '.strtotime('04-06-2015').') OR (shipment_date > '.strtotime('04-06-2015').' AND shipment_date <= '.$ketthuc.' AND shipment_create_user = '.$_SESSION['userid_logined'].') )';
-
-
-
-            else if( $batdau > strtotime('04-06-2015') )
-
-
-
-                $data['where'] = $data['where'].' AND shipment_create_user = '.$_SESSION['userid_logined'];
-
-
+                $romooc_data['romooc_number'][$romooc->romooc_id] = $romooc->romooc_number;
 
         }
 
 
 
+        $warehouse_model = $this->model->get('warehouseModel');
+
+
+
+        $warehouse_data = array();
+
+
+
+
+        $join = array('table'=>'customer, vehicle, cont_unit, steersman','where'=>'customer.customer_id = shipment.customer AND vehicle.vehicle_id = shipment.vehicle AND cont_unit=cont_unit_id AND steersman = steersman_id');
 
 
 
 
 
-
-
-
-            if($xe != ""){
-
-
-
-                $data['where'] = $data['where'].' AND vehicle = '.$xe;
-
-
-
-            }
-
-
-
-            if($vong != ""){
-
-
-
-                $data['where'] = $data['where'].' AND shipment_round = '.$vong;
-
-
-
-            }
+        $shipment_model = $this->model->get('shipmentModel');
 
 
 
 
+        $data = array(
 
 
 
-            /*if ($_SESSION['role_logined'] == 3) {
+            'where' => 'shipment_date >= '.strtotime($batdau).' AND shipment_date < '.$ngayketthuc,
 
 
 
-                $data['where'] = $data['where'].' AND shipment_create_user = '.$_SESSION['userid_logined'];
+            'order_by'=> 'shipment_date ASC, shipment_round ASC',
 
 
 
-                
+            );
+
+        if($xe != 0){
+
+            $data['where'] = $data['where'].' AND vehicle = '.$xe;
+
+        }
+
+        if($vong != 0){
+
+            $data['where'] = $data['where'].' AND shipment_round = '.$vong;
+        }
+
+
+        
+
+        $shipments = $shipment_model->getAllShipment($data,$join);
 
 
 
+        $road_model = $this->model->get('roadModel');
+
+       
+
+        $road_data = array();
+
+        
+
+        $customer_sub_model = $this->model->get('customersubModel');
 
 
+        $shipment_cost_model = $this->model->get('shipmentcostModel');
 
+        $customer_types = array();
 
-            }*/
+        $export_stocks = array();
 
+        
 
+        $loan_shipment_data = array();
 
-            $shipments = $shipment_model->getAllShipment($data,$join);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        $v = array();
 
 
             require("lib/Classes/PHPExcel/IOFactory.php");
@@ -13279,20 +13257,7 @@ Class shipmentController Extends baseController {
 
 
 
-
-
             $objPHPExcel = new PHPExcel();
-
-
-
-
-
-
-
-            
-
-
-
 
 
 
@@ -13307,68 +13272,92 @@ Class shipmentController Extends baseController {
 
                ->setCellValue('A1', 'STT')
 
+               ->setCellValue('B1', 'Số DO')
+
+               ->setCellValue('C1', 'Ngày nhận')
+
+               ->setCellValue('D1', 'Ngày giao')
+
+               ->setCellValue('E1', 'Số lượng nhận');
 
 
-               ->setCellValue('B1', 'Xe')
+            $dvt = "E";
+            foreach ($cont_units as $cont) {
+                $objPHPExcel->setActiveSheetIndex($index_worksheet)
+                ->setCellValue($dvt.'2', $cont->cont_unit_name);
+
+                $dvt++;
+            }
+
+            $ascii = ord($dvt);
+            $sln = chr($ascii -1);
+
+            $sln2 = $dvt;
+
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+               ->setCellValue($dvt.'1', 'Số lượng giao');
+
+            foreach ($cont_units as $cont) {
+                $objPHPExcel->setActiveSheetIndex($index_worksheet)
+                ->setCellValue($dvt.'2', $cont->cont_unit_name);
+
+                $dvt++;
+            }
+
+            $ascii = ord($dvt);
+            $slg = chr($ascii -1);
+
+            $gv = $dvt;
 
 
-
-               ->setCellValue('C1', 'Ngày')
-
+            $objPHPExcel->setActiveSheetIndex($index_worksheet)
 
 
-               ->setCellValue('D1', 'Kho đi')
+               ->setCellValue(($dvt++).'1', 'Giờ vào')
 
+               ->setCellValue(($dvt++).'1', 'Giờ ra')
 
+               ->setCellValue(($dvt++).'1', 'Xe')
 
-               ->setCellValue('E1', 'Kho đến')
+               ->setCellValue(($dvt++).'1', 'Mooc')
 
+               ->setCellValue(($dvt++).'1', 'Tài xế')
 
+               ->setCellValue(($dvt++).'1', 'Nơi nhận')
 
-               ->setCellValue('F1', 'Khách hàng')
+               ->setCellValue(($dvt++).'1', 'Nơi giao')
 
+               ->setCellValue(($dvt++).'1', 'Mặt hàng')
 
+               ->setCellValue(($dvt++).'1', 'Khách hàng')
 
-               ->setCellValue('G1', 'Cước')
+               ->setCellValue(($dvt++).'1', 'Chiều dài')
 
+               ->setCellValue(($dvt++).'1', 'Dầu thực lãnh')
 
+               ->setCellValue(($dvt++).'1', 'Dầu định mức')
 
-               ->setCellValue('H1', 'Trọng tải')
+               ->setCellValue(($dvt++).'1', 'Chi phí đi đường')
 
+               ->setCellValue(($dvt++).'1', 'Cầu đường')
 
+               ->setCellValue(($dvt++).'1', 'Công an')
 
-               ->setCellValue('I1', 'Doanh thu');
+               ->setCellValue(($dvt++).'1', 'Bồi dưỡng')
 
+               ->setCellValue($dvt.'1', 'Chi hộ');
 
+            $ch = $dvt;
+            $phatsinh = $dvt;
 
-               
+            foreach ($loan_units as $loan) {
+                $objPHPExcel->setActiveSheetIndex($index_worksheet)
+                ->setCellValue($phatsinh.'2', $loan->cost_list_name);
 
-
-
-
-
-
+                $phatsinh++;
+            }
 
             
-
-
-
-
-
-
-
-            
-
-
-
-            
-
-
-
-            
-
-
-
 
 
 
@@ -13378,10 +13367,7 @@ Class shipmentController Extends baseController {
 
 
 
-
-
-
-                $hang = 2;
+                $hang = 3;
 
 
 
@@ -13390,58 +13376,191 @@ Class shipmentController Extends baseController {
 
 
 
-
-
-
                 $kho_data = array();
 
 
 
-                foreach ($shipments as $row) {
+                foreach ($shipments as $ship) {
 
 
 
-                    if ($row->shipment_charge != 0 && $row->shipment_ton != 0) {
+                   $loans = $shipment_cost_model->getAllShipment(array('where'=>'shipment = '.$ship->shipment_id),array('table'=>'cost_list','where'=>'cost_list = cost_list_id AND cost_list_type = 8'));
+                    foreach ($loans as $loan) {
+                        $loan_shipment_data[$ship->shipment_id][$loan->cost_list] = isset($loan_shipment_data[$ship->shipment_id][$loan->cost_list])?$loan_shipment_data[$ship->shipment_id][$loan->cost_list]+$loan->cost:$loan->cost;
+                        
+                    }
+
+                    
+
+
+                   $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
+
+                    
+
+                   $road_data['oil_add'][$ship->shipment_id] = ($ship->oil_add_dc == 5)?$ship->oil_add:0;
+
+                   $road_data['oil_add2'][$ship->shipment_id] = ($ship->oil_add_dc2 == 5)?$ship->oil_add2:0;
+
+
+
+                   $check_sub = 1;
+
+                   if ($ship->shipment_sub==1) {
+                       $check_sub = 0;
+                   }
+
+
+
+                    $chek_rong = 0;
+
+                    
+
+                    foreach ($roads as $road) {
+
+
+                        $road_data['bridge_cost'][$ship->shipment_id] = isset($road_data['bridge_cost'][$ship->shipment_id])?$road_data['bridge_cost'][$ship->shipment_id]+$road->bridge_cost*$check_sub:$road->bridge_cost*$check_sub;
+
+                        $road_data['police_cost'][$ship->shipment_id] = isset($road_data['police_cost'][$ship->shipment_id])?$road_data['police_cost'][$ship->shipment_id]+($road->police_cost)*$check_sub:($road->police_cost)*$check_sub;
+
+                        $road_data['tire_cost'][$ship->shipment_id] = isset($road_data['tire_cost'][$ship->shipment_id])?$road_data['tire_cost'][$ship->shipment_id]+($road->tire_cost)*$check_sub:($road->tire_cost)*$check_sub;
+
+                        if($road->road_oil_ton > 0){
+                            $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+($road->road_oil_ton*round($ship->oil_cost))*$check_sub:($road->road_oil_ton*round($ship->oil_cost))*$check_sub;
+
+                            $road_data['road_oil'][$ship->shipment_id] = isset($road_data['road_oil'][$ship->shipment_id])?$road_data['road_oil'][$ship->shipment_id]+($road->road_oil_ton)*$check_sub:($road->road_oil_ton)*$check_sub;
+                        }
+                        else{
+                            $road_data['oil_cost'][$ship->shipment_id] = isset($road_data['oil_cost'][$ship->shipment_id])?$road_data['oil_cost'][$ship->shipment_id]+($road->road_oil*round($ship->oil_cost))*$check_sub:($road->road_oil*round($ship->oil_cost))*$check_sub;
+
+                            $road_data['road_oil'][$ship->shipment_id] = isset($road_data['road_oil'][$ship->shipment_id])?$road_data['road_oil'][$ship->shipment_id]+($road->road_oil)*$check_sub:($road->road_oil)*$check_sub;
+                        }
+                        
+
+                        $road_data['road_time'][$ship->shipment_id] = isset($road_data['road_time'][$ship->shipment_id])?$road_data['road_time'][$ship->shipment_id]+($road->road_time)*$check_sub:($road->road_time)*$check_sub;
+
+                        $road_data['road_km'][$ship->shipment_id] = isset($road_data['road_km'][$ship->shipment_id])?$road_data['road_km'][$ship->shipment_id]+$road->road_km*$check_sub:$road->road_km*$check_sub;
+
+
+
+                        $chek_rong = ($road->way == 0)?1:0;
+
+
+
+                    }
+
+                    $cds = $shipment_cost_model->getAllShipment(array('where'=>'shipment = '.$ship->shipment_id),array('table'=>'cost_list','where'=>'cost_list = cost_list_id AND cost_list_type = 6'));
+                    foreach ($cds as $cd) {
+                        $road_data['bridge_cost'][$ship->shipment_id] = isset($road_data['bridge_cost'][$ship->shipment_id])?$road_data['bridge_cost'][$ship->shipment_id]+$cd->cost:$cd->cost;
+                    }
+
+                    $cas = $shipment_cost_model->getAllShipment(array('where'=>'shipment = '.$ship->shipment_id),array('table'=>'cost_list','where'=>'cost_list = cost_list_id AND cost_list_type = 10'));
+                    foreach ($cas as $ca) {
+                        $road_data['police_cost'][$ship->shipment_id] = isset($road_data['police_cost'][$ship->shipment_id])?$road_data['police_cost'][$ship->shipment_id]+$ca->cost:$ca->cost;
+                    }
+
+
+
+                    $warehouse = $warehouse_model->getAllWarehouse(array('where'=>'(warehouse_code = '.$ship->shipment_from.' OR warehouse_code = '.$ship->shipment_to.') AND start_time <= '.$ship->shipment_date.' AND end_time >= '.$ship->shipment_date));
+
+                
+
+
+
+                    $boiduong_cont = 0;
+
+                    $boiduong_tan = 0;
 
 
 
                     
 
-
-
-                    $warehouse = $warehouse_model->getAllWarehouse(array('where'=>'warehouse_id = '.$row->shipment_from.' OR warehouse_id = '.$row->shipment_to));
-
-
-
-
-
-
-
-
-
-
-
                     foreach ($warehouse as $warehouse) {
 
+                        
 
+                            $warehouse_data['warehouse_id'][$warehouse->warehouse_code] = $warehouse->warehouse_code;
+
+                            $warehouse_data['warehouse_name'][$warehouse->warehouse_code] = $warehouse->warehouse_name;
+
+
+
+                            $tan = explode(".",$ship->shipment_ton);
+
+                            if (isset($tan[1]) && substr($tan[1], 0, 1) > 5 ) {
+
+                                $trongluong = $tan[0] + 1;
+
+                            }
+
+                            elseif (isset($tan[1]) && substr($tan[1], 0, 1) < 5 ) {
+
+                                $trongluong = $tan[0];
+
+                            }
+
+                            else{
+
+                                $trongluong = $tan[0]+('0.'.(isset($tan[1])?substr($tan[1], 0, 1):0));
+
+                            }
+
+
+
+
+
+                        if($chek_rong == 0){
+
+                            if ($warehouse->warehouse_cont != 0) {
+
+                                $boiduong_cont += $warehouse->warehouse_cont;
+
+                            }
+
+                            if ($warehouse->warehouse_ton != 0){
+
+                                $boiduong_tan += $trongluong * $warehouse->warehouse_ton;
+
+                            }
+
+                        }
+
+                        else{
+
+                            if ($ship->shipment_ton > 0) {
+
+                                $boiduong_cont += $warehouse->warehouse_add;
+
+                            }
+
+                        }
 
                         
 
-
-
-                            $warehouse_data['warehouse_name'][$warehouse->warehouse_id] = $warehouse->warehouse_name;
-
-
-
-                     
-
-
-
                         
-
-
 
                     }
+
+                    $warehouse_data['boiduong_cn'][$ship->shipment_id] = ($boiduong_cont+$boiduong_tan)*$check_sub;
+
+                    $bds = $shipment_cost_model->getAllShipment(array('where'=>'shipment = '.$ship->shipment_id),array('table'=>'cost_list','where'=>'cost_list = cost_list_id AND cost_list_type = 11'));
+                    foreach ($bds as $bd) {
+                        $warehouse_data['boiduong_cn'][$ship->shipment_id] = isset($warehouse_data['boiduong_cn'][$ship->shipment_id])?$warehouse_data['boiduong_cn'][$ship->shipment_id]+$bd->cost:$bd->cost;
+                    }
+
+
+                    $customer_sub = "";
+                    $sts = explode(',', $ship->customer_type);
+                    foreach ($sts as $key) {
+                        $subs = $customer_sub_model->getCustomer($key);
+                        if ($subs) {
+                            if ($customer_sub == "")
+                                $customer_sub .= $subs->customer_sub_name;
+                            else
+                                $customer_sub .= ','.$subs->customer_sub_name;
+                        }
+                        
+                    }
+                    $customer_types[$ship->shipment_id] = $customer_sub;
 
 
 
@@ -13453,44 +13572,84 @@ Class shipmentController Extends baseController {
 
 
 
-                     $objPHPExcel->setActiveSheetIndex(0)
+                     $objPHPExcel->setActiveSheetIndex($index_worksheet)
 
 
 
                         ->setCellValue('A' . $hang, $i++)
 
+                        ->setCellValueExplicit('B' . $hang, $ship->bill_number)
+
+                        ->setCellValue('C' . $hang, $this->lib->hien_thi_ngay_thang($ship->bill_receive_date))
+
+                        ->setCellValue('D' . $hang, $this->lib->hien_thi_ngay_thang($ship->bill_delivery_date));
 
 
-                        ->setCellValueExplicit('B' . $hang, $row->vehicle_number)
+                        $dvt = "E";
+                        foreach ($cont_units as $cont) {
+                            $ton = $ship->bill_receive_unit==$cont->cont_unit_id?$ship->bill_receive_ton:null;
+
+                            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+                            ->setCellValue($dvt.$hang, $ton);
+
+                            $dvt++;
+                        }
+
+                        foreach ($cont_units as $cont) {
+                            $ton = $ship->bill_delivery_unit==$cont->cont_unit_id?$ship->bill_delivery_ton:null;
+
+                            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+                            ->setCellValue($dvt.$hang, $ton);
+
+                            $dvt++;
+                        }
 
 
-
-                        ->setCellValue('C' . $hang, $this->lib->hien_thi_ngay_thang($row->shipment_date))
-
+                        $objPHPExcel->setActiveSheetIndex($index_worksheet)
 
 
-                        ->setCellValue('D' . $hang, $warehouse_data['warehouse_name'][$row->shipment_from])
+                           ->setCellValue(($dvt++).$hang, date('H:i:s',$ship->bill_in))
 
+                           ->setCellValue(($dvt++).$hang, date('H:i:s',$ship->bill_out))
 
+                           ->setCellValue(($dvt++).$hang, $ship->vehicle_number)
 
-                        ->setCellValue('E' . $hang, $warehouse_data['warehouse_name'][$row->shipment_to])
+                           ->setCellValue(($dvt++).$hang, (isset($romooc_data['romooc_number'][$ship->romooc])?$romooc_data['romooc_number'][$ship->romooc]:null))
 
+                           ->setCellValue(($dvt++).$hang, $ship->steersman_name)
 
+                           ->setCellValue(($dvt++).$hang, ($ship->shipment_from==$place['place_id'][$ship->shipment_from]?$place['place_name'][$ship->shipment_from]:null))
 
-                        ->setCellValue('F' . $hang, $row->customer_name)
+                           ->setCellValue(($dvt++).$hang, ($ship->shipment_to==$place['place_id'][$ship->shipment_to]?$place['place_name'][$ship->shipment_to]:null))
 
+                           ->setCellValue(($dvt++).$hang, $customer_types[$ship->shipment_id])
 
+                           ->setCellValue(($dvt++).$hang, $ship->customer_name)
 
-                        ->setCellValue('G' . $hang, $row->shipment_charge)
+                           ->setCellValue(($dvt++).$hang, (isset($road_data['road_km'][$ship->shipment_id])?$road_data['road_km'][$ship->shipment_id]:null))
 
+                           ->setCellValue(($dvt++).$hang, $ship->shipment_oil)
 
+                           ->setCellValue(($dvt++).$hang, (($ship->shipment_road_oil>0?$ship->shipment_road_oil:(isset($road_data['road_oil'][$ship->shipment_id])?$road_data['road_oil'][$ship->shipment_id]:0))+$ship->shipment_road_oil_add))
 
-                        ->setCellValue('H' . $hang, $row->shipment_ton)
+                           ->setCellValue(($dvt++).$hang, $ship->shipment_road_add)
 
+                           ->setCellValue(($dvt++).$hang, (isset($road_data['bridge_cost'][$ship->shipment_id])?$road_data['bridge_cost'][$ship->shipment_id]:null))
 
+                           ->setCellValue(($dvt++).$hang, (isset($road_data['police_cost'][$ship->shipment_id])?$road_data['police_cost'][$ship->shipment_id]:null))
 
-                        ->setCellValue('I' . $hang, $row->shipment_revenue+$row->revenue_other);
+                           ->setCellValue(($dvt++).$hang, (isset($warehouse_data['boiduong_cn'][$ship->shipment_id])?$warehouse_data['boiduong_cn'][$ship->shipment_id]:null));
 
+                        $phatsinh = $dvt;
+
+                        foreach ($loan_units as $loan) {
+                            $chiho = isset($loan_shipment_data[$ship->shipment_id][$loan->cost_list_id])?$loan_shipment_data[$ship->shipment_id][$loan->cost_list_id]:null;
+
+                            $objPHPExcel->setActiveSheetIndex($index_worksheet)
+                            ->setCellValue($phatsinh.$hang, $chiho);
+
+                            $phatsinh++;
+                        }
 
 
                      $hang++;
@@ -13499,22 +13658,7 @@ Class shipmentController Extends baseController {
 
 
 
-
-
-
-
-
-
                   }
-
-
-
-              }
-
-
-
-
-
 
 
           }
@@ -13539,41 +13683,68 @@ Class shipmentController Extends baseController {
 
 
 
+            $objPHPExcel->getActiveSheet()->getStyle('A1:'.$phatsinh.$hang)->applyFromArray(
+
+                array(
+
+                    
+
+                    'borders' => array(
+
+                        'allborders' => array(
+
+                          'style' => PHPExcel_Style_Border::BORDER_THIN
+
+                        )
+
+                    )
+
+                )
+
+            );
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A1:A2');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('B1:B2');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('C1:C2');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('D1:D2');
+
+            $objPHPExcel->getActiveSheet()->mergeCells('E1:'.$sln.'1');
+
+            $objPHPExcel->getActiveSheet()->mergeCells($sln2.'1:'.$slg.'1');
+
+            for ($p=$gv; $p < $ch; $p++) { 
+                $objPHPExcel->getActiveSheet()->mergeCells($p.'1:'.$p.'2');
+            }
+
+            $objPHPExcel->getActiveSheet()->mergeCells($ch.'1:'.$phatsinh.'1');
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('M3:'.$phatsinh.$highestRow)->getNumberFormat()->setFormatCode("#,##0_);[Black](#,##0)");
 
 
 
+            $objPHPExcel->getActiveSheet()->getStyle('A1:'.$phatsinh.'2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
 
 
-            $objPHPExcel->getActiveSheet()->getStyle('G2:I'.$highestRow)->getNumberFormat()->setFormatCode("#,##0_);[Black](#,##0)");
+            $objPHPExcel->getActiveSheet()->getStyle('A1:'.$phatsinh.'2')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
 
 
-            $objPHPExcel->getActiveSheet()->getStyle('A1:I1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-
-
-
-            $objPHPExcel->getActiveSheet()->getStyle('A1:I1')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
-
-
-
-            $objPHPExcel->getActiveSheet()->getStyle('A1:I1')->getFont()->setBold(true);
-
-
-
-            $objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(16);
+            $objPHPExcel->getActiveSheet()->getStyle('A1:'.$phatsinh.'2')->getFont()->setBold(true);
 
 
 
             $objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(14);
 
 
-
-            $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setWidth(25);
-
+            $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(8);
 
 
-            $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth(25);
 
 
 
@@ -13621,7 +13792,7 @@ Class shipmentController Extends baseController {
 
 
 
-            $objPHPExcel->getActiveSheet()->freezePane('A1');
+            $objPHPExcel->getActiveSheet()->freezePane('A3');
 
 
 
@@ -13661,7 +13832,7 @@ Class shipmentController Extends baseController {
 
 
 
-            header("Content-Disposition: attachment; filename= BẢNG LÔ HÀNG.xlsx");
+            header("Content-Disposition: attachment; filename= TỔNG HỢP PHIẾU VẬN CHUYỂN.xlsx");
 
 
 

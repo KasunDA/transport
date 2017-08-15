@@ -148,7 +148,7 @@ elseif ($order_by == 'bill_delivery_date')
 
         <?php if(!isset($disable_control)){ ?>
 
-        <div class="add-box"><a class="add_button" id="btnExport" ><i class="fa fa-download"></i> Xuất</a></div>
+        <div class="add-box"><a class="add_button" href="<?php echo $this->url('shipment/export/'.strtotime($batdau).'/'.strtotime($ketthuc).'/'.$xe.'/'.$vong) ?>" ><i class="fa fa-download"></i> Xuất</a></div>
 
         <div class="add-box"><a class="add_button" onClick="add_click();"><i class="fa fa-plus"></i> Thêm mới</a></div>
 
