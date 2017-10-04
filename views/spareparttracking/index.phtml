@@ -79,11 +79,11 @@ endforeach;
         </tr>
         <tr>
             <th class="fix" rowspan="2">STT</th>
-            <th class="fix" rowspan="2">Tên phụ tùng</th>
-            <th class="fix" colspan="19">Số km</th>
             <th class="fix" rowspan="2">Ngày lắp vào</th>
             <th class="fix" rowspan="2">Số xe</th>
             <th class="fix" rowspan="2">Mooc</th>
+            <th class="fix" rowspan="2">Tên phụ tùng</th>
+            <th class="fix" colspan="19">Số km</th>
         </tr>
         <tr>
             <th class="fix">1</th>
@@ -113,6 +113,9 @@ endforeach;
     ?>
         <tr>
             <td class="fix"><?php echo $i++; ?></td>
+            <td class="fix" ><?php echo $lib->hien_thi_ngay_thang($data_vehicle[$spare_part->spare_part_id]['import']) ?></td>
+            <td class="fix" ><?php echo isset($vehicle_data['name'][$data_vehicle[$spare_part->spare_part_id]['vehicle']])?$vehicle_data['name'][$data_vehicle[$spare_part->spare_part_id]['vehicle']]:null ?></td>
+            <td class="fix" ><?php echo isset($romooc_data['name'][$data_vehicle[$spare_part->spare_part_id]['romooc']])?$romooc_data['name'][$data_vehicle[$spare_part->spare_part_id]['romooc']]:null ?></td>
             <td class="fix"  id="spare_part_name_<?php echo $spare_part->spare_part_id; ?>"><a target="_blank" href="<?php echo $this->url('sparepart/index/'.$spare_part->spare_part_id) ?>" ><?php echo $spare_part->spare_part_name.($spare_part->spare_part_seri!=""?' - ['.$spare_part->spare_part_seri.']':null) ?></a></td>
             <td <?php echo ($km >= 1000 && $km < 5000)?'class="fix masterTooltip bg-red" title="'.$km.'"':'class="fix"' ?> >
             </td>
@@ -152,9 +155,7 @@ endforeach;
             </td>
             <td <?php echo ($km >= 200000)?'class="fix masterTooltip bg-red" title="'.$km.'"':'class="fix"' ?> >
             </td>
-            <td class="fix" ><?php echo $lib->hien_thi_ngay_thang($data_vehicle[$spare_part->spare_part_id]['import']) ?></td>
-            <td class="fix" ><?php echo isset($vehicle_data['name'][$data_vehicle[$spare_part->spare_part_id]['vehicle']])?$vehicle_data['name'][$data_vehicle[$spare_part->spare_part_id]['vehicle']]:null ?></td>
-            <td class="fix" ><?php echo isset($romooc_data['name'][$data_vehicle[$spare_part->spare_part_id]['romooc']])?$romooc_data['name'][$data_vehicle[$spare_part->spare_part_id]['romooc']]:null ?></td>
+            
         </tr>
     <?php endforeach; ?>
     </tbody>
@@ -574,6 +575,7 @@ $('.badge').click(function(){
         autoOpen: false,
         modal: true,
         width: "auto",
+        maxHeight: $(window).height()-50,
         title: "Danh sách",
         hide: 'fold',
         show: 'blind'

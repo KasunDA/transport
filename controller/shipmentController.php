@@ -249,9 +249,9 @@ Class shipmentController Extends baseController {
 
 
 
-        $giadauhientai = $this->craw();
+        //$giadauhientai = $this->craw();
 
-
+        $giadauhientai = 0;
 
         $this->view->data['giadauhientai'] = $giadauhientai;
 
@@ -573,6 +573,8 @@ Class shipmentController Extends baseController {
                         bill_number LIKE "%'.$keyword.'%" 
 
                      ) 
+                    
+                    OR steersman_name LIKE "%'.$keyword.'%" 
 
 
                     )';
@@ -2702,7 +2704,10 @@ Class shipmentController Extends baseController {
 
 
 
-
+    public function getOilcost(){
+        $this->view->disableLayout();
+        echo $this->craw();
+    }
 
 
     public function getshipmenttemp(){
@@ -14648,26 +14653,7 @@ Class shipmentController Extends baseController {
 
 
 
-        ini_set('max_execution_time', 300); //300 seconds = 5 minutes
-
-
-
-        $this->view->setLayout('admin');
-
-
-
-        if (!isset($_SESSION['userid_logined'])) {
-
-
-
-            return $this->view->redirect('user/login');
-
-
-
-        }
-
-
-
+        ini_set('max_execution_time', 100); //300 seconds = 5 minutes
 
 
 
@@ -14680,7 +14666,7 @@ Class shipmentController Extends baseController {
 
 
 
-        $url ="http://www.petrolimex.com.vn/index.html"; 
+        $url ="http://www.petrolimex.com.vn"; 
 
 
 
@@ -14786,7 +14772,7 @@ Class shipmentController Extends baseController {
         $contents = '';
         }
 
-        
+        //curl_close($ch);
 
         return $contents;
 

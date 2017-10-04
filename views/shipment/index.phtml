@@ -106,6 +106,18 @@ elseif ($order_by == 'bill_delivery_date')
 
     $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
 
+elseif ($order_by == 'customer_name')
+
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+
+elseif ($order_by == 'steersman_name')
+
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+
+elseif ($order_by == 'vehicle_number')
+
+    $url_order = $order == 'ASC' ? 'DESC' : 'ASC';
+
 
 
     $i = $sonews*$page-($sonews-1);
@@ -375,13 +387,13 @@ elseif ($order_by == 'bill_delivery_date')
 
         <th  class="fix">
 
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','vehicle','<?php echo $url_order ?>')">Tài xế <?php if ($order_by == 'vehicle'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','steersman_name','<?php echo $url_order ?>')">Tài xế <?php if ($order_by == 'steersman_name'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
 
         </th>
 
         <th  class="fix">
 
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','vehicle','<?php echo $url_order ?>')">Xe <?php if ($order_by == 'vehicle'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','vehicle_number','<?php echo $url_order ?>')">Xe <?php if ($order_by == 'vehicle_number'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
 
         </th>
 
@@ -431,7 +443,7 @@ elseif ($order_by == 'bill_delivery_date')
 
         <th  class="fix">
 
-            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','customer','<?php echo $url_order ?>')">Khách hàng <?php if ($order_by == 'customer'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','customer_name','<?php echo $url_order ?>')">Khách hàng <?php if ($order_by == 'customer_name'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
 
         </th>
 
@@ -1298,7 +1310,9 @@ $this->helper('slidePaginator');
 
                                   <label for="oil_cost">Giá dầu</label>
 
-                                  <input type="text" class="number" id="oil_cost" name="oil_cost" tabindex="22" required="required" >
+                                  <input style="width:100px" type="text" class="number" id="oil_cost" name="oil_cost" tabindex="22" required="required" >
+
+                                  <button style="margin-top: -10px;" class="btn" id="get_oil_cost"><i class="fa fa-dollar"></i> Lấy giá</button>
 
                                 </div>
 
@@ -6918,7 +6932,33 @@ $('#shipment_date_sub').change(function(){
 });
 
    
+$('#get_oil_cost').click(function(){
+    $.ajax({
 
+        url: '<?php echo BASE_URL ?>/shipment/getOilcost',
+
+        type: 'GET',
+
+        success:function(data){
+
+            $('#oil_cost').val(data);
+
+            $('.number').val(function(index, value) {
+
+                  return value
+
+                    .replace(/\D/g, "")
+
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+                  ;
+
+                });
+
+        }
+
+    });
+});
 
 
    $('.receiver').keyup(function(){
