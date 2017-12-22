@@ -188,6 +188,8 @@ class Library{
 		$decimal     = ' phẩy ';
 		$one		 = 'mốt';
 		$ten         = 'lẻ';
+		$pen		 = 'lăm';
+		$hund  		 = 'không trăm';
 		$dictionary  = array(
 		0                   => 'Không',
 		1                   => 'Một',
@@ -258,7 +260,7 @@ class Library{
 				$units  = $number % 10;
 				$string = $dictionary[$tens];
 				if ($units) {
-					$string .= strtolower( $hyphen . ($units==1?$one:$dictionary[$units]) );
+					$string .= strtolower( $hyphen . ($units==1?$one:($units==5?$pen:$dictionary[$units])) );
 				}
 			break;
 			case $number < 1000:
@@ -274,11 +276,20 @@ class Library{
 				$numBaseUnits = (int) ($number / $baseUnit);
 				$remainder = $number - ($numBaseUnits*$baseUnit);
 				$string = $this->convert_number_to_words($numBaseUnits) . ' ' . $dictionary[$baseUnit];
+				$dec = explode('.', ($number / $baseUnit));
+				if (isset($dec[1]) && substr($dec[1], 0, 1) == "0") {
+					$string .= ' '.$hund;
+					if (substr($dec[1], 0, 2) == "00") {
+						$string .= ' '.$ten;
+					}
+					
+				}
 				if ($remainder) {
 					$string .= strtolower( $remainder < 100 ? $conjunction : $separator );
 					$string .= strtolower( $this->convert_number_to_words($remainder) );
 				}
 			break;
+			
 		}
 		 
 		if (null !== $fraction && is_numeric($fraction)) {
