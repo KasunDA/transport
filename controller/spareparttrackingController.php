@@ -174,28 +174,29 @@ Class spareparttrackingController Extends baseController {
         $this->view->data['insurance_cost_data'] = $insurance_cost_data;
 
         $spare_model = $this->model->get('sparepartModel');
+        $spare_vehicle_model = $this->model->get('sparevehicleModel');
+        $spare_vehicles = $spare_vehicle_model->getAllStock(array('where'=>'end_time IS NULL OR end_time=0'));
+        $str = "";
+        foreach ($spare_vehicles as $sp) {
+            if ($str=="") {
+                $str .= $sp->spare_part;
+            }
+            else{
+                $str .= ",".$sp->spare_part;
+            }
+        }
+
         $sonews = $limit;
         $x = ($page-1) * $sonews;
         $pagination_stages = 2;
 
-        $data = array(
-            'where' => 'spare_part_id IN (SELECT spare_part FROM spare_vehicle WHERE spare_part NOT IN (SELECT spare_part FROM spare_vehicle WHERE end_time > 0))',
-        );
-
-        if (isset($id) && $id > 0) {
-            $data['where'] .= ' AND spare_part_id = '.$id;
-        }
-
-        $tongsodong = count($spare_model->getAllStock($data));
-        $tongsotrang = ceil($tongsodong / $sonews);
-        
 
         $this->view->data['page'] = $page;
         $this->view->data['order_by'] = $order_by;
         $this->view->data['order'] = $order;
         $this->view->data['keyword'] = $keyword;
         $this->view->data['pagination_stages'] = $pagination_stages;
-        $this->view->data['tongsotrang'] = $tongsotrang;
+        $this->view->data['tongsotrang'] = 1000;
         $this->view->data['sonews'] = $sonews;
         $this->view->data['limit'] = $limit;
 
@@ -203,7 +204,7 @@ Class spareparttrackingController Extends baseController {
             'order_by'=>$order_by,
             'order'=>$order,
             'limit'=>$x.','.$sonews,
-            'where' => 'spare_part_id IN (SELECT spare_part FROM spare_vehicle WHERE spare_part NOT IN (SELECT spare_part FROM spare_vehicle WHERE end_time > 0))',
+            'where' => 'spare_part_id IN ('.$str.')',
             );
 
         if (isset($id) && $id > 0) {
@@ -224,8 +225,9 @@ Class spareparttrackingController Extends baseController {
         $shipment_model = $this->model->get('shipmentModel');
         $road_model = $this->model->get('roadModel');
 
-        $spare_vehicle_model = $this->model->get('sparevehicleModel');
+        
         $data_vehicle = array();
+        $thang1 = array(); $thang3 = array(); $thang6 = array(); $thang12 = array(); $thang24 = array(); $thang36 = array(); $thang48 = array();
 
         foreach ($spares as $spare) {
            
@@ -298,12 +300,45 @@ Class spareparttrackingController Extends baseController {
                 $data_vehicle[$spare->spare_part_id]['export'] = $ex->end_time;
             }
 
+
+            $ngaythayvao = $data_vehicle[$spare->spare_part_id]['import'];
+            $timeDiff = strtotime(date('d-m-Y')) - $ngaythayvao;
+            $numberDays = $timeDiff/86400;  // 86400 seconds in one day
+            $numberDays = intval($numberDays)/30;
+
+            if ($numberDays >= 3 && $numberDays < 6) {
+                $thang3[] = $spare;
+            }
+            else if ($numberDays >= 6 && $numberDays < 12) {
+                $thang6[] = $spare;
+            }
+            else if ($numberDays >= 12 && $numberDays < 24) {
+                $thang12[] = $spare;
+            }
+            else if ($numberDays >= 24 && $numberDays < 36) {
+                $thang24[] = $spare;
+            }
+            else if ($numberDays >= 36 && $numberDays < 48) {
+                $thang36[] = $spare;
+            }
+            else if ($numberDays >= 48) {
+                $thang48[] = $spare;
+            }
+            else{
+                $thang1[] = $spare;
+            }
         }
         
 
         $this->view->data['data_vehicle'] = $data_vehicle;
 
-        
+        $this->view->data['thang1'] = $thang1;        
+        $this->view->data['thang3'] = $thang3;        
+        $this->view->data['thang6'] = $thang6;        
+        $this->view->data['thang12'] = $thang12;        
+        $this->view->data['thang24'] = $thang24;        
+        $this->view->data['thang36'] = $thang36;    
+        $this->view->data['thang48'] = $thang48;            
 
         
 

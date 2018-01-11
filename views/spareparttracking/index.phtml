@@ -11,38 +11,6 @@
     <li class="active"><a href="<?php echo $this->url('spareparttracking') ?>">Kiểm định , Bảo hiểm, Phụ tùng sử dụng</a></li>
   </ol>
 </section>
-<?php 
-$thang1 = array(); $thang3 = array(); $thang6 = array(); $thang12 = array(); $thang24 = array(); $thang36 = array(); $thang48 = array();
-foreach ($spares as $spare_part) : 
-    $ngaythayvao = $data_vehicle[$spare_part->spare_part_id]['import'];
-    $timeDiff = strtotime(date('d-m-Y')) - $ngaythayvao;
-    $numberDays = $timeDiff/86400;  // 86400 seconds in one day
-    $numberDays = intval($numberDays)/30;
-
-    if ($numberDays >= 3 && $numberDays < 6) {
-        $thang3[] = $spare_part;
-    }
-    else if ($numberDays >= 6 && $numberDays < 12) {
-        $thang6[] = $spare_part;
-    }
-    else if ($numberDays >= 12 && $numberDays < 24) {
-        $thang12[] = $spare_part;
-    }
-    else if ($numberDays >= 24 && $numberDays < 36) {
-        $thang24[] = $spare_part;
-    }
-    else if ($numberDays >= 36 && $numberDays < 48) {
-        $thang36[] = $spare_part;
-    }
-    else if ($numberDays >= 48) {
-        $thang48[] = $spare_part;
-    }
-    else{
-        $thang1[] = $spare_part;
-    }
-
-endforeach;
-?>
 
 <table class="table_data" id="tblExport2">
     <thead>
