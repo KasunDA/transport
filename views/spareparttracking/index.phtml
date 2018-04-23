@@ -151,18 +151,18 @@
                 <tr>
                     <td class="fix"><?php echo $i++ ?></td>
                     <td class="fix"><a target="_blank" href="<?php echo $this->url('vehicle/index/'.$vehicle->vehicle_id) ?>"><?php echo $vehicle->vehicle_number ?></a></td>
-                    <td class="fix"><?php echo isset($road_cost_data['vehicle'][$vehicle->vehicle_id])?$lib->hien_thi_ngay_thang($road_cost_data['vehicle'][$vehicle->vehicle_id]):null ?></td>
-                    <td class="fix"><?php echo isset($checking_cost_data['vehicle'][$vehicle->vehicle_id])?$lib->hien_thi_ngay_thang($checking_cost_data['vehicle'][$vehicle->vehicle_id]):null ?></td>
-                    <td class="fix"><?php echo isset($insurance_cost_data['vehicle'][$vehicle->vehicle_id])?$lib->hien_thi_ngay_thang($insurance_cost_data['vehicle'][$vehicle->vehicle_id]):null ?></td>
+                    <td class="fix"><?php echo isset($road_cost_data['vehicle'][$vehicle->vehicle_id])?'<span style="display:none">'.date('Ymd',$road_cost_data['vehicle'][$vehicle->vehicle_id]).'</span>'.$lib->hien_thi_ngay_thang($road_cost_data['vehicle'][$vehicle->vehicle_id]):null ?></td>
+                    <td class="fix"><?php echo isset($checking_cost_data['vehicle'][$vehicle->vehicle_id])?'<span style="display:none">'.date('Ymd',$checking_cost_data['vehicle'][$vehicle->vehicle_id]).'</span>'.$lib->hien_thi_ngay_thang($checking_cost_data['vehicle'][$vehicle->vehicle_id]):null ?></td>
+                    <td class="fix"><?php echo isset($insurance_cost_data['vehicle'][$vehicle->vehicle_id])?'<span style="display:none">'.date('Ymd',$insurance_cost_data['vehicle'][$vehicle->vehicle_id]).'</span>'.$lib->hien_thi_ngay_thang($insurance_cost_data['vehicle'][$vehicle->vehicle_id]):null ?></td>
                 </tr>
             <?php endforeach; ?>
             <?php foreach ($romoocs as $romooc) : ?>
                 <tr>
                     <td class="fix"><?php echo $i++ ?></td>
                     <td class="fix"><a target="_blank" href="<?php echo $this->url('romooc/index/'.$romooc->romooc_id) ?>"><?php echo $romooc->romooc_number ?></a></td>
-                    <td class="fix"><?php echo isset($road_cost_data['romooc'][$romooc->romooc_id])?$lib->hien_thi_ngay_thang($road_cost_data['romooc'][$romooc->romooc_id]):null ?></td>
-                    <td class="fix"><?php echo isset($checking_cost_data['romooc'][$romooc->romooc_id])?$lib->hien_thi_ngay_thang($checking_cost_data['romooc'][$romooc->romooc_id]):null ?></td>
-                    <td class="fix"><?php echo isset($insurance_cost_data['romooc'][$romooc->romooc_id])?$lib->hien_thi_ngay_thang($insurance_cost_data['romooc'][$romooc->romooc_id]):null ?></td>
+                    <td class="fix"><?php echo isset($road_cost_data['romooc'][$romooc->romooc_id])?'<span style="display:none">'.date('Ymd',$road_cost_data['romooc'][$romooc->romooc_id]).'</span>'.$lib->hien_thi_ngay_thang($road_cost_data['romooc'][$romooc->romooc_id]):null ?></td>
+                    <td class="fix"><?php echo isset($checking_cost_data['romooc'][$romooc->romooc_id])?'<span style="display:none">'.date('Ymd',$checking_cost_data['romooc'][$romooc->romooc_id]).'</span>'.$lib->hien_thi_ngay_thang($checking_cost_data['romooc'][$romooc->romooc_id]):null ?></td>
+                    <td class="fix"><?php echo isset($insurance_cost_data['romooc'][$romooc->romooc_id])?'<span style="display:none">'.date('Ymd',$insurance_cost_data['romooc'][$romooc->romooc_id]).'</span>'.$lib->hien_thi_ngay_thang($insurance_cost_data['romooc'][$romooc->romooc_id]):null ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>

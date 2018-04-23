@@ -884,7 +884,7 @@ Class receiptvoucherController Extends baseController {
                         }
 
                         // add new option
-                        echo '<li onclick="set_item_debit(\''.$rs->debit_id.'\',\''.$rs->comment.'\',\''.date('d-m-Y',$rs->debit_date).'\',\''.($rs->money + $rs->money_vat_price).'\',\''.(($rs->money + $rs->money_vat_price) - $pay_money).'\',\''.$_POST['offset'].'\')">'.$debit_comment.'</li>';
+                        echo '<li onclick="set_item_debit(\''.$rs->debit_id.'\',\''.str_replace("'", "\'", str_replace("\'", "'", $rs->comment)).'\',\''.date('d-m-Y',$rs->debit_date).'\',\''.($rs->money + $rs->money_vat_price).'\',\''.(($rs->money + $rs->money_vat_price) - $pay_money).'\',\''.$_POST['offset'].'\')">'.$debit_comment.'</li>';
                     }
 
                     // put in bold the written text
