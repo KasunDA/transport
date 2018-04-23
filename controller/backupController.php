@@ -149,14 +149,14 @@ Class backupController Extends baseController {
         chmod($folder, 0777);
          
         $date = date('m-d-Y-H-i-s', time());
-        $filename = $folder."db-backup-".$date;
+        $filename = $folder."db-backup-".BASE_URL."-".$date;
          
         $handle = fopen($filename.'.sql','w+');
         fwrite($handle,$return);
         fclose($handle);
 
         $backupFile = $filename.'.sql';
-        $backupFilename = "db-backup-".$date.'.sql';
+        $backupFilename = "db-backup-".BASE_URL."-".$date.'.sql';
         
 
         //our access token from the Dropbox App Panel
