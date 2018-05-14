@@ -155,6 +155,8 @@ elseif ($order_by == 'code')
       $thanhtien_xuat = isset($data_stock[$spare_part->spare_part_code_id]['export']['price'])?$data_stock[$spare_part->spare_part_code_id]['export']['price']:null;
       $thanhtien_cuoi = $toncuoi!=0?round((($thanhtien_dau+$thanhtien_nhap)/($tondau+$nhap))*$toncuoi):null;
 
+      if ($tondau!=0 || $nhap!=0 || $xuat!=0) {
+
     ?>
         <tr onClick="HighLightTR(this,'#4d90fe','cc3333');" id="<?php echo $spare_part->spare_part_code_id ?>" class="edit_tr">
             <td><input name="check[]" type="checkbox" class="checkbox" value="<?php echo $spare_part->spare_part_code_id ?>"></td>
@@ -171,7 +173,9 @@ elseif ($order_by == 'code')
             <td class="fix" ><?php echo $toncuoi ?></td>
             <td class="fix" ><?php echo $lib->formatMoney($thanhtien_cuoi) ?></td>
         </tr>
-    <?php endforeach; ?>
+    <?php 
+        }
+        endforeach; ?>
    </tbody>
 </table>
 <?php

@@ -29,7 +29,7 @@ Class stockController Extends baseController {
             $order = $this->registry->router->order_by ? $this->registry->router->order_by : 'ASC';
             $page = $this->registry->router->page ? (int) $this->registry->router->page : 1;
             $keyword = "";
-            $limit = 50;
+            $limit = 18446744073709;
             $batdau = '01-'.date('m-Y');
 
             $ketthuc = date('t-m-Y');

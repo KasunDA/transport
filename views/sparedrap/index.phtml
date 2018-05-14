@@ -142,7 +142,9 @@ elseif ($order_by == 'romooc')
         <th  class="fix">
             <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','spare_part_number','<?php echo $url_order ?>')">Số lượng <?php if ($order_by == 'spare_part_number'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
         </th>
-        
+        <th  class="fix">
+            <a class="sort <?php echo $order ?>" onclick="sapxep('<?php echo $page ?>','spare_part_number','<?php echo $url_order ?>')">Số km sử dụng <?php if ($order_by == 'spare_part_number'): ?><i class="icon-chevron-<?php echo $url_order == 'ASC' ? 'down' : 'up' ?>"></i><?php endif; ?></a>
+        </th>
            
     </tr>
     
@@ -162,6 +164,7 @@ elseif ($order_by == 'romooc')
             <td class="fix"  id="spare_part_date_manufacture_<?php echo $spare_part->spare_drap_id; ?>"><?php echo $spare_part->spare_part_date_manufacture>0?$lib->hien_thi_ngay_thang($spare_part->spare_part_date_manufacture):null ?></td>
             <td class="fix" id="spare_part_type_<?php echo $spare_part->spare_drap_id; ?>"><?php echo $spare_part_types[$spare_part->spare_drap_id] ?></td>
             <td class="fix"  id="spare_part_number_<?php echo $spare_part->spare_drap_id; ?>"><?php echo $spare_part->spare_part_number ?></td>
+            <td class="fix" ><?php echo isset($data_vehicle[$spare_part->spare_part_id]['km'])?$lib->formatMoney($data_vehicle[$spare_part->spare_part_id]['km']):null ?></td>
             
         </tr>
     <?php endforeach; ?>

@@ -113,6 +113,12 @@ Class sparedrapController Extends baseController {
 
         $spare_sub_model = $this->model->get('sparesubModel');
 
+        $shipment_model = $this->model->get('shipmentModel');
+        $road_model = $this->model->get('roadModel');
+
+        $spare_vehicle_model = $this->model->get('sparevehicleModel');
+        $data_vehicle = array();
+
         $spare_part_types = array();
         foreach ($spares as $spare) {
             $spare_sub = "";
@@ -128,7 +134,66 @@ Class sparedrapController Extends baseController {
                 
             }
             $spare_part_types[$spare->spare_drap_id] = $spare_sub;
+
+            $data_im = array(
+                'where' => 'spare_part = '.$spare->spare_part_id.' AND start_time > 0 ',
+            );
+            $stock_ims = $spare_vehicle_model->getAllStock($data_im);
+            foreach ($stock_ims as $im) {
+
+                $end_time = 0;
+                $data_ex = array(
+                    'where' => 'spare_part = '.$spare->spare_part_id.' AND end_time > 0 AND end_time >= '.$im->start_time,
+                    'order_by' => 'end_time ASC',
+                    'limit' => 1,
+                );
+                $stock_exs = $spare_vehicle_model->getAllStock($data_ex);
+                foreach ($stock_exs as $ex) {
+                    $end_time = $ex->end_time;
+                }
+
+                if ($im->vehicle > 0) {
+                    $data_ship = array(
+                        'where'=>'vehicle = '.$im->vehicle.' AND shipment_date >= '.$im->start_time,
+                    );
+                    if ($end_time > 0) {
+                        $data_ship['where'] .= ' AND shipment_date <= '.$end_time;
+                    }
+                    $shipments = $shipment_model->getAllShipment($data_ship);
+                    foreach ($shipments as $ship) {
+                        $check_sub = 1;
+                        if ($ship->shipment_sub==1) {
+                           $check_sub = 0;
+                        }
+                        $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
+                        foreach ($roads as $road) {
+                            $data_vehicle[$spare->spare_part_id]['km'] = isset($data_vehicle[$spare->spare_part_id]['km'])?$data_vehicle[$spare->spare_part_id]['km']+$road->road_km*$check_sub:$road->road_km*$check_sub;
+                        }
+                    }
+                }
+                if ($im->romooc > 0) {
+                    $data_ship = array(
+                        'where'=>'romooc = '.$im->romooc.' AND shipment_date >= '.$im->start_time,
+                    );
+                    if ($end_time > 0) {
+                        $data_ship['where'] .= ' AND shipment_date <= '.$end_time;
+                    }
+                    $shipments = $shipment_model->getAllShipment($data_ship);
+                    foreach ($shipments as $ship) {
+                        $check_sub = 1;
+                        if ($ship->shipment_sub==1) {
+                           $check_sub = 0;
+                        }
+                        $roads = $road_model->getAllRoad(array('where'=>'road_id IN ("'.str_replace(',', '","', $ship->route).'")'));
+                        foreach ($roads as $road) {
+                            $data_vehicle[$spare->spare_part_id]['km'] = isset($data_vehicle[$spare->spare_part_id]['km'])?$data_vehicle[$spare->spare_part_id]['km']+$road->road_km*$check_sub:$road->road_km*$check_sub;
+                        }
+                    }
+                }
+            }
         }
+
+        $this->view->data['data_vehicle'] = $data_vehicle;
         
         $this->view->data['spare_part_types'] = $spare_part_types;
 

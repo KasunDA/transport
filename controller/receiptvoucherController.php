@@ -818,8 +818,12 @@ Class receiptvoucherController Extends baseController {
 
                 $join = array('table'=>'customer','where'=>'customer = customer_id');
 
+                // $data = array(
+                //     'where' => 'check_debit = 1 AND customer = '.$_POST['customer'].' AND (shipment_cost IS NULL OR shipment_cost NOT IN (SELECT shipment_cost_id FROM shipment_cost,cost_list WHERE cost_list=cost_list_id AND cost_list_type=8) )',
+                // );
+
                 $data = array(
-                    'where' => 'check_debit = 1 AND customer = '.$_POST['customer'].' AND (shipment_cost IS NULL OR shipment_cost NOT IN (SELECT shipment_cost_id FROM shipment_cost,cost_list WHERE cost_list=cost_list_id AND cost_list_type=8) )',
+                    'where' => 'check_debit = 1 AND customer = '.$_POST['customer'],
                 );
 
                 if ($_POST['keyword'] == "*") {
