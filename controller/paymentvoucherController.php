@@ -1091,7 +1091,57 @@ Class paymentvoucherController Extends baseController {
 
                 }
 
+                if (!$list) {
+                    $join = array('table'=>'road_list','where'=>'road_list = road_list_id');
 
+                    $data = array(
+                        'where' => 'road_list > 0 AND check_debit = 2 AND road_list.steersman = '.$_POST['customer'],
+                    );
+
+                    if ($_POST['keyword'] == "*") {
+                        $list = $debit_model->getAllDebit($data,$join);
+                    }
+
+
+                    else{
+
+
+                        $data['where'] .= ' AND ( comment LIKE "%'.$_POST['keyword'].'%" )';
+
+
+
+                        $list = $debit_model->getAllDebit($data,$join);
+
+
+
+                    }
+                }
+
+                if (!$list) {
+                    $join = array('table'=>'toll_list','where'=>'toll_list = toll_list_id');
+
+                    $data = array(
+                        'where' => 'toll_list > 0 AND check_debit = 2 AND toll_list.steersman = '.$_POST['customer'],
+                    );
+
+                    if ($_POST['keyword'] == "*") {
+                        $list = $debit_model->getAllDebit($data,$join);
+                    }
+
+
+                    else{
+
+
+                        $data['where'] .= ' AND ( comment LIKE "%'.$_POST['keyword'].'%" )';
+
+
+
+                        $list = $debit_model->getAllDebit($data,$join);
+
+
+
+                    }
+                }
 
                 foreach ($list as $rs) {
                     $pay_money = 0;
@@ -1208,6 +1258,8 @@ Class paymentvoucherController Extends baseController {
             $debit_pay_model = $this->model->get('debitpayModel');
 
             $loan_list_model = $this->model->get('loanlistModel');
+            $road_list_model = $this->model->get('roadlistModel');
+            $toll_list_model = $this->model->get('tolllistModel');
             $debit_model = $this->model->get('debitModel');
 
             /**************/
@@ -1453,6 +1505,86 @@ Class paymentvoucherController Extends baseController {
                         }
                     }
 
+                    if ($debits->road_list > 0) {
+                        $road_lists = $road_list_model->getShipment($debits->road_list);
+                        $arr = explode(',', $road_lists->shipment);
+
+                        $tongtien = trim(str_replace(',','',$v['debit_pay_money']));
+                        foreach ($arr as $key => $value) {
+                            $debit_id = $debit_model->getDebitByWhere(array('shipment'=>$value,'check_debit'=>2));
+                            
+                            $debit_pay_model->queryDebit('DELETE FROM debit_pay WHERE check_sub = 1 AND debit = '.$debit_id->debit_id.' AND payment_voucher = '.$id_payment);
+
+                            $debit_add = $debit_pay_model->getAllDebit(array('where'=>'debit = '.$debit_id->debit_id));
+
+                            $tien = $debit_id->money+$debit_id->money_vat_price;
+                            foreach ($debit_add as $add) {
+                                $tien = $tien - $add->debit_pay_money;
+                            }
+
+                            if ($tien > 0) {
+                                $tien = $tien > $tongtien ? $tongtien : $tien;
+                                $tongtien = $tongtien - $tien;
+
+                                $data_debit = array(
+
+                                    'payment_voucher'=>$id_payment,
+
+                                    'debit'=>$debit_id->debit_id,
+
+                                    'debit_pay_date'=>$data['payment_voucher_date'],
+
+                                    'debit_pay_money'=>$tien,
+
+                                    'check_sub'=>1,
+
+                                );
+
+                                $debit_pay_model->createDebit($data_debit);
+                            }
+                        }
+                    }
+
+                    if ($debits->toll_list > 0) {
+                        $toll_lists = $toll_list_model->getToll($debits->toll_list);
+                        $arr = explode(',', $toll_lists->toll_cost);
+
+                        $tongtien = trim(str_replace(',','',$v['debit_pay_money']));
+                        foreach ($arr as $key => $value) {
+                            $debit_id = $debit_model->getDebitByWhere(array('toll_cost'=>$value,'check_debit'=>2));
+                            
+                            $debit_pay_model->queryDebit('DELETE FROM debit_pay WHERE check_sub = 1 AND debit = '.$debit_id->debit_id.' AND payment_voucher = '.$id_payment);
+
+                            $debit_add = $debit_pay_model->getAllDebit(array('where'=>'debit = '.$debit_id->debit_id));
+
+                            $tien = $debit_id->money+$debit_id->money_vat_price;
+                            foreach ($debit_add as $add) {
+                                $tien = $tien - $add->debit_pay_money;
+                            }
+
+                            if ($tien > 0) {
+                                $tien = $tien > $tongtien ? $tongtien : $tien;
+                                $tongtien = $tongtien - $tien;
+
+                                $data_debit = array(
+
+                                    'payment_voucher'=>$id_payment,
+
+                                    'debit'=>$debit_id->debit_id,
+
+                                    'debit_pay_date'=>$data['payment_voucher_date'],
+
+                                    'debit_pay_money'=>$tien,
+
+                                    'check_sub'=>1,
+
+                                );
+
+                                $debit_pay_model->createDebit($data_debit);
+                            }
+                        }
+                    }
+
                 }
 
                 else{
@@ -1480,6 +1612,82 @@ Class paymentvoucherController Extends baseController {
                         $tongtien = trim(str_replace(',','',$v['debit_pay_money']));
                         foreach ($arr as $key => $value) {
                             $debit_id = $debit_model->getDebitByWhere(array('shipment_cost'=>$value,'check_debit'=>2,'check_loan'=>2));
+                            $debit_add = $debit_pay_model->getAllDebit(array('where'=>'debit = '.$debit_id->debit_id));
+
+                            $tien = $debit_id->money+$debit_id->money_vat_price;
+                            foreach ($debit_add as $add) {
+                                $tien = $tien - $add->debit_pay_money;
+                            }
+
+                            if ($tien > 0) {
+                                $tien = $tien > $tongtien ? $tongtien : $tien;
+                                $tongtien = $tongtien - $tien;
+
+                                $data_debit = array(
+
+                                    'payment_voucher'=>$id_payment,
+
+                                    'debit'=>$debit_id->debit_id,
+
+                                    'debit_pay_date'=>$data['payment_voucher_date'],
+
+                                    'debit_pay_money'=>$tien,
+
+                                    'check_sub'=>1,
+
+                                );
+
+                                $debit_pay_model->createDebit($data_debit);
+                            }
+                            
+                        }
+                    }
+
+                    if ($debits->road_list > 0) {
+                        $road_lists = $road_list_model->getShipment($debits->road_list);
+                        $arr = explode(',', $road_lists->shipment);
+
+                        $tongtien = trim(str_replace(',','',$v['debit_pay_money']));
+                        foreach ($arr as $key => $value) {
+                            $debit_id = $debit_model->getDebitByWhere(array('shipment'=>$value,'check_debit'=>2));
+                            $debit_add = $debit_pay_model->getAllDebit(array('where'=>'debit = '.$debit_id->debit_id));
+
+                            $tien = $debit_id->money+$debit_id->money_vat_price;
+                            foreach ($debit_add as $add) {
+                                $tien = $tien - $add->debit_pay_money;
+                            }
+
+                            if ($tien > 0) {
+                                $tien = $tien > $tongtien ? $tongtien : $tien;
+                                $tongtien = $tongtien - $tien;
+
+                                $data_debit = array(
+
+                                    'payment_voucher'=>$id_payment,
+
+                                    'debit'=>$debit_id->debit_id,
+
+                                    'debit_pay_date'=>$data['payment_voucher_date'],
+
+                                    'debit_pay_money'=>$tien,
+
+                                    'check_sub'=>1,
+
+                                );
+
+                                $debit_pay_model->createDebit($data_debit);
+                            }
+                            
+                        }
+                    }
+
+                    if ($debits->toll_list > 0) {
+                        $toll_lists = $toll_list_model->getToll($debits->toll_list);
+                        $arr = explode(',', $toll_lists->toll_cost);
+
+                        $tongtien = trim(str_replace(',','',$v['debit_pay_money']));
+                        foreach ($arr as $key => $value) {
+                            $debit_id = $debit_model->getDebitByWhere(array('toll_cost'=>$value,'check_debit'=>2));
                             $debit_add = $debit_pay_model->getAllDebit(array('where'=>'debit = '.$debit_id->debit_id));
 
                             $tien = $debit_id->money+$debit_id->money_vat_price;
